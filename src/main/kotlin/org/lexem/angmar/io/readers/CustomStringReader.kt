@@ -1,15 +1,13 @@
 package org.lexem.angmar.io.readers
 
-import org.lexem.angmar.errors.AngmarIOException
-import org.lexem.angmar.io.ITextReader
-import org.lexem.angmar.io.ITextReaderCursor
-import java.io.File
+import org.lexem.angmar.errors.*
+import org.lexem.angmar.io.*
+import java.io.*
 
 /**
  * Text reader from a [String].
  */
-class CustomStringReader private constructor(private val sourceFile: String, private val text: String) :
-    ITextReader {
+class CustomStringReader private constructor(private val sourceFile: String, private val text: String) : ITextReader {
     private var position = 0
 
     override fun getSource() = sourceFile
@@ -60,8 +58,7 @@ class CustomStringReader private constructor(private val sourceFile: String, pri
         return true
     }
 
-    override fun saveCursor(): ITextReaderCursor =
-        StringReaderCursor(this)
+    override fun saveCursor(): ITextReaderCursor = StringReaderCursor(this)
 
     /**
      * Restores a [StringReaderCursor] generated for this [CustomStringReader].
@@ -86,22 +83,19 @@ class CustomStringReader private constructor(private val sourceFile: String, pri
         /**
          * Creates a new [CustomStringReader] with the specified content.
          */
-        fun from(text: String): CustomStringReader =
-            CustomStringReader("<internal>", text)
+        fun from(text: String): CustomStringReader = CustomStringReader("<internal>", text)
 
         /**
          * Creates a new [CustomStringReader] with the content of a file.
          */
-        fun from(file: File): CustomStringReader =
-            CustomStringReader(file.canonicalPath, file.readText(Charsets.UTF_8))
+        fun from(file: File): CustomStringReader = CustomStringReader(file.canonicalPath, file.readText(Charsets.UTF_8))
     }
 }
 
 /**
  * Cursor for [CustomStringReader]
  */
-class StringReaderCursor constructor(private val reader: CustomStringReader) :
-    ITextReaderCursor {
+class StringReaderCursor constructor(private val reader: CustomStringReader) : ITextReaderCursor {
     private val position = reader.currentPosition()
     private val character = reader.currentChar()
 

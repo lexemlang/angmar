@@ -1,6 +1,6 @@
 package org.lexem.angmar.utils
 
-import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.*
 import java.io.*
 
 /**

@@ -7,8 +7,6 @@ import es.jtp.kterm.*
  */
 open class AngmarFinishException(val logger: Logger? = null) : AngmarException("") {
     override fun logMessage() {
-        logger?.let {
-            logger.logAsError()
-        }
+        logger?.logAsError()
     }
 }

@@ -1,14 +1,11 @@
 package org.lexem.angmar
 
-import org.lexem.angmar.config.AngmarConfig
-import org.lexem.angmar.errors.AngmarIOException
-import org.lexem.angmar.io.ITextReader
-import org.lexem.angmar.io.ITextReaderCursor
-import org.lexem.angmar.io.readers.CustomStringReader
-import org.lexem.angmar.nodes.ForwardBuffer
-import org.lexem.angmar.nodes.NodeType
-import org.lexem.angmar.nodes.ParserNode
-import org.lexem.angmar.nodes.literals.NumberNode
+import org.lexem.angmar.config.*
+import org.lexem.angmar.errors.*
+import org.lexem.angmar.io.*
+import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.literals.*
 import java.io.*
 
 /**
@@ -20,6 +17,9 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     } else {
         null
     }
+
+    var isDescriptiveCode = false
+    var isFilterCode = false
 
     // METHODS ----------------------------------------------------------------
 
@@ -197,7 +197,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    internal fun checkAnyText(texts: List<String>): String? {
+    internal fun checkAnyText(texts: Sequence<String>): String? {
         val initCursor = reader.saveCursor()
         val result = readAnyText(texts)
         initCursor.restore()
@@ -208,12 +208,12 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    internal fun checkNegativeAnyText(texts: List<String>) = checkAnyText(texts) == null
+    internal fun checkNegativeAnyText(texts: Sequence<String>) = checkAnyText(texts) == null
 
     /**
      * Reads any of the specified texts.
      */
-    internal fun readAnyText(texts: List<String>): String? {
+    internal fun readAnyText(texts: Sequence<String>): String? {
         for (text in texts) {
             if (readText(text)) {
                 return text
@@ -249,10 +249,10 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Gets a value from the buffer and executes an action.
      */
-    internal fun <T> fromBuffer(position: Int, type: NodeType): T? {
+    internal fun <T : ParserNode> fromBuffer(position: Int, type: Class<T>): T? {
         val res = forwardBuffer?.find(position, type) ?: return null
         res.to.restore()
-        @Suppress("UNCHECKED_CAST") return res as T
+        return res
     }
 
     /**

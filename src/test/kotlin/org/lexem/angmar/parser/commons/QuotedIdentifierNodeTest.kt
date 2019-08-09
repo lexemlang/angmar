@@ -1,0 +1,115 @@
+package org.lexem.angmar.parser.commons
+
+import org.junit.jupiter.api.*
+import org.junit.jupiter.params.*
+import org.junit.jupiter.params.provider.*
+import org.lexem.angmar.*
+import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.utils.*
+
+internal class QuotedIdentifierNodeTest {
+    @ParameterizedTest
+    @ValueSource(strings = ["a", "this", "longText_with_a_lotOfThings"])
+    fun `parse simple quoted identifier`(id: String) {
+        val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
+        val parser = LexemParser(CustomStringReader.from(text))
+        val res = QuotedIdentifierNode.parse(parser)
+
+        Assertions.assertNotNull(res, "The input has not been correctly parsed")
+        res as QuotedIdentifierNode
+
+        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(1, res.texts.size, "The text size is not correct")
+        Assertions.assertEquals(id, res.texts.first(), "The first text is not correct")
+        Assertions.assertEquals(0, res.escapes.size, "The escape size is not correct")
+
+        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = ["this an example with whitespaces", "this is an example with , commas dots . and another characters +"])
+    fun `parse complex quoted identifier`(id: String) {
+        val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
+        val parser = LexemParser(CustomStringReader.from(text))
+        val res = QuotedIdentifierNode.parse(parser)
+
+        Assertions.assertNotNull(res, "The input has not been correctly parsed")
+        res as QuotedIdentifierNode
+
+        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(1, res.texts.size, "The text size is not correct")
+        Assertions.assertEquals(id, res.texts.first(), "The first text is not correct")
+        Assertions.assertEquals(0, res.escapes.size, "The escape size is not correct")
+
+        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = ["this is an example with escapes ${EscapeNode.startToken}k ${EscapeNode.startToken}ll", "${EscapeNode.startToken}k ${EscapeNode.startToken}ll this is an example with escapes "])
+    fun `parse complex quoted identifier with escapes`(id: String) {
+        val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
+        val parser = LexemParser(CustomStringReader.from(text))
+        val res = QuotedIdentifierNode.parse(parser)
+
+        Assertions.assertNotNull(res, "The input has not been correctly parsed")
+        res as QuotedIdentifierNode
+
+        Assertions.assertEquals(text, res.content, "The content is not correct")
+
+        val texts = id.split(EscapeNode.startToken)
+        Assertions.assertEquals(texts.size, res.texts.size, "The text size is not correct")
+        Assertions.assertEquals(texts.size - 1, res.escapes.size, "The escape size is not correct")
+
+        Assertions.assertEquals(texts.first(), res.texts.first(), "The first text is not correct")
+        for (i in 1 until texts.size) {
+            val txt = texts[i].substring(1)
+            val escape = texts[i].substring(0 until 1)
+            Assertions.assertEquals(txt, res.texts[i], "The $i-nth text is not correct")
+            Assertions.assertEquals("${EscapeNode.startToken}$escape", res.escapes[i - 1].content,
+                    "The $i-nth escape is not correct")
+        }
+
+        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
+    }
+
+    @Test
+    @Incorrect
+    fun `parse incorrect empty quoted identifier`() {
+        assertParserException {
+            val text = "${QuotedIdentifierNode.startQuote}${QuotedIdentifierNode.endQuote}"
+            QuotedIdentifierNode.parse(LexemParser(CustomStringReader.from(text)))
+        }
+    }
+
+    @ParameterizedTest
+    @Incorrect
+    @ValueSource(strings = ["this is\nan example\r\nwith end of lines"])
+    fun `parse incorrect complex quoted identifier`(id: String) {
+        assertParserException {
+            val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
+            QuotedIdentifierNode.parse(LexemParser(CustomStringReader.from(text)))
+        }
+    }
+
+    @ParameterizedTest
+    @Incorrect
+    @ValueSource(strings = ["example\\`", "example"])
+    fun `parse incorrect not-ended quoted identifier`(id: String) {
+        assertParserException {
+            val text = "${QuotedIdentifierNode.startQuote}$id"
+            QuotedIdentifierNode.parse(LexemParser(CustomStringReader.from(text)))
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["", "3"])
+    fun `not parse the node`(text: String) {
+        val parser = LexemParser(CustomStringReader.from(text))
+        val res = QuotedIdentifierNode.parse(parser)
+
+        Assertions.assertNull(res, "The input has incorrectly parsed anything")
+        Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")
+    }
+}

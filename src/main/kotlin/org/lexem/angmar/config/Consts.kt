@@ -14,6 +14,7 @@ internal object Consts {
     object Logger {
         const val codeTitle = "Code"
         const val hintTitle = "Hint"
+        const val errorIdTitle = "ERID"
     }
 
     object AngmarOutputs {

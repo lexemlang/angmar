@@ -1,7 +1,7 @@
 package org.lexem.angmar.io.readers
 
 import org.junit.jupiter.api.*
-import org.lexem.angmar.errors.AngmarIOException
+import org.lexem.angmar.errors.*
 import java.io.*
 
 internal class CustomStringReaderTest {

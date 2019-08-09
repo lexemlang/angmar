@@ -1,7 +1,7 @@
 package org.lexem.angmar.utils
 
 import org.junit.jupiter.api.*
-import org.lexem.angmar.nodes.ParserNode
+import org.lexem.angmar.parser.*
 
 /**
  * Checks that a node has type and executes more checks inside it.

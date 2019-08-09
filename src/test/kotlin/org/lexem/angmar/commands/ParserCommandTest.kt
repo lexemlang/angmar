@@ -2,18 +2,19 @@ package org.lexem.angmar.commands
 
 import com.ginsberg.junit.exit.*
 import org.junit.jupiter.api.*
-import org.lexem.angmar.config.Consts
-import org.lexem.angmar.utils.parentFileOrRelativeRoot
+import org.lexem.angmar.*
+import org.lexem.angmar.config.*
+import org.lexem.angmar.utils.*
 import java.io.*
 
-
+@Disabled
 internal class AngmarCommandTest {
     //    private val oriOut = System.out
     //    private val oriErrOut = System.err
 
     @Test
     @ExpectSystemExit
-    fun `correct version`() {
+    fun `version`() {
         let {
             val myOut = ByteArrayOutputStream()
             val myErrorOut = ByteArrayOutputStream()
@@ -56,7 +57,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
-    fun `correct one file - output in the same folder`() {
+    fun `one file - output in the same folder`() {
         let {
             val myOut = ByteArrayOutputStream()
             val myErrorOut = ByteArrayOutputStream()
@@ -152,7 +153,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
-    fun `correct more file - output in the same folder`() {
+    fun `more file - output in the same folder`() {
         let {
             val myOut = ByteArrayOutputStream()
             val myErrorOut = ByteArrayOutputStream()
@@ -192,7 +193,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
-    fun `correct more files and folders - output in the same folder`() {
+    fun `more files and folders - output in the same folder`() {
         let {
             val myOut = ByteArrayOutputStream()
             val myErrorOut = ByteArrayOutputStream()
@@ -278,7 +279,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
-    fun `correct more files and folders - output in other folder`() {
+    fun `more files and folders - output in other folder`() {
         let {
             val myOut = ByteArrayOutputStream()
             val myErrorOut = ByteArrayOutputStream()
@@ -361,7 +362,7 @@ internal class AngmarCommandTest {
             // Check files.
 
             files.map {
-                outputFolder!!.resolve(it.relativeTo(folders.first()).parentFileOrRelativeRoot())
+                outputFolder.resolve(it.relativeTo(folders.first()).parentFileOrRelativeRoot())
                         .resolve("${it.name}${Consts.Files.outputFileJsonExtension}")
             }.forEach { outputFile ->
                 Assertions.assertTrue(outputFile.exists())
@@ -397,6 +398,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
+    @Incorrect
     @ExpectSystemExit
     fun `incorrect output format`() {
         let {
@@ -423,6 +425,7 @@ internal class AngmarCommandTest {
     }
 
     @Test
+    @Incorrect
     @ExpectSystemExit
     fun `incorrect lowercase output format`() {
         let {
