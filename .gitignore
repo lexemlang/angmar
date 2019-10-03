@@ -127,3 +127,6 @@ gradle-app.setting
 
 # Lexem
 lexem-project/
+
+# mac
+.DS_Store
