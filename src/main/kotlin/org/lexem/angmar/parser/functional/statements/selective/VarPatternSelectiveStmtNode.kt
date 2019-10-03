@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.functional.statements.selective
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -12,8 +13,9 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for variable patterns of the selective statements.
  */
-class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, val identifier: ParserNode) :
-        ParserNode(parser) {
+internal class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+    lateinit var identifier: ParserNode
     var isConstant = false
     var conditional: ConditionalPatternSelectiveStmtNode? = null
 
@@ -33,11 +35,18 @@ class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, val i
         }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("isConstant", isConstant)
-        printer.addField("identifier", identifier)
-        printer.addOptionalField("conditional", conditional)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.addProperty("isConstant", isConstant)
+        result.add("identifier", identifier.toTree())
+        result.add("conditional", conditional?.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            VarPatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val constKeyword = VarDeclarationStmtNode.constKeyword
@@ -49,12 +58,15 @@ class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, val i
         /**
          * Parses a variable patterns of the selective statements.
          */
-        fun parse(parser: LexemParser): VarPatternSelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): VarPatternSelectiveStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), VarPatternSelectiveStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = VarPatternSelectiveStmtNode(parser, parent, parentSignal)
 
             var keywordType = "variable"
             var declarationKeyword = variableKeyword
@@ -70,21 +82,24 @@ class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, val i
 
             WhitespaceNode.parse(parser)
 
-            val identifier = DestructuringStmtNode.parse(parser) ?: Commons.parseDynamicIdentifier(parser)
-            ?: throw AngmarParserException(AngmarParserExceptionType.VarPatternSelectiveStatementWithoutIdentifier,
-                    "An identifier or destructuring was expected after the $keywordType declaration keyword '$declarationKeyword'.") {
-                addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                    title(Consts.Logger.codeTitle)
-                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                }
-                addSourceCode(parser.reader.readAllText(), null) {
-                    title(Consts.Logger.hintTitle)
-                    highlightCursorAt(parser.reader.currentPosition())
-                    message("Try adding an identifier here, e.g. '${GlobalCommons.wildcardVariable}'")
-                }
-            }
+            result.identifier =
+                    DestructuringStmtNode.parse(parser, result, VarPatternSelectiveStmtAnalyzer.signalEndIdentifier)
+                            ?: Commons.parseDynamicIdentifier(parser, result,
+                                    VarPatternSelectiveStmtAnalyzer.signalEndIdentifier) ?: throw AngmarParserException(
+                                    AngmarParserExceptionType.VarPatternSelectiveStatementWithoutIdentifier,
+                                    "An identifier or destructuring was expected after the $keywordType declaration keyword '$declarationKeyword'.") {
+                                val fullText = parser.reader.readAllText()
+                                addSourceCode(fullText, parser.reader.getSource()) {
+                                    title = Consts.Logger.codeTitle
+                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                                }
+                                addSourceCode(fullText, null) {
+                                    title = Consts.Logger.hintTitle
+                                    highlightCursorAt(parser.reader.currentPosition())
+                                    message = "Try adding an identifier here, e.g. '${GlobalCommons.wildcardVariable}'"
+                                }
+                            }
 
-            val result = VarPatternSelectiveStmtNode(parser, identifier)
             result.isConstant = isConstant
 
             // conditional
@@ -93,7 +108,8 @@ class VarPatternSelectiveStmtNode private constructor(parser: LexemParser, val i
 
                 WhitespaceNode.parse(parser)
 
-                result.conditional = ConditionalPatternSelectiveStmtNode.parse(parser)
+                result.conditional = ConditionalPatternSelectiveStmtNode.parse(parser, result,
+                        VarPatternSelectiveStmtAnalyzer.signalEndConditional)
                 if (result.conditional == null) {
                     initConditionalCursor.restore()
                 }

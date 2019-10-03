@@ -6,7 +6,7 @@ import org.lexem.angmar.*
 /**
  * Parser for eol whitespaces optionally preceded with a no-eol whitespace.
  */
-object WhitespaceEOLNode {
+internal object WhitespaceEOLNode {
     /**
      * Parses an eol whitespace optionally preceded with a no-eol whitespace.
      */

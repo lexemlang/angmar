@@ -1,18 +1,13 @@
 package org.lexem.angmar
 
-import org.lexem.angmar.config.*
-import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
-import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
-import org.lexem.angmar.parser.literals.*
-import java.io.*
 
 /**
  * Lexer and parser for the Lexem language.
  */
-class LexemParser internal constructor(val reader: ITextReader, val config: AngmarConfig = AngmarConfig()) {
-    private val forwardBuffer = if (config.forwardBuffer) {
+internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: Boolean = true) {
+    private val forwardBuffer = if (forwardBuffer) {
         ForwardBuffer()
     } else {
         null
@@ -27,7 +22,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the chars inside the specified [String].
      * This function does not consume any character.
      */
-    internal fun checkAnyChar(text: String): Char? {
+    fun checkAnyChar(text: String): Char? {
         val rChar = reader.currentChar() ?: return null
         if (text.contains(rChar)) {
             return rChar
@@ -39,7 +34,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any of the chars inside the specified [String].
      */
-    internal fun readAnyChar(text: String): Char? {
+    fun readAnyChar(text: String): Char? {
         val rChar = checkAnyChar(text) ?: return null
         reader.advance()
         return rChar
@@ -49,7 +44,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any char not inside the specified [String].
      * This function does not consume any character.
      */
-    internal fun checkNegativeAnyChar(text: String): Char? {
+    fun checkNegativeAnyChar(text: String): Char? {
         val rChar = reader.currentChar() ?: return null
         if (!text.contains(rChar)) {
             return rChar
@@ -61,7 +56,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any char not inside the specified [String].
      */
-    internal fun readNegativeAnyChar(text: String): Char? {
+    fun readNegativeAnyChar(text: String): Char? {
         val rChar = checkNegativeAnyChar(text) ?: return null
         reader.advance()
         return rChar
@@ -71,7 +66,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the chars inside the specified [Set].
      * This function does not consume any character.
      */
-    internal fun checkAnyChar(chars: Set<Char>): Char? {
+    fun checkAnyChar(chars: Set<Char>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null && rChar in chars) {
             return rChar
@@ -83,7 +78,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any of the chars inside the specified [Set].
      */
-    internal fun readAnyChar(chars: Set<Char>): Char? {
+    fun readAnyChar(chars: Set<Char>): Char? {
         val rChar = checkAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -93,7 +88,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any char not inside the specified [Set].
      * This function does not consume any character.
      */
-    internal fun checkNegativeAnyChar(chars: Set<Char>): Char? {
+    fun checkNegativeAnyChar(chars: Set<Char>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null && rChar !in chars) {
             return rChar
@@ -105,7 +100,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any char not inside the specified [Set].
      */
-    internal fun readNegativeAnyChar(chars: Set<Char>): Char? {
+    fun readNegativeAnyChar(chars: Set<Char>): Char? {
         val rChar = checkNegativeAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -115,7 +110,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the chars inside the specified [List] of [CharRange].
      * This function does not consume any character.
      */
-    internal fun checkAnyChar(chars: List<CharRange>): Char? {
+    fun checkAnyChar(chars: List<CharRange>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null) {
             val result = chars.binarySearch {
@@ -137,7 +132,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any of the chars inside the specified [List] of [CharRange].
      */
-    internal fun readAnyChar(chars: List<CharRange>): Char? {
+    fun readAnyChar(chars: List<CharRange>): Char? {
         val rChar = checkAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -147,7 +142,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any char not inside the specified [List] of [CharRange].
      * This function does not consume any character.
      */
-    internal fun checkNegativeAnyChar(chars: List<CharRange>): Char? {
+    fun checkNegativeAnyChar(chars: List<CharRange>): Char? {
         if (!reader.isEnd() && checkAnyChar(chars) == null) {
             return reader.currentChar()
         }
@@ -157,7 +152,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads any char not inside the specified [List] of [CharRange].
      */
-    internal fun readNegativeAnyChar(chars: List<CharRange>): Char? {
+    fun readNegativeAnyChar(chars: List<CharRange>): Char? {
         val rChar = checkNegativeAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -167,7 +162,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads a specific text from the reader.
      * This function does not consume any character.
      */
-    internal fun checkText(text: String): Boolean {
+    fun checkText(text: String): Boolean {
         val initCursor = reader.saveCursor()
         val result = readText(text)
         initCursor.restore()
@@ -177,7 +172,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Reads a specific text from the reader.
      */
-    internal fun readText(text: String): Boolean {
+    fun readText(text: String): Boolean {
         val cursor = reader.saveCursor()
 
         for (ch in text) {
@@ -197,7 +192,7 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    internal fun checkAnyText(texts: Sequence<String>): String? {
+    fun checkAnyText(texts: Sequence<String>): String? {
         val initCursor = reader.saveCursor()
         val result = readAnyText(texts)
         initCursor.restore()
@@ -208,12 +203,12 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    internal fun checkNegativeAnyText(texts: Sequence<String>) = checkAnyText(texts) == null
+    fun checkNegativeAnyText(texts: Sequence<String>) = checkAnyText(texts) == null
 
     /**
      * Reads any of the specified texts.
      */
-    internal fun readAnyText(texts: Sequence<String>): String? {
+    fun readAnyText(texts: Sequence<String>): String? {
         for (text in texts) {
             if (readText(text)) {
                 return text
@@ -224,32 +219,14 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     }
 
     /**
-     * Returns a subsection of the reader.
-     */
-    internal fun substring(from: ITextReaderCursor, to: ITextReaderCursor): String {
-        val currentPosition = reader.saveCursor()
-        val length = to.position() - from.position()
-
-        from.restore()
-        val sb = StringBuilder(length)
-        repeat(length) {
-            sb.append(reader.currentChar())
-            reader.advance()
-        }
-
-        currentPosition.restore()
-        return sb.toString()
-    }
-
-    /**
      * Adds a node in the buffer.
      */
-    internal fun addInBuffer(node: ParserNode) = forwardBuffer?.add(node)
+    fun addInBuffer(node: ParserNode) = forwardBuffer?.add(node)
 
     /**
      * Gets a value from the buffer and executes an action.
      */
-    internal fun <T : ParserNode> fromBuffer(position: Int, type: Class<T>): T? {
+    fun <T : ParserNode> fromBuffer(position: Int, type: Class<T>): T? {
         val res = forwardBuffer?.find(position, type) ?: return null
         res.to.restore()
         return res
@@ -258,18 +235,12 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
     /**
      * Removes range of positions in the buffer.
      */
-    internal fun removeTreeFromBuffer(node: ParserNode) =
-            forwardBuffer?.remove(node.from.position(), node.to.position())
-
-    /**
-     * Parses the specified content with the Lexem grammar.
-     */
-    internal fun parse() = NumberNode.parseAnyNumberDefaultDecimal(this)
+    fun removeTreeFromBuffer(node: ParserNode) = forwardBuffer?.remove(node.from.position(), node.to.position())
 
     /**
      * Finalize a node, setting its points
      */
-    internal fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
+    fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
         val finalCursor = reader.saveCursor()
 
         node.from = initCursor
@@ -277,21 +248,5 @@ class LexemParser internal constructor(val reader: ITextReader, val config: Angm
 
         addInBuffer(node)
         return node
-    }
-
-    // STATIC -----------------------------------------------------------------
-
-    companion object {
-        /**
-         * Parses a Lexem file.
-         */
-        internal fun parse(file: File, config: AngmarConfig): NumberNode? {
-            if (!file.exists()) {
-                throw AngmarIOException("The file ${file.canonicalPath} does not exist. Parsing aborted.")
-            }
-
-            val reader = CustomStringReader.from(file)
-            return LexemParser(reader, config).parse()
-        }
     }
 }

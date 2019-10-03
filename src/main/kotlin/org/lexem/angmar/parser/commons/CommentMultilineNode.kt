@@ -7,7 +7,7 @@ import org.lexem.angmar.errors.*
 /**
  * Parser for multiline comments.
  */
-object CommentMultilineNode {
+internal object CommentMultilineNode {
     private const val MultilineBoundToken = "#"
     const val MultilineStartToken = "$MultilineBoundToken-"
     const val MultilineEndToken = "-$MultilineBoundToken"
@@ -51,14 +51,15 @@ object CommentMultilineNode {
             if (parser.reader.isEnd()) {
                 throw AngmarParserException(AngmarParserExceptionType.MultilineCommentWithoutEndToken,
                         "Multiline comments require the end token '$additionalTokens$MultilineEndToken' but the end-of-file (EOF) was encountered.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the end token '$additionalTokens$MultilineEndToken' here")
+                        message = "Try adding the end token '$additionalTokens$MultilineEndToken' here"
                     }
                 }
             }

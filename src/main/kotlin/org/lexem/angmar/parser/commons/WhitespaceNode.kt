@@ -6,7 +6,7 @@ import org.lexem.angmar.*
 /**
  * Parser for whitespaces.
  */
-object WhitespaceNode {
+internal object WhitespaceNode {
     val endOfLineChars = setOf('\u000A', '\u000D', '\u0085', '\u2028', '\u2029')
     val whitespaceChars =
             setOf('\u0000', '\u0009', '\u000B', '\u000C', '\u0020', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002',

@@ -1,7 +1,8 @@
 package org.lexem.angmar.parser.functional.expressions.modifiers
 
+import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.io.printer.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -9,41 +10,54 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for access explicit members i.e. element.access.
  */
-class AccessExplicitMemberNode private constructor(parser: LexemParser, val identifier: IdentifierNode) :
-        ParserNode(parser) {
+internal class AccessExplicitMemberNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+    lateinit var identifier: IdentifierNode
 
-    override fun toString() = "$accessCharacter$identifier"
+    override fun toString() = "$accessToken$identifier"
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("identifier", identifier)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("identifier", identifier.toTree())
+
+        return result
     }
 
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            AccessExplicitMemberAnalyzer.stateMachine(analyzer, signal, this)
+
     companion object {
-        const val accessCharacter = "."
+        const val accessToken = "."
 
         // METHODS ------------------------------------------------------------
 
         /**
          * Parses an access expression.
          */
-        fun parse(parser: LexemParser): AccessExplicitMemberNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AccessExplicitMemberNode? {
             parser.fromBuffer(parser.reader.currentPosition(), AccessExplicitMemberNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            if (!parser.readText(accessCharacter)) {
+            val result = AccessExplicitMemberNode(parser, parent, parentSignal)
+
+            if (!parser.readText(accessToken)) {
                 // It is not an error because statements can end with a '.'
                 return null
             }
 
-            val id = IdentifierNode.parse(parser)
+            val id = IdentifierNode.parse(parser, result, AccessExplicitMemberAnalyzer.signalEndIdentifier)
             if (id == null) {
                 initCursor.restore()
                 return null
             }
 
-            val result = AccessExplicitMemberNode(parser, id)
+            result.identifier = id
+
             return parser.finalizeNode(result, initCursor)
         }
     }

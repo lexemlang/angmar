@@ -1,7 +1,8 @@
 package org.lexem.angmar.parser.functional.statements.selective
 
+import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.io.printer.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.statements.*
 
@@ -9,13 +10,18 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for else patterns of the selective statements.
  */
-class ElsePatternSelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class ElsePatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
     override fun toString() = StringBuilder().apply {
         append(elseKeyword)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
+    override fun toTree(): JsonObject {
+        return super.toTree()
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            ElsePatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val elseKeyword = ConditionalStmtNode.elseKeyword
@@ -26,8 +32,10 @@ class ElsePatternSelectiveStmtNode private constructor(parser: LexemParser) : Pa
         /**
          * Parses an else pattern of the selective statements.
          */
-        fun parse(parser: LexemParser): ElsePatternSelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ElsePatternSelectiveStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), ElsePatternSelectiveStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
@@ -37,7 +45,7 @@ class ElsePatternSelectiveStmtNode private constructor(parser: LexemParser) : Pa
                 return null
             }
 
-            val result = ElsePatternSelectiveStmtNode(parser)
+            val result = ElsePatternSelectiveStmtNode(parser, parent, parentSignal)
             return parser.finalizeNode(result, initCursor)
         }
     }

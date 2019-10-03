@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -11,7 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for property-style object blocks.
  */
-class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class PropertyStyleObjectBlockNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
     val positiveElements = mutableListOf<ParserNode>()
     val negativeElements = mutableListOf<ParserNode>()
     val setElements = mutableListOf<PropertyStyleObjectElementNode>()
@@ -37,11 +40,18 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("positiveElements", positiveElements)
-        printer.addField("negativeElements", negativeElements)
-        printer.addField("setElements", setElements)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("positiveElements", TreeLikePrintable.listToTest(positiveElements))
+        result.add("negativeElements", TreeLikePrintable.listToTest(negativeElements))
+        result.add("setElements", TreeLikePrintable.listToTest(setElements))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            PropertyStyleObjectBlockAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = "["
@@ -55,13 +65,15 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
         /**
          * Parses a property-style object blocks
          */
-        fun parse(parser: LexemParser): PropertyStyleObjectBlockNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyStyleObjectBlockNode? {
             parser.fromBuffer(parser.reader.currentPosition(), PropertyStyleObjectBlockNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyStyleObjectBlockNode(parser)
+            val result = PropertyStyleObjectBlockNode(parser, parent, parentSignal)
 
             if (!parser.readText(startToken)) {
                 initCursor.restore()
@@ -73,7 +85,8 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
 
                 WhitespaceNode.parse(parser)
 
-                val element = Commons.parseDynamicIdentifier(parser)
+                val element = Commons.parseDynamicIdentifier(parser, result,
+                        result.positiveElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
                 if (element == null) {
                     initLoopCursor.restore()
                     break
@@ -93,7 +106,8 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
 
                         WhitespaceNode.parse(parser)
 
-                        val element = Commons.parseDynamicIdentifier(parser)
+                        val element = Commons.parseDynamicIdentifier(parser, result,
+                                result.positiveElements.size + result.negativeElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
                         if (element == null) {
                             initLoopCursor.restore()
                             break
@@ -107,7 +121,7 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
             }
 
             let {
-                val initsetCursor = parser.reader.saveCursor()
+                val initSetCursor = parser.reader.saveCursor()
 
                 WhitespaceNode.parse(parser)
 
@@ -117,7 +131,8 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
 
                         WhitespaceNode.parse(parser)
 
-                        val element = PropertyStyleObjectElementNode.parse(parser)
+                        val element = PropertyStyleObjectElementNode.parse(parser, result,
+                                result.positiveElements.size + result.negativeElements.size + result.setElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
                         if (element == null) {
                             initLoopCursor.restore()
                             break
@@ -126,7 +141,7 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
                         result.setElements.add(element)
                     }
                 } else {
-                    initsetCursor.restore()
+                    initSetCursor.restore()
                 }
             }
 
@@ -135,14 +150,15 @@ class PropertyStyleObjectBlockNode private constructor(parser: LexemParser) : Pa
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.PropertyStyleObjectBlockWithoutEndToken,
                         "The close square bracket was expected '$endToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close square bracket '$endToken' here")
+                        message = "Try adding the close square bracket '$endToken' here"
                     }
                 }
             }

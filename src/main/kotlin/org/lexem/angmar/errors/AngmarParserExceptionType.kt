@@ -4,6 +4,10 @@ package org.lexem.angmar.errors
  * The exception types for the parser.
  */
 enum class AngmarParserExceptionType {
+    // GENERICS ---------------------------------------------------------------
+
+    LexemFileEOFExpected,
+
     // COMMONS ----------------------------------------------------------------
 
     MultilineCommentWithoutEndToken,
@@ -29,9 +33,10 @@ enum class AngmarParserExceptionType {
     // LITERALS ---------------------------------------------------------------
 
     BitlistWithoutEndToken,
-    FunctionArgumentListWithoutIdentifierAfterSpreadOperator,
-    FunctionArgumentListWithoutEndToken,
-    FunctionArgumentWithoutExpressionAfterAssignOperator,
+    FunctionParameterListWithoutIdentifierAfterPositionalSpreadOperator,
+    FunctionParameterListWithoutIdentifierAfterNamedSpreadOperator,
+    FunctionParameterListWithoutEndToken,
+    FunctionParameterWithoutExpressionAfterAssignOperator,
     FunctionWithoutBlock,
     IntervalElementWithoutElementAfterRangeOperator,
     IntervalWithoutStartToken,

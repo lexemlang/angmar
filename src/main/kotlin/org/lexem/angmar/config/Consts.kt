@@ -17,14 +17,11 @@ internal object Consts {
         const val errorIdTitle = "ERID"
     }
 
-    object AngmarOutputs {
-        const val json = "json"
-        const val tree = "tree"
+    object Files {
+        const val outputFileJsonExtension = ".json"
     }
 
-    object Files {
-        const val lexemFileExtension = ".lxm"
-        const val outputFileJsonExtension = ".${AngmarOutputs.json}"
-        const val outputFileTreeExtension = ".${AngmarOutputs.tree}"
+    object Memory {
+        const val maxPoolSize = 50
     }
 }

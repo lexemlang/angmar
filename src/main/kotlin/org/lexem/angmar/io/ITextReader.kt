@@ -104,7 +104,6 @@ interface ITextReader {
      */
     fun saveCursor(): ITextReaderCursor
 
-
     /**
      * Restarts the reader setting its position to the origin.
      */
@@ -114,4 +113,22 @@ interface ITextReader {
      * Reads all the content keeping the current cursor position.
      */
     fun readAllText(): String
+
+    /**
+     * Returns a subsection of the reader.
+     */
+    fun substring(from: ITextReaderCursor, to: ITextReaderCursor): String {
+        val currentPosition = saveCursor()
+        val length = to.position() - from.position()
+
+        from.restore()
+        val sb = StringBuilder(length)
+        repeat(length) {
+            sb.append(currentChar())
+            advance()
+        }
+
+        currentPosition.restore()
+        return sb.toString()
+    }
 }

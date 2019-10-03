@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.functional.statements
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -11,7 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for destructuring.
  */
-class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class DestructuringStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     var alias: IdentifierNode? = null
     val elements = mutableListOf<DestructuringElementStmtNode>()
     var spread: DestructuringSpreadStmtNode? = null
@@ -19,21 +22,31 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
     override fun toString() = StringBuilder().apply {
         if (alias != null) {
             append(alias)
+            append("$elementSeparator ")
         }
         append(startToken)
         append(elements.joinToString("$elementSeparator "))
         if (spread != null) {
-            append("$elementSeparator ")
+            if (elements.isNotEmpty()) {
+                append("$elementSeparator ")
+            }
             append(spread)
         }
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("alias", alias)
-        printer.addField("elements", elements)
-        printer.addField("spread", spread)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("alias", alias?.toTree())
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.add("spread", spread?.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            DestructuringStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = "("
@@ -46,16 +59,17 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
         /**
          * Parses a destructuring.
          */
-        fun parse(parser: LexemParser): DestructuringStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DestructuringStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), DestructuringStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = DestructuringStmtNode(parser)
+            val result = DestructuringStmtNode(parser, parent, parentSignal)
 
-            // alias.
-            result.alias = IdentifierNode.parse(parser)
+            result.alias = IdentifierNode.parse(parser, result, DestructuringStmtAnalyzer.signalEndAlias)
 
             if (result.alias != null) {
                 WhitespaceNode.parse(parser)
@@ -75,7 +89,8 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
 
             WhitespaceNode.parse(parser)
 
-            var element = DestructuringElementStmtNode.parse(parser)
+            var element = DestructuringElementStmtNode.parse(parser, result,
+                    result.elements.size + DestructuringStmtAnalyzer.signalEndFirstElement)
             if (element != null) {
                 result.elements.add(element)
 
@@ -91,7 +106,8 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
 
                     WhitespaceNode.parse(parser)
 
-                    element = DestructuringElementStmtNode.parse(parser)
+                    element = DestructuringElementStmtNode.parse(parser, result,
+                            result.elements.size + DestructuringStmtAnalyzer.signalEndFirstElement)
                     if (element == null) {
                         initLoopCursor.restore()
                         break
@@ -101,7 +117,7 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
                 }
             }
 
-            // spread.
+            // Spread
             let {
                 val initSpreadCursor = parser.reader.saveCursor()
 
@@ -116,13 +132,14 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
                     WhitespaceNode.parse(parser)
                 }
 
-                result.spread = DestructuringSpreadStmtNode.parse(parser)
+                result.spread =
+                        DestructuringSpreadStmtNode.parse(parser, result, DestructuringStmtAnalyzer.signalEndSpread)
                 if (result.spread == null) {
                     initSpreadCursor.restore()
                 }
             }
 
-            // Trailing comma.
+            // Trailing comma
             let {
                 val initTrailingCursor = parser.reader.saveCursor()
 
@@ -139,14 +156,15 @@ class DestructuringStmtNode private constructor(parser: LexemParser) : ParserNod
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.DestructuringStatementWithoutEndToken,
                         "The close parenthesis was expected '$endToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close parenthesis '$endToken' here")
+                        message = "Try adding the close parenthesis '$endToken' here"
                     }
                 }
             }

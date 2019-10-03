@@ -1,19 +1,20 @@
 package org.lexem.angmar.parser.commons
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.commons.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.literals.*
-import org.lexem.angmar.utils.*
 
 /**
  * Parser for Unicode escapes.
  */
-class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     var hasBrackets = false
-    var value = 0.0
+    var value = 0
 
     override fun toString() = if (hasBrackets) {
         "$escapeStart$startBracket $value $endBracket"
@@ -21,17 +22,17 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
         "$escapeStart$value"
     }
 
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("hasBrackets", hasBrackets)
+        result.addProperty("hasBrackets", hasBrackets)
+        result.addProperty("value", value.toLong())
 
-        if (hasBrackets) {
-            printer.addField("leftWhitespace", value)
-            printer.addField("rightWhitespace", value)
-        }
-
-        printer.addField("value", value)
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            UnicodeEscapeAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         internal const val escapeStart = "${EscapeNode.startToken}u"
@@ -44,13 +45,15 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
         /**
          * Parses an Unicode escape.
          */
-        fun parse(parser: LexemParser): UnicodeEscapeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeEscapeNode? {
             parser.fromBuffer(parser.reader.currentPosition(), UnicodeEscapeNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeEscapeNode(parser)
+            val result = UnicodeEscapeNode(parser, parent, parentSignal)
 
             if (!parser.readText(escapeStart)) {
                 return null
@@ -77,14 +80,15 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
                                 throw AngmarParserException(
                                         AngmarParserExceptionType.UnicodeEscapeWithBracketsWithoutValue,
                                         "Unicode escapes with brackets require at least one hexadecimal character after the open bracket '$startBracket'.") {
-                                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                        title(Consts.Logger.codeTitle)
+                                    val fullText = parser.reader.readAllText()
+                                    addSourceCode(fullText, parser.reader.getSource()) {
+                                        title = Consts.Logger.codeTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                                     }
-                                    addSourceCode(parser.reader.readAllText(), null) {
-                                        title(Consts.Logger.hintTitle)
+                                    addSourceCode(fullText, null) {
+                                        title = Consts.Logger.hintTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                        message("Try removing the escape")
+                                        message = "Try removing the escape"
                                     }
                                 }
                             }
@@ -105,32 +109,35 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
                         throw AngmarParserException(
                                 AngmarParserExceptionType.UnicodeEscapeWithBracketsWithMoreDigitsThanAllowed,
                                 "Unicode escapes with brackets can have at most $unicodePointInBytes hexadecimal digits.") {
-                            addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                title(Consts.Logger.codeTitle)
+                            val fullText = parser.reader.readAllText()
+                            addSourceCode(fullText, parser.reader.getSource()) {
+                                title = Consts.Logger.codeTitle
                                 highlightSection(initCursor.position(), cursor.position() - 1)
                             }
-                            addSourceCode(parser.reader.readAllText(), null) {
-                                title(Consts.Logger.hintTitle)
+                            addSourceCode(fullText, null) {
+                                title = Consts.Logger.hintTitle
                                 highlightSection(cursor.position(), parser.reader.currentPosition() - 1)
-                                message("Try removing ${if (cursor.position() == parser.reader.currentPosition() - 1) {
-                                    "this digit"
-                                } else {
-                                    "these digits"
-                                }}")
+                                message =
+                                        "Try removing ${if (cursor.position() == parser.reader.currentPosition() - 1) {
+                                            "this digit"
+                                        } else {
+                                            "these digits"
+                                        }}"
                             }
                         }
                     }
 
                     throw AngmarParserException(AngmarParserExceptionType.UnicodeEscapeWithBracketsWithoutEndToken,
                             "Unicode escapes with brackets require the end bracket '$endBracket' to finish the escape.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding the end bracket '$endBracket' here")
+                            message = "Try adding the end bracket '$endBracket' here"
                         }
                     }
                 }
@@ -141,14 +148,15 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
                             if (index == 0) {
                                 throw AngmarParserException(AngmarParserExceptionType.UnicodeEscapeWithoutValue,
                                         "Unicode escapes require $unicodePointInBytes hexadecimal characters after the escape token '$escapeStart'.") {
-                                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                        title(Consts.Logger.codeTitle)
+                                    val fullText = parser.reader.readAllText()
+                                    addSourceCode(fullText, parser.reader.getSource()) {
+                                        title = Consts.Logger.codeTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                                     }
-                                    addSourceCode(parser.reader.readAllText(), null) {
-                                        title(Consts.Logger.hintTitle)
+                                    addSourceCode(fullText, null) {
+                                        title = Consts.Logger.hintTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                        message("Try removing the escape")
+                                        message = "Try removing the escape"
                                     }
                                 }
                             } else {
@@ -161,23 +169,25 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
                                 throw AngmarParserException(
                                         AngmarParserExceptionType.UnicodeEscapeWithFewerDigitsThanAllowed,
                                         "Unicode escapes require $unicodePointInBytes hexadecimal characters after the escape token '$startBracket', but only $index $verb encountered.") {
-                                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                        title(Consts.Logger.codeTitle)
+                                    val fullText = parser.reader.readAllText()
+                                    addSourceCode(fullText, parser.reader.getSource()) {
+                                        title = Consts.Logger.codeTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                                     }
-                                    addSourceCode(parser.reader.readAllText(), null) {
-                                        title(Consts.Logger.hintTitle)
+                                    addSourceCode(fullText, null) {
+                                        title = Consts.Logger.hintTitle
                                         highlightCursorAt(initCursor.position() + escapeStart.length)
-                                        message("Try adding ${unicodePointInBytes - index} ${if (unicodePointInBytes - index > 1) {
-                                            "zeroes"
-                                        } else {
-                                            "zero"
-                                        }} '0' here to complete the Unicode point")
+                                        message =
+                                                "Try adding ${unicodePointInBytes - index} ${if (unicodePointInBytes - index > 1) {
+                                                    "zeroes"
+                                                } else {
+                                                    "zero"
+                                                }} '0' here to complete the Unicode point"
                                     }
-                                    addSourceCode(parser.reader.readAllText(), null) {
-                                        title(Consts.Logger.hintTitle)
+                                    addSourceCode(fullText, null) {
+                                        title = Consts.Logger.hintTitle
                                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                        message("Try removing the escape")
+                                        message = "Try removing the escape"
                                     }
                                 }
                             }
@@ -187,7 +197,7 @@ class UnicodeEscapeNode private constructor(parser: LexemParser) : ParserNode(pa
                 }.toString()
             }
 
-            result.value = Converters.hexToDouble(value)
+            result.value = value.toUpperCase().toInt(16)
 
             return parser.finalizeNode(result, initCursor)
         }

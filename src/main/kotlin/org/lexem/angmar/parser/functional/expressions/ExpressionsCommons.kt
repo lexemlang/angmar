@@ -3,48 +3,49 @@ package org.lexem.angmar.parser.functional.expressions
 import org.lexem.angmar.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.expressions.binary.*
+import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.macros.*
-import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.literals.*
 
 
 /**
  * Commons for expressions.
  */
-object ExpressionsCommons {
+internal object ExpressionsCommons {
     const val operatorCharacters = "~!+-/<>*%&|^="
 
     /**
      * Parses an expression.
      */
-    fun parseExpression(parser: LexemParser) = AssignExpressionNode.parse(parser) ?: parseRightExpression(parser)
+    fun parseExpression(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            AssignExpressionNode.parse(parser, parent, parentSignal) ?: RightExpressionNode.parse(parser, parent,
+                    parentSignal)
 
     /**
      * Parses a macro.
      */
-    fun parseMacro(parser: LexemParser) =
-            MacroCheckProps.parse(parser) ?: MacroBacktrack.parse(parser) ?: MacroExpression.parse(parser)
+    fun parseMacro(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            MacroCheckProps.parse(parser, parent, parentSignal) ?: MacroBacktrack.parse(parser, parent, parentSignal)
+            ?: MacroExpressionNode.parse(parser, parent, parentSignal)
 
     /**
      * Parses any literal.
      */
-    fun parseLiteral(parser: LexemParser) =
-            NilNode.parse(parser) ?: LogicNode.parse(parser) ?: LiteralCommons.parseAnyString(parser)
-            ?: LiteralCommons.parseAnyInterval(parser) ?: BitlistNode.parse(parser)
-            ?: NumberNode.parseAnyNumberDefaultDecimal(parser) ?: ListNode.parse(parser) ?: SetNode.parse(parser)
-            ?: LiteralCommons.parseAnyObject(parser) ?: MapNode.parse(parser) ?: FunctionNode.parse(parser)
+    fun parseLiteral(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            NilNode.parse(parser, parent, parentSignal) ?: LogicNode.parse(parser, parent, parentSignal)
+            ?: LiteralCommons.parseAnyString(parser, parent, parentSignal) ?: LiteralCommons.parseAnyInterval(parser,
+                    parent, parentSignal) ?: BitlistNode.parse(parser, parent, parentSignal)
+            ?: NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal) ?: ListNode.parse(parser, parent,
+                    parentSignal) ?: SetNode.parse(parser, parent, parentSignal) ?: LiteralCommons.parseAnyObject(
+                    parser, parent, parentSignal) ?: MapNode.parse(parser, parent, parentSignal) ?: FunctionNode.parse(
+                    parser, parent, parentSignal)
 
     /**
      * Parses a left expression.
      */
-    fun parseLeftExpression(parser: LexemParser) = AccessExpressionNode.parse(parser)
+    fun parseLeftExpression(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            AccessExpressionNode.parse(parser, parent, parentSignal)
 
-
-    /**
-     * Parses a right expression.
-     */
-    fun parseRightExpression(parser: LexemParser) = ConditionalExpressionNode.parse(parser)
 
     /**
      * Reads a valid operator.
@@ -59,9 +60,10 @@ object ExpressionsCommons {
         if (parser.checkAnyChar(operatorCharacters) != null) {
             val preWrongOperatorCursor = parser.reader.saveCursor()
 
-            while (parser.readAnyChar(operatorCharacters) != null);
+            while (parser.readAnyChar(operatorCharacters) != null) {
+            }
 
-            val wrongOp = parser.substring(preWrongOperatorCursor, parser.reader.saveCursor())
+            val wrongOp = parser.reader.substring(preWrongOperatorCursor, parser.reader.saveCursor())
 
             // If it is a prefix operator skip.
             if (wrongOp in PrefixOperatorNode.operators) {
@@ -77,14 +79,15 @@ object ExpressionsCommons {
 
             throw AngmarParserException(AngmarParserExceptionType.BinaryOperatorFollowedByAnotherOperator,
                     "The binary operator '$op' cannot be followed by another operator '$wrongOp'.") {
-                addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                    title(Consts.Logger.codeTitle)
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
                     highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                 }
-                addSourceCode(parser.reader.readAllText(), null) {
-                    title(Consts.Logger.hintTitle)
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
                     highlightSection(preWrongOperatorCursor.position(), parser.reader.currentPosition() - 1)
-                    message("Try removing the wrong operator '$wrongOp' here")
+                    message = "Try removing the wrong operator '$wrongOp' here"
                 }
             }
         }
@@ -106,9 +109,10 @@ object ExpressionsCommons {
         if (parser.checkAnyChar(operatorCharacters) != null) {
             val preWrongOperatorCursor = parser.reader.saveCursor()
 
-            while (parser.readAnyChar(operatorCharacters) != null);
+            while (parser.readAnyChar(operatorCharacters) != null) {
+            }
 
-            val wrongOp = parser.substring(preWrongOperatorCursor, parser.reader.saveCursor())
+            val wrongOp = parser.reader.substring(preWrongOperatorCursor, parser.reader.saveCursor())
 
             val fullOp = "$op$wrongOp"
             if (skipSuffixOperators != null && skipSuffixOperators.find { fullOp.startsWith(it) } != null) {
@@ -118,14 +122,15 @@ object ExpressionsCommons {
 
             throw AngmarParserException(AngmarParserExceptionType.PrefixOperatorFollowedByAnotherOperator,
                     "The prefix operator '$op' cannot be followed by another operator '$wrongOp'.") {
-                addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                    title(Consts.Logger.codeTitle)
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
                     highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                 }
-                addSourceCode(parser.reader.readAllText(), null) {
-                    title(Consts.Logger.hintTitle)
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
                     highlightSection(preWrongOperatorCursor.position(), parser.reader.currentPosition() - 1)
-                    message("Try removing the wrong operator '$wrongOp' here")
+                    message = "Try removing the wrong operator '$wrongOp' here"
                 }
             }
         }

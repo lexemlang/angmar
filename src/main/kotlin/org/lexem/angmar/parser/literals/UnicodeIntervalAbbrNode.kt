@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -11,7 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for abbreviated unicode interval literals.
  */
-class UnicodeIntervalAbbrNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class UnicodeIntervalAbbrNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val elements = mutableListOf<ParserNode>()
     var reversed = false
 
@@ -24,10 +27,17 @@ class UnicodeIntervalAbbrNode private constructor(parser: LexemParser) : ParserN
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("elements", elements)
-        printer.addField("reversed", reversed)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.addProperty("reversed", reversed)
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            UnicodeIntervalAbbrAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = "["
@@ -40,13 +50,15 @@ class UnicodeIntervalAbbrNode private constructor(parser: LexemParser) : ParserN
         /**
          * Parses an abbreviated unicode interval literal.
          */
-        fun parse(parser: LexemParser): UnicodeIntervalAbbrNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalAbbrNode? {
             parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalAbbrNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeIntervalAbbrNode(parser)
+            val result = UnicodeIntervalAbbrNode(parser, parent, parentSignal)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -59,7 +71,10 @@ class UnicodeIntervalAbbrNode private constructor(parser: LexemParser) : ParserN
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = UnicodeIntervalSubIntervalNode.parse(parser) ?: UnicodeIntervalElementNode.parse(parser)
+                val node = UnicodeIntervalSubIntervalNode.parse(parser, result,
+                        result.elements.size + UnicodeIntervalAbbrAnalyzer.signalEndFirstElement)
+                        ?: UnicodeIntervalElementNode.parse(parser, result,
+                                result.elements.size + UnicodeIntervalAbbrAnalyzer.signalEndFirstElement)
                 if (node == null) {
                     initLoopCursor.restore()
                     break
@@ -73,14 +88,15 @@ class UnicodeIntervalAbbrNode private constructor(parser: LexemParser) : ParserN
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.UnicodeIntervalAbbreviationWithoutEndToken,
                         "The close square bracket was expected '$endToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close square bracket '$endToken' here")
+                        message = "Try adding the close square bracket '$endToken' here"
                     }
                 }
             }

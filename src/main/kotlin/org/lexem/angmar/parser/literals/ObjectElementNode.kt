@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -12,8 +13,10 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for key-value pairs of object literals.
  */
-class ObjectElementNode private constructor(parser: LexemParser, val key: ParserNode, val value: ParserNode) :
-        ParserNode(parser) {
+internal class ObjectElementNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
+    lateinit var key: ParserNode
+    lateinit var value: ParserNode
     var isConstant = false
 
     override fun toString() = StringBuilder().apply {
@@ -26,11 +29,18 @@ class ObjectElementNode private constructor(parser: LexemParser, val key: Parser
         append(value)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("key", key)
-        printer.addField("value", value)
-        printer.addField("isConstant", isConstant)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("key", key.toTree())
+        result.add("value", value.toTree())
+        result.addProperty("isConstant", isConstant)
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            ObjectElementAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val constantToken = GlobalCommons.constantToken
@@ -42,26 +52,30 @@ class ObjectElementNode private constructor(parser: LexemParser, val key: Parser
         /**
          * Parses a key-value pair of object literal.
          */
-        fun parse(parser: LexemParser): ObjectElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectElementNode? {
             parser.fromBuffer(parser.reader.currentPosition(), ObjectElementNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = ObjectElementNode(parser, parent, parentSignal)
 
-            val isConstant = parser.readText(constantToken)
-            val key = Commons.parseDynamicIdentifier(parser) ?: let {
-                if (isConstant) {
+            result.isConstant = parser.readText(constantToken)
+            result.key = Commons.parseDynamicIdentifier(parser, result, ObjectElementAnalyzer.signalEndKey) ?: let {
+                if (result.isConstant) {
                     throw AngmarParserException(AngmarParserExceptionType.ObjectElementWithoutKeyAfterConstantToken,
                             "A key was expected after the constant token '$constantToken'.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(parser.reader.currentPosition() - 1)
-                            message("Try removing the constant token here")
+                            message = "Try removing the constant token here"
                         }
                     }
                 }
@@ -75,36 +89,36 @@ class ObjectElementNode private constructor(parser: LexemParser, val key: Parser
             if (!parser.readText(keyValueSeparator)) {
                 throw AngmarParserException(AngmarParserExceptionType.ObjectElementWithoutRelationalOperatorAfterKey,
                         "The relational separator '$keyValueSeparator' was expected after the key.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the relational separator '$keyValueSeparator' here")
+                        message = "Try adding the relational separator '$keyValueSeparator' here"
                     }
                 }
             }
 
             WhitespaceNode.parse(parser)
 
-            val value = ExpressionsCommons.parseExpression(parser) ?: throw AngmarParserException(
-                    AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator,
-                    "An expression acting as value was expected after the relational separator '$keyValueSeparator'.") {
-                addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                    title(Consts.Logger.codeTitle)
-                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                }
-                addSourceCode(parser.reader.readAllText(), null) {
-                    title(Consts.Logger.hintTitle)
-                    highlightCursorAt(parser.reader.currentPosition())
-                    message("Try adding an expression here")
-                }
-            }
-
-            val result = ObjectElementNode(parser, key, value)
-            result.isConstant = isConstant
+            result.value = ExpressionsCommons.parseExpression(parser, result, ObjectElementAnalyzer.signalEndValue)
+                    ?: throw AngmarParserException(
+                            AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator,
+                            "An expression acting as value was expected after the relational separator '$keyValueSeparator'.") {
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        }
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightCursorAt(parser.reader.currentPosition())
+                            message = "Try adding an expression here"
+                        }
+                    }
 
             return parser.finalizeNode(result, initCursor)
         }

@@ -7,23 +7,25 @@ import org.lexem.angmar.parser.*
 /**
  * Generic commons for literals.
  */
-object Commons {
+internal object Commons {
     /**
      * Parses any escape.
      */
-    fun parseAnyEscape(parser: LexemParser) = EscapedExpressionNode.parse(parser) ?: parseSimpleEscape(parser)
+    fun parseAnyEscape(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            EscapedExpressionNode.parse(parser, parent, parentSignal) ?: parseSimpleEscape(parser, parent, parentSignal)
 
     /**
      * Parses any simple escape.
      */
-    fun parseSimpleEscape(parser: LexemParser) =
-            UnicodeEscapeNode.parse(parser) ?: PointEscapeNode.parse(parser) ?: EscapeNode.parse(parser)
+    fun parseSimpleEscape(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            UnicodeEscapeNode.parse(parser, parent, parentSignal) ?: EscapeNode.parse(parser, parent, parentSignal)
 
     /**
      * Parses a dynamic identifier.
      */
-    fun parseDynamicIdentifier(parser: LexemParser): ParserNode? =
-            EscapedExpressionNode.parse(parser) ?: IdentifierNode.parse(parser)
+    fun parseDynamicIdentifier(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? =
+            EscapedExpressionNode.parse(parser, parent, parentSignal) ?: IdentifierNode.parse(parser, parent,
+                    parentSignal)
 
 
     /**
@@ -36,7 +38,7 @@ object Commons {
      */
     fun parseKeyword(parser: LexemParser, keyword: String): Boolean {
         val initCursor = parser.reader.saveCursor()
-        val identifier = IdentifierNode.parse(parser) ?: return false
+        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0) ?: return false
 
         if (identifier.simpleIdentifiers.size > 1 || keyword != identifier.simpleIdentifiers.first()) {
             initCursor.restore()
@@ -53,7 +55,7 @@ object Commons {
         val initCursor = parser.reader.saveCursor()
         val identifier =
                 parser.fromBuffer(parser.reader.currentPosition(), IdentifierNode::class.java) ?: IdentifierNode.parse(
-                        parser) ?: return null
+                        parser, ParserNode.Companion.EmptyParserNode, 0) ?: return null
 
         if (identifier.isQuotedIdentifier || identifier.simpleIdentifiers.size > 1) {
             initCursor.restore()

@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.functional.statements.selective
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -13,8 +14,9 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for conditional patterns of the selective statements.
  */
-class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParser, val condition: ParserNode) :
-        ParserNode(parser) {
+internal class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+    lateinit var condition: ParserNode
     var isUnless = false
 
     override fun toString() = StringBuilder().apply {
@@ -27,10 +29,17 @@ class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParse
         append(condition)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("isUntil", isUnless)
-        printer.addField("condition", condition)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.addProperty("isUntil", isUnless)
+        result.add("condition", condition.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            ConditionalPatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val ifKeyword = ConditionalStmtNode.ifKeyword
@@ -42,15 +51,18 @@ class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParse
         /**
          * Parses a conditional pattern of the selective statements.
          */
-        fun parse(parser: LexemParser): ConditionalPatternSelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalPatternSelectiveStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), ConditionalPatternSelectiveStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = ConditionalPatternSelectiveStmtNode(parser, parent, parentSignal)
 
             var conditionalKeyword = ifKeyword
-            val isUnless = when {
+            result.isUnless = when {
                 Commons.parseKeyword(parser, unlessKeyword) -> {
                     conditionalKeyword = unlessKeyword
                     true
@@ -61,22 +73,21 @@ class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParse
 
             WhitespaceNode.parse(parser)
 
-            val condition = ExpressionsCommons.parseExpression(parser) ?: throw AngmarParserException(
+            result.condition = ExpressionsCommons.parseExpression(parser, result,
+                    ConditionalPatternSelectiveStmtAnalyzer.signalEndCondition) ?: throw AngmarParserException(
                     AngmarParserExceptionType.ConditionalPatternSelectiveStatementWithoutCondition,
                     "An expression was expected after the conditional keyword '$conditionalKeyword' to act as the condition.") {
-                addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                    title(Consts.Logger.codeTitle)
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
                     highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                 }
-                addSourceCode(parser.reader.readAllText(), null) {
-                    title(Consts.Logger.hintTitle)
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
                     highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                    message("Try removing the conditional keyword '$conditionalKeyword'")
+                    message = "Try removing the conditional keyword '$conditionalKeyword'"
                 }
             }
-
-            val result = ConditionalPatternSelectiveStmtNode(parser, condition)
-            result.isUnless = isUnless
 
             return parser.finalizeNode(result, initCursor)
         }

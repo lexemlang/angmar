@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -11,7 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for object literals.
  */
-class ObjectNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class ObjectNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val elements = mutableListOf<ParserNode>()
     var isConstant = false
 
@@ -24,10 +27,16 @@ class ObjectNode private constructor(parser: LexemParser) : ParserNode(parser) {
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("isConstant", isConstant)
-        printer.addField("elements", elements)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.addProperty("isConstant", isConstant)
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = ObjectAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = "{"
@@ -41,13 +50,15 @@ class ObjectNode private constructor(parser: LexemParser) : ParserNode(parser) {
         /**
          * Parses a object literal.
          */
-        fun parse(parser: LexemParser): ObjectNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectNode? {
             parser.fromBuffer(parser.reader.currentPosition(), ObjectNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = ObjectNode(parser)
+            val result = ObjectNode(parser, parent, parentSignal)
 
             result.isConstant = parser.readText(constantToken)
 
@@ -72,7 +83,9 @@ class ObjectNode private constructor(parser: LexemParser) : ParserNode(parser) {
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = ObjectSimplificationNode.parse(parser) ?: ObjectElementNode.parse(parser)
+                val argument = ObjectSimplificationNode.parse(parser, result,
+                        result.elements.size + ObjectAnalyzer.signalEndFirstElement) ?: ObjectElementNode.parse(parser,
+                        result, result.elements.size + ObjectAnalyzer.signalEndFirstElement)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break
@@ -103,14 +116,15 @@ class ObjectNode private constructor(parser: LexemParser) : ParserNode(parser) {
                 }
                 throw AngmarParserException(AngmarParserExceptionType.ObjectWithoutEndToken,
                         "The close bracket '$endToken' was expected to finish the object literal.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close bracket '$endToken' here")
+                        message = "Try adding the close bracket '$endToken' here"
                     }
                 }
             }

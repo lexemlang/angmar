@@ -1,16 +1,18 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
 /**
  * Parser for numbers in different formats.
  */
-class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class NumberNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     var radix = 2
     var integer = ""
     var decimal: String? = null
@@ -23,7 +25,7 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
             8 -> append(octalPrefix)
             10 -> append(decimalPrefix)
             16 -> append(hexadecimalPrefix)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         append(integer)
@@ -45,17 +47,22 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
 
     }.toString()
 
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("radix", radix)
-        printer.addField("integer", integer)
-        printer.addOptionalField("decimal", decimal)
+        result.addProperty("radix", radix.toLong())
+        result.addProperty("integer", integer)
+        result.addProperty("decimal", decimal)
 
         if (exponent != null) {
-            printer.addField("exponentSign", exponentSign)
-            printer.addField("exponent", exponent)
+            result.addProperty("exponentSign", exponentSign)
+            result.addProperty("exponent", exponent)
         }
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = NumberAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val digitSeparator = "_"
@@ -80,13 +87,14 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
         /**
          * Parses a number in any radix with the Decimal(radix 10) as a default (without prefix).
          */
-        fun parseAnyNumberDefaultDecimal(parser: LexemParser): NumberNode? {
+        fun parseAnyNumberDefaultDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = parseDecimal(parser, 2, binaryPrefix, true, binaryExponentSeparator, ::readBinaryInteger)
-                    ?: parseDecimal(parser, 8, octalPrefix, true, octalExponentSeparator, ::readOctalInteger)
-                    ?: parseDecimal(parser, 16, hexadecimalPrefix, true, hexadecimalExponentSeparator,
-                            ::readHexadecimalInteger) ?: parseDecimal(parser, 10, decimalPrefix, false,
-                            decimalExponentSeparator, ::readDecimalInteger) ?: return null
+            val result = parseDecimal(parser, parent, parentSignal, 2, binaryPrefix, true, binaryExponentSeparator,
+                    ::readBinaryInteger) ?: parseDecimal(parser, parent, parentSignal, 8, octalPrefix, true,
+                    octalExponentSeparator, ::readOctalInteger) ?: parseDecimal(parser, parent, parentSignal, 16,
+                    hexadecimalPrefix, true, hexadecimalExponentSeparator, ::readHexadecimalInteger) ?: parseDecimal(
+                    parser, parent, parentSignal, 10, decimalPrefix, false, decimalExponentSeparator,
+                    ::readDecimalInteger) ?: return null
 
             return parser.finalizeNode(result, initCursor)
         }
@@ -94,12 +102,13 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
         /**
          * Parses an integer number in any radix with the Decimal(radix 10) as a default (without prefix).
          */
-        fun parseAnyIntegerDefaultDecimal(parser: LexemParser): NumberNode? {
+        fun parseAnyIntegerDefaultDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = parseInteger(parser, 2, binaryPrefix, true, ::readBinaryInteger) ?: parseInteger(parser, 8,
-                    octalPrefix, true, ::readOctalInteger) ?: parseInteger(parser, 16, hexadecimalPrefix, true,
-                    ::readHexadecimalInteger) ?: parseInteger(parser, 10, decimalPrefix, false, ::readDecimalInteger)
-            ?: return null
+            val result = parseInteger(parser, parent, parentSignal, 2, binaryPrefix, true, ::readBinaryInteger)
+                    ?: parseInteger(parser, parent, parentSignal, 8, octalPrefix, true, ::readOctalInteger)
+                    ?: parseInteger(parser, parent, parentSignal, 16, hexadecimalPrefix, true, ::readHexadecimalInteger)
+                    ?: parseInteger(parser, parent, parentSignal, 10, decimalPrefix, false, ::readDecimalInteger)
+                    ?: return null
 
             return parser.finalizeNode(result, initCursor)
         }
@@ -124,15 +133,16 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
          */
         fun readHexadecimalInteger(parser: LexemParser) = readInteger(parser, hexadecimalDigits)
 
-        private fun parseDecimal(parser: LexemParser, radix: Int, prefixText: String, isPrefixCompulsory: Boolean,
-                exponentSeparator: String, integerParser: (LexemParser) -> String?): NumberNode? {
+        private fun parseDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
+                prefixText: String, isPrefixCompulsory: Boolean, exponentSeparator: String,
+                integerParser: (LexemParser) -> String?): NumberNode? {
             parser.fromBuffer(parser.reader.currentPosition(), NumberNode::class.java)?.let {
                 it.to.restore()
                 return@parseDecimal it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = NumberNode(parser)
+            val result = NumberNode(parser, parent, parentSignal)
             result.radix = radix
 
             val prefix = parser.readText(prefixText)
@@ -147,19 +157,20 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
                 if (prefix) {
                     throw AngmarParserException(AngmarParserExceptionType.NumberWithoutDigitAfterPrefix,
                             "Numbers require at least one digit after the prefix '$prefix'") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            message("Try removing the prefix '$prefix'")
+                            message = "Try removing the prefix '$prefix'"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding a '0' here")
+                            message = "Try adding a '0' here"
                         }
                     }
                 }
@@ -178,19 +189,20 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
                     if (!Commons.checkIdentifier(parser)) {
                         throw AngmarParserException(AngmarParserExceptionType.NumberWithoutDigitAfterDecimalSeparator,
                                 "Numbers require at least one digit after the decimal separator '$decimalSeparator'") {
-                            addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                title(Consts.Logger.codeTitle)
+                            val fullText = parser.reader.readAllText()
+                            addSourceCode(fullText, parser.reader.getSource()) {
+                                title = Consts.Logger.codeTitle
                                 highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                             }
-                            addSourceCode(parser.reader.readAllText(), null) {
-                                title(Consts.Logger.hintTitle)
+                            addSourceCode(fullText, null) {
+                                title = Consts.Logger.hintTitle
                                 highlightSection(parser.reader.currentPosition() - 1)
-                                message("Try removing the digit separator '$digitSeparator'")
+                                message = "Try removing the digit separator '$digitSeparator'"
                             }
-                            addSourceCode(parser.reader.readAllText(), null) {
-                                title(Consts.Logger.hintTitle)
+                            addSourceCode(fullText, null) {
+                                title = Consts.Logger.hintTitle
                                 highlightCursorAt(parser.reader.currentPosition())
-                                message("Try adding a '0' here")
+                                message = "Try adding a '0' here"
                             }
                         }
                     }
@@ -210,32 +222,33 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
                         AngmarParserExceptionType.NumberWithoutDigitAfterExponentSeparator,
                         "Numbers require at least one digit after the exponent separator '$exponentLetter${sign
                                 ?: ""}'") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
 
                     if (sign != null) {
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(parser.reader.currentPosition() - 2, parser.reader.currentPosition() - 1)
-                            message("Try removing the '$exponentLetter$sign'")
+                            message = "Try removing the '$exponentLetter$sign'"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding a '0' here")
+                            message = "Try adding a '0' here"
                         }
                     } else {
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(parser.reader.currentPosition() - 1)
-                            message("Try removing the '$exponentLetter'")
+                            message = "Try removing the '$exponentLetter'"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding a '0' here")
+                            message = "Try adding a '0' here"
                         }
                     }
                 }
@@ -247,15 +260,15 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
             return result
         }
 
-        private fun parseInteger(parser: LexemParser, radix: Int, prefixText: String, isPrefixCompulsory: Boolean,
-                integerParser: (LexemParser) -> String?): NumberNode? {
+        private fun parseInteger(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
+                prefixText: String, isPrefixCompulsory: Boolean, integerParser: (LexemParser) -> String?): NumberNode? {
             parser.fromBuffer(parser.reader.currentPosition(), NumberNode::class.java)?.let {
                 it.to.restore()
                 return@parseInteger it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = NumberNode(parser)
+            val result = NumberNode(parser, parent, parentSignal)
             result.radix = radix
 
             val prefix = parser.readText(prefixText)
@@ -270,19 +283,20 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
                 if (prefix) {
                     throw AngmarParserException(AngmarParserExceptionType.NumberIntegerWithoutDigitAfterPrefix,
                             "Numbers require at least one digit after the prefix '$prefix'") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            message("Try removing the prefix '$prefix'")
+                            message = "Try removing the prefix '$prefix'"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding a '0' here")
+                            message = "Try adding a '0' here"
                         }
                     }
                 }
@@ -302,14 +316,15 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
             if (parser.readText(digitSeparator)) {
                 throw AngmarParserException(AngmarParserExceptionType.NumberWithSequenceStartedWithADigitSeparator,
                         "A digit sequence cannot start with a digit separator '$digitSeparator'") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightSection(parser.reader.currentPosition() - 1)
-                        message("Try removing the digit separator '$digitSeparator'")
+                        message = "Try removing the digit separator '$digitSeparator'"
                     }
                 }
             }
@@ -325,15 +340,16 @@ class NumberNode private constructor(parser: LexemParser) : ParserNode(parser) {
                         throw AngmarParserException(
                                 AngmarParserExceptionType.NumberWithSequenceEndedWithADigitSeparator,
                                 "A digit sequence cannot end with a digit separator '$digitSeparator'") {
-                            addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                                title(Consts.Logger.codeTitle)
+                            val fullText = parser.reader.readAllText()
+                            addSourceCode(fullText, parser.reader.getSource()) {
+                                title = Consts.Logger.codeTitle
                                 highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                             }
 
-                            addSourceCode(parser.reader.readAllText(), null) {
-                                title(Consts.Logger.hintTitle)
+                            addSourceCode(fullText, null) {
+                                title = Consts.Logger.hintTitle
                                 highlightSection(parser.reader.currentPosition() - 1)
-                                message("Try removing the digit a digit separator '$digitSeparator'")
+                                message = "Try removing the digit a digit separator '$digitSeparator'"
                             }
                         }
                     }

@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -11,7 +12,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for elements of unicode interval literals.
  */
-class UnicodeIntervalElementNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class UnicodeIntervalElementNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
     var left: ParserNode? = null
     var right: ParserNode? = null
     var leftChar = ' ' // The whitespace ' ' is forbidden here so it is used as control char
@@ -35,18 +37,25 @@ class UnicodeIntervalElementNode private constructor(parser: LexemParser) : Pars
         }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
         if (left == null) {
-            printer.addField("left", leftChar)
+            result.addProperty("left", leftChar.toString())
         }
-        printer.addOptionalField("left", left)
+        result.add("left", left?.toTree())
 
 
         if (right == null && rightChar != ' ') {
-            printer.addField("right", rightChar)
+            result.addProperty("right", rightChar.toString())
         }
-        printer.addOptionalField("right", right)
+        result.add("right", right?.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            UnicodeIntervalElementAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val rangeToken = IntervalElementNode.rangeToken
@@ -57,39 +66,42 @@ class UnicodeIntervalElementNode private constructor(parser: LexemParser) : Pars
         /**
          * Parses an element of unicode interval literals.
          */
-        fun parse(parser: LexemParser): UnicodeIntervalElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalElementNode? {
             parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalElementNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeIntervalElementNode(parser)
+            val result = UnicodeIntervalElementNode(parser, parent, parentSignal)
 
-            result.left = Commons.parseAnyEscape(parser)
+            result.left = Commons.parseAnyEscape(parser, result, UnicodeIntervalElementAnalyzer.signalEndLeft)
             if (result.left == null) {
                 result.leftChar = readIntervalChar(parser) ?: return null
             }
 
             if (parser.readText(rangeToken)) {
-                result.right = Commons.parseAnyEscape(parser)
+                result.right = Commons.parseAnyEscape(parser, result, UnicodeIntervalElementAnalyzer.signalEndRight)
                 if (result.right == null) {
                     result.rightChar = readIntervalChar(parser) ?: throw AngmarParserException(
                             AngmarParserExceptionType.UnicodeIntervalElementWithoutElementAfterRangeOperator,
                             "An escape or character was expected after the range operator '$rangeToken'.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding an escape or character here")
+                            message = "Try adding an escape or character here"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection((result.left?.to?.position() ?: initCursor.position()) + 1,
                                     parser.reader.currentPosition() - 1)
-                            message("Try removing the '$rangeToken' operator")
+                            message = "Try removing the '$rangeToken' operator"
                         }
                     }
                 }

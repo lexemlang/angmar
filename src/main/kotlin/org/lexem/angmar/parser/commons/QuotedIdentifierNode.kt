@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.commons
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.commons.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -9,9 +11,10 @@ import org.lexem.angmar.parser.commons.UnicodeEscapeNode.Companion.endBracket
 
 
 /**
- * Parser for uoted identifiers i.e `like this`.
+ * Parser for quoted identifiers i.e `like this`.
  */
-class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class QuotedIdentifierNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val texts = mutableListOf<String>()
     val escapes = mutableListOf<ParserNode>()
 
@@ -25,11 +28,17 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
         append(endQuote)
     }.toString()
 
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("texts", texts)
-        printer.addField("escapes", escapes)
+        result.add("texts", TreeLikePrintable.stringListToTest(texts))
+        result.add("escapes", TreeLikePrintable.listToTest(escapes))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            QuotedIdentifierAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startQuote = "`"
@@ -41,13 +50,15 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
         /**
          * Parses a quoted identifier.
          */
-        fun parse(parser: LexemParser): QuotedIdentifierNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuotedIdentifierNode? {
             parser.fromBuffer(parser.reader.currentPosition(), QuotedIdentifierNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = QuotedIdentifierNode(parser)
+            val result = QuotedIdentifierNode(parser, parent, parentSignal)
 
             if (!parser.readText(startQuote)) {
                 return null
@@ -56,7 +67,8 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
             result.texts.add(readStringSection(parser) ?: "")
 
             while (true) {
-                result.escapes.add(Commons.parseSimpleEscape(parser) ?: break)
+                result.escapes.add(Commons.parseSimpleEscape(parser, result,
+                        result.escapes.size + QuotedIdentifierAnalyzer.signalEndFirstEscape) ?: break)
                 result.texts.add(readStringSection(parser) ?: "")
             }
 
@@ -64,19 +76,20 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
                 parser.readText(endBracket)
                 throw AngmarParserException(AngmarParserExceptionType.QuotedIdentifiersEmpty,
                         "Quoted identifiers require at least one valid character.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition())
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding a character here")
+                        message = "Try adding a character here"
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition())
-                        message("Try removing the quoted identifier")
+                        message = "Try removing the quoted identifier"
                     }
                 }
             }
@@ -85,14 +98,15 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
                 if (!parser.readText(endBracket)) {
                     throw AngmarParserException(AngmarParserExceptionType.QuotedIdentifiersWithoutEndQuote,
                             "Quoted identifiers require the end quote '$endQuote' to finish the identifier.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding the end quote '$endQuote' here")
+                            message = "Try adding the end quote '$endQuote' here"
                         }
                     }
                 }
@@ -120,14 +134,15 @@ class QuotedIdentifierNode private constructor(parser: LexemParser) : ParserNode
                 if (ch in WhitespaceNode.endOfLineChars) {
                     throw AngmarParserException(AngmarParserExceptionType.QuotedIdentifiersMultilineNotAllowed,
                             "Quoted identifiers cannot be multiline.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(parser.reader.currentPosition() - 1)
-                            message("Try removing this end-of-line character")
+                            message = "Try removing this end-of-line character"
                         }
                     }
                 }

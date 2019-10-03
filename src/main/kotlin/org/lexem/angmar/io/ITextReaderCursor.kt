@@ -18,6 +18,11 @@ interface ITextReaderCursor {
     fun position(): Int
 
     /**
+     * Returns the position as a line-column position.
+     */
+    fun lineColumn(): Pair<Int, Int>
+
+    /**
      * Restores the reader's internal state with the information of this cursor.
      */
     fun restore()
@@ -38,6 +43,10 @@ interface ITextReaderCursor {
         }
 
         override fun position(): Int {
+            throw AngmarException("This method is intentionally not implemented.")
+        }
+
+        override fun lineColumn(): Pair<Int, Int> {
             throw AngmarException("This method is intentionally not implemented.")
         }
 

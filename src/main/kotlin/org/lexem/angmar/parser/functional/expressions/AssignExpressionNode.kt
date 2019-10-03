@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.functional.expressions
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -11,8 +12,11 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for assign expressions.
  */
-class AssignExpressionNode private constructor(parser: LexemParser, val left: ParserNode,
-        val operator: AssignOperatorNode, val right: ParserNode) : ParserNode(parser) {
+internal class AssignExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
+    lateinit var left: ParserNode
+    lateinit var operator: AssignOperatorNode
+    lateinit var right: RightExpressionNode
 
     override fun toString() = StringBuilder().apply {
         append(left)
@@ -22,57 +26,68 @@ class AssignExpressionNode private constructor(parser: LexemParser, val left: Pa
         append(right)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("left", left)
-        printer.addField("operator", operator)
-        printer.addField("right", right)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("left", left.toTree())
+        result.add("operator", operator.toTree())
+        result.add("right", right.toTree())
+
+        return result
     }
 
-    companion object {
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            AssignExpressionAnalyzer.stateMachine(analyzer, signal, this)
 
+    companion object {
         /**
          * Parses an assign expression.
          */
-        fun parse(parser: LexemParser): AssignExpressionNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AssignExpressionNode? {
             parser.fromBuffer(parser.reader.currentPosition(), AssignExpressionNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = AssignExpressionNode(parser, parent, parentSignal)
 
-            val left = ExpressionsCommons.parseLeftExpression(parser) ?: return null
+            result.left = ExpressionsCommons.parseLeftExpression(parser, result, AssignExpressionAnalyzer.signalEndLeft)
+                    ?: return null
 
             WhitespaceNoEOLNode.parse(parser)
 
-            val operator = AssignOperatorNode.parse(parser) ?: let {
-                initCursor.restore()
-                return@parse null
-            }
+            result.operator =
+                    AssignOperatorNode.parse(parser, result, AssignExpressionAnalyzer.signalEndOperator) ?: let {
+                        initCursor.restore()
+                        return@parse null
+                    }
 
             WhitespaceNode.parse(parser)
 
-            val right = ExpressionsCommons.parseRightExpression(parser) ?: let {
+            result.right = RightExpressionNode.parse(parser, result, AssignExpressionAnalyzer.signalEndRight) ?: let {
                 throw AngmarParserException(
                         AngmarParserExceptionType.AssignExpressionWithoutExpressionAfterAssignOperator,
-                        "An expression was expected after the assign operator '$operator'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                        "An expression was expected after the assign operator '${result.operator}'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
-                        highlightSection(operator.from.position(), operator.to.position())
-                        message("Try removing the assign operator")
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(result.operator.from.position(), result.operator.to.position())
+                        message = "Try removing the assign operator"
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
-                        highlightCursorAt(operator.to.position())
-                        message("Try adding an expression after the operator")
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(result.operator.to.position())
+                        message = "Try adding an expression after the operator"
                     }
                 }
             }
 
-            val result = AssignExpressionNode(parser, left, operator, right)
             return parser.finalizeNode(result, initCursor)
         }
     }

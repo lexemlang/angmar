@@ -8,16 +8,16 @@ import org.lexem.angmar.errors.*
 internal fun main(args: Array<String>) {
     try {
         AngmarCommand().main(args)
-    } catch (e: AngmarParserException) {
+    } catch (e: AngmarLoggedException) {
         e.logMessage()
     } catch (e: UnsetValueException) {
         Logger.error("The configuration file is incorrect.\nThe required property '${e.name.replace("item ",
                 "")}' is missing.")
     } catch (e: Throwable) {
         Logger.error(e) {
-            showDate()
-            showThread()
-            showStackExecutionOrder()
+            showDate = true
+            showThread = true
+            showStackNumbers = true
         }
     }
 }

@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Generic commons for expressions.
  */
-object GlobalCommons {
+internal object GlobalCommons {
     const val constantToken = "#"
     const val elementSeparator = ","
     const val relationalToken = ":"
@@ -24,7 +24,7 @@ object GlobalCommons {
             ConditionalLoopStmtNode.untilKeyword, InfiniteLoopStmtNode.keyword, IteratorLoopStmtNode.keyword,
             LoopClausesStmtNode.elseKeyword, LoopClausesStmtNode.lastKeyword, SelectiveStmtNode.keyword,
             VarDeclarationStmtNode.variableKeyword, VarDeclarationStmtNode.constKeyword,
-            ControlWithExpressionStmtNode.exitKeyword, ControlWithExpressionStmtNode.returnKeyword,
+            ControlWithExpressionStmtNode.returnKeyword, ControlWithoutExpressionStmtNode.exitKeyword,
             ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword,
             ControlWithoutExpressionStmtNode.restartKeyword)
 
@@ -32,18 +32,18 @@ object GlobalCommons {
     /**
      * Parses a block depending on the context.
      */
-    fun parseBlock(parser: LexemParser) = if (parser.isDescriptiveCode) {
+    fun parseBlock(parser: LexemParser, parent: ParserNode, parentSignal: Int) = if (parser.isDescriptiveCode) {
         if (parser.isFilterCode) {
             // Descriptive code (filters)
             // TODO replace with block
-            NumberNode.parseAnyNumberDefaultDecimal(parser)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal)
         } else {
             // Descriptive code (expressions)
             // TODO replace with block
-            NumberNode.parseAnyNumberDefaultDecimal(parser)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal)
         }
     } else {
         // Functional code
-        BlockStmtNode.parse(parser)
+        BlockStmtNode.parse(parser, parent, parentSignal)
     }
 }

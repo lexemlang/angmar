@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.functional.statements
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -11,8 +12,9 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for elements of destructuring.
  */
-class DestructuringElementStmtNode private constructor(parser: LexemParser, val alias: IdentifierNode) :
-        ParserNode(parser) {
+internal class DestructuringElementStmtNode private constructor(parser: LexemParser, parent: ParserNode,
+        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+    lateinit var alias: IdentifierNode
     var isConstant = false
     var original: IdentifierNode? = null
 
@@ -29,11 +31,18 @@ class DestructuringElementStmtNode private constructor(parser: LexemParser, val 
         append(alias)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("isConstant", isConstant)
-        printer.addOptionalField("original", original)
-        printer.addField("alias", alias)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.addProperty("isConstant", isConstant)
+        result.add("original", original?.toTree())
+        result.add("alias", alias.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            DestructuringElementStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val aliasToken = "as"
@@ -45,59 +54,60 @@ class DestructuringElementStmtNode private constructor(parser: LexemParser, val 
         /**
          * Parses for an element of destructuring.
          */
-        fun parse(parser: LexemParser): DestructuringElementStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DestructuringElementStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), DestructuringElementStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = DestructuringElementStmtNode(parser, parent, parentSignal)
 
             // original
-            var original: IdentifierNode? = null
             let {
                 val initOriginalCursor = parser.reader.saveCursor()
 
-                val ori = IdentifierNode.parse(parser) ?: return@let
+                val ori = IdentifierNode.parse(parser, result, DestructuringElementStmtAnalyzer.signalEndOriginal)
+                        ?: return@let
 
                 WhitespaceNode.parse(parser)
 
                 if (!parser.readText(aliasToken)) {
                     initOriginalCursor.restore()
-                    original = null
                     return@let
                 }
 
                 WhitespaceNode.parse(parser)
 
-                original = ori
+                result.original = ori
             }
 
-            val isConstant = parser.readText(constantToken)
+            result.isConstant = parser.readText(constantToken)
 
-            val alias = IdentifierNode.parse(parser) ?: let {
-                if (original != null) {
-                    throw AngmarParserException(
-                            AngmarParserExceptionType.DestructuringElementStatementWithoutIdentifierAfterAliasToken,
-                            "An identifier was expected after the alias operator '$aliasToken'.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+            result.alias =
+                    IdentifierNode.parse(parser, result, DestructuringElementStmtAnalyzer.signalEndAlias) ?: let {
+                        if (result.original != null) {
+                            throw AngmarParserException(
+                                    AngmarParserExceptionType.DestructuringElementStatementWithoutIdentifierAfterAliasToken,
+                                    "An identifier was expected after the alias operator '$aliasToken'.") {
+                                val fullText = parser.reader.readAllText()
+                                addSourceCode(fullText, parser.reader.getSource()) {
+                                    title = Consts.Logger.codeTitle
+                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                                }
+                                addSourceCode(fullText, null) {
+                                    title = Consts.Logger.hintTitle
+                                    highlightCursorAt(parser.reader.currentPosition())
+                                    message = "Try adding a whitespace followed by an identifier here"
+                                }
+                            }
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding a whitespace followed by an identifier here")
-                        }
+
+                        initCursor.restore()
+                        return null
                     }
-                }
 
-                initCursor.restore()
-                return null
-            }
-
-            val result = DestructuringElementStmtNode(parser, alias)
-            result.isConstant = isConstant
-            result.original = original
             return parser.finalizeNode(result, initCursor)
         }
     }

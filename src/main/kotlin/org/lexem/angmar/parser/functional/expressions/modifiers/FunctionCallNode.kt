@@ -1,6 +1,9 @@
 package org.lexem.angmar.parser.functional.expressions.modifiers
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.FunctionCallAnalyzer.signalEndPropertiesExpression
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -12,36 +15,38 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for function call i.e. element(expression).
  */
-class FunctionCallNode private constructor(parser: LexemParser) : ParserNode(parser) {
-    val arguments = mutableListOf<ParserNode>()
-    var spreadArgument: ParserNode? = null
-    var expressionProperties: FunctionCallExpressionPropertiesNode? = null
+internal class FunctionCallNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
+    val positionalArguments = mutableListOf<ParserNode>()
+    val namedArguments = mutableListOf<FunctionCallNamedArgumentNode>()
+    val spreadArguments = mutableListOf<ParserNode>()
+    var propertiesExpression: FunctionCallExpressionPropertiesNode? = null
 
     override fun toString() = StringBuilder().apply {
         append(startToken)
-        append(arguments.joinToString("$argumentSeparator "))
-
-        if (spreadArgument != null) {
-            if (arguments.isNotEmpty()) {
-                append("$argumentSeparator ")
-            }
-
-            append(spreadOperator)
-            append(spreadArgument)
-        }
+        append((positionalArguments + namedArguments + spreadArguments.map { "$spreadOperator$it" }).joinToString(
+                "$argumentSeparator "))
 
         append(endToken)
 
-        if (expressionProperties != null) {
-            append(expressionProperties)
+        if (propertiesExpression != null) {
+            append(propertiesExpression)
         }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("argumentList", arguments)
-        printer.addOptionalField("spreadArgument", spreadArgument)
-        printer.addOptionalField("expressionProperties", expressionProperties)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("positionalArguments", TreeLikePrintable.listToTest(positionalArguments))
+        result.add("namedArguments", TreeLikePrintable.listToTest(namedArguments))
+        result.add("spreadArguments", TreeLikePrintable.listToTest(spreadArguments))
+        result.add("propertiesExpression", propertiesExpression?.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            FunctionCallAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = "("
@@ -49,86 +54,130 @@ class FunctionCallNode private constructor(parser: LexemParser) : ParserNode(par
         const val endToken = ")"
         const val spreadOperator = GlobalCommons.spreadOperator
 
-
         // METHODS ------------------------------------------------------------
 
         /**
          * Parses a function expression.
          */
-        fun parse(parser: LexemParser): FunctionCallNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallNode? {
             parser.fromBuffer(parser.reader.currentPosition(), FunctionCallNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionCallNode(parser)
+            val result = FunctionCallNode(parser, parent, parentSignal)
 
             if (!parser.readText(startToken)) {
                 return null
             }
 
-            WhitespaceNode.parse(parser)
+            var prev = false
 
-            var argument = FunctionCallMiddleArgumentNode.parse(parser) ?: ExpressionsCommons.parseExpression(parser)
-            if (argument != null) {
-                result.arguments.add(argument)
+            // Positional arguments
+            while (true) {
+                val initLoopCursor = parser.reader.saveCursor()
 
-                while (true) {
-                    val initLoopCursor = parser.reader.saveCursor()
+                WhitespaceNode.parse(parser)
 
-                    WhitespaceNode.parse(parser)
-
+                if (prev) {
                     if (!parser.readText(argumentSeparator)) {
                         initLoopCursor.restore()
                         break
                     }
 
                     WhitespaceNode.parse(parser)
-
-                    argument = FunctionCallMiddleArgumentNode.parse(parser)
-                    if (argument == null) {
-                        initLoopCursor.restore()
-                        break
-                    }
-
-                    result.arguments.add(argument)
                 }
+
+                val argument = ExpressionsCommons.parseExpression(parser, result,
+                        result.positionalArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
+                if (argument == null) {
+                    initLoopCursor.restore()
+                    break
+                }
+
+                // Check the end
+                val initEndCursor = parser.reader.saveCursor()
+
+                WhitespaceNode.parse(parser)
+
+                if (!parser.checkText(argumentSeparator) && !parser.checkText(endToken)) {
+                    initLoopCursor.restore()
+                    break
+                }
+
+                initEndCursor.restore()
+
+                result.positionalArguments.add(argument)
+                prev = true
             }
 
-            // Spread element.
-            let {
-                val initSpreadCursor = parser.reader.saveCursor()
+            // Named arguments
+            while (true) {
+                val initLoopCursor = parser.reader.saveCursor()
 
-                if (result.arguments.isNotEmpty()) {
+                WhitespaceNode.parse(parser)
+
+                if (prev) {
+                    if (!parser.readText(argumentSeparator)) {
+                        initLoopCursor.restore()
+                        break
+                    }
 
                     WhitespaceNode.parse(parser)
+                }
 
+                val argument = FunctionCallNamedArgumentNode.parse(parser, result,
+                        result.positionalArguments.size + result.namedArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
+                if (argument == null) {
+                    initLoopCursor.restore()
+                    break
+                }
+
+                result.namedArguments.add(argument)
+                prev = true
+            }
+
+            // Spread arguments
+            while (true) {
+                val initLoopCursor = parser.reader.saveCursor()
+
+                WhitespaceNode.parse(parser)
+
+                if (prev) {
                     if (!parser.readText(argumentSeparator)) {
-                        initSpreadCursor.restore()
-                        return@let
+                        initLoopCursor.restore()
+                        break
                     }
 
                     WhitespaceNode.parse(parser)
                 }
 
                 if (!parser.readText(spreadOperator)) {
-                    initSpreadCursor.restore()
-                    return@let
+                    initLoopCursor.restore()
+                    break
                 }
 
-                result.spreadArgument = ExpressionsCommons.parseExpression(parser) ?: throw AngmarParserException(
-                        AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator,
-                        "An expression was expected after the spread operator '$spreadOperator'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
-                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                    }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
-                        highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding an expression here")
-                    }
-                }
+                val argument = ExpressionsCommons.parseExpression(parser, result,
+                        result.positionalArguments.size + result.namedArguments.size + result.spreadArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
+                        ?: throw AngmarParserException(
+                                AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator,
+                                "An expression was expected after the spread operator '$spreadOperator'.") {
+                            val fullText = parser.reader.readAllText()
+                            addSourceCode(fullText, parser.reader.getSource()) {
+                                title = Consts.Logger.codeTitle
+                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                            }
+                            addSourceCode(fullText, null) {
+                                title = Consts.Logger.hintTitle
+                                highlightCursorAt(parser.reader.currentPosition())
+                                message = "Try adding an expression here"
+                            }
+                        }
+
+                result.spreadArguments.add(argument)
+                prev = true
             }
 
             // Trailing comma.
@@ -148,19 +197,21 @@ class FunctionCallNode private constructor(parser: LexemParser) : ParserNode(par
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.FunctionCallWithoutEndToken,
                         "The close parenthesis was expected '$endToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close parenthesis '$endToken' here")
+                        message = "Try adding the close parenthesis '$endToken' here"
                     }
                 }
             }
 
-            result.expressionProperties = FunctionCallExpressionPropertiesNode.parse(parser)
+            result.propertiesExpression =
+                    FunctionCallExpressionPropertiesNode.parse(parser, result, signalEndPropertiesExpression)
 
             return parser.finalizeNode(result, initCursor)
         }

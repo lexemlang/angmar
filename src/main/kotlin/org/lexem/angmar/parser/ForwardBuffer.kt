@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Keeps a reference to already processed [ParserNode] by its start position.
  */
-class ForwardBuffer {
+internal class ForwardBuffer {
     private var tree = TreeMap<Int, MutableMap<Class<Any>, ParserNode>>()
 
     // METHODS ----------------------------------------------------------------

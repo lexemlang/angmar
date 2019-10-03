@@ -1,9 +1,10 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -11,7 +12,9 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for elements of interval literals.
  */
-class IntervalElementNode private constructor(parser: LexemParser, val left: ParserNode) : ParserNode(parser) {
+internal class IntervalElementNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
+    lateinit var left: ParserNode
     var right: ParserNode? = null
 
     override fun toString() = StringBuilder().apply {
@@ -22,10 +25,17 @@ class IntervalElementNode private constructor(parser: LexemParser, val left: Par
         }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("left", left)
-        printer.addOptionalField("right", right)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("left", left.toTree())
+        result.add("right", right?.toTree())
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            IntervalElementAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val rangeToken = ".."
@@ -36,38 +46,43 @@ class IntervalElementNode private constructor(parser: LexemParser, val left: Par
         /**
          * Parses an element of interval literals.
          */
-        fun parse(parser: LexemParser): IntervalElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalElementNode? {
             parser.fromBuffer(parser.reader.currentPosition(), IntervalElementNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = IntervalElementNode(parser, parent, parentSignal)
 
-            val left = EscapedExpressionNode.parse(parser) ?: NumberNode.parseAnyIntegerDefaultDecimal(parser)
-            ?: return null
-
-            val result = IntervalElementNode(parser, left)
+            result.left = EscapedExpressionNode.parse(parser, result, IntervalElementAnalyzer.signalEndLeft)
+                    ?: NumberNode.parseAnyIntegerDefaultDecimal(parser, result, IntervalElementAnalyzer.signalEndLeft)
+                            ?: return null
 
             if (parser.readText(rangeToken)) {
-                result.right = EscapedExpressionNode.parse(parser) ?: NumberNode.parseAnyIntegerDefaultDecimal(parser)
+                result.right = EscapedExpressionNode.parse(parser, result, IntervalElementAnalyzer.signalEndRight)
+                        ?: NumberNode.parseAnyIntegerDefaultDecimal(parser, result,
+                                IntervalElementAnalyzer.signalEndRight)
 
                 if (result.right == null) {
                     throw AngmarParserException(
                             AngmarParserExceptionType.IntervalElementWithoutElementAfterRangeOperator,
                             "An escape or integer number was expected after the range operator '$rangeToken'.") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightCursorAt(parser.reader.currentPosition())
-                            message("Try adding an escape or integer number here")
+                            message = "Try adding an escape or integer number here"
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
-                            highlightSection(left.to.position(), parser.reader.currentPosition() - 1)
-                            message("Try removing the '$rangeToken' operator")
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(result.left.to.position(), parser.reader.currentPosition() - 1)
+                            message = "Try removing the '$rangeToken' operator"
                         }
                     }
                 }

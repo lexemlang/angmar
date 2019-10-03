@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -12,7 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for interval literals.
  */
-class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class IntervalNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val elements = mutableListOf<ParserNode>()
     var reversed = false
 
@@ -26,13 +29,19 @@ class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser)
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("elements", elements)
-        printer.addField("reversed", reversed)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.addProperty("reversed", reversed)
+
+        return result
     }
 
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = IntervalAnalyzer.stateMachine(analyzer, signal, this)
+
     companion object {
-        const val macroName = "itv${MacroExpression.macroSuffix}"
+        const val macroName = "itv${MacroExpressionNode.macroSuffix}"
         const val startToken = "["
         const val reversedToken = GlobalCommons.notToken
         const val endToken = "]"
@@ -43,13 +52,15 @@ class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser)
         /**
          * Parses an interval literal.
          */
-        fun parse(parser: LexemParser): IntervalNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalNode? {
             parser.fromBuffer(parser.reader.currentPosition(), IntervalNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = IntervalNode(parser)
+            val result = IntervalNode(parser, parent, parentSignal)
 
             if (!parser.readText(macroName)) {
                 return null
@@ -58,19 +69,20 @@ class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser)
             if (!parser.readText(startToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.IntervalWithoutStartToken,
                         "The start square bracket was expected '$startToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the start and end square brackets '$startToken$endToken' here")
+                        message = "Try adding the start and end square brackets '$startToken$endToken' here"
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        message("Try removing the '$macroName' macro")
+                        message = "Try removing the '$macroName' macro"
                     }
                 }
             }
@@ -82,7 +94,9 @@ class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser)
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = IntervalSubIntervalNode.parse(parser) ?: IntervalElementNode.parse(parser)
+                val node = IntervalSubIntervalNode.parse(parser, result,
+                        result.elements.size + IntervalAnalyzer.signalEndFirstElement) ?: IntervalElementNode.parse(
+                        parser, result, result.elements.size + IntervalAnalyzer.signalEndFirstElement)
                 if (node == null) {
                     initLoopCursor.restore()
                     break
@@ -96,14 +110,15 @@ class IntervalNode private constructor(parser: LexemParser) : ParserNode(parser)
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.IntervalWithoutEndToken,
                         "The close square bracket was expected '$endToken'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close square bracket '$endToken' here")
+                        message = "Try adding the close square bracket '$endToken' here"
                     }
                 }
             }

@@ -17,5 +17,13 @@ fun File.parentFileOrRelativeRoot() = this.parentFile ?: File("./")
 /**
  * Gets the parent command as the specified type.
  */
-@Suppress("UNCHECKED_CAST")
-internal fun <T : CliktCommand> CliktCommand.parentAs() = this.context.parent!!.command as T
+internal inline fun <reified T : CliktCommand> CliktCommand.parentAs() = this.context.parent!!.command as T
+
+/**
+ * Returns one of both values depending on the condition is null.
+ */
+fun <T, R> T?.orDefault(default: R, thenValue: (T) -> R): R = if (this != null) {
+    thenValue(this)
+} else {
+    default
+}

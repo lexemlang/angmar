@@ -1,6 +1,9 @@
 package org.lexem.angmar.parser.functional.expressions
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.AccessExpressionAnalyzer.signalEndFirstModifier
 import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -10,7 +13,9 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 /**
  * Parser for accesses expression.
  */
-class AccessExpressionNode private constructor(parser: LexemParser, var element: ParserNode) : ParserNode(parser) {
+internal class AccessExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
+    lateinit var element: ParserNode
     var modifiers = mutableListOf<ParserNode>()
 
     override fun toString() = StringBuilder().apply {
@@ -18,36 +23,51 @@ class AccessExpressionNode private constructor(parser: LexemParser, var element:
         modifiers.forEach { append(it) }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("element", element)
-        printer.addField("modifiers", modifiers)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("element", element.toTree())
+        result.add("modifiers", TreeLikePrintable.listToTest(modifiers))
+
+        return result
     }
 
-    companion object {
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            AccessExpressionAnalyzer.stateMachine(analyzer, signal, this)
 
+    companion object {
         /**
          * Parses an access expression.
          */
-        fun parse(parser: LexemParser): ParserNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
             parser.fromBuffer(parser.reader.currentPosition(), AccessExpressionNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
+            val result = AccessExpressionNode(parser, parent, parentSignal)
 
-            val element = ExpressionsCommons.parseLiteral(parser) ?: ExpressionsCommons.parseMacro(parser)
-            ?: ParenthesisExpressionNode.parse(parser) ?: IdentifierNode.parse(parser) ?: return null
-
-            val result = AccessExpressionNode(parser, element)
+            result.element = ExpressionsCommons.parseLiteral(parser, result, AccessExpressionAnalyzer.signalEndElement)
+                    ?: ExpressionsCommons.parseMacro(parser, result, AccessExpressionAnalyzer.signalEndElement)
+                            ?: ParenthesisExpressionNode.parse(parser, result,
+                            AccessExpressionAnalyzer.signalEndElement) ?: IdentifierNode.parse(parser, result,
+                            AccessExpressionAnalyzer.signalEndElement) ?: return null
 
             while (true) {
                 result.modifiers.add(
-                        AccessExplicitMemberNode.parse(parser) ?: IndexerNode.parse(parser) ?: FunctionCallNode.parse(
-                                parser) ?: break)
+                        AccessExplicitMemberNode.parse(parser, result, result.modifiers.size + signalEndFirstModifier)
+                                ?: IndexerNode.parse(parser, result, result.modifiers.size + signalEndFirstModifier)
+                                ?: FunctionCallNode.parse(parser, result,
+                                        result.modifiers.size + signalEndFirstModifier) ?: break)
             }
 
-            if (result.modifiers.isEmpty()) {
-                return element
+            if (result.modifiers.isEmpty() && result.element !is IdentifierNode) {
+                val newResult = result.element
+                newResult.parent = parent
+                newResult.parentSignal = parentSignal
+                return newResult
             }
 
             return parser.finalizeNode(result, initCursor)

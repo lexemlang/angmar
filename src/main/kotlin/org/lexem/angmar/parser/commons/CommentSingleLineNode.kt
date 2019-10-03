@@ -5,7 +5,7 @@ import org.lexem.angmar.*
 /**
  * Parser for single-line comments.
  */
-object CommentSingleLineNode {
+internal object CommentSingleLineNode {
     const val SingleLineStartToken = "--"
 
     // METHODS ------------------------------------------------------------

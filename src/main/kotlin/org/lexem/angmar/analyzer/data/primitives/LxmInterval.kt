@@ -1,0 +1,37 @@
+package org.lexem.angmar.analyzer.data.primitives
+
+import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.*
+import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.data.*
+
+/**
+ * The lexem values of the Interval type.
+ */
+internal class LxmInterval private constructor(val primitive: IntegerInterval) : LexemPrimitive {
+
+    // OVERRIDE METHODS -------------------------------------------------------
+
+    override fun getType(memory: LexemMemory) =
+            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, IntervalType.TypeName)
+
+    override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
+
+    override fun toString() = primitive.toString()
+
+    // STATIC -----------------------------------------------------------------
+
+    companion object {
+        val Empty = LxmInterval(IntegerInterval.Empty)
+
+        /**
+         * Returns the [LxmInterval] equivalent of an [IntegerInterval] value.
+         */
+        fun from(value: IntegerInterval) = when (value) {
+            Empty.primitive -> Empty
+            else -> LxmInterval(value)
+        }
+    }
+}

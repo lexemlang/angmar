@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -12,11 +14,13 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for map literals.
  */
-class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class MapNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val elements = mutableListOf<MapElementNode>()
     var isConstant = false
 
     override fun toString() = StringBuilder().apply {
+        append(macroName)
         if (isConstant) {
             append(constantToken)
         }
@@ -25,14 +29,19 @@ class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
         append(endToken)
     }.toString()
 
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("isConstant", isConstant)
-        printer.addField("elements", elements)
+        result.addProperty("isConstant", isConstant)
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+
+        return result
     }
 
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = MapAnalyzer.stateMachine(analyzer, signal, this)
+
     companion object {
-        const val macroName = "map${MacroExpression.macroSuffix}"
+        const val macroName = "map${MacroExpressionNode.macroSuffix}"
         const val startToken = "{"
         const val constantToken = GlobalCommons.constantToken
         const val elementSeparator = GlobalCommons.elementSeparator
@@ -44,8 +53,10 @@ class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
         /**
          * Parses a map literal.
          */
-        fun parse(parser: LexemParser): MapNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MapNode? {
             parser.fromBuffer(parser.reader.currentPosition(), MapNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
@@ -55,20 +66,21 @@ class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
                 return null
             }
 
-            val result = MapNode(parser)
+            val result = MapNode(parser, parent, parentSignal)
             result.isConstant = parser.readText(constantToken)
 
             if (!parser.readText(startToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.MapWithoutStartToken,
                         "The opening bracket '$startToken' was expected after the macro name '$macroName'.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        message("Try removing the macro '$macroName'")
+                        message = "Try removing the macro '$macroName'"
                     }
                 }
             }
@@ -89,7 +101,8 @@ class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = MapElementNode.parse(parser)
+                val argument =
+                        MapElementNode.parse(parser, result, result.elements.size + MapAnalyzer.signalEndFirstElement)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break
@@ -115,14 +128,15 @@ class MapNode private constructor(parser: LexemParser) : ParserNode(parser) {
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.MapWithoutEndToken,
                         "The close bracket '$endToken' was expected to finish the map literal.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close bracket '$endToken' here")
+                        message = "Try adding the close bracket '$endToken' here"
                     }
                 }
             }

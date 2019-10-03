@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.literals
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -11,7 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for bitlist literals.
  */
-class BitlistNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class BitlistNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     var radix = 2
     val elements = mutableListOf<BitlistElementNode>()
 
@@ -27,11 +30,16 @@ class BitlistNode private constructor(parser: LexemParser) : ParserNode(parser) 
         append(endToken)
     }.toString()
 
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("radix", radix)
-        printer.addField("elements", elements)
+        result.addProperty("radix", radix.toLong())
+        result.add("elements", TreeLikePrintable.listToTest(elements))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = BitListAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val startToken = StringNode.startToken
@@ -43,13 +51,15 @@ class BitlistNode private constructor(parser: LexemParser) : ParserNode(parser) 
         /**
          * Parses a bitlist literal.
          */
-        fun parse(parser: LexemParser): BitlistNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BitlistNode? {
             parser.fromBuffer(parser.reader.currentPosition(), BitlistNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = BitlistNode(parser)
+            val result = BitlistNode(parser, parent, parentSignal)
 
             result.radix = when {
                 parser.readText(binaryPrefix) -> 2
@@ -68,7 +78,8 @@ class BitlistNode private constructor(parser: LexemParser) : ParserNode(parser) 
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = BitlistElementNode.parse(parser, result.radix)
+                val node = BitlistElementNode.parse(parser, result,
+                        result.elements.size + BitListAnalyzer.signalEndFirstElement, result.radix)
                 if (node == null) {
                     initLoopCursor.restore()
                     break
@@ -82,14 +93,15 @@ class BitlistNode private constructor(parser: LexemParser) : ParserNode(parser) 
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.BitlistWithoutEndToken,
                         "Bitlist literals require the end quote '$endToken' to finish the literal.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the end quote '$endToken' here")
+                        message = "Try adding the end quote '$endToken' here"
                     }
                 }
             }

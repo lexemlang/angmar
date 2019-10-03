@@ -5,7 +5,7 @@ import org.lexem.angmar.*
 /**
  * Parser for whitespaces and multiline comments without including end-of-line characters.
  */
-object WhitespaceNoEOLNode {
+internal object WhitespaceNoEOLNode {
     /**
      * Parses whitespace characters and multiline comments.
      */

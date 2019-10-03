@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.functional.expressions.binary
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -12,21 +14,29 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for logical expressions.
  */
-class LogicalExpressionNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class LogicalExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     val expressions = mutableListOf<ParserNode>()
     val operators = mutableListOf<String>()
 
     override fun toString() = StringBuilder().apply {
         append(expressions.first())
         for (i in 1 until expressions.size) {
-            append(operators[i - 1])
+            append(" ${operators[i - 1]} ")
             append(expressions[i])
         }
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addField("expressions", expressions)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("expressions", TreeLikePrintable.listToTest(expressions))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            LogicalExpressionAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val andOperator = "&"
@@ -39,15 +49,18 @@ class LogicalExpressionNode private constructor(parser: LexemParser) : ParserNod
         /**
          * Parses an logical expression.
          */
-        fun parse(parser: LexemParser): ParserNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
             parser.fromBuffer(parser.reader.currentPosition(), LogicalExpressionNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = LogicalExpressionNode(parser)
+            val result = LogicalExpressionNode(parser, parent, parentSignal)
 
-            result.expressions.add(ShiftExpressionNode.parse(parser) ?: return null)
+            result.expressions.add(ShiftExpressionNode.parse(parser, result,
+                    result.expressions.size + LogicalExpressionAnalyzer.signalEndFirstExpression) ?: return null)
 
             while (true) {
                 val initLoopCursor = parser.reader.saveCursor()
@@ -66,19 +79,21 @@ class LogicalExpressionNode private constructor(parser: LexemParser) : ParserNod
 
                 WhitespaceNode.parse(parser)
 
-                val expression = ShiftExpressionNode.parse(parser) ?: let {
+                val expression = ShiftExpressionNode.parse(parser, result,
+                        result.expressions.size + LogicalExpressionAnalyzer.signalEndFirstExpression) ?: let {
                     throw AngmarParserException(
                             AngmarParserExceptionType.LogicalExpressionWithoutExpressionAfterOperator,
                             "An expression was expected after the operator '$operator'") {
-                        addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                            title(Consts.Logger.codeTitle)
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
                             highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                         }
-                        addSourceCode(parser.reader.readAllText(), null) {
-                            title(Consts.Logger.hintTitle)
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
                             highlightSection(preOperatorCursor.position(),
                                     preOperatorCursor.position() + operator.length - 1)
-                            message("Try removing the operator '$operator'")
+                            message = "Try removing the operator '$operator'"
                         }
                     }
                 }
@@ -87,7 +102,10 @@ class LogicalExpressionNode private constructor(parser: LexemParser) : ParserNod
             }
 
             if (result.expressions.size == 1) {
-                return result.expressions.first()
+                val newResult = result.expressions.first()
+                newResult.parent = parent
+                newResult.parentSignal = parentSignal
+                return newResult
             }
 
             return parser.finalizeNode(result, initCursor)

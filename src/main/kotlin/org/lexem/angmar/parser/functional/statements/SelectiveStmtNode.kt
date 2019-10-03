@@ -1,6 +1,8 @@
 package org.lexem.angmar.parser.functional.statements
 
+import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,7 +15,8 @@ import org.lexem.angmar.parser.functional.statements.selective.*
 /**
  * Parser for selective statements.
  */
-class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(parser) {
+internal class SelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
+        ParserNode(parser, parent, parentSignal) {
     var condition: ParserNode? = null
     var tag: IdentifierNode? = null
     val cases = mutableListOf<ParserNode>()
@@ -37,11 +40,18 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
         append(endToken)
     }.toString()
 
-    override fun toTree(printer: TreeLikePrinter) {
-        printer.addOptionalField("condition", condition)
-        printer.addOptionalField("tag", tag)
-        printer.addField("cases", cases)
+    override fun toTree(): JsonObject {
+        val result = super.toTree()
+
+        result.add("condition", condition?.toTree())
+        result.add("tag", tag?.toTree())
+        result.add("cases", TreeLikePrintable.listToTest(cases))
+
+        return result
     }
+
+    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
+            SelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
         const val keyword = "when"
@@ -54,13 +64,15 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
         /**
          * Parses a selective statement.
          */
-        fun parse(parser: LexemParser): SelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectiveStmtNode? {
             parser.fromBuffer(parser.reader.currentPosition(), SelectiveStmtNode::class.java)?.let {
+                it.parent = parent
+                it.parentSignal = parentSignal
                 return@parse it
             }
 
             val initCursor = parser.reader.saveCursor()
-            val result = SelectiveStmtNode(parser)
+            val result = SelectiveStmtNode(parser, parent, parentSignal)
 
             if (!Commons.parseKeyword(parser, keyword)) {
                 return null
@@ -69,7 +81,7 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
             WhitespaceNode.parse(parser)
 
             // condition
-            result.condition = ParenthesisExpressionNode.parse(parser)
+            result.condition = ParenthesisExpressionNode.parse(parser, result, SelectiveStmtAnalyzer.signalEndCondition)
             if (result.condition != null) {
                 WhitespaceNode.parse(parser)
             }
@@ -77,14 +89,15 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
             if (!parser.readText(startToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.SelectiveStatementWithoutStartToken,
                         "An open bracket '$startToken' was expected to open the block that will contain the cases of the selective statement.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the open bracket '$startToken' here")
+                        message = "Try adding the open bracket '$startToken' here"
                     }
                 }
             }
@@ -97,7 +110,7 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
                     return@let
                 }
 
-                result.tag = IdentifierNode.parse(parser)
+                result.tag = IdentifierNode.parse(parser, result, SelectiveStmtAnalyzer.signalEndTag)
                 if (result.tag == null) {
                     initTagCursor.restore()
                 }
@@ -108,7 +121,8 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
 
                 WhitespaceNode.parse(parser)
 
-                val case = SelectiveCaseStmtNode.parse(parser)
+                val case = SelectiveCaseStmtNode.parse(parser, result,
+                        result.cases.size + SelectiveStmtAnalyzer.signalEndFirstCase)
                 if (case == null) {
                     initLoopCursor.restore()
                     break
@@ -120,14 +134,15 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
             if (result.cases.isEmpty()) {
                 throw AngmarParserException(AngmarParserExceptionType.SelectiveStatementWithoutAnyCase,
                         "Selective statements require at least one case.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding a case here")
+                        message = "Try adding a case here"
                     }
                     addNote(Consts.Logger.hintTitle, "Try removing the whole selective statement")
                 }
@@ -138,14 +153,15 @@ class SelectiveStmtNode private constructor(parser: LexemParser) : ParserNode(pa
             if (!parser.readText(endToken)) {
                 throw AngmarParserException(AngmarParserExceptionType.SelectiveStatementWithoutEndToken,
                         "The close bracket was expected '$endToken' to finish the selective statement.") {
-                    addSourceCode(parser.reader.readAllText(), parser.reader.getSource()) {
-                        title(Consts.Logger.codeTitle)
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
                         highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
                     }
-                    addSourceCode(parser.reader.readAllText(), null) {
-                        title(Consts.Logger.hintTitle)
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
                         highlightCursorAt(parser.reader.currentPosition())
-                        message("Try adding the close bracket '$endToken' here")
+                        message = "Try adding the close bracket '$endToken' here"
                     }
                 }
             }
