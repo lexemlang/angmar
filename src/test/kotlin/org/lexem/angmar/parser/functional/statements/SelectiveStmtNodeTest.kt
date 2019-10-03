@@ -80,7 +80,7 @@ internal class SelectiveStmtNodeTest {
     @MethodSource("provideCorrectSelectiveStatement")
     fun `parse correct selective statement`(text: String, numCases: Int, hasCondition: Boolean, hasTag: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SelectiveStmtNode.parse(parser)
+        val res = SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SelectiveStmtNode
@@ -111,31 +111,31 @@ internal class SelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect selective statement without startToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = SelectiveStmtNode.keyword
             val parser = LexemParser(CustomStringReader.from(text))
-            SelectiveStmtNode.parse(parser)
+            SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect selective statement without any case`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            SelectiveStmtNode.parse(parser)
+            SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect selective statement without endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken} ${SelectiveCaseStmtNodeTest.testExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            SelectiveStmtNode.parse(parser)
+            SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -143,7 +143,7 @@ internal class SelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SelectiveStmtNode.parse(parser)
+        val res = SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

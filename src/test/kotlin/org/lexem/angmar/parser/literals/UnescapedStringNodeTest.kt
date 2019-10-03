@@ -5,6 +5,7 @@ import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
 import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.literals.StringNode.Companion.additionalDelimiter
 import org.lexem.angmar.utils.*
@@ -35,15 +36,15 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(textContent, res.text, "The text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(textContent, res.text, "The text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -55,15 +56,15 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter$additionalDelimiter"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(2, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(textContent, res.text, "The text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(textContent, res.text, "The text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -76,25 +77,26 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(additionalDelimiter.length, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(textContent, res.text, "The text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(textContent, res.text, "The text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
 
     @Test
     fun `parse unclosed string`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken} this is a test"
-            UnescapedStringNode.parse(LexemParser(CustomStringReader.from(text)))
+            val parser = LexemParser(CustomStringReader.from(text))
+            UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -104,18 +106,18 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
 
         val lastIndex = textContent.indexOf(
                 StringNode.endToken) + StringNode.endToken.length + UnescapedStringNode.macroName.length + 1
-        Assertions.assertEquals(text.substring(0 until lastIndex), res.content, "The content is not correct")
+        Assertions.assertEquals(text.substring(0 until lastIndex), res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
         Assertions.assertEquals(textContent.substring(0 until textContent.indexOf(StringNode.endToken)), res.text,
-                "The text is not correct")
+                "The text is incorrect")
 
         Assertions.assertEquals(lastIndex, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -125,7 +127,7 @@ internal class UnescapedStringNodeTest {
             strings = ["", "3", UnescapedStringNode.macroName, "${UnescapedStringNode.macroName}$additionalDelimiter"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -17,16 +17,16 @@ internal class FunctionStmtNodeTest {
 
     companion object {
         const val testExpression =
-                "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionArgumentListNodeTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionParameterListNodeTest.testExpression} ${GlobalCommonsTest.testBlock}"
 
         @JvmStatic
         private fun provideCorrectFunctionStmt(): Stream<Arguments> {
             val sequence = sequence {
                 yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionArgumentListNodeTest.testExpression} ${GlobalCommonsTest.testBlock}",
+                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionParameterListNodeTest.testExpression} ${GlobalCommonsTest.testBlock}",
                         true))
                 yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}${FunctionArgumentListNodeTest.testExpression}${GlobalCommonsTest.testBlock}",
+                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}${FunctionParameterListNodeTest.testExpression}${GlobalCommonsTest.testBlock}",
                         true))
                 yield(Arguments.of(
                         "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${GlobalCommonsTest.testBlock}",
@@ -48,8 +48,8 @@ internal class FunctionStmtNodeTest {
             IdentifierNodeTest.checkTestExpression(node.name)
             GlobalCommonsTest.checkTestBlock(node.block)
 
-            Assertions.assertNotNull(node.argumentList, "The argumentList property cannot be null")
-            FunctionArgumentListNodeTest.checkTestExpression(node.argumentList!!)
+            Assertions.assertNotNull(node.parameterList, "The argumentList property cannot be null")
+            FunctionParameterListNodeTest.checkTestExpression(node.parameterList!!)
         }
     }
 
@@ -59,7 +59,7 @@ internal class FunctionStmtNodeTest {
     @MethodSource("provideCorrectFunctionStmt")
     fun `parse correct function statement`(text: String, hasArguments: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionStmtNode.parse(parser)
+        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionStmtNode
@@ -68,10 +68,10 @@ internal class FunctionStmtNodeTest {
         GlobalCommonsTest.checkTestBlock(res.block)
 
         if (hasArguments) {
-            Assertions.assertNotNull(res.argumentList, "The argumentList property cannot be null")
-            FunctionArgumentListNodeTest.checkTestExpression(res.argumentList!!)
+            Assertions.assertNotNull(res.parameterList, "The argumentList property cannot be null")
+            FunctionParameterListNodeTest.checkTestExpression(res.parameterList!!)
         } else {
-            Assertions.assertNull(res.argumentList, "The argumentList property must be null")
+            Assertions.assertNull(res.parameterList, "The argumentList property must be null")
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -80,11 +80,11 @@ internal class FunctionStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect function statement without block`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
-                    "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionArgumentListNodeTest.testExpression}"
+                    "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionParameterListNodeTest.testExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            FunctionStmtNode.parse(parser)
+            FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -92,7 +92,7 @@ internal class FunctionStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionStmtNode.parse(parser)
+        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

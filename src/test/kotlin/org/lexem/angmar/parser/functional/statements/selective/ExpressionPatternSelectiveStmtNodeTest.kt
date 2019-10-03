@@ -51,7 +51,7 @@ internal class ExpressionPatternSelectiveStmtNodeTest {
     @MethodSource("provideCorrectExpressionPatterns")
     fun `parse correct expression pattern`(text: String, hasConditional: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ExpressionPatternSelectiveStmtNode.parse(parser)
+        val res = ExpressionPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ExpressionPatternSelectiveStmtNode
@@ -72,7 +72,7 @@ internal class ExpressionPatternSelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ExpressionPatternSelectiveStmtNode.parse(parser)
+        val res = ExpressionPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

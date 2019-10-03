@@ -15,27 +15,26 @@ internal class AssignExpressionNodeTest {
 
     companion object {
         const val testExpression =
-                "${ExpressionsCommonsTest.testLeftExpression}${AssignOperatorNodeTest.testExpression}${ExpressionsCommonsTest.testRightExpression}"
+                "${ExpressionsCommonsTest.testLeftExpression}${AssignOperatorNodeTest.testExpression}${RightExpressionNodeTest.testExpression}"
 
         @JvmStatic
         private fun provideAssignCorrectExpression(): Stream<Arguments> {
             val sequence = sequence {
                 var text =
-                        "${ExpressionsCommonsTest.testLeftExpression} ${AssignOperatorNode.assignOperator} ${ExpressionsCommonsTest.testRightExpression}"
+                        "${ExpressionsCommonsTest.testLeftExpression} ${AssignOperatorNode.assignOperator} ${RightExpressionNodeTest.testExpression}"
                 yield(Arguments.of(text, AssignOperatorNode.assignOperator))
 
                 text =
-                        "${ExpressionsCommonsTest.testLeftExpression}${AssignOperatorNode.assignOperator}${ExpressionsCommonsTest.testRightExpression}"
+                        "${ExpressionsCommonsTest.testLeftExpression}${AssignOperatorNode.assignOperator}${RightExpressionNodeTest.testExpression}"
                 yield(Arguments.of(text, AssignOperatorNode.assignOperator))
 
                 for (op in AssignOperatorNode.operators) {
-                    text =
-                            "${ExpressionsCommonsTest.testLeftExpression} $op ${ExpressionsCommonsTest.testRightExpression}"
+                    text = "${ExpressionsCommonsTest.testLeftExpression} $op ${RightExpressionNodeTest.testExpression}"
                     yield(Arguments.of(text, op))
 
                     if (op.first() in ExpressionsCommons.operatorCharacters) {
                         text =
-                                "${ExpressionsCommonsTest.testLeftExpression}$op${ExpressionsCommonsTest.testRightExpression}"
+                                "${ExpressionsCommonsTest.testLeftExpression}$op${RightExpressionNodeTest.testExpression}"
                         yield(Arguments.of(text, op))
                     }
                 }
@@ -52,7 +51,7 @@ internal class AssignExpressionNodeTest {
 
             AssignOperatorNodeTest.checkTestExpression(node.operator)
             ExpressionsCommonsTest.checkTestLeftExpression(node.left)
-            ExpressionsCommonsTest.checkTestRightExpression(node.right)
+            RightExpressionNodeTest.checkTestExpression(node.right)
         }
     }
 
@@ -63,7 +62,7 @@ internal class AssignExpressionNodeTest {
     @MethodSource("provideAssignCorrectExpression")
     fun `parse correct assign expression`(text: String, operator: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AssignExpressionNode.parse(parser)
+        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AssignExpressionNode
@@ -71,16 +70,16 @@ internal class AssignExpressionNodeTest {
         Assertions.assertEquals(operator.substring(0, operator.length - AssignOperatorNode.assignOperator.length),
                 res.operator.operator, "The operator property is incorrect")
         ExpressionsCommonsTest.checkTestLeftExpression(res.left)
-        ExpressionsCommonsTest.checkTestRightExpression(res.right)
+        RightExpressionNodeTest.checkTestExpression(res.right)
     }
 
     @Test
     @Incorrect
     fun `parse incorrect assign expression without right operand`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${ExpressionsCommonsTest.testLeftExpression} ${AssignOperatorNode.assignOperator} "
             val parser = LexemParser(CustomStringReader.from(text))
-            AssignExpressionNode.parse(parser)
+            AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -88,7 +87,7 @@ internal class AssignExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AssignExpressionNode.parse(parser)
+        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

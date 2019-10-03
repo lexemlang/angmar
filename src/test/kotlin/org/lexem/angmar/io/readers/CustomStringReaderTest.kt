@@ -2,244 +2,261 @@ package org.lexem.angmar.io.readers
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.errors.*
-import java.io.*
+import org.lexem.angmar.utils.*
 
 internal class CustomStringReaderTest {
     @Test
     fun getSource() {
-        var iter = CustomStringReader.from("xx")
-        Assertions.assertEquals("<internal>", iter.getSource())
+        var reader = CustomStringReader.from("xx")
+        Assertions.assertEquals("", reader.getSource())
 
-        val url = Thread.currentThread().contextClassLoader.getResource("./stringIteratorText.txt")
-        val file = File(url.path)
-        iter = CustomStringReader.from(file)
-        Assertions.assertEquals(file.path, iter.getSource())
+        TestUtils.handleTempFiles(mapOf("main" to "")) { files ->
+            val mainFile = files["main"]!!
+            reader = CustomStringReader.from(mainFile)
+            Assertions.assertEquals(mainFile.canonicalPath, reader.getSource())
+        }
     }
 
     @Test
     fun currentPosition() {
         val text = "This is a long test".repeat(10)
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
         var index = 0
         for (char in text) {
-            Assertions.assertEquals(index, iter.currentPosition())
-            iter.advance()
+            Assertions.assertEquals(index, reader.currentPosition())
+            reader.advance()
             index += 1
         }
-        Assertions.assertEquals(index, iter.currentPosition())
+        Assertions.assertEquals(index, reader.currentPosition())
     }
 
     @Test
     fun nextCharAt() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
         Assertions.assertThrows(AngmarIOException::class.java) {
-            iter.nextCharAt(-1)
+            reader.nextCharAt(-1)
         }
-        Assertions.assertEquals(text[0], iter.nextCharAt(0))
-        Assertions.assertEquals(text[1], iter.nextCharAt())
-        Assertions.assertEquals(text[1], iter.nextCharAt(1))
-        Assertions.assertEquals(text[2], iter.nextCharAt(2))
-        Assertions.assertNull(iter.nextCharAt(3))
+        Assertions.assertEquals(text[0], reader.nextCharAt(0))
+        Assertions.assertEquals(text[1], reader.nextCharAt())
+        Assertions.assertEquals(text[1], reader.nextCharAt(1))
+        Assertions.assertEquals(text[2], reader.nextCharAt(2))
+        Assertions.assertNull(reader.nextCharAt(3))
     }
 
     @Test
     fun prevCharAt() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
-        iter.advance(2)
+        val reader = CustomStringReader.from(text)
+        reader.advance(2)
 
         Assertions.assertThrows(AngmarIOException::class.java) {
-            iter.prevCharAt(-1)
+            reader.prevCharAt(-1)
         }
-        Assertions.assertEquals(text[2], iter.prevCharAt(0))
-        Assertions.assertEquals(text[1], iter.prevCharAt())
-        Assertions.assertEquals(text[1], iter.prevCharAt(1))
-        Assertions.assertEquals(text[0], iter.prevCharAt(2))
-        Assertions.assertNull(iter.prevCharAt(3))
+        Assertions.assertEquals(text[2], reader.prevCharAt(0))
+        Assertions.assertEquals(text[1], reader.prevCharAt())
+        Assertions.assertEquals(text[1], reader.prevCharAt(1))
+        Assertions.assertEquals(text[0], reader.prevCharAt(2))
+        Assertions.assertNull(reader.prevCharAt(3))
     }
 
     @Test
     fun charAt() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
         Assertions.assertThrows(AngmarIOException::class.java) {
-            iter.charAt(-1)
+            reader.charAt(-1)
         }
 
-        Assertions.assertEquals(text[0], iter.charAt(0))
-        Assertions.assertEquals(text[1], iter.charAt(1))
-        Assertions.assertEquals(text[2], iter.charAt(2))
-        Assertions.assertNull(iter.charAt(3))
+        Assertions.assertEquals(text[0], reader.charAt(0))
+        Assertions.assertEquals(text[1], reader.charAt(1))
+        Assertions.assertEquals(text[2], reader.charAt(2))
+        Assertions.assertNull(reader.charAt(3))
 
-        iter.advance(3)
+        reader.advance(3)
 
         Assertions.assertThrows(AngmarIOException::class.java) {
-            iter.charAt(-1)
+            reader.charAt(-1)
         }
 
-        Assertions.assertEquals(text[0], iter.charAt(0))
-        Assertions.assertEquals(text[1], iter.charAt(1))
-        Assertions.assertEquals(text[2], iter.charAt(2))
-        Assertions.assertNull(iter.charAt(3))
+        Assertions.assertEquals(text[0], reader.charAt(0))
+        Assertions.assertEquals(text[1], reader.charAt(1))
+        Assertions.assertEquals(text[2], reader.charAt(2))
+        Assertions.assertNull(reader.charAt(3))
     }
 
     @Test
     fun isEnd() {
         var text = ""
-        var iter = CustomStringReader.from(text)
-        Assertions.assertTrue(iter.isEnd())
+        var reader = CustomStringReader.from(text)
+        Assertions.assertTrue(reader.isEnd())
 
         text = "a"
-        iter = CustomStringReader.from(text)
-        Assertions.assertFalse(iter.isEnd())
-        iter.advance()
-        Assertions.assertTrue(iter.isEnd())
+        reader = CustomStringReader.from(text)
+        Assertions.assertFalse(reader.isEnd())
+        reader.advance()
+        Assertions.assertTrue(reader.isEnd())
 
         text = "ab"
-        iter = CustomStringReader.from(text)
-        Assertions.assertFalse(iter.isEnd())
-        iter.advance()
-        Assertions.assertFalse(iter.isEnd())
-        iter.advance()
-        Assertions.assertTrue(iter.isEnd())
+        reader = CustomStringReader.from(text)
+        Assertions.assertFalse(reader.isEnd())
+        reader.advance()
+        Assertions.assertFalse(reader.isEnd())
+        reader.advance()
+        Assertions.assertTrue(reader.isEnd())
     }
 
     @Test
     fun advance() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
-        Assertions.assertEquals(0, iter.currentPosition())
-        Assertions.assertTrue(iter.advance())
-        Assertions.assertEquals(1, iter.currentPosition())
-        Assertions.assertTrue(iter.advance())
-        Assertions.assertEquals(2, iter.currentPosition())
-        Assertions.assertTrue(iter.advance())
-        Assertions.assertEquals(3, iter.currentPosition())
-        Assertions.assertFalse(iter.advance())
+        Assertions.assertEquals(0, reader.currentPosition())
+        Assertions.assertTrue(reader.advance())
+        Assertions.assertEquals(1, reader.currentPosition())
+        Assertions.assertTrue(reader.advance())
+        Assertions.assertEquals(2, reader.currentPosition())
+        Assertions.assertTrue(reader.advance())
+        Assertions.assertEquals(3, reader.currentPosition())
+        Assertions.assertFalse(reader.advance())
 
-        iter.restart()
-        Assertions.assertEquals(0, iter.currentPosition())
-        Assertions.assertTrue(iter.advance(2))
-        Assertions.assertEquals(2, iter.currentPosition())
+        reader.restart()
+        Assertions.assertEquals(0, reader.currentPosition())
+        Assertions.assertTrue(reader.advance(2))
+        Assertions.assertEquals(2, reader.currentPosition())
     }
 
     @Test
     fun back() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
-        iter.advance(3)
+        val reader = CustomStringReader.from(text)
+        reader.advance(3)
 
-        Assertions.assertEquals(3, iter.currentPosition())
-        Assertions.assertTrue(iter.back())
-        Assertions.assertEquals(2, iter.currentPosition())
-        Assertions.assertTrue(iter.back())
-        Assertions.assertEquals(1, iter.currentPosition())
-        Assertions.assertTrue(iter.back())
-        Assertions.assertEquals(0, iter.currentPosition())
-        Assertions.assertFalse(iter.back())
+        Assertions.assertEquals(3, reader.currentPosition())
+        Assertions.assertTrue(reader.back())
+        Assertions.assertEquals(2, reader.currentPosition())
+        Assertions.assertTrue(reader.back())
+        Assertions.assertEquals(1, reader.currentPosition())
+        Assertions.assertTrue(reader.back())
+        Assertions.assertEquals(0, reader.currentPosition())
+        Assertions.assertFalse(reader.back())
 
-        iter.restart()
-        iter.advance(3)
-        Assertions.assertEquals(3, iter.currentPosition())
-        Assertions.assertTrue(iter.back(2))
-        Assertions.assertEquals(1, iter.currentPosition())
+        reader.restart()
+        reader.advance(3)
+        Assertions.assertEquals(3, reader.currentPosition())
+        Assertions.assertTrue(reader.back(2))
+        Assertions.assertEquals(1, reader.currentPosition())
     }
 
     @Test
     fun setPosition() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
-        Assertions.assertTrue(iter.setPosition(0))
-        Assertions.assertEquals(0, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(1))
-        Assertions.assertEquals(1, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(2))
-        Assertions.assertEquals(2, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(3))
-        Assertions.assertEquals(3, iter.currentPosition())
-        Assertions.assertFalse(iter.setPosition(4))
+        Assertions.assertTrue(reader.setPosition(0))
+        Assertions.assertEquals(0, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(1))
+        Assertions.assertEquals(1, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(2))
+        Assertions.assertEquals(2, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(3))
+        Assertions.assertEquals(3, reader.currentPosition())
+        Assertions.assertFalse(reader.setPosition(4))
 
-        Assertions.assertTrue(iter.setPosition(3))
-        Assertions.assertEquals(3, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(2))
-        Assertions.assertEquals(2, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(1))
-        Assertions.assertEquals(1, iter.currentPosition())
-        Assertions.assertTrue(iter.setPosition(0))
-        Assertions.assertEquals(0, iter.currentPosition())
+        Assertions.assertTrue(reader.setPosition(3))
+        Assertions.assertEquals(3, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(2))
+        Assertions.assertEquals(2, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(1))
+        Assertions.assertEquals(1, reader.currentPosition())
+        Assertions.assertTrue(reader.setPosition(0))
+        Assertions.assertEquals(0, reader.currentPosition())
     }
 
     @Test
     fun saveCursor() {
         val text = "This is a long test".repeat(10)
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
         var index = 0
         for (char in text) {
-            val cursor = iter.saveCursor()
+            val cursor = reader.saveCursor()
             Assertions.assertEquals(index, cursor.position())
             Assertions.assertEquals(char, cursor.char())
-            Assertions.assertEquals(iter, cursor.getReader())
-            iter.advance()
+            Assertions.assertEquals(reader, cursor.getReader())
+            reader.advance()
             index += 1
         }
 
-        val cursor = iter.saveCursor()
+        val cursor = reader.saveCursor()
         Assertions.assertEquals(index, cursor.position())
         Assertions.assertNull(cursor.char())
-        Assertions.assertEquals(iter, cursor.getReader())
+        Assertions.assertEquals(reader, cursor.getReader())
     }
 
     @Test
     fun restoreCursor() {
         val text = "This is a long test"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
-        val cursor = iter.saveCursor()
+        val cursor = reader.saveCursor()
         repeat(5) {
-            iter.advance()
+            reader.advance()
         }
 
-        Assertions.assertEquals(5, iter.currentPosition())
+        Assertions.assertEquals(5, reader.currentPosition())
         Assertions.assertEquals(0, cursor.position())
         Assertions.assertEquals(text[0], cursor.char())
-        Assertions.assertEquals(iter, cursor.getReader())
+        Assertions.assertEquals(reader, cursor.getReader())
 
         cursor.restore()
 
-        Assertions.assertEquals(0, iter.currentPosition())
+        Assertions.assertEquals(0, reader.currentPosition())
     }
 
     @Test
     fun restart() {
         val text = "abc"
-        val iter = CustomStringReader.from(text)
+        val reader = CustomStringReader.from(text)
 
-        Assertions.assertEquals(0, iter.currentPosition())
-        iter.restart()
-        Assertions.assertEquals(0, iter.currentPosition())
-        iter.advance()
-        Assertions.assertNotEquals(0, iter.currentPosition())
-        iter.restart()
-        Assertions.assertEquals(0, iter.currentPosition())
+        Assertions.assertEquals(0, reader.currentPosition())
+        reader.restart()
+        Assertions.assertEquals(0, reader.currentPosition())
+        reader.advance()
+        Assertions.assertNotEquals(0, reader.currentPosition())
+        reader.restart()
+        Assertions.assertEquals(0, reader.currentPosition())
     }
 
     @Test
     fun readAllText() {
         val text = "test"
-        var iter = CustomStringReader.from(text)
-        Assertions.assertEquals(text, iter.readAllText())
+        var reader = CustomStringReader.from(text)
+        Assertions.assertEquals(text, reader.readAllText())
 
-        val url = Thread.currentThread().contextClassLoader.getResource("./stringIteratorText.txt")
-        val file = File(url.path)
-        val fileContent = file.readText()
-        iter = CustomStringReader.from(file)
-        Assertions.assertEquals(fileContent, iter.readAllText())
+        TestUtils.handleTempFiles(mapOf("main" to text)) { files ->
+            val mainFile = files["main"]!!
+            reader = CustomStringReader.from(mainFile)
+            Assertions.assertEquals(text, reader.readAllText())
+        }
+    }
+
+    @Test
+    fun substring() {
+        val text = "This is a text"
+        val word = "This"
+
+        val reader = CustomStringReader.from(text)
+
+        val initCursor = reader.saveCursor()
+        reader.advance(word.length)
+        val endCursor = reader.saveCursor()
+        val substr = reader.substring(initCursor, endCursor)
+
+        Assertions.assertEquals(word.length, reader.currentPosition())
+        Assertions.assertEquals(word, substr)
     }
 }

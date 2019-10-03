@@ -7,7 +7,6 @@ import org.lexem.angmar.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
-import org.lexem.angmar.utils.*
 import java.util.stream.*
 import kotlin.streams.*
 
@@ -38,46 +37,30 @@ internal class CommonsTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["012345"])
-    fun `parse correct point-like escape`(number: String) {
+    fun `parse correct unicode-like escape`(number: String) {
         val text = "${UnicodeEscapeNode.escapeStart}$number"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = Commons.parseAnyEscape(parser)
+        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
 
-        Assertions.assertEquals(Converters.hexToDouble(number), res.value, "The value is not correct")
+        Assertions.assertEquals(number.toUpperCase().toInt(16), res.value, "The value is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
-
-    @ParameterizedTest
-    @ValueSource(strings = ["01234567"])
-    fun `parse correct unicode-like escape`(number: String) {
-        val text = "${PointEscapeNode.escapeStart}$number"
-        val parser = LexemParser(CustomStringReader.from(text))
-        val res = Commons.parseAnyEscape(parser)
-
-        Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as PointEscapeNode
-
-        Assertions.assertEquals(Converters.hexToDouble(number), res.value, "The value is not correct")
-
-        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
-    }
-
 
     @ParameterizedTest
     @ValueSource(strings = ["a", "v", "t", "\n", "'", "\"", WhitespaceNode.windowsEndOfLine])
     fun `parse correct escape`(escapeLetter: String) {
         val text = "${EscapeNode.startToken}$escapeLetter"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = Commons.parseAnyEscape(parser)
+        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapeNode
 
-        Assertions.assertEquals(escapeLetter, res.value, "The value is not correct")
+        Assertions.assertEquals(escapeLetter, res.value, "The value is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -87,7 +70,7 @@ internal class CommonsTest {
     fun `parse correct dynamic identifier - escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = Commons.parseDynamicIdentifier(parser)
+        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapedExpressionNode
@@ -101,18 +84,18 @@ internal class CommonsTest {
     @ValueSource(strings = ["a", "test"])
     fun `parse correct dynamic identifier - simple identifier`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = Commons.parseDynamicIdentifier(parser)
+        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode
 
-        Assertions.assertFalse(res.isQuotedIdentifier, "The isQuotedIdentifier is not correct")
-        Assertions.assertNull(res.quotedIdentifier, "The quotedIdentifier is not correct")
+        Assertions.assertFalse(res.isQuotedIdentifier, "The isQuotedIdentifier is incorrect")
+        Assertions.assertNull(res.quotedIdentifier, "The quotedIdentifier is incorrect")
         Assertions.assertEquals(text.split(IdentifierNode.middleChar).size, res.simpleIdentifiers.size,
-                "The count of simple identifiers is not correct")
+                "The count of simple identifiers is incorrect")
 
         for (word in text.split(IdentifierNode.middleChar).withIndex()) {
-            Assertions.assertEquals(word.value, res.simpleIdentifiers[word.index], "A simple identifier is not correct")
+            Assertions.assertEquals(word.value, res.simpleIdentifiers[word.index], "A simple identifier is incorrect")
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

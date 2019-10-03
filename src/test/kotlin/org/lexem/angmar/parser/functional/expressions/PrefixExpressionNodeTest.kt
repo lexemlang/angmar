@@ -47,7 +47,7 @@ internal class PrefixExpressionNodeTest {
     @MethodSource("provideCorrectPrefixExpressions")
     fun `parse correct prefix expression`(text: String, hasPrefix: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PrefixExpressionNode.parse(parser)
+        val res = PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -66,10 +66,10 @@ internal class PrefixExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect prefix expression with prefix operator but without element`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = PrefixOperatorNodeTest.testExpression
             val parser = LexemParser(CustomStringReader.from(text))
-            PrefixExpressionNode.parse(parser)
+            PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -77,7 +77,7 @@ internal class PrefixExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AccessExpressionNode.parse(parser)
+        val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

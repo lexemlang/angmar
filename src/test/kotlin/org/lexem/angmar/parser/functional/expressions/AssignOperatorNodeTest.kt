@@ -60,7 +60,7 @@ internal class AssignOperatorNodeTest {
     @MethodSource("provideCorrectOperators")
     fun `parse correct assign operator`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AssignOperatorNode.parse(parser)
+        val res = AssignOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AssignOperatorNode
@@ -75,7 +75,7 @@ internal class AssignOperatorNodeTest {
     fun `parse correct assign operator with value`(operator: String) {
         val text = "${operator}125"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AssignOperatorNode.parse(parser)
+        val res = AssignOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AssignOperatorNode
@@ -89,17 +89,17 @@ internal class AssignOperatorNodeTest {
     @ParameterizedTest
     @MethodSource("provideIncorrectOperators")
     fun `parse incorrect assign operator`(text: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val parser = LexemParser(CustomStringReader.from(text))
-            AssignOperatorNode.parse(parser)
+            AssignOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["", "3"])
+    @ValueSource(strings = ["", "3", "==", "!="])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AssignOperatorNode.parse(parser)
+        val res = AssignOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

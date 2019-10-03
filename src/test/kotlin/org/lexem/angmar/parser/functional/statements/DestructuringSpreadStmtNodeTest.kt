@@ -39,7 +39,6 @@ internal class DestructuringSpreadStmtNodeTest {
 
             Assertions.assertTrue(node.isConstant, "The isConstant property is incorrect")
             IdentifierNodeTest.checkTestExpression(node.identifier)
-
         }
     }
 
@@ -49,7 +48,7 @@ internal class DestructuringSpreadStmtNodeTest {
     @MethodSource("provideCorrectDestructuringSpreadStmt")
     fun `parse correct destructuring spread statement`(text: String, isConstant: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = DestructuringSpreadStmtNode.parse(parser)
+        val res = DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as DestructuringSpreadStmtNode
@@ -63,10 +62,10 @@ internal class DestructuringSpreadStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect destructuring spread statement without identifier`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${DestructuringSpreadStmtNode.spreadToken}${DestructuringSpreadStmtNode.constantToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            DestructuringSpreadStmtNode.parse(parser)
+            DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -74,7 +73,7 @@ internal class DestructuringSpreadStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = DestructuringSpreadStmtNode.parse(parser)
+        val res = DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -54,7 +54,7 @@ internal class CommentMultilineNodeTest {
 
     @Test
     fun `parse unclosed multiline comments`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${CommentMultilineNode.MultilineStartToken} this comment \n is not closed"
             CommentMultilineNode.parse(LexemParser(CustomStringReader.from(text)))
         }
@@ -62,7 +62,7 @@ internal class CommentMultilineNodeTest {
 
     @Test
     fun `parse closed multiline comments but with an incorrect number of additional tokens`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${CommentMultilineNode.MultilineStartToken}${CommentMultilineNode.MultilineAdditionalToken.repeat(
                             3)} this comment \n is closed with an incorrect number of ${CommentMultilineNode.MultilineAdditionalToken} ${CommentMultilineNode.MultilineAdditionalToken.repeat(

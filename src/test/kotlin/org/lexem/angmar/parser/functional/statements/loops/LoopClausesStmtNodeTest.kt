@@ -75,7 +75,7 @@ internal class LoopClausesStmtNodeTest {
     @MethodSource("provideCorrectLoopClauses")
     fun `parse correct loop clauses`(text: String, hasLast: Boolean, hasElse: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LoopClausesStmtNode.parse(parser)
+        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LoopClausesStmtNode
@@ -100,20 +100,20 @@ internal class LoopClausesStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect loop clauses with last but without block`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = LoopClausesStmtNode.lastKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            LoopClausesStmtNode.parse(parser)
+            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect loop clauses with else but without block`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = LoopClausesStmtNode.elseKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            LoopClausesStmtNode.parse(parser)
+            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -121,7 +121,7 @@ internal class LoopClausesStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LoopClausesStmtNode.parse(parser)
+        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

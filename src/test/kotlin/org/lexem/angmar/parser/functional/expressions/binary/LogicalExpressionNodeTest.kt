@@ -61,7 +61,7 @@ internal class LogicalExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct logical expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicalExpressionNode.parse(parser)
+        val res = LogicalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -86,10 +86,10 @@ internal class LogicalExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect logical expression without operand after the operator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${ShiftExpressionNodeTest.testExpression}${LogicalExpressionNode.andOperator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            LogicalExpressionNode.parse(parser)
+            LogicalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -97,7 +97,7 @@ internal class LogicalExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicalExpressionNode.parse(parser)
+        val res = LogicalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

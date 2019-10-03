@@ -1,4 +1,4 @@
-package org.lexem.angmar.parser.functional.statements
+package org.lexem.angmar.parser.descriptive.statements
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
@@ -32,7 +32,7 @@ internal class SetPropsMacroStmtNodeTest {
     @ValueSource(strings = ["${SetPropsMacroStmtNode.macroName}${PropertyStyleObjectBlockNodeTest.testExpression}"])
     fun `parse correct conditional statement`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetPropsMacroStmtNode.parse(parser)
+        val res = SetPropsMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetPropsMacroStmtNode
@@ -45,10 +45,10 @@ internal class SetPropsMacroStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect set props macro without property style object`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = SetPropsMacroStmtNode.macroName
             val parser = LexemParser(CustomStringReader.from(text))
-            SetPropsMacroStmtNode.parse(parser)
+            SetPropsMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -56,7 +56,7 @@ internal class SetPropsMacroStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetPropsMacroStmtNode.parse(parser)
+        val res = SetPropsMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -58,13 +58,14 @@ internal class BitlistElementNodeTest {
     @MethodSource("provideNumberElements")
     fun `parse correct bitlist element`(text: String, radix: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = BitlistElementNode.parse(parser, radix)
+        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0, radix)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistElementNode
 
         Assertions.assertEquals(text.replace(NumberNode.digitSeparator, ""), res.number,
                 "The number property is incorrect")
+        Assertions.assertEquals(radix, res.radix, "The radix property is incorrect")
         Assertions.assertNull(res.expression, "The expression property must be null")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -74,13 +75,15 @@ internal class BitlistElementNodeTest {
     @ValueSource(strings = [EscapedExpressionNodeTest.testExpression])
     fun `parse correct bitlist element`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = BitlistElementNode.parse(parser, 2) // The radix does not matter
+        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
+                2) // The radix does not matter
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistElementNode
 
         Assertions.assertNull(res.number, "The number property must be null")
         Assertions.assertNotNull(res.expression, "The expression property cannot be null")
+        Assertions.assertEquals(2, res.radix, "The radix property is incorrect")
         EscapedExpressionNodeTest.checkTestExpression(res.expression!!)
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -90,7 +93,7 @@ internal class BitlistElementNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ObjectElementNode.parse(parser)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

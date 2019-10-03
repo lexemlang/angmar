@@ -10,21 +10,21 @@ import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.utils.*
 
-internal class FunctionArgumentNodeTest {
+internal class FunctionParameterNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val correctFunctionArgument = IdentifierNodeTest.testExpression
-        const val correctFunctionArgumentWithValue =
-                "${IdentifierNodeTest.testExpression}${FunctionArgumentNode.assignOperator}${ExpressionsCommonsTest.testExpression}"
-        const val correctFunctionArgumentWithValueAndWS =
-                "${IdentifierNodeTest.testExpression}  ${FunctionArgumentNode.assignOperator}  ${ExpressionsCommonsTest.testExpression}"
+        const val correctFunctionParameter = IdentifierNodeTest.testExpression
+        const val correctFunctionParameterWithValue =
+                "${IdentifierNodeTest.testExpression}${FunctionParameterNode.assignOperator}${ExpressionsCommonsTest.testExpression}"
+        const val correctFunctionParameterWithValueAndWS =
+                "${IdentifierNodeTest.testExpression}  ${FunctionParameterNode.assignOperator}  ${ExpressionsCommonsTest.testExpression}"
 
         // AUX METHODS --------------------------------------------------------
 
         fun checkTestExpression(node: ParserNode, hasExpressionNode: Boolean) {
-            Assertions.assertTrue(node is FunctionArgumentNode, "The node is not a FunctionArgumentNode")
-            node as FunctionArgumentNode
+            Assertions.assertTrue(node is FunctionParameterNode, "The node is not a FunctionParameterNode")
+            node as FunctionParameterNode
 
             IdentifierNodeTest.checkTestExpression(node.identifier)
 
@@ -40,13 +40,13 @@ internal class FunctionArgumentNodeTest {
     // TESTS ------------------------------------------------------------------
 
     @ParameterizedTest
-    @ValueSource(strings = [correctFunctionArgument])
-    fun `parse correct function argument`(text: String) {
+    @ValueSource(strings = [correctFunctionParameter])
+    fun `parse correct function parameter`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionArgumentNode.parse(parser)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as FunctionArgumentNode
+        res as FunctionParameterNode
 
         checkTestExpression(res, false)
 
@@ -54,13 +54,13 @@ internal class FunctionArgumentNodeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [correctFunctionArgumentWithValue])
-    fun `parse correct function argument with values`(text: String) {
+    @ValueSource(strings = [correctFunctionParameterWithValue])
+    fun `parse correct function parameter with values`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionArgumentNode.parse(parser)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as FunctionArgumentNode
+        res as FunctionParameterNode
 
         checkTestExpression(res, true)
 
@@ -68,13 +68,13 @@ internal class FunctionArgumentNodeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [correctFunctionArgumentWithValueAndWS])
-    fun `parse correct function argument with values and whites`(text: String) {
+    @ValueSource(strings = [correctFunctionParameterWithValueAndWS])
+    fun `parse correct function parameter with values and whites`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionArgumentNode.parse(parser)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as FunctionArgumentNode
+        res as FunctionParameterNode
 
         checkTestExpression(res, true)
 
@@ -83,11 +83,11 @@ internal class FunctionArgumentNodeTest {
 
     @Test
     @Incorrect
-    fun `parse incorrect function argument with no expression`() {
-        assertParserException {
-            val text = "${IdentifierNodeTest.testExpression}${FunctionArgumentNode.assignOperator}"
+    fun `parse incorrect function parameter with no expression`() {
+        TestUtils.assertParserException {
+            val text = "${IdentifierNodeTest.testExpression}${FunctionParameterNode.assignOperator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            FunctionArgumentNode.parse(parser)
+            FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -95,7 +95,7 @@ internal class FunctionArgumentNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionArgumentNode.parse(parser)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

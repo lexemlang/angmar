@@ -90,7 +90,7 @@ internal class PropertyStyleObjectBlockNodeTest {
             setElements: Int) {
         val text = "${PropertyStyleObjectBlockNode.startToken}$identifiers${PropertyStyleObjectBlockNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PropertyStyleObjectBlockNode.parse(parser)
+        val res = PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyStyleObjectBlockNode
@@ -117,10 +117,10 @@ internal class PropertyStyleObjectBlockNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect prop-style object block with no endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${PropertyStyleObjectBlockNode.startToken} ${CommonsTest.testDynamicIdentifier}"
             val parser = LexemParser(CustomStringReader.from(text))
-            PropertyStyleObjectBlockNode.parse(parser)
+            PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -128,7 +128,7 @@ internal class PropertyStyleObjectBlockNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PropertyStyleObjectBlockNode.parse(parser)
+        val res = PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

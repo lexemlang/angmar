@@ -71,7 +71,7 @@ internal class InfiniteLoopStmtNodeTest {
     @MethodSource("provideCorrectInfiniteLoopStmt")
     fun `parse correct infinite loop statement`(text: String, hasClauses: Boolean, hasIndex: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = InfiniteLoopStmtNode.parse(parser)
+        val res = InfiniteLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as InfiniteLoopStmtNode
@@ -98,10 +98,10 @@ internal class InfiniteLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect infinite loop statement without thenBlock`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = InfiniteLoopStmtNode.keyword
             val parser = LexemParser(CustomStringReader.from(text))
-            InfiniteLoopStmtNode.parse(parser)
+            InfiniteLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -109,7 +109,7 @@ internal class InfiniteLoopStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = InfiniteLoopStmtNode.parse(parser)
+        val res = InfiniteLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

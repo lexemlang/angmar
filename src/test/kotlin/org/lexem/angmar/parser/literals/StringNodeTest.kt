@@ -34,10 +34,10 @@ internal class StringNodeTest {
             node as StringNode
 
             Assertions.assertEquals(0, node.minAdditionalDelimiterRequired,
-                    "The minAdditionalDelimiterRequired is not correct")
-            Assertions.assertEquals(1, node.texts.size, "The text list size is not correct")
-            Assertions.assertEquals(0, node.escapes.size, "The escapes list size is not correct")
-            Assertions.assertEquals("abc", node.texts.first(), "The first text is not correct")
+                    "The minAdditionalDelimiterRequired is incorrect")
+            Assertions.assertEquals(1, node.texts.size, "The text list size is incorrect")
+            Assertions.assertEquals(0, node.escapes.size, "The escapes list size is incorrect")
+            Assertions.assertEquals("abc", node.texts.first(), "The first text is incorrect")
         }
     }
 
@@ -50,17 +50,17 @@ internal class StringNodeTest {
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StringNode.parse(parser)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(1, res.texts.size, "The text list size is not correct")
-        Assertions.assertEquals(0, res.escapes.size, "The escapes list size is not correct")
-        Assertions.assertEquals(textContent, res.texts.first(), "The first text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(1, res.texts.size, "The text list size is incorrect")
+        Assertions.assertEquals(0, res.escapes.size, "The escapes list size is incorrect")
+        Assertions.assertEquals(textContent, res.texts.first(), "The first text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -70,25 +70,25 @@ internal class StringNodeTest {
     fun `parse simple correct strings with escapes`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StringNode.parse(parser)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
 
         val texts = textContent.split("\\")
-        Assertions.assertEquals(texts.size, res.texts.size, "The text list size is not correct")
-        Assertions.assertEquals(texts.size - 1, res.escapes.size, "The escapes list size is not correct")
+        Assertions.assertEquals(texts.size, res.texts.size, "The text list size is incorrect")
+        Assertions.assertEquals(texts.size - 1, res.escapes.size, "The escapes list size is incorrect")
 
-        Assertions.assertEquals(texts.first(), res.texts.first(), "The first text is not correct")
+        Assertions.assertEquals(texts.first(), res.texts.first(), "The first text is incorrect")
 
         for (i in 1 until texts.size) {
-            Assertions.assertEquals(texts[i].substring(1), res.texts[i], "The text $i is not correct")
+            Assertions.assertEquals(texts[i].substring(1), res.texts[i], "The text $i is incorrect")
             Assertions.assertEquals("${EscapeNode.startToken}${texts[i][0]}", res.escapes[i - 1].content,
-                    "The escape ${i - 1} is not correct")
+                    "The escape ${i - 1} is incorrect")
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -101,25 +101,25 @@ internal class StringNodeTest {
                 textContent.filter { it.toString() == StringNode.startToken || it.toString() == StringNode.endToken || it.toString() == additionalDelimiter }.length)
         val text = "$additionalDelimiter${StringNode.startToken}$textContent${StringNode.endToken}$additionalDelimiter"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StringNode.parse(parser)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(additionalDelimiter.length, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
 
         val texts = textContent.split("\\")
-        Assertions.assertEquals(texts.size, res.texts.size, "The text list size is not correct")
-        Assertions.assertEquals(texts.size - 1, res.escapes.size, "The escapes list size is not correct")
+        Assertions.assertEquals(texts.size, res.texts.size, "The text list size is incorrect")
+        Assertions.assertEquals(texts.size - 1, res.escapes.size, "The escapes list size is incorrect")
 
-        Assertions.assertEquals(texts.first(), res.texts.first(), "The first text is not correct")
+        Assertions.assertEquals(texts.first(), res.texts.first(), "The first text is incorrect")
 
         for (i in 1 until texts.size) {
-            Assertions.assertEquals(texts[i].substring(1), res.texts[i], "The text $i is not correct")
+            Assertions.assertEquals(texts[i].substring(1), res.texts[i], "The text $i is incorrect")
             Assertions.assertEquals("${EscapeNode.startToken}${texts[i][0]}", res.escapes[i - 1].content,
-                    "The escape ${i - 1} is not correct")
+                    "The escape ${i - 1} is incorrect")
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -127,9 +127,10 @@ internal class StringNodeTest {
 
     @Test
     fun `parse unclosed string`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "$additionalDelimiter${StringNode.startToken} this is a test"
-            StringNode.parse(LexemParser(CustomStringReader.from(text)))
+            val parser = LexemParser(CustomStringReader.from(text))
+            StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -138,17 +139,17 @@ internal class StringNodeTest {
     fun `parse incorrect complex strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StringNode.parse(parser)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
 
         val lastIndex = textContent.indexOf(StringNode.endToken) + StringNode.endToken.length + 1
-        Assertions.assertEquals(text.substring(0 until lastIndex), res.content, "The content is not correct")
+        Assertions.assertEquals(text.substring(0 until lastIndex), res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
         Assertions.assertEquals(textContent.substring(0 until textContent.indexOf(StringNode.endToken)),
-                res.texts.first(), "The text is not correct")
+                res.texts.first(), "The text is incorrect")
 
         Assertions.assertEquals(lastIndex, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -157,7 +158,7 @@ internal class StringNodeTest {
     @ValueSource(strings = ["", "3", additionalDelimiter])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StringNode.parse(parser)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

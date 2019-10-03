@@ -5,6 +5,7 @@ import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
 import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
 import java.util.stream.*
 
@@ -30,12 +31,12 @@ internal class UnicodeEscapeNodeTest {
     fun `parse correct unicode escape without brackets`(number: String) {
         val text = "${UnicodeEscapeNode.escapeStart}$number"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
 
-        Assertions.assertEquals(Converters.hexToDouble(number), res.value, "The value is not correct")
+        Assertions.assertEquals(number.toUpperCase().toInt(16), res.value, "The value is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -44,10 +45,10 @@ internal class UnicodeEscapeNodeTest {
     @Incorrect
     @ValueSource(strings = ["", "0", "01", "012", "0123", "01234", "01234"])
     fun `parse incorrect unicode escape without brackets`(number: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${UnicodeEscapeNode.escapeStart}$number"
             val parser = LexemParser(CustomStringReader.from(text))
-            UnicodeEscapeNode.parse(parser)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -57,12 +58,12 @@ internal class UnicodeEscapeNodeTest {
         val text =
                 "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}$number${UnicodeEscapeNode.endBracket}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
 
-        Assertions.assertEquals(Converters.hexToDouble(number), res.value, "The value is not correct")
+        Assertions.assertEquals(number.toUpperCase().toInt(16), res.value, "The value is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -73,12 +74,12 @@ internal class UnicodeEscapeNodeTest {
         val text =
                 "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}${WhitespaceNoEOLNodeTest.allWhiteCharsTest}$number${WhitespaceNoEOLNodeTest.allWhiteCharsTest}${UnicodeEscapeNode.endBracket}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
 
-        Assertions.assertEquals(Converters.hexToDouble(number), res.value, "The value is not correct")
+        Assertions.assertEquals(number.toUpperCase().toInt(16), res.value, "The value is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -87,19 +88,21 @@ internal class UnicodeEscapeNodeTest {
     @Incorrect
     @ValueSource(strings = ["0123456", ""])
     fun `parse incorrect unicode escape with brackets`(number: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}$number${UnicodeEscapeNode.endBracket}"
-            UnicodeEscapeNode.parse(LexemParser(CustomStringReader.from(text)))
+            val parser = LexemParser(CustomStringReader.from(text))
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect unicode escape without the final bracket`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}0"
-            UnicodeEscapeNode.parse(LexemParser(CustomStringReader.from(text)))
+            val parser = LexemParser(CustomStringReader.from(text))
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -107,7 +110,7 @@ internal class UnicodeEscapeNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

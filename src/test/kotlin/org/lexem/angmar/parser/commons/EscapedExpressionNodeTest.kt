@@ -33,7 +33,7 @@ internal class EscapedExpressionNodeTest {
     fun `parse correct escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = EscapedExpressionNode.parse(parser)
+        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapedExpressionNode
@@ -46,10 +46,10 @@ internal class EscapedExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect escaped expression with no expression`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = EscapedExpressionNode.startToken
             val parser = LexemParser(CustomStringReader.from(text))
-            EscapedExpressionNode.parse(parser)
+            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -57,10 +57,10 @@ internal class EscapedExpressionNodeTest {
     @Incorrect
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse incorrect escaped expression with no endToken`(expression: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${EscapedExpressionNode.startToken}$expression"
             val parser = LexemParser(CustomStringReader.from(text))
-            EscapedExpressionNode.parse(parser)
+            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -68,7 +68,7 @@ internal class EscapedExpressionNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = EscapedExpressionNode.parse(parser)
+        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

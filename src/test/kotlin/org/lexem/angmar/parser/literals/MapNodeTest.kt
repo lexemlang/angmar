@@ -61,7 +61,7 @@ internal class MapNodeTest {
     fun `parse correct map literal`(map: String, size: Int) {
         val text = "${MapNode.macroName}${MapNode.startToken}$map${MapNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapNode.parse(parser)
+        val res = MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapNode
@@ -81,7 +81,7 @@ internal class MapNodeTest {
     fun `parse correct constant map literal`(map: String, size: Int) {
         val text = "${MapNode.macroName}${MapNode.constantToken}${MapNode.startToken}$map${MapNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapNode.parse(parser)
+        val res = MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapNode
@@ -101,7 +101,7 @@ internal class MapNodeTest {
     fun `parse correct map literal with whitespaces`(map: String, size: Int) {
         val text = "${MapNode.macroName}${MapNode.startToken} $map ${MapNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapNode.parse(parser)
+        val res = MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapNode
@@ -121,7 +121,7 @@ internal class MapNodeTest {
     fun `parse correct map literal with trailing comma`(map: String, size: Int) {
         val text = "${MapNode.macroName}${MapNode.startToken}$map${MapNode.elementSeparator}${MapNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapNode.parse(parser)
+        val res = MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapNode
@@ -139,30 +139,30 @@ internal class MapNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect map literal with no startToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = MapNode.macroName
             val parser = LexemParser(CustomStringReader.from(text))
-            MapNode.parse(parser)
+            MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect map literal with no expression`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${MapNode.macroName}${MapNode.startToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            MapNode.parse(parser)
+            MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect map literal with no endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${MapNode.macroName}${MapNode.startToken}${MapElementNodeTest.correctMapElement}"
             val parser = LexemParser(CustomStringReader.from(text))
-            MapNode.parse(parser)
+            MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -170,7 +170,7 @@ internal class MapNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapNode.parse(parser)
+        val res = MapNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

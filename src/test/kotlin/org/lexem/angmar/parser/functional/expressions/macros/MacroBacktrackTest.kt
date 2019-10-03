@@ -32,7 +32,7 @@ internal class MacroBacktrackTest {
     @ValueSource(strings = [MacroBacktrack.macroName])
     fun `parse correct macro backtrack`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MacroBacktrack.parse(parser)
+        val res = MacroBacktrack.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MacroBacktrack
@@ -47,7 +47,7 @@ internal class MacroBacktrackTest {
     @ValueSource(strings = ["${MacroBacktrack.macroName}${FunctionCallNodeTest.testExpression}"])
     fun `parse correct full macro backtrack`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MacroBacktrack.parse(parser)
+        val res = MacroBacktrack.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MacroBacktrack
@@ -62,7 +62,7 @@ internal class MacroBacktrackTest {
     @ValueSource(strings = ["", "3", "no_macro!"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MacroBacktrack.parse(parser)
+        val res = MacroBacktrack.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

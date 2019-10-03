@@ -7,7 +7,6 @@ import org.lexem.angmar.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
-import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 import org.lexem.angmar.parser.functional.statements.loops.*
 import java.util.stream.*
@@ -17,15 +16,15 @@ internal class StatementCommonsTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testAnyStatement = ConditionalLoopStmtNodeTest.testExpression
+        const val testAnyStatement = ExpressionStmtNodeTest.testExpression
         const val testAnyPublicMacroStmt = VarDeclarationStmtNodeTest.testExpression
-        const val testAnyMacroStmt = SetPropsMacroStmtNodeTest.testExpression
         const val testAnyControlStmt = ControlWithExpressionStmtNodeTest.testExpression
 
         val statements = listOf(GlobalCommonsTest.testBlock, ConditionalStmtNodeTest.testExpression,
                 SelectiveStmtNodeTest.testExpression, ConditionalLoopStmtNodeTest.testExpression,
                 IteratorLoopStmtNodeTest.testExpression, InfiniteLoopStmtNodeTest.testExpression,
-                testAnyPublicMacroStmt, testAnyMacroStmt, testAnyControlStmt, ExpressionsCommonsTest.testExpression)
+                testAnyPublicMacroStmt, PublicMacroStmtNodeTest.testExpression, testAnyControlStmt,
+                ExpressionStmtNodeTest.testExpression)
 
         @JvmStatic
         private fun provideStatements(): Stream<Arguments> {
@@ -52,19 +51,6 @@ internal class StatementCommonsTest {
         }
 
         @JvmStatic
-        private fun provideMacroStatement(): Stream<Arguments> {
-            val sequence = sequence {
-                val tests = listOf(PublicMacroStmtNodeTest.testExpression, SetPropsMacroStmtNodeTest.testExpression)
-
-                for (test in tests.withIndex()) {
-                    yield(Arguments.of(test.value, test.index))
-                }
-            }
-
-            return sequence.asStream()
-        }
-
-        @JvmStatic
         private fun provideControlStatement(): Stream<Arguments> {
             val sequence = sequence {
                 val tests = listOf(ControlWithExpressionStmtNodeTest.testExpression,
@@ -80,9 +66,8 @@ internal class StatementCommonsTest {
 
         // AUX METHODS --------------------------------------------------------
 
-        fun checkTestAnyStatement(node: ParserNode) = ConditionalLoopStmtNodeTest.checkTestExpression(node)
+        fun checkTestAnyStatement(node: ParserNode) = ExpressionStmtNodeTest.checkTestExpression(node)
         fun checkTestAnyPublicMacroStmt(node: ParserNode) = VarDeclarationStmtNodeTest.checkTestExpression(node)
-        fun checkTestAnyMacroStmt(node: ParserNode) = SetPropsMacroStmtNodeTest.checkTestExpression(node)
         fun checkTestAnyControlStmt(node: ParserNode) = ControlWithExpressionStmtNodeTest.checkTestExpression(node)
     }
 
@@ -93,7 +78,7 @@ internal class StatementCommonsTest {
     @MethodSource("provideStatements")
     fun `parse any correct statement`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StatementCommons.parseAnyStatement(parser)
+        val res = StatementCommons.parseAnyStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -106,10 +91,10 @@ internal class StatementCommonsTest {
             4 -> IteratorLoopStmtNodeTest.checkTestExpression(res)
             5 -> InfiniteLoopStmtNodeTest.checkTestExpression(res)
             6 -> checkTestAnyPublicMacroStmt(res)
-            7 -> checkTestAnyMacroStmt(res)
+            7 -> PublicMacroStmtNodeTest.checkTestExpression(res)
             8 -> checkTestAnyControlStmt(res)
-            9 -> ExpressionsCommonsTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            9 -> ExpressionStmtNodeTest.checkTestExpression(res)
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -119,7 +104,7 @@ internal class StatementCommonsTest {
     @MethodSource("providePublicMacroStatement")
     fun `parse any correct public macro statement`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StatementCommons.parseAnyPublicMacroStatement(parser)
+        val res = StatementCommons.parseAnyPublicMacroStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -127,25 +112,7 @@ internal class StatementCommonsTest {
         when (type) {
             0 -> VarDeclarationStmtNodeTest.checkTestExpression(res)
             1 -> FunctionStmtNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
-        }
-
-        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideMacroStatement")
-    fun `parse any correct macro statement`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
-        val res = StatementCommons.parseAnyMacroStatement(parser)
-
-        Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as ParserNode
-
-        when (type) {
-            0 -> PublicMacroStmtNodeTest.checkTestExpression(res)
-            1 -> SetPropsMacroStmtNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -155,7 +122,7 @@ internal class StatementCommonsTest {
     @MethodSource("provideControlStatement")
     fun `parse any correct control statement`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = StatementCommons.parseAnyControlStatement(parser)
+        val res = StatementCommons.parseAnyControlStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -163,7 +130,7 @@ internal class StatementCommonsTest {
         when (type) {
             0 -> ControlWithExpressionStmtNodeTest.checkTestExpression(res)
             1 -> ControlWithoutExpressionStmtNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

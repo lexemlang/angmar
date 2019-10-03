@@ -60,7 +60,7 @@ internal class AccessExpressionNodeTest {
     @MethodSource("provideCorrectAccesses")
     fun `parse correct accesses`(text: String, elementType: Int, modifierType: Int, modifier2Type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AccessExpressionNode.parse(parser)
+        val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -71,8 +71,12 @@ internal class AccessExpressionNodeTest {
                 0 -> ExpressionsCommonsTest.checkTestLiteral(res)
                 1 -> ExpressionsCommonsTest.checkTestMacro(res)
                 2 -> ParenthesisExpressionNodeTest.checkTestExpression(res)
-                3 -> IdentifierNodeTest.checkTestExpression(res)
-                else -> throw AngmarUnimplementedException()
+                3 -> {
+                    res as AccessExpressionNode
+                    IdentifierNodeTest.checkTestExpression(res.element)
+                    Assertions.assertEquals(0, res.modifiers.size, "The number of modifiers is incorrect")
+                }
+                else -> throw AngmarUnreachableException()
             }
         } else {
             res as AccessExpressionNode
@@ -82,7 +86,7 @@ internal class AccessExpressionNodeTest {
                 1 -> ExpressionsCommonsTest.checkTestMacro(res.element)
                 2 -> ParenthesisExpressionNodeTest.checkTestExpression(res.element)
                 3 -> IdentifierNodeTest.checkTestExpression(res.element)
-                else -> throw AngmarUnimplementedException()
+                else -> throw AngmarUnreachableException()
             }
 
             val count = if (modifierType != 0 && modifier2Type != 0) {
@@ -98,7 +102,7 @@ internal class AccessExpressionNodeTest {
                 1 -> AccessExplicitMemberNodeTest.checkTestExpression(res.modifiers[index])
                 2 -> IndexerNodeTest.checkTestExpression(res.modifiers[index])
                 3 -> FunctionCallNodeTest.checkTestExpression(res.modifiers[index])
-                else -> throw AngmarUnimplementedException()
+                else -> throw AngmarUnreachableException()
             }
 
             index += 1
@@ -108,7 +112,7 @@ internal class AccessExpressionNodeTest {
                 1 -> AccessExplicitMemberNodeTest.checkTestExpression(res.modifiers[index])
                 2 -> IndexerNodeTest.checkTestExpression(res.modifiers[index])
                 3 -> FunctionCallNodeTest.checkTestExpression(res.modifiers[index])
-                else -> throw AngmarUnimplementedException()
+                else -> throw AngmarUnreachableException()
             }
         }
     }
@@ -117,7 +121,7 @@ internal class AccessExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AccessExpressionNode.parse(parser)
+        val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

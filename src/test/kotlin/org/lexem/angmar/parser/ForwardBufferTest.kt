@@ -2,13 +2,11 @@ package org.lexem.angmar.parser
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.io.readers.*
 
 internal class ForwardBufferTest {
 
-    private val defaultConfig = AngmarConfig()
-    private val parser = LexemParser(CustomStringReader.from(""), defaultConfig)
+    private val parser = LexemParser(CustomStringReader.from(""))
 
     @Test
     fun `add and find entries test`(): ForwardBuffer {

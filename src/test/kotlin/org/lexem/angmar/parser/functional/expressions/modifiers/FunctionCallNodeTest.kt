@@ -16,28 +16,23 @@ internal class FunctionCallNodeTest {
 
     companion object {
         const val testExpression =
-                "${FunctionCallNode.startToken}${FunctionCallMiddleArgumentNodeTest.testExpression}${FunctionCallNode.endToken}"
+                "${FunctionCallNode.startToken}${FunctionCallNamedArgumentNodeTest.testExpression}${FunctionCallNode.endToken}"
 
         @JvmStatic
         private fun provideCorrectFunctionCalls(): Stream<Arguments> {
             val sequence = sequence {
-                for (i in 0..3) {
-                    for (spread in 0..1) {
-                        for (properties in 0..1) {
-                            for (firstExpression in 0..1) {
-                                var argCount = i
-                                val arguments = MutableList(i) { FunctionCallMiddleArgumentNodeTest.testExpression }
+                for (positionalCount in 0..3) {
+                    val positionalArguments = List(positionalCount) { ExpressionsCommonsTest.testExpression }
 
-                                if (firstExpression == 1) {
-                                    arguments.add(0, ExpressionsCommonsTest.testExpression)
-                                    argCount += 1
-                                }
+                    for (namedCount in 0..3) {
+                        val namedArguments = List(namedCount) { FunctionCallNamedArgumentNodeTest.testExpression }
 
-                                if (spread == 1) {
-                                    arguments.add(
-                                            "${FunctionCallNode.spreadOperator}${ExpressionsCommonsTest.testExpression}")
-                                }
+                        for (spreadCount in 0..3) {
+                            val spreadArguments =
+                                    List(spreadCount) { "${FunctionCallNode.spreadOperator}${ExpressionsCommonsTest.testExpression}" }
 
+                            for (properties in 0..1) {
+                                val arguments = positionalArguments + namedArguments + spreadArguments
                                 var text = arguments.joinToString(" ${FunctionCallNode.argumentSeparator} ")
                                 text = "${FunctionCallNode.startToken} $text ${FunctionCallNode.endToken}"
 
@@ -45,7 +40,7 @@ internal class FunctionCallNodeTest {
                                     text += FunctionCallExpressionPropertiesNodeTest.testExpression
                                 }
 
-                                yield(Arguments.of(text, argCount, firstExpression == 1, spread == 1, properties == 1))
+                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties == 1))
 
 
                                 text = arguments.joinToString(FunctionCallNode.argumentSeparator)
@@ -55,7 +50,7 @@ internal class FunctionCallNodeTest {
                                     text += FunctionCallExpressionPropertiesNodeTest.testExpression
                                 }
 
-                                yield(Arguments.of(text, argCount, firstExpression == 1, spread == 1, properties == 1))
+                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties == 1))
                             }
                         }
                     }
@@ -72,10 +67,11 @@ internal class FunctionCallNodeTest {
             Assertions.assertTrue(node is FunctionCallNode, "The node is not a FunctionCallNode")
             node as FunctionCallNode
 
-            Assertions.assertEquals(1, node.arguments.size, "The number of arguments is incorrect")
-            Assertions.assertNull(node.spreadArgument, "The spreadArgument property must be null")
-            Assertions.assertNull(node.expressionProperties, "The expressionProperties property must be null")
-            FunctionCallMiddleArgumentNodeTest.checkTestExpression(node.arguments.first())
+            Assertions.assertEquals(0, node.positionalArguments.size, "The number of positionalArguments is incorrect")
+            Assertions.assertEquals(1, node.namedArguments.size, "The number of namedArguments is incorrect")
+            Assertions.assertEquals(0, node.spreadArguments.size, "The number of spreadArguments is incorrect")
+            Assertions.assertNull(node.propertiesExpression, "The expressionProperties property must be null")
+            FunctionCallNamedArgumentNodeTest.checkTestExpression(node.namedArguments.first())
         }
     }
 
@@ -84,38 +80,36 @@ internal class FunctionCallNodeTest {
 
     @ParameterizedTest
     @MethodSource("provideCorrectFunctionCalls")
-    fun `parse correct function call`(text: String, numArguments: Int, isFirstExpression: Boolean,
-            hasSpreadArgument: Boolean, hasExpressionProperties: Boolean) {
+    fun `parse correct function call`(text: String, positionalCount: Int, namedCount: Int, spreadCount: Int,
+            hasExpressionProperties: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionCallNode.parse(parser)
+        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionCallNode
 
-        Assertions.assertEquals(numArguments, res.arguments.size, "The number of arguments is incorrect")
-
-        if (hasSpreadArgument) {
-            Assertions.assertNotNull(res.spreadArgument, "The spreadArgument property cannot be null")
-            ExpressionsCommonsTest.checkTestExpression(res.spreadArgument!!)
-        } else {
-            Assertions.assertNull(res.spreadArgument, "The spreadArgument property must be null")
-        }
+        Assertions.assertEquals(positionalCount, res.positionalArguments.size,
+                "The number of positionalArguments is incorrect")
+        Assertions.assertEquals(namedCount, res.namedArguments.size, "The number of namedArguments is incorrect")
+        Assertions.assertEquals(spreadCount, res.spreadArguments.size, "The number of spreadArguments is incorrect")
 
         if (hasExpressionProperties) {
-            Assertions.assertNotNull(res.expressionProperties, "The expressionProperties property cannot be null")
-            FunctionCallExpressionPropertiesNodeTest.checkTestExpression(res.expressionProperties!!)
+            Assertions.assertNotNull(res.propertiesExpression, "The expressionProperties property cannot be null")
+            FunctionCallExpressionPropertiesNodeTest.checkTestExpression(res.propertiesExpression!!)
         } else {
-            Assertions.assertNull(res.expressionProperties, "The expressionProperties property must be null")
+            Assertions.assertNull(res.propertiesExpression, "The expressionProperties property must be null")
         }
 
-        var drop = 0
-        if (isFirstExpression) {
-            drop = 1
-            ExpressionsCommonsTest.checkTestExpression(res.arguments.first())
+        for (arg in res.positionalArguments) {
+            ExpressionsCommonsTest.checkTestExpression(arg)
         }
 
-        for (arg in res.arguments.asSequence().drop(drop)) {
-            FunctionCallMiddleArgumentNodeTest.checkTestExpression(arg)
+        for (arg in res.namedArguments) {
+            FunctionCallNamedArgumentNodeTest.checkTestExpression(arg)
+        }
+
+        for (arg in res.spreadArguments) {
+            ExpressionsCommonsTest.checkTestExpression(arg)
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -124,20 +118,20 @@ internal class FunctionCallNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect function call without expression after spread element`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${FunctionCallNode.startToken}${FunctionCallNode.spreadOperator}${FunctionCallNode.endToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            FunctionCallNode.parse(parser)
+            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect function call without close parenthesis`() {
-        assertParserException {
-            val text = "${FunctionCallNode.startToken}"
+        TestUtils.assertParserException {
+            val text = FunctionCallNode.startToken
             val parser = LexemParser(CustomStringReader.from(text))
-            FunctionCallNode.parse(parser)
+            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -145,7 +139,7 @@ internal class FunctionCallNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionCallNode.parse(parser)
+        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

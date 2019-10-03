@@ -39,7 +39,7 @@ internal class SetNodeTest {
     fun `parse correct set literal`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetNode.parse(parser)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -63,7 +63,7 @@ internal class SetNodeTest {
     fun `parse correct constant set literal`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.constantToken}${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetNode.parse(parser)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -87,7 +87,7 @@ internal class SetNodeTest {
     fun `parse correct set literal with whitespaces`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken} $list ${ListNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetNode.parse(parser)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -111,7 +111,7 @@ internal class SetNodeTest {
     fun `parse correct set literal with trailing comma`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken}$list${ListNode.elementSeparator}${ListNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetNode.parse(parser)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -133,30 +133,30 @@ internal class SetNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect set literal with no startToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = SetNode.macroName
             val parser = LexemParser(CustomStringReader.from(text))
-            SetNode.parse(parser)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect set literal with no expression`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${SetNode.macroName}${ListNode.startToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            SetNode.parse(parser)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect set literal with no endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${SetNode.macroName}${ListNode.startToken}${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            SetNode.parse(parser)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -164,7 +164,7 @@ internal class SetNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SetNode.parse(parser)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -71,7 +71,7 @@ internal class IdentifierNodeTest {
                 }
 
                 // macro name
-                yield(Arguments.of("${IdentifierNode.headChars.first().first()}${MacroExpression.macroSuffix}"))
+                yield(Arguments.of("${IdentifierNode.headChars.first().first()}${MacroExpressionNode.macroSuffix}"))
             }
 
             return sequence.asStream()
@@ -114,10 +114,10 @@ internal class IdentifierNodeTest {
             node as IdentifierNode
 
             Assertions.assertEquals(1, node.simpleIdentifiers.size,
-                    "The length of the simple identifier list is not correct")
-            Assertions.assertNull(node.quotedIdentifier, "The quotedIdentifier property is not correct")
+                    "The length of the simple identifier list is incorrect")
+            Assertions.assertNull(node.quotedIdentifier, "The quotedIdentifier property is incorrect")
             Assertions.assertEquals(testExpression, node.simpleIdentifiers.first(),
-                    "The simpleIdentifiers[0] property is not correct.")
+                    "The simpleIdentifiers[0] property is incorrect.")
         }
     }
 
@@ -129,18 +129,18 @@ internal class IdentifierNodeTest {
     @MethodSource("provideCorrectSimpleIdentifiers")
     fun `parse simple identifier`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IdentifierNode.parse(parser)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode
 
-        Assertions.assertFalse(res.isQuotedIdentifier, "The isQuotedIdentifier is not correct")
-        Assertions.assertNull(res.quotedIdentifier, "The quotedIdentifier is not correct")
+        Assertions.assertFalse(res.isQuotedIdentifier, "The isQuotedIdentifier is incorrect")
+        Assertions.assertNull(res.quotedIdentifier, "The quotedIdentifier is incorrect")
         Assertions.assertEquals(text.split(IdentifierNode.middleChar).size, res.simpleIdentifiers.size,
-                "The count of simple identifiers is not correct")
+                "The count of simple identifiers is incorrect")
 
         for (word in text.split(IdentifierNode.middleChar).withIndex()) {
-            Assertions.assertEquals(word.value, res.simpleIdentifiers[word.index], "A simple identifier is not correct")
+            Assertions.assertEquals(word.value, res.simpleIdentifiers[word.index], "A simple identifier is incorrect")
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -157,13 +157,13 @@ internal class IdentifierNodeTest {
     fun `parse quoted identifier`(identifier: String) {
         val text = "${QuotedIdentifierNode.startQuote}$identifier${QuotedIdentifierNode.endQuote}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IdentifierNode.parse(parser)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode
 
-        Assertions.assertTrue(res.isQuotedIdentifier, "The isQuotedIdentifier is not correct")
-        Assertions.assertNotNull(res.quotedIdentifier, "The quotedIdentifier is not correct")
+        Assertions.assertTrue(res.isQuotedIdentifier, "The isQuotedIdentifier is incorrect")
+        Assertions.assertNotNull(res.quotedIdentifier, "The quotedIdentifier is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -172,7 +172,7 @@ internal class IdentifierNodeTest {
     @MethodSource("provideBadIdentifiers")
     fun `not parse the node`(identifier: String) {
         val parser = LexemParser(CustomStringReader.from(identifier))
-        val res = IdentifierNode.parse(parser)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The parser must not capture anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser has advanced the cursor")

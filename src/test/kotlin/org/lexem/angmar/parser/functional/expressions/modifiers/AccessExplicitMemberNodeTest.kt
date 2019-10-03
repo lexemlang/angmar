@@ -12,7 +12,7 @@ internal class AccessExplicitMemberNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testExpression = "${AccessExplicitMemberNode.accessCharacter}${IdentifierNodeTest.testExpression}"
+        const val testExpression = "${AccessExplicitMemberNode.accessToken}${IdentifierNodeTest.testExpression}"
 
         // AUX METHODS --------------------------------------------------------
 
@@ -28,10 +28,10 @@ internal class AccessExplicitMemberNodeTest {
     // TESTS ------------------------------------------------------------------
 
     @ParameterizedTest
-    @ValueSource(strings = ["${AccessExplicitMemberNode.accessCharacter}${IdentifierNodeTest.testExpression}"])
+    @ValueSource(strings = ["${AccessExplicitMemberNode.accessToken}${IdentifierNodeTest.testExpression}"])
     fun `parse correct access explicit member`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = AccessExplicitMemberNode.parse(parser)
+        val res = AccessExplicitMemberNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AccessExplicitMemberNode
@@ -46,7 +46,7 @@ internal class AccessExplicitMemberNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionCallMiddleArgumentNode.parse(parser)
+        val res = AccessExplicitMemberNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

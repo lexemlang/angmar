@@ -36,7 +36,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [correctMapElement])
     fun `parse correct map element`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapElementNode.parse(parser)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapElementNode
@@ -50,7 +50,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [correctMapElementWithWS])
     fun `parse correct map element with whitespaces`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapElementNode.parse(parser)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapElementNode
@@ -63,20 +63,20 @@ internal class MapElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect map element with no keyValueSeparator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = ExpressionsCommonsTest.testExpression
             val parser = LexemParser(CustomStringReader.from(text))
-            MapElementNode.parse(parser)
+            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect map element with no value`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${ExpressionsCommonsTest.testExpression}${MapElementNode.keyValueSeparator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            MapElementNode.parse(parser)
+            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -84,7 +84,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MapElementNode.parse(parser)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

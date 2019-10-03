@@ -69,7 +69,7 @@ internal class VarDeclarationStmtNodeTest {
     @MethodSource("proviceCorrectVariableDeclaration")
     fun `parse correct var declaration`(text: String, isConst: Boolean, isDestructuring: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = VarDeclarationStmtNode.parse(parser)
+        val res = VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as VarDeclarationStmtNode
@@ -90,31 +90,31 @@ internal class VarDeclarationStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without identifier`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = VarDeclarationStmtNode.variableKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            VarDeclarationStmtNode.parse(parser)
+            VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without assign operator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${VarDeclarationStmtNode.variableKeyword} ${IdentifierNodeTest.testExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            VarDeclarationStmtNode.parse(parser)
+            VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without expression`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${VarDeclarationStmtNode.variableKeyword} ${IdentifierNodeTest.testExpression} ${VarDeclarationStmtNode.assignOperator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            VarDeclarationStmtNode.parse(parser)
+            VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -122,7 +122,7 @@ internal class VarDeclarationStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = VarDeclarationStmtNode.parse(parser)
+        val res = VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

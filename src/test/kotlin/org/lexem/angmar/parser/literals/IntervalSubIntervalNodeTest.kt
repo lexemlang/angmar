@@ -76,7 +76,7 @@ internal class IntervalSubIntervalNodeTest {
     fun `parse correct sub interval element`(text: String, operator: IntervalSubIntervalNode.Operator,
             reversed: Boolean, numElements: Int, areElementsOfSubIntervals: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IntervalSubIntervalNode.parse(parser)
+        val res = IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IntervalSubIntervalNode
@@ -99,10 +99,10 @@ internal class IntervalSubIntervalNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect sub interval element without right element`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${IntervalSubIntervalNode.startToken}3"
             val parser = LexemParser(CustomStringReader.from(text))
-            IntervalSubIntervalNode.parse(parser)
+            IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -110,7 +110,7 @@ internal class IntervalSubIntervalNodeTest {
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IntervalSubIntervalNode.parse(parser)
+        val res = IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

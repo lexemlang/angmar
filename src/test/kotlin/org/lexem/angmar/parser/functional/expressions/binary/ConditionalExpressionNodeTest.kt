@@ -58,7 +58,7 @@ internal class ConditionalExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct conditional expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalExpressionNode.parse(parser)
+        val res = ConditionalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -83,10 +83,10 @@ internal class ConditionalExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect conditional expression without operand after the operator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${RelationalExpressionNodeTest.testExpression} ${ConditionalExpressionNode.andOperator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            val res = ConditionalExpressionNode.parse(parser)
+            val res = ConditionalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
             res.hashCode()
         }
@@ -96,7 +96,7 @@ internal class ConditionalExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalExpressionNode.parse(parser)
+        val res = ConditionalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

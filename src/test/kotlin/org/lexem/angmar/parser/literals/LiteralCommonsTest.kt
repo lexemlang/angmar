@@ -61,15 +61,15 @@ internal class LiteralCommonsTest {
     fun `parse simple literal correct strings`(textContent: String) {
         val text = "${UnescapedStringNode.macroName}${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LiteralCommons.parseAnyString(parser)
+        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(textContent, res.text, "The text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(textContent, res.text, "The text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -80,17 +80,17 @@ internal class LiteralCommonsTest {
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LiteralCommons.parseAnyString(parser)
+        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
 
-        Assertions.assertEquals(text, res.content, "The content is not correct")
+        Assertions.assertEquals(text, res.content, "The content is incorrect")
         Assertions.assertEquals(0, res.minAdditionalDelimiterRequired,
-                "The minAdditionalDelimiterRequired is not correct")
-        Assertions.assertEquals(1, res.texts.size, "The text list size is not correct")
-        Assertions.assertEquals(0, res.escapes.size, "The escapes list size is not correct")
-        Assertions.assertEquals(textContent, res.texts.first(), "The first text is not correct")
+                "The minAdditionalDelimiterRequired is incorrect")
+        Assertions.assertEquals(1, res.texts.size, "The text list size is incorrect")
+        Assertions.assertEquals(0, res.escapes.size, "The escapes list size is incorrect")
+        Assertions.assertEquals(textContent, res.texts.first(), "The first text is incorrect")
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -99,7 +99,7 @@ internal class LiteralCommonsTest {
     @MethodSource("provideObjects")
     fun `parse any correct object`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LiteralCommons.parseAnyObject(parser)
+        val res = LiteralCommons.parseAnyObject(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -107,7 +107,7 @@ internal class LiteralCommonsTest {
         when (type) {
             0 -> ObjectNodeTest.checkTestExpression(res)
             1 -> PropertyStyleObjectNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -117,7 +117,7 @@ internal class LiteralCommonsTest {
     @MethodSource("provideIntervals")
     fun `parse any correct interval`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LiteralCommons.parseAnyInterval(parser)
+        val res = LiteralCommons.parseAnyInterval(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -125,7 +125,7 @@ internal class LiteralCommonsTest {
         when (type) {
             0 -> IntervalNodeTest.checkTestExpression(res)
             1 -> UnicodeIntervalNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

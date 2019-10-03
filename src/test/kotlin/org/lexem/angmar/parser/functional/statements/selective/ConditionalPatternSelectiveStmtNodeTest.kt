@@ -55,7 +55,7 @@ internal class ConditionalPatternSelectiveStmtNodeTest {
     @MethodSource("provideCorrectConditionalPatterns")
     fun `parse correct conditional pattern `(text: String, isUnless: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalPatternSelectiveStmtNode.parse(parser)
+        val res = ConditionalPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ConditionalPatternSelectiveStmtNode
@@ -69,10 +69,10 @@ internal class ConditionalPatternSelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect conditional pattern without condition`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = ConditionalPatternSelectiveStmtNode.ifKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            ConditionalPatternSelectiveStmtNode.parse(parser)
+            ConditionalPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -80,7 +80,7 @@ internal class ConditionalPatternSelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalPatternSelectiveStmtNode.parse(parser)
+        val res = ConditionalPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

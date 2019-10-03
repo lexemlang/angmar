@@ -79,7 +79,7 @@ internal class MultiplicativeExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct multiplicative expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MultiplicativeExpressionNode.parse(parser)
+        val res = MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -104,11 +104,11 @@ internal class MultiplicativeExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect multiplicative expression without operand after the operator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${PrefixExpressionNodeTest.testExpression}${MultiplicativeExpressionNode.multiplicationOperator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            MultiplicativeExpressionNode.parse(parser)
+            MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -116,7 +116,7 @@ internal class MultiplicativeExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MultiplicativeExpressionNode.parse(parser)
+        val res = MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

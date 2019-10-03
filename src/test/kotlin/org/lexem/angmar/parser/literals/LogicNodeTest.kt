@@ -30,7 +30,7 @@ internal class LogicNodeTest {
     @ValueSource(strings = [LogicNode.trueLiteral, "${LogicNode.trueLiteral}-"])
     fun `parse correct true keyword`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicNode.parse(parser)
+        val res = LogicNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LogicNode
@@ -45,7 +45,7 @@ internal class LogicNodeTest {
     @ValueSource(strings = [LogicNode.falseLiteral, "${LogicNode.falseLiteral}-"])
     fun `parse correct false keyword`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicNode.parse(parser)
+        val res = LogicNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LogicNode
@@ -61,7 +61,7 @@ internal class LogicNodeTest {
             strings = ["${LogicNode.trueLiteral}able", "${LogicNode.trueLiteral}-able", "${LogicNode.falseLiteral}able", "${LogicNode.falseLiteral}-able"])
     fun `parse incorrect true and false keywords`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicNode.parse(parser)
+        val res = LogicNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has not been correctly parsed")
         Assertions.assertEquals(0, parser.reader.currentPosition(),
@@ -72,7 +72,7 @@ internal class LogicNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = LogicNode.parse(parser)
+        val res = LogicNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

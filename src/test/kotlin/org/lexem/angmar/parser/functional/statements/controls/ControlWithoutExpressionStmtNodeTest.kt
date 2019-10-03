@@ -17,10 +17,11 @@ internal class ControlWithoutExpressionStmtNodeTest {
         const val testExpression = ControlWithoutExpressionStmtNode.restartKeyword
 
         @JvmStatic
-        private fun provideCorrectControllWithoutExpression(): Stream<Arguments> {
+        private fun provideCorrectControlWithoutExpression(): Stream<Arguments> {
             val sequence = sequence {
-                val keywords = listOf(ControlWithoutExpressionStmtNode.nextKeyword,
-                        ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword)
+                val keywords = listOf(ControlWithoutExpressionStmtNode.exitKeyword,
+                        ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword,
+                        ControlWithoutExpressionStmtNode.restartKeyword)
 
                 for (keyword in keywords) {
                     yield(Arguments.of(keyword, keyword, false))
@@ -48,10 +49,10 @@ internal class ControlWithoutExpressionStmtNodeTest {
     // TESTS ------------------------------------------------------------------
 
     @ParameterizedTest
-    @MethodSource("provideCorrectControllWithoutExpression")
+    @MethodSource("provideCorrectControlWithoutExpression")
     fun `parse correct destructuring spread statement`(text: String, keyword: String, hasTag: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ControlWithoutExpressionStmtNode.parse(parser, keyword)
+        val res = ControlWithoutExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0, keyword)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ControlWithoutExpressionStmtNode
@@ -71,7 +72,8 @@ internal class ControlWithoutExpressionStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ControlWithoutExpressionStmtNode.parse(parser, ControlWithoutExpressionStmtNode.restartKeyword)
+        val res = ControlWithoutExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
+                ControlWithoutExpressionStmtNode.restartKeyword)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

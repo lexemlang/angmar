@@ -32,7 +32,7 @@ internal class MacroCheckPropsTest {
     @ValueSource(strings = ["${MacroCheckProps.macroName}${PropertyStyleObjectBlockNodeTest.testExpression}"])
     fun `parse correct macro check props`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MacroCheckProps.parse(parser)
+        val res = MacroCheckProps.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MacroCheckProps
@@ -45,9 +45,9 @@ internal class MacroCheckPropsTest {
     @Incorrect
     @ValueSource(strings = [MacroCheckProps.macroName])
     fun `parse incorrect macro check props without prop-style object`(text: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val parser = LexemParser(CustomStringReader.from(text))
-            MacroCheckProps.parse(parser)
+            MacroCheckProps.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -55,7 +55,7 @@ internal class MacroCheckPropsTest {
     @ValueSource(strings = ["", "3", "no_macro!"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = MacroCheckProps.parse(parser)
+        val res = MacroCheckProps.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

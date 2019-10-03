@@ -41,15 +41,15 @@ internal class GlobalCommonsTest {
     @MethodSource("provideBlocks")
     fun `parse correct blocks`(text: String, type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = GlobalCommons.parseBlock(parser)
+        val res = GlobalCommons.parseBlock(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
-        
+
         // TODO add other possibilities
         when (type) {
             0 -> BlockStmtNodeTest.checkTestExpression(res)
-            else -> throw AngmarUnimplementedException()
+            else -> throw AngmarUnreachableException()
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

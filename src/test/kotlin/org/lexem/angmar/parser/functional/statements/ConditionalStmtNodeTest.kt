@@ -1,27 +1,22 @@
 package org.lexem.angmar.parser.functional.statements
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.lexem.angmar.Incorrect
-import org.lexem.angmar.LexemParser
-import org.lexem.angmar.io.readers.CustomStringReader
-import org.lexem.angmar.parser.GlobalCommonsTest
-import org.lexem.angmar.parser.ParserNode
-import org.lexem.angmar.parser.functional.expressions.ExpressionsCommonsTest
-import org.lexem.angmar.utils.assertParserException
-import java.util.stream.Stream
-import kotlin.streams.asStream
+import org.junit.jupiter.api.*
+import org.junit.jupiter.params.*
+import org.junit.jupiter.params.provider.*
+import org.lexem.angmar.*
+import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.expressions.*
+import org.lexem.angmar.utils.*
+import java.util.stream.*
+import kotlin.streams.*
 
 internal class ConditionalStmtNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
         const val testExpression =
-            "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
 
         @JvmStatic
         private fun provideCorrectConditionalStmt(): Stream<Arguments> {
@@ -42,7 +37,7 @@ internal class ConditionalStmtNodeTest {
                             }
 
                             var text =
-                                "$keyword ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                                    "$keyword ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
 
                             if (hasElse == 1) {
                                 text += " ${ConditionalStmtNode.elseKeyword} $elseBlock"
@@ -92,7 +87,7 @@ internal class ConditionalStmtNodeTest {
     @MethodSource("provideCorrectConditionalStmt")
     fun `parse correct conditional statement`(text: String, isUnless: Boolean, hasElse: Boolean, isIfElse: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalStmtNode.parse(parser)
+        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ConditionalStmtNode
@@ -119,31 +114,31 @@ internal class ConditionalStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect conditional statement without condition`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = ConditionalStmtNode.ifKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            ConditionalStmtNode.parse(parser)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect conditional statement without thenBlock`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            ConditionalStmtNode.parse(parser)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect conditional statement with else but without elseBlock`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
-                "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock} ${ConditionalStmtNode.elseKeyword}"
+                    "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock} ${ConditionalStmtNode.elseKeyword}"
             val parser = LexemParser(CustomStringReader.from(text))
-            ConditionalStmtNode.parse(parser)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -151,7 +146,7 @@ internal class ConditionalStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ConditionalStmtNode.parse(parser)
+        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

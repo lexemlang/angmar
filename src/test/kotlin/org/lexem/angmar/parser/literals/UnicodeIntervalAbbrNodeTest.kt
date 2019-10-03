@@ -68,7 +68,7 @@ internal class UnicodeIntervalAbbrNodeTest {
     fun `parse correct unicode interval abbreviation`(text: String, reversed: Boolean, numElements: Int,
             areElementsOfSubIntervals: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeIntervalAbbrNode.parse(parser)
+        val res = UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeIntervalAbbrNode
@@ -90,10 +90,10 @@ internal class UnicodeIntervalAbbrNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect unicode interval abbreviation without endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = UnicodeIntervalAbbrNode.startToken
             val parser = LexemParser(CustomStringReader.from(text))
-            UnicodeIntervalAbbrNode.parse(parser)
+            UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -101,7 +101,7 @@ internal class UnicodeIntervalAbbrNodeTest {
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = UnicodeIntervalAbbrNode.parse(parser)
+        val res = UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

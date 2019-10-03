@@ -39,13 +39,13 @@ internal class SelectiveCaseStmtNodeTest {
                             4 -> patternList += ExpressionPatternSelectiveStmtNodeTest.testExpression
                         }
 
-                        var text = patternList.joinToString(" ${SelectiveCaseStmtNode.elementSeparator} ")
+                        var text = patternList.joinToString(" ${SelectiveCaseStmtNode.patternSeparator} ")
                         text += " ${GlobalCommonsTest.testBlock}"
 
                         yield(Arguments.of(text, pattern1Type, pattern2Type))
 
                         // Without whitespace
-                        text = patternList.joinToString(SelectiveCaseStmtNode.elementSeparator)
+                        text = patternList.joinToString(SelectiveCaseStmtNode.patternSeparator)
                         text += GlobalCommonsTest.testBlock
 
                         yield(Arguments.of(text, pattern1Type, pattern2Type))
@@ -74,7 +74,7 @@ internal class SelectiveCaseStmtNodeTest {
     @MethodSource("provideCorrectCaseStatement")
     fun `parse correct case statement`(text: String, pattern1Type: Int, pattern2Type: Int) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SelectiveCaseStmtNode.parse(parser)
+        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SelectiveCaseStmtNode
@@ -109,21 +109,21 @@ internal class SelectiveCaseStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect case statement with two patterns without the second pattern`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
-                    "${ConditionalPatternSelectiveStmtNodeTest.testExpression} ${SelectiveCaseStmtNode.elementSeparator}"
+                    "${ConditionalPatternSelectiveStmtNodeTest.testExpression} ${SelectiveCaseStmtNode.patternSeparator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            SelectiveCaseStmtNode.parse(parser)
+            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect case statement without the block`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = ConditionalPatternSelectiveStmtNodeTest.testExpression
             val parser = LexemParser(CustomStringReader.from(text))
-            SelectiveCaseStmtNode.parse(parser)
+            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -131,7 +131,7 @@ internal class SelectiveCaseStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = SelectiveCaseStmtNode.parse(parser)
+        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

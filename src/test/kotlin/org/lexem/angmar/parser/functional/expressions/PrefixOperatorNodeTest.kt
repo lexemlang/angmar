@@ -14,7 +14,7 @@ internal class PrefixOperatorNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testExpression = PrefixOperatorNode.bitNegationOperator
+        const val testExpression = PrefixOperatorNode.bitwiseNegationOperator
 
         @JvmStatic
         private fun provideCorrectOperators(): Stream<Arguments> {
@@ -56,7 +56,7 @@ internal class PrefixOperatorNodeTest {
     @MethodSource("provideCorrectOperators")
     fun `parse correct prefix operator`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PrefixOperatorNode
@@ -70,7 +70,7 @@ internal class PrefixOperatorNodeTest {
     fun `parse correct prefix operator with value`(operator: String) {
         val text = "${operator}125"
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PrefixOperatorNode
@@ -83,9 +83,9 @@ internal class PrefixOperatorNodeTest {
     @ParameterizedTest
     @MethodSource("provideIncorrectOperators")
     fun `parse incorrect assign operator`(text: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val parser = LexemParser(CustomStringReader.from(text))
-            PrefixOperatorNode.parse(parser)
+            PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -93,7 +93,7 @@ internal class PrefixOperatorNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

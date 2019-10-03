@@ -35,7 +35,7 @@ internal class FunctionCallExpressionPropertiesNodeTest {
             strings = ["${FunctionCallExpressionPropertiesNode.relationalToken}${PropertyStyleObjectBlockNodeTest.testExpression}"])
     fun `parse correct function call expression properties`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionCallExpressionPropertiesNode.parse(parser)
+        val res = FunctionCallExpressionPropertiesNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionCallExpressionPropertiesNode
@@ -48,9 +48,9 @@ internal class FunctionCallExpressionPropertiesNodeTest {
     @Incorrect
     @ValueSource(strings = [FunctionCallExpressionPropertiesNode.relationalToken])
     fun `parse incorrect function call expression properties without prop-style object`(text: String) {
-        assertParserException {
+        TestUtils.assertParserException {
             val parser = LexemParser(CustomStringReader.from(text))
-            FunctionCallExpressionPropertiesNode.parse(parser)
+            FunctionCallExpressionPropertiesNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -58,7 +58,7 @@ internal class FunctionCallExpressionPropertiesNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = FunctionCallExpressionPropertiesNode.parse(parser)
+        val res = FunctionCallExpressionPropertiesNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

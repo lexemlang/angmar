@@ -67,7 +67,7 @@ internal class IntervalElementNodeTest {
     @MethodSource("provideSimpleIntervals")
     fun `parse correct interval element`(text: String, isLeftNumber: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IntervalElementNode.parse(parser)
+        val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IntervalElementNode
@@ -86,7 +86,7 @@ internal class IntervalElementNodeTest {
     @MethodSource("provideFullIntervals")
     fun `parse correct full interval element`(text: String, isLeftNumber: Boolean, isRightNumber: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IntervalElementNode.parse(parser)
+        val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IntervalElementNode
@@ -110,10 +110,10 @@ internal class IntervalElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect interval element without right element`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "3${IntervalElementNode.rangeToken}"
             val parser = LexemParser(CustomStringReader.from(text))
-            IntervalElementNode.parse(parser)
+            IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -121,7 +121,7 @@ internal class IntervalElementNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = IntervalElementNode.parse(parser)
+        val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

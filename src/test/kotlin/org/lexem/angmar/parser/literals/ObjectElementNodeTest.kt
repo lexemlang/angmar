@@ -27,7 +27,7 @@ internal class ObjectElementNodeTest {
             Assertions.assertTrue(node is ObjectElementNode, "The node is not a ObjectElementNode")
             node as ObjectElementNode
 
-            Assertions.assertEquals(isConstant, node.isConstant, "The isConstant property is not correct")
+            Assertions.assertEquals(isConstant, node.isConstant, "The isConstant property is incorrect")
             CommonsTest.checkTestDynamicIdentifier(node.key)
             ExpressionsCommonsTest.checkTestExpression(node.value)
         }
@@ -40,7 +40,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctObjectElement])
     fun `parse correct object element`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ObjectElementNode.parse(parser)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -54,7 +54,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctConstantObjectElement])
     fun `parse correct constant object element`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ObjectElementNode.parse(parser)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -68,7 +68,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctObjectElementWithWS])
     fun `parse correct object element with whitespaces`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ObjectElementNode.parse(parser)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -81,20 +81,20 @@ internal class ObjectElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect object element with no keyValueSeparator`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = CommonsTest.testDynamicIdentifier
             val parser = LexemParser(CustomStringReader.from(text))
-            ObjectElementNode.parse(parser)
+            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
     @Test
     @Incorrect
     fun `parse incorrect object element with no value`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = "${CommonsTest.testDynamicIdentifier}${ObjectElementNode.keyValueSeparator}"
             val parser = LexemParser(CustomStringReader.from(text))
-            ObjectElementNode.parse(parser)
+            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -102,7 +102,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = ObjectElementNode.parse(parser)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

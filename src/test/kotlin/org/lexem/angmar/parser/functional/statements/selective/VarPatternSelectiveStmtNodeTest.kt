@@ -79,7 +79,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     fun `parse correct variable pattern`(text: String, isConst: Boolean, isDestructuring: Boolean,
             hasConditional: Boolean) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = VarPatternSelectiveStmtNode.parse(parser)
+        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as VarPatternSelectiveStmtNode
@@ -105,10 +105,10 @@ internal class VarPatternSelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable pattern without identifier`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text = VarPatternSelectiveStmtNode.variableKeyword
             val parser = LexemParser(CustomStringReader.from(text))
-            VarPatternSelectiveStmtNode.parse(parser)
+            VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -116,7 +116,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = VarPatternSelectiveStmtNode.parse(parser)
+        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

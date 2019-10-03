@@ -29,7 +29,7 @@ internal class BitlistNodeTest {
                             2 -> BitlistElementNodeTest.testBinaryExpression
                             8 -> BitlistElementNodeTest.testOctalExpression
                             16 -> BitlistElementNodeTest.testHexadecimalExpression
-                            else -> throw AngmarUnimplementedException()
+                            else -> throw AngmarUnreachableException()
                         }
 
                         val numList = List(i) { expression }.joinToString(" ")
@@ -64,7 +64,7 @@ internal class BitlistNodeTest {
     @MethodSource("provideCorrectElements")
     fun `parse correct bitlist literal`(text: String, radix: Int, numElements: Int, textNumber: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = BitlistNode.parse(parser)
+        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistNode
@@ -82,11 +82,11 @@ internal class BitlistNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect bitlist literal without endToken`() {
-        assertParserException {
+        TestUtils.assertParserException {
             val text =
                     "${BitlistNode.hexadecimalPrefix}${BitlistNode.startToken}${BitlistElementNodeTest.testHexadecimalExpression}"
             val parser = LexemParser(CustomStringReader.from(text))
-            BitlistNode.parse(parser)
+            BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
 
@@ -94,7 +94,7 @@ internal class BitlistNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(CustomStringReader.from(text))
-        val res = BitlistNode.parse(parser)
+        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")
