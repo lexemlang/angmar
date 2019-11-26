@@ -4,7 +4,7 @@ package org.lexem.angmar.config
  * Constants of the project.
  */
 internal object Consts {
-    const val projectVersion = "0.1.0"
+    const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
 
     object Commands {
