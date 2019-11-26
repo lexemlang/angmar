@@ -29,7 +29,7 @@ internal class ConditionalExpressionNode private constructor(parser: LexemParser
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("expressions", TreeLikePrintable.listToTest(expressions))
+        result.add("expressions", SerializationUtils.listToTest(expressions))
 
         return result
     }

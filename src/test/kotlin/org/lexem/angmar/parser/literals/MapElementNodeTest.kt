@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -35,7 +36,7 @@ internal class MapElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [correctMapElement])
     fun `parse correct map element`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -49,7 +50,7 @@ internal class MapElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [correctMapElementWithWS])
     fun `parse correct map element with whitespaces`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -63,9 +64,9 @@ internal class MapElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect map element with no keyValueSeparator`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.MapElementWithoutRelationalSeparatorAfterKey) {
             val text = ExpressionsCommonsTest.testExpression
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -73,9 +74,9 @@ internal class MapElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect map element with no value`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.MapElementWithoutExpressionAfterRelationalSeparator) {
             val text = "${ExpressionsCommonsTest.testExpression}${MapElementNode.keyValueSeparator}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -83,7 +84,7 @@ internal class MapElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

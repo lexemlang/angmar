@@ -25,9 +25,8 @@ internal object ConditionalLoopStmtAnalyzer {
                 // Generate an intermediate context.
                 AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
 
-                // Save the index
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, LxmInteger.Num0)
+                // Save the index.
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
                 if (node.index != null) {
                     return analyzer.nextNode(node.index)
@@ -36,11 +35,12 @@ internal object ConditionalLoopStmtAnalyzer {
                 return analyzer.nextNode(node.condition)
             }
             signalEndIndex -> {
-                // Save the index
-                val indexName = analyzer.memory.popStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                // Save the index.
+                val indexName = analyzer.memory.getLastFromStack() as LxmString
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopIndexName)
 
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexName, indexName)
+                // Set the index in the context.
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.condition)
@@ -56,35 +56,36 @@ internal object ConditionalLoopStmtAnalyzer {
                 return analyzer.nextNode(node.condition)
             }
             signalEndLastClause -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
             }
             // Process the control signals.
             AnalyzerNodesCommons.signalExitControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
             }
             AnalyzerNodesCommons.signalNextControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 // Increase the current index.
                 incrementIterationIndex(analyzer, node)
@@ -93,45 +94,45 @@ internal object ConditionalLoopStmtAnalyzer {
                 return analyzer.nextNode(node.condition)
             }
             AnalyzerNodesCommons.signalRedoControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 // Execute the block again.
                 return analyzer.nextNode(node.thenBlock)
             }
             AnalyzerNodesCommons.signalRestartControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
 
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
+
                 // Start again the loop.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, LxmInteger.Num0)
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
                 // Execute the condition.
                 return analyzer.nextNode(node.condition)
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalReturnControl -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
 
                 return analyzer.nextNode(node.parent, signal)
             }
@@ -145,8 +146,11 @@ internal object ConditionalLoopStmtAnalyzer {
      */
     private fun evaluateCondition(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode) {
         // Evaluate the condition.
-        val condition = analyzer.memory.popStack()
+        val condition = analyzer.memory.getLastFromStack()
         var conditionTruthy = RelationalFunctions.isTruthy(condition)
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         if (node.isUntil) {
             conditionTruthy = !conditionTruthy
@@ -156,8 +160,7 @@ internal object ConditionalLoopStmtAnalyzer {
             return analyzer.nextNode(node.thenBlock)
         }
 
-        val indexValue = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLoopIndexValue)
+        val indexValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
 
         if (indexValue.primitive == 0 && node.lastClauses?.elseBlock != null) {
             return analyzer.nextNode(node.lastClauses!!.elseBlock)
@@ -171,8 +174,7 @@ internal object ConditionalLoopStmtAnalyzer {
             return analyzer.nextNode(node.lastClauses!!.lastBlock)
         }
 
-        // Remove the iteration and intermediate contexts.
-        AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+        finish(analyzer, node)
 
         return analyzer.nextNode(node.parent, node.parentSignal)
     }
@@ -181,19 +183,31 @@ internal object ConditionalLoopStmtAnalyzer {
      * Increment the iteration index.
      */
     private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode, count: Int = 1) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val lastIndex = context.getDereferencedProperty<LxmInteger>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLoopIndexValue)!!
+        val lastIndex = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
         val newIndex = LxmInteger.from(lastIndex.primitive + count)
 
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, newIndex)
+        analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, newIndex)
 
         // Set the index if there is an index expression.
         if (node.index != null) {
-            val indexName = context.getDereferencedProperty<LxmString>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.HiddenLoopIndexName)!!
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
             context.setProperty(analyzer.memory, indexName.primitive, newIndex)
+        }
+    }
+
+    /**
+     * Process the finalization of the loop.
+     */
+    private fun finish(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode) {
+        // Remove the intermediate context.
+        AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+
+        // Remove LoopIndexName and LoopIndexValue from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopIndexValue)
+        if (node.index != null) {
+            analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopIndexName)
         }
     }
 }

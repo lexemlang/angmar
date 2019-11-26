@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -32,7 +33,7 @@ internal class EscapedExpressionNodeTest {
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse correct escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -46,9 +47,9 @@ internal class EscapedExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect escaped expression with no expression`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.EscapedExpressionWithoutExpression) {
             val text = EscapedExpressionNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -57,9 +58,9 @@ internal class EscapedExpressionNodeTest {
     @Incorrect
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse incorrect escaped expression with no endToken`(expression: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.EscapedExpressionWithoutEndToken) {
             val text = "${EscapedExpressionNode.startToken}$expression"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -67,7 +68,7 @@ internal class EscapedExpressionNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

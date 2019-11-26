@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -39,7 +40,7 @@ internal class ObjectElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [correctObjectElement])
     fun `parse correct object element`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -53,7 +54,7 @@ internal class ObjectElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [correctConstantObjectElement])
     fun `parse correct constant object element`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -67,7 +68,7 @@ internal class ObjectElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [correctObjectElementWithWS])
     fun `parse correct object element with whitespaces`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -81,9 +82,9 @@ internal class ObjectElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect object element with no keyValueSeparator`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ObjectElementWithoutRelationalOperatorAfterKey) {
             val text = CommonsTest.testDynamicIdentifier
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -91,9 +92,10 @@ internal class ObjectElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect object element with no value`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator) {
             val text = "${CommonsTest.testDynamicIdentifier}${ObjectElementNode.keyValueSeparator}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -101,7 +103,7 @@ internal class ObjectElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

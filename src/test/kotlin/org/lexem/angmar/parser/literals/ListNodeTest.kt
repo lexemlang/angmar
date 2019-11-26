@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -61,7 +62,7 @@ internal class ListNodeTest {
     @MethodSource("provideCorrectLists")
     fun `parse correct list literal`(list: String, size: Int) {
         val text = "${ListNode.startToken}$list${ListNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -81,7 +82,7 @@ internal class ListNodeTest {
     @MethodSource("provideCorrectLists", "provideCorrectListsWithWS")
     fun `parse correct constant list literal`(list: String, size: Int) {
         val text = "${ListNode.constantToken}${ListNode.startToken}$list${ListNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -101,7 +102,7 @@ internal class ListNodeTest {
     @MethodSource("provideCorrectListsWithWS")
     fun `parse correct list literal with whitespaces`(list: String, size: Int) {
         val text = "${ListNode.startToken} $list ${ListNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -121,7 +122,7 @@ internal class ListNodeTest {
     @MethodSource("provideCorrectLists")
     fun `parse correct list literal with trailing comma`(list: String, size: Int) {
         val text = "${ListNode.startToken}$list${ListNode.elementSeparator}${ListNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -140,9 +141,9 @@ internal class ListNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect list literal with no expression`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = ListNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -151,9 +152,9 @@ internal class ListNodeTest {
     @Incorrect
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse incorrect list literal with no endToken`(expression: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = "${ListNode.startToken}$expression"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -161,7 +162,7 @@ internal class ListNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3", ListNode.constantToken])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

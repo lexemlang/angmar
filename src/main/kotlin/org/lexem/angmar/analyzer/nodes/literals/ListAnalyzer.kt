@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -20,7 +21,7 @@ internal object ListAnalyzer {
                 // Add the new list.
                 val list = LxmList()
                 val listRef = analyzer.memory.add(list)
-                analyzer.memory.pushStack(listRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, listRef)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])
@@ -29,18 +30,20 @@ internal object ListAnalyzer {
                 if (node.isConstant) {
                     list.makeConstant(analyzer.memory)
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 // Add the value to the list.
-                val value = analyzer.memory.popStack()
-                val listRef = analyzer.memory.popStack()
-                val list = listRef.dereference(analyzer.memory) as LxmList
+                val value = analyzer.memory.getLastFromStack()
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmList
 
                 list.addCell(analyzer.memory, value)
-
-                analyzer.memory.pushStackIgnoringReferenceCount(listRef)
+                analyzer.memory.removeLastFromStack()
 
                 // Process the next node.
                 if (position < node.elements.size) {
@@ -50,6 +53,9 @@ internal object ListAnalyzer {
                 if (node.isConstant) {
                     list.makeConstant(analyzer.memory)
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

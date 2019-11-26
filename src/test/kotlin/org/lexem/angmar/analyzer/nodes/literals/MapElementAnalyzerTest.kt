@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.junit.jupiter.api.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.parser.literals.*
@@ -17,11 +18,13 @@ internal class MapElementAnalyzerTest {
         // Prepare stack.
         val map = LxmMap(null)
         val mapRef = analyzer.memory.add(map)
-        analyzer.memory.pushStack(mapRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         val mapDeref = resultRef.dereferenceAs<LxmMap>(analyzer.memory) ?: throw Error("The result must be a LxmMap")
         val element =
                 mapDeref.getDereferencedProperty<LxmInteger>(analyzer.memory, LxmInteger.from(key)) ?: throw Error(
@@ -29,8 +32,8 @@ internal class MapElementAnalyzerTest {
 
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

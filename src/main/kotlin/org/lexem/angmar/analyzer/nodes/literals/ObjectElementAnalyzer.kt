@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -26,7 +27,7 @@ internal object ObjectElementAnalyzer {
             }
             signalEndKey -> {
                 // Check identifier.
-                val identifier = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -44,20 +45,22 @@ internal object ObjectElementAnalyzer {
                     }
                 }
 
-                analyzer.memory.pushStack(identifier)
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
 
                 return analyzer.nextNode(node.value)
             }
             signalEndValue -> {
                 // Add the value to the object.
-                val value = analyzer.memory.popStack()
-                val identifier = analyzer.memory.popStack() as LxmString
-                val objRef = analyzer.memory.popStack()
-                val obj = objRef.dereference(analyzer.memory) as LxmObject
+                val value = analyzer.memory.getLastFromStack()
+                val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
+                val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmObject
 
                 obj.setProperty(analyzer.memory, identifier.primitive, value, isConstant = node.isConstant)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(objRef)
+                // Remove the key and value from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

@@ -12,8 +12,11 @@ internal class EscapedExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = EscapedExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(345, result.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

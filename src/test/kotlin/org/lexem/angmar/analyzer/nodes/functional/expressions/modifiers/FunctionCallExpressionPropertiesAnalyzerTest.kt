@@ -20,11 +20,13 @@ internal class FunctionCallExpressionPropertiesAnalyzerTest {
         // Prepare stack
         val args = LxmArguments(analyzer.memory)
         val argsRef = analyzer.memory.add(args)
-        analyzer.memory.pushStack(argsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         Assertions.assertEquals(argsRef, resultRef, "The resultRef is incorrect")
 
         val result = resultRef.dereferenceAs<LxmArguments>(analyzer.memory) ?: throw Error(
@@ -41,8 +43,8 @@ internal class FunctionCallExpressionPropertiesAnalyzerTest {
 
         Assertions.assertEquals(LxmLogic.True, argumentValue, "The argumentValue is incorrect")
 
-        // Decrease reference count.
-        argsRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

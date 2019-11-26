@@ -28,11 +28,14 @@ internal class IndexerAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result =
-                analyzer.memory.popStack() as? LxmIndexerSetter ?: throw Error("The result must be a LxmIndexerSetter")
+        val result = analyzer.memory.getLastFromStack() as? LxmIndexerSetter ?: throw Error(
+                "The result must be a LxmIndexerSetter")
         Assertions.assertEquals(listReference, result.element, "The element property is incorrect")
         Assertions.assertEquals(LxmInteger.from(1), result.index, "The index property is incorrect")
         Assertions.assertEquals(value, result.dereference(analyzer.memory), "The value property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -61,7 +64,7 @@ internal class IndexerAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
         val finalList =
@@ -69,6 +72,9 @@ internal class IndexerAnalyzerTest {
         val cell = finalList.getDereferencedCell<LxmInteger>(analyzer.memory, cellIndex) ?: throw Error(
                 "The result must be a LxmInteger")
         Assertions.assertEquals(right, cell.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }

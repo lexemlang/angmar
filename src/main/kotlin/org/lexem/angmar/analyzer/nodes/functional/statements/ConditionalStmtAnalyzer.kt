@@ -28,8 +28,11 @@ internal object ConditionalStmtAnalyzer {
             }
             signalEndCondition -> {
                 // Evaluate the condition.
-                val condition = analyzer.memory.popStack()
+                val condition = analyzer.memory.getLastFromStack()
                 val conditionTruthy = RelationalFunctions.isTruthy(condition)
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (node.isUnless) {
                     if (!conditionTruthy) {
@@ -67,7 +70,7 @@ internal object ConditionalStmtAnalyzer {
             }
             // Process the control signal.
             AnalyzerNodesCommons.signalExitControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Remove the intermediate context.
@@ -75,9 +78,11 @@ internal object ConditionalStmtAnalyzer {
 
                 // Propagate the control signal.
                 if (contextTag == null || control.tag != contextTag) {
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl -> {

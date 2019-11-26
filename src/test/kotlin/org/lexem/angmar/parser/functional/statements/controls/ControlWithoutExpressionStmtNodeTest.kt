@@ -51,7 +51,7 @@ internal class ControlWithoutExpressionStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectControlWithoutExpression")
     fun `parse correct destructuring spread statement`(text: String, keyword: String, hasTag: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ControlWithoutExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0, keyword)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -71,7 +71,7 @@ internal class ControlWithoutExpressionStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ControlWithoutExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
                 ControlWithoutExpressionStmtNode.restartKeyword)
 

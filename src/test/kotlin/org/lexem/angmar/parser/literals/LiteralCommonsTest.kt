@@ -18,6 +18,7 @@ internal class LiteralCommonsTest {
         const val testAnyString = StringNodeTest.testExpression
         const val testAnyObject = ObjectNodeTest.testExpression
         const val testAnyInterval = IntervalNodeTest.testExpression
+        const val testAnyIntervalForLexem = UnicodeIntervalAbbrNodeTest.testExpression
 
         @JvmStatic
         private fun provideObjects(): Stream<Arguments> {
@@ -45,11 +46,26 @@ internal class LiteralCommonsTest {
             return sequence.asStream()
         }
 
+        @JvmStatic
+        private fun provideIntervalsForLexem(): Stream<Arguments> {
+            val sequence = sequence {
+                val tests = listOf(IntervalNodeTest.testExpression, UnicodeIntervalNodeTest.testExpression,
+                        UnicodeIntervalAbbrNodeTest.testExpression)
+
+                for (test in tests.withIndex()) {
+                    yield(Arguments.of(test.value, test.index))
+                }
+            }
+
+            return sequence.asStream()
+        }
+
         // AUX METHODS --------------------------------------------------------
 
         fun checkTestAnyString(node: ParserNode) = StringNodeTest.checkTestExpression(node)
         fun checkTestAnyObject(node: ParserNode) = ObjectNodeTest.checkTestExpression(node)
         fun checkTestAnyInterval(node: ParserNode) = IntervalNodeTest.checkTestExpression(node)
+        fun checkTestAnyIntervalForLexem(node: ParserNode) = UnicodeIntervalAbbrNodeTest.checkTestExpression(node)
     }
 
 
@@ -60,7 +76,7 @@ internal class LiteralCommonsTest {
             strings = ["a", "this", "longText_with_a lotOfThings", "texts with\n break lines", "text with ${EscapeNode.startToken}d escapes", "${StringNode.additionalDelimiter}${StringNode.additionalDelimiter}"])
     fun `parse simple literal correct strings`(textContent: String) {
         val text = "${UnescapedStringNode.macroName}${StringNode.startToken}$textContent${StringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -79,7 +95,7 @@ internal class LiteralCommonsTest {
             strings = ["a", "this", "longText_with_a lotOfThings", "texts with\n break lines", "${StringNode.additionalDelimiter}${StringNode.additionalDelimiter}"])
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -98,7 +114,7 @@ internal class LiteralCommonsTest {
     @ParameterizedTest
     @MethodSource("provideObjects")
     fun `parse any correct object`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LiteralCommons.parseAnyObject(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -116,7 +132,7 @@ internal class LiteralCommonsTest {
     @ParameterizedTest
     @MethodSource("provideIntervals")
     fun `parse any correct interval`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LiteralCommons.parseAnyInterval(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -125,6 +141,26 @@ internal class LiteralCommonsTest {
         when (type) {
             0 -> IntervalNodeTest.checkTestExpression(res)
             1 -> UnicodeIntervalNodeTest.checkTestExpression(res)
+            else -> throw AngmarUnreachableException()
+        }
+
+        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideIntervalsForLexem")
+    fun `parse any correct interval for lexem`(text: String, type: Int) {
+        val parser = LexemParser(IOStringReader.from(text))
+        val res = LiteralCommons.parseAnyIntervalForLexem(parser, ParserNode.Companion.EmptyParserNode, 0)
+
+        Assertions.assertNotNull(res, "The input has not been correctly parsed")
+        res as ParserNode
+
+        when (type) {
+            0 -> IntervalNodeTest.checkTestExpression(res)
+            1 -> UnicodeIntervalNodeTest.checkTestExpression(res)
+            2 -> UnicodeIntervalAbbrNodeTest.checkTestExpression(res)
             else -> throw AngmarUnreachableException()
         }
 

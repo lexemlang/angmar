@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.errors.*
 
 
 /**
@@ -18,43 +17,48 @@ internal object InternalFunctionCallAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int) {
         when (signal) {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
-                val function = analyzer.memory.popStack() as? LxmInternalFunction ?: throw AngmarAnalyzerException(
-                        AngmarAnalyzerExceptionType.IncompatibleType, "The function must be a built-in") {}
-                val arguments = analyzer.memory.popStack()
-                val lastCodePoint = analyzer.memory.popStack() as LxmCodePoint
-
-                // Save the returned point and function.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastCodePoint, lastCodePoint)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenInternalFunction, function)
+                val function = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function) as LxmInternalFunction
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
                 // Call the function
-                val derefArguments = arguments.dereference(analyzer.memory) as LxmArguments
-                val hasEnded = function.function(analyzer, derefArguments, signal)
-
-                // Decrease the reference count of the arguments.
-                (arguments as LxmReference).decreaseReferenceCount(analyzer.memory)
+                val hasEnded = function.function(analyzer, arguments, signal)
 
                 if (hasEnded) {
+                    val lastCodePoint =
+                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as LxmCodePoint
+
                     // Remove the intermediate context.
                     AnalyzerCommons.removeCurrentFunctionContextAndAssignPrevious(analyzer.memory)
 
-                    // Restore the last position
+                    // Remove Function, Arguments and ReturnCodePoint from the stack.
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Function)
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint)
+
+                    // Restore the last position.
                     return analyzer.nextNode(lastCodePoint)
                 }
             }
             else -> {
                 // Call the function
-                val function = AnalyzerCommons.getCurrentContextElement<LxmInternalFunction>(analyzer.memory,
-                        AnalyzerCommons.Identifiers.HiddenInternalFunction)
-                val hasEnded = function.function(analyzer, LxmArguments(), signal)
+                val function = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function) as LxmInternalFunction
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
+                val hasEnded = function.function(analyzer, arguments, signal)
+
                 if (hasEnded) {
-                    // Restore the last position
-                    val lastCodePoint = AnalyzerCommons.getCurrentContextElement<LxmCodePoint>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.HiddenLastCodePoint)
+                    // Gets the last position.
+                    val lastCodePoint =
+                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as LxmCodePoint
 
                     // Remove the intermediate context.
                     AnalyzerCommons.removeCurrentFunctionContextAndAssignPrevious(analyzer.memory)
+
+                    // Remove Function, Arguments and ReturnCodePoint from the stack.
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Function)
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint)
 
                     return analyzer.nextNode(lastCodePoint)
                 }

@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.functional.statements
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.analyzer.nodes.descriptive.statements.*
 import org.lexem.angmar.parser.functional.statements.*
 
 
@@ -19,7 +20,7 @@ internal object PublicMacroStmtAnalyzer {
                 return analyzer.nextNode(node.element)
             }
             signalEndElement -> {
-                /** This node is executed in [VarDeclarationStmtAnalyzer] and [FunctionStmtAnalyzer] **/
+                /** This node is executed in [VarDeclarationStmtAnalyzer] and [FunctionStmtAnalyzer] and [ExpressionStmtAnalyzer] and [FilterStmtAnalyzer] **/
             }
         }
 

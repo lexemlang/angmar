@@ -86,7 +86,7 @@ internal class FunctionStmtNode private constructor(parser: LexemParser, parent:
             val keepIsDescriptiveCode = parser.isDescriptiveCode
             parser.isDescriptiveCode = false
 
-            result.block = GlobalCommons.parseBlock(parser, result, FunctionStmtAnalyzer.signalEndBlock)
+            result.block = BlockStmtNode.parse(parser, result, FunctionStmtAnalyzer.signalEndBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.FunctionStatementWithoutBlock,
                             "A block of code was expected after the '$keyword' keyword.") {
                         val fullText = parser.reader.readAllText()

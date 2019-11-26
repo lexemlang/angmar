@@ -34,7 +34,7 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
         val result = super.toTree()
 
         result.add("tag", tag?.toTree())
-        result.add("statements", TreeLikePrintable.listToTest(statements))
+        result.add("statements", SerializationUtils.listToTest(statements))
 
         return result
     }
@@ -85,7 +85,7 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
 
                 WhitespaceNode.parse(parser)
 
-                val statement = StatementCommons.parseAnyStatement(parser, result,
+                val statement = GlobalCommons.parseBlockStatement(parser, result,
                         result.statements.size + BlockStmtAnalyzer.signalEndFirstStatement)
                 if (statement == null) {
                     initLoopCursor.restore()

@@ -6,6 +6,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
 
@@ -177,17 +178,17 @@ internal class LxmObjectTest {
 
         val obj1 = LxmObject()
         val obj1Ref = memory.add(obj1)
-        obj1Ref.increaseReferenceCount(memory)
+        obj1Ref.increaseReferences(memory)
         val obj1Cell = memory.lastNode.getCell(obj1Ref.position)
 
         val obj2 = LxmObject()
         val obj2Ref = memory.add(obj2)
-        obj2Ref.increaseReferenceCount(memory)
+        obj2Ref.increaseReferences(memory)
         val obj2Cell = memory.lastNode.getCell(obj2Ref.position)
 
         val obj = LxmObject()
         val objRef = memory.add(obj)
-        objRef.increaseReferenceCount(memory)
+        objRef.increaseReferences(memory)
         val objCell = memory.lastNode.getCell(objRef.position)
 
         Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
@@ -251,6 +252,80 @@ internal class LxmObjectTest {
                 "The prototype property is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, prototype.getPropertyValue(memory, "prototype"),
                 "The prototype property is incorrect")
+    }
+
+    @Test
+    fun `test set property ignoring constant`() {
+        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val memory = analyzer.memory
+        val propName = "test"
+
+        val obj = LxmObject()
+        obj.makeConstant(analyzer.memory)
+
+        obj.setProperty(analyzer.memory, propName, LxmInteger.Num10, ignoringConstant = true)
+
+        Assertions.assertEquals(LxmInteger.Num10, obj.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
+    }
+
+    @Test
+    fun `test set property changing the inner attributes`() {
+        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val memory = analyzer.memory
+        val propName = "test"
+
+        val obj = LxmObject()
+        obj.setProperty(analyzer.memory, propName, LxmInteger.Num10)
+
+        var cell = obj.getOwnPropertyDescriptor(analyzer.memory, propName)!!
+
+        Assertions.assertFalse(cell.isConstant, "The isConstant property is incorrect")
+        Assertions.assertTrue(cell.isIterable, "The isIterable property is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, obj.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
+
+        obj.setProperty(analyzer.memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
+
+        cell = obj.getOwnPropertyDescriptor(analyzer.memory, propName)!!
+
+        Assertions.assertTrue(cell.isConstant, "The isConstant property is incorrect")
+        Assertions.assertFalse(cell.isIterable, "The isIterable property is incorrect")
+        Assertions.assertEquals(LxmLogic.True, obj.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
+    }
+
+    @Test
+    fun `test set property changing the inner attributes recursively`() {
+        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val memory = analyzer.memory
+        val propName = "test"
+
+        val old = LxmObject()
+        old.setProperty(analyzer.memory, propName, LxmInteger.Num10)
+
+        var cellOld = old.getOwnPropertyDescriptor(analyzer.memory, propName)!!
+
+        Assertions.assertFalse(cellOld.isConstant, "The isConstant property is incorrect")
+        Assertions.assertTrue(cellOld.isIterable, "The isIterable property is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, old.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
+
+
+        val new = old.clone()
+        new.setProperty(analyzer.memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
+
+        cellOld = old.getOwnPropertyDescriptor(analyzer.memory, propName)!!
+        val cellNew = new.getOwnPropertyDescriptor(analyzer.memory, propName)!!
+
+        Assertions.assertFalse(cellOld.isConstant, "The isConstant property is incorrect")
+        Assertions.assertTrue(cellOld.isIterable, "The isIterable property is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, old.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
+        Assertions.assertTrue(cellNew.isConstant, "The isConstant property is incorrect")
+        Assertions.assertFalse(cellNew.isIterable, "The isIterable property is incorrect")
+        Assertions.assertEquals(LxmLogic.True, new.getPropertyValue(memory, propName),
+                "The $propName property is incorrect")
     }
 
     @Test
@@ -424,19 +499,19 @@ internal class LxmObjectTest {
 
         val obj = LxmObject()
         val objRef = memory.add(obj)
-        objRef.increaseReferenceCount(memory)
+        objRef.increaseReferences(memory)
         val objCell = memory.lastNode.getCell(objRef.position)
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
-        prototypeRef.increaseReferenceCount(memory)
+        prototypeRef.increaseReferences(memory)
         val prototypeCell = memory.lastNode.getCell(prototypeRef.position)
 
         val old = LxmObject(prototypeRef, memory)
         old.setProperty(memory, "test-old", LxmLogic.True)
         old.setProperty(memory, "testObj-old", objRef)
         val oldRef = memory.add(old)
-        oldRef.increaseReferenceCount(memory)
+        oldRef.increaseReferences(memory)
         val oldCell = memory.lastNode.getCell(oldRef.position)
 
         val new = old.clone()
@@ -493,7 +568,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `set property in a constant object`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
 
@@ -509,7 +584,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `set a constant property`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
 
@@ -525,7 +600,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `remove property in a constant object`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
 
@@ -540,7 +615,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `remove a constant property`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
             val testName = "test"
@@ -555,7 +630,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `make an undefined property constant`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
 
@@ -566,7 +641,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `make a property constant in a constant object`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
             val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
             val obj = LxmObject()
 

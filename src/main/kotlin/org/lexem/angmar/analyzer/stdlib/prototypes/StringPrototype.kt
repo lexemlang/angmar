@@ -50,11 +50,11 @@ internal object StringPrototype {
                 }
 
                 // Push the left operator again to call the toString over the right one.
-                analyzer.memory.pushStack(left)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, left)
 
                 val rightPrototype = right.getObjectOrPrototype(analyzer.memory)
-                val function = rightPrototype.getDereferencedProperty<LexemMemoryValue>(analyzer.memory,
-                        AnalyzerCommons.Identifiers.ToString) ?: throw AngmarAnalyzerException(
+                val functionRef = rightPrototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)
+                val function = functionRef?.dereference(analyzer.memory) ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.UndefinedObjectProperty,
                         "The add method requires to call the ${AnalyzerCommons.Identifiers.ToString} method over the '${AnalyzerCommons.Operators.RightParameterName}' operand but it is undefined. Current: $rightPrototype") {}
 
@@ -66,15 +66,15 @@ internal object StringPrototype {
                 val rightRef = analyzer.memory.valueToPrimitive(right)
                 callArgs.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, rightRef)
                 val callArgsRef = analyzer.memory.add(callArgs)
-                callArgsRef.increaseReferenceCount(analyzer.memory)
-                AnalyzerNodesCommons.callFunction(analyzer, function, callArgsRef, InternalFunctionCallNode,
-                        AnalyzerNodesCommons.signalEndFirstCall)
+                callArgsRef.increaseReferences(analyzer.memory)
+                AnalyzerNodesCommons.callFunction(analyzer, functionRef, callArgsRef, InternalFunctionCallNode,
+                        LxmCodePoint(InternalFunctionCallNode, AnalyzerNodesCommons.signalEndFirstCall))
 
                 return false
             }
             AnalyzerNodesCommons.signalEndFirstCall -> {
-                val right = analyzer.memory.popStack().dereference(analyzer.memory)
-                val left = analyzer.memory.popStack() as LxmString
+                val right = analyzer.memory.getLastFromStack().dereference(analyzer.memory)
+                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmString
 
                 if (right !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -82,7 +82,10 @@ internal object StringPrototype {
                 }
 
                 val result = left.primitive + right.primitive
-                analyzer.memory.pushStack(LxmString.from(result))
+                analyzer.memory.replaceLastStackCell(LxmString.from(result))
+
+                // Remove Left from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
             }
         }
 

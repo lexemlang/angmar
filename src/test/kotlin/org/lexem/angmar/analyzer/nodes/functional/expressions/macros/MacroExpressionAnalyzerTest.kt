@@ -15,8 +15,11 @@ internal class MacroExpressionAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = MultiplicativeExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(10, result.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -35,8 +38,12 @@ internal class MacroExpressionAnalyzerTest {
 
             TestUtils.processAndCheckEmpty(analyzer)
 
-            val result = analyzer.memory.popStack() as? LxmString ?: throw Error("The result must be a LxmString")
+            val result =
+                    analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
             Assertions.assertEquals(mainPath, result.primitive, "The value inserted in the stack is incorrect")
+
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
         }
@@ -56,9 +63,13 @@ internal class MacroExpressionAnalyzerTest {
 
             TestUtils.processAndCheckEmpty(analyzer)
 
-            val result = analyzer.memory.popStack() as? LxmString ?: throw Error("The result must be a LxmString")
+            val result =
+                    analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
             Assertions.assertEquals(files["main"]!!.parentFile.canonicalPath, result.primitive,
                     "The value inserted in the stack is incorrect")
+
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
         }
@@ -70,9 +81,12 @@ internal class MacroExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = MacroExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmString ?: throw Error("The result must be a LxmString")
+        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
         Assertions.assertEquals(MacroExpressionNode.fileContentMacro, result.primitive,
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

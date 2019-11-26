@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.literals.*
@@ -94,7 +95,7 @@ internal class VarDeclarationStmtAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect destructuring`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val elementAlias = "elementAlias"
             val destructuring = "${DestructuringStmtNode.startToken} $elementAlias ${DestructuringStmtNode.endToken}"
             val text =
@@ -107,7 +108,7 @@ internal class VarDeclarationStmtAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect identifier`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text =
                     "${VarDeclarationStmtNode.constKeyword} ${EscapedExpressionNode.startToken}${LxmLogic.True}${EscapedExpressionNode.endToken} ${VarDeclarationStmtNode.assignOperator} ${LxmLogic.True}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = VarDeclarationStmtNode.Companion::parse)

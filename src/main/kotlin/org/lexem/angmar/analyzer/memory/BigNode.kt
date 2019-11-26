@@ -8,13 +8,24 @@ import org.lexem.angmar.errors.*
  * A big node that represents an differential view of the memory.
  */
 internal class BigNode constructor(val previousNode: BigNode?) {
-    private val stack = mutableMapOf<Int, LexemPrimitive>()
+    private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
     private val heap = mutableMapOf<Int, BigNodeCell>()
+
+    /**
+     * The number of levels in the current [BigNode]'s stack.
+     */
+    val stackLevelSize get() = stackLevels.size
 
     /**
      * The number of elements in the current [BigNode]'s stack.
      */
-    val stackSize get() = stack.size
+    val stackSize get() = stackLevels.values.sumBy { it.cellCount }
+
+    /**
+     * The number of levels in the whole stack.
+     */
+    var actualStackLevelSize: Int = previousNode?.actualStackLevelSize ?: 0
+        private set
 
     /**
      * The number of elements in the whole stack.
@@ -46,54 +57,162 @@ internal class BigNode constructor(val previousNode: BigNode?) {
     var lastFreePosition: Int = previousNode?.lastFreePosition ?: actualHeapSize
         private set
 
-    // Methods ----------------------------------------------------------------
+    // METHODS ----------------------------------------------------------------
 
     /**
-     * Pushes a new value into the stack.
+     * Adds a new value into the stack by a name.
      */
-    fun pushStack(value: LexemPrimitive) {
-        if (value is LxmReference) {
-            getCell(value.position).increaseReferenceCount()
+    fun addToStack(name: String, value: LexemPrimitive, memory: LexemMemory) {
+        // Increase the reference count of the incoming value.
+        value.increaseReferences(memory)
+
+        // Get the last stack level.
+        var level = getStackLevelRecursively(actualStackLevelSize - 1) ?: let {
+            val level = BigNodeStackLevel.new(0)
+            stackLevels[0] = level
+            actualStackLevelSize += 1
+            level
         }
 
-        pushStackIgnoringReferenceCount(value)
-    }
+        // Increase a level if name is inside.
+        level = if (level.hasCell(name)) {
+            val nextLevel = BigNodeStackLevel.new(actualStackLevelSize)
+            stackLevels[actualStackLevelSize] = nextLevel
+            actualStackLevelSize += 1
+            nextLevel
+        } else {
+            // Shifts the stack level.
+            if (level.position !in stackLevels) {
+                level = level.shiftLevel()
+                stackLevels[level.position] = level
+            }
 
-    /**
-     * Pushes a new primitive into the stack ignoring the reference count.
-     */
-    fun pushStackIgnoringReferenceCount(value: LexemPrimitive) {
-        stack[actualStackSize] = value
+            level
+        }
+
+        // Add the value to the stack.
+        level.setCellValue(name, value)
         actualStackSize += 1
     }
 
     /**
-     * Pops the last value of the stack recursively.
+     * Gets the specified value of the stack.
      */
-    fun popStack(): LexemPrimitive {
-        // Prevent to get a value if the last index of the stack is lower than 0.
-        if (actualStackSize <= 0) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackUnderflow,
-                    "The analyzer has tried to get a value from an empty stack") {}
+    fun getFromStack(name: String): LexemPrimitive {
+        for (i in actualStackLevelSize - 1 downTo 0) {
+            val level = getStackLevelRecursively(i)!!
+            val value = level.getCellValue(name)
+            if (value != null) {
+                return value
+            }
         }
 
-        actualStackSize -= 1
-        val res = getStackRecursively(actualStackSize) ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.StackNotFoundElement,
-                "Not found element in the stack at position ($actualStackSize)") {}
-
-        if (stack.containsKey(actualStackSize)) {
-            stack.remove(actualStackSize)
-        }
-
-        return res
+        return previousNode?.getFromStack(name) ?: throw AngmarAnalyzerException(
+                AngmarAnalyzerExceptionType.StackNotFoundElement, "Not found element called '$name' in the stack.") {}
     }
 
     /**
-     * Gets a position in the stack recursively.
+     * Removes the specified value of the stack recursively.
      */
-    private fun getStackRecursively(position: Int): LexemPrimitive? =
-            stack[position] ?: previousNode?.getStackRecursively(position)
+    fun removeFromStack(name: String, memory: LexemMemory) {
+        // Get the stack level.
+        var level: BigNodeStackLevel? = null
+        var value: LexemPrimitive? = null
+        for (i in actualStackLevelSize - 1 downTo 0) {
+            level = getStackLevelRecursively(i)!!
+            value = level.getCellValue(name)
+            if (value != null) {
+                // Shifts the level.
+                level = level.shiftLevel()
+                stackLevels[i] = level
+                break
+            }
+        }
+
+        if (level == null || value == null) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackNotFoundElement,
+                    "Not found element called '$name' in the stack.") {}
+        }
+
+        // Shift the level to the current big node.
+        if (level.position !in stackLevels) {
+            level = level.shiftLevel()
+            stackLevels[level.position] = level
+        }
+
+        // Remove cell.
+        level.removeCell(name)
+        actualStackSize -= 1
+
+        // Remove the level if it is empty and it is the last one.
+        if (level.cellCount == 0 && level.position == actualStackLevelSize - 1) {
+            stackLevels.remove(level.position)
+            actualStackLevelSize -= 1
+            level.destroy()
+
+            // Remove empty stack levels.
+            for (i in actualStackLevelSize - 1 downTo 0) {
+                val level = getStackLevelRecursively(i)!!
+                if (level.cellCount != 0) {
+                    break
+                }
+
+                if (i in stackLevels) {
+                    stackLevels.remove(i)
+                }
+
+                actualStackLevelSize -= 1
+                level.destroy()
+            }
+        }
+
+        // Decrease reference count.
+        value.decreaseReferences(memory)
+    }
+
+    /**
+     * Replace the specified stack cell by another primitive.
+     */
+    fun replaceStackCell(name: String, newValue: LexemPrimitive, memory: LexemMemory) {
+        // Get the stack level.
+        var level: BigNodeStackLevel? = null
+        var value: LexemPrimitive? = null
+        for (i in actualStackLevelSize - 1 downTo 0) {
+            level = getStackLevelRecursively(i)!!
+            value = level.getCellValue(name)
+            if (value != null) {
+                break
+            }
+        }
+
+        if (level == null || value == null) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackNotFoundElement,
+                    "Not found element called '$name' in the stack") {}
+        }
+
+        // Shift the level to the current big node.
+        if (level.position !in stackLevels) {
+            level = level.shiftLevel()
+            stackLevels[level.position] = level
+        }
+
+        // Increase the reference count of the incoming value.
+        if (newValue is LxmReference) {
+            getCell(newValue.position).increaseReferences()
+        }
+
+        // Replace the cell.
+        level.setCellValue(name, newValue)
+
+        // Decrease reference count.
+        value.decreaseReferences(memory)
+    }
+
+    /**
+     * Gets the specified stack level.
+     */
+    private fun getStackLevelRecursively(position: Int): BigNodeStackLevel? =
+            stackLevels[position] ?: previousNode?.getStackLevelRecursively(position)
 
     /**
      * Gets a cell recursively in the [BigNode]'s chain.
@@ -185,26 +304,122 @@ internal class BigNode constructor(val previousNode: BigNode?) {
     }
 
     /**
+     * Collapses this [BigNode] to the specified one recursively
+     */
+    fun collapseTo(destination: BigNode) {
+        if (destination == this) {
+            return
+        }
+
+        val ignoreStackIndexes = mutableSetOf<Int>()
+        val ignoreHeapIndexes = mutableSetOf<Int>()
+
+        // Sets the information.
+        destination.actualStackLevelSize = actualStackLevelSize
+        destination.actualStackSize = actualStackSize
+        destination.actualHeapSize = actualHeapSize
+        destination.actualUsedCellCount = actualUsedCellCount
+        destination.lastFreePosition = lastFreePosition
+
+        // Remove the excess levels in the stack.
+        for (i in destination.stackLevels.keys) {
+            if (i >= actualStackSize) {
+                val level = destination.stackLevels[i]!!
+                level.destroy()
+                destination.stackLevels.remove(i)
+            }
+        }
+
+        collapseToRecursively(destination, ignoreStackIndexes, ignoreHeapIndexes)
+    }
+
+    private fun collapseToRecursively(destination: BigNode, ignoreStackIndexes: MutableSet<Int>,
+            ignoreHeapIndexes: MutableSet<Int>) {
+        if (this == destination) {
+            return
+        }
+
+        // Move stack elements backwards
+        for ((i, level) in stackLevels) {
+            if (i !in ignoreStackIndexes) {
+                destination.stackLevels[i] = level.shiftLevel()
+
+                ignoreStackIndexes.add(i)
+            }
+        }
+
+        // Move heap elements backwards.
+        for ((i, cell) in heap) {
+            if (i !in ignoreHeapIndexes) {
+                destination.heap[i] = BigNodeCell.newFrom(cell)
+
+                ignoreHeapIndexes.add(i)
+            }
+
+            // Clear the value in the current heap to not remove the value.
+            if (!cell.isFreed) {
+                cell.setValue(BigNodeCell.EmptyCell)
+            }
+        }
+
+        if (previousNode == null) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BigNodeDoesNotBelongToMemoryChain,
+                    "The specified bigNode does not belong to this memory chain") {}
+        }
+
+        previousNode.collapseToRecursively(destination, ignoreStackIndexes, ignoreHeapIndexes)
+
+        destroy()
+    }
+
+    /**
      * Clears the [BigNode] destroying its cells to reuse them.
      */
     fun destroy() {
         // Clears the stack.
-        repeat(stackSize) {
-            popStack()
+        for ((_, level) in stackLevels) {
+            level.destroy()
         }
-
-        stack.clear()
 
         // Destroys all cells to reuse them.
-        for (cell in heap) {
-            cell.value.destroy()
+        for ((_, cell) in heap) {
+            cell.destroy()
         }
 
-        actualStackSize = previousNode?.actualStackSize ?: 0
-        actualHeapSize = previousNode?.actualHeapSize ?: 0
-        actualUsedCellCount = previousNode?.actualUsedCellCount ?: 0
-        lastFreePosition = previousNode?.lastFreePosition ?: actualHeapSize
-        stack.clear()
+        actualStackSize = 0
+        actualStackLevelSize = 0
+        actualHeapSize = 0
+        actualUsedCellCount = 0
+        lastFreePosition = 0
+        stackLevels.clear()
         heap.clear()
+    }
+
+    /**
+     * Collects all the garbage of the current big node.
+     */
+    fun spatialGarbageCollect(memory: LexemMemory) {
+        // Track from the main context.
+        val stdLibCell = LxmReference.StdLibContext.getCell(memory)
+        stdLibCell.spatialGarbageCollect(memory)
+
+        // Track from stack.
+        for (i in actualStackLevelSize - 1 downTo 0) {
+            val level = getStackLevelRecursively(i)!!
+            for ((_, cell) in level.cellValues) {
+                cell.spatialGarbageCollect(memory)
+            }
+        }
+
+        // Clean memory.
+        for (i in 0 until actualHeapSize) {
+            val cell = getCell(i)
+
+            if (!cell.isNotGarbage && !cell.isFreed) {
+                freeAsGarbage(memory, cell.position)
+            } else {
+                cell.clearGarbageFlag(memory)
+            }
+        }
     }
 }

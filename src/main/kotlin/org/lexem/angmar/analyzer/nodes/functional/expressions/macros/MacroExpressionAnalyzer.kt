@@ -15,22 +15,22 @@ internal object MacroExpressionAnalyzer {
         when (node.macroName) {
             MacroExpressionNode.lineMacro -> {
                 val lineColumn = node.from.lineColumn()
-                analyzer.memory.pushStack(LxmInteger.from(lineColumn.first))
+                analyzer.memory.addToStackAsLast(LxmInteger.from(lineColumn.first))
             }
             MacroExpressionNode.fileMacro -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 val source = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath)!!
-                analyzer.memory.pushStack(source)
+                analyzer.memory.addToStackAsLast(source)
             }
             MacroExpressionNode.directoryMacro -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 val source = context.getPropertyValue(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenFilePath) as LxmString
-                analyzer.memory.pushStack(LxmString.from(File(source.primitive).parentFile.canonicalPath))
+                analyzer.memory.addToStackAsLast(LxmString.from(File(source.primitive).parentFile.canonicalPath))
             }
             MacroExpressionNode.fileContentMacro -> {
                 val text = node.parser.reader.readAllText()
-                analyzer.memory.pushStack(LxmString.from(text))
+                analyzer.memory.addToStackAsLast(LxmString.from(text))
             }
         }
 

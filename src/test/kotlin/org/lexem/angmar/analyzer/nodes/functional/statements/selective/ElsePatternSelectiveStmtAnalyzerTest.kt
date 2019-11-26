@@ -12,14 +12,14 @@ internal class ElsePatternSelectiveStmtAnalyzerTest {
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = ElsePatternSelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

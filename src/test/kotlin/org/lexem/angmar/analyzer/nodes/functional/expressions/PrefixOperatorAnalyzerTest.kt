@@ -14,8 +14,11 @@ internal class PrefixOperatorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.False, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -26,8 +29,11 @@ internal class PrefixOperatorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(3, result.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -38,8 +44,11 @@ internal class PrefixOperatorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(-3, result.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -51,13 +60,16 @@ internal class PrefixOperatorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue[0] = true
         resultValue[3] = true
         Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

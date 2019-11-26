@@ -13,7 +13,7 @@ internal object UnicodeEscapeAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeEscapeNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                val prevValue = analyzer.memory.popStack() as LxmString
+                val prevValue = analyzer.memory.getLastFromStack() as LxmString
                 val byteArray = ByteArray(4)
                 byteArray[1] = node.value.shr(16).and(0xFF).toByte()
                 byteArray[2] = node.value.shr(8).and(0xFF).toByte()
@@ -21,7 +21,7 @@ internal object UnicodeEscapeAnalyzer {
 
                 val decodedPoint = byteArray.toString(Charsets.UTF_32)
 
-                analyzer.memory.pushStack(LxmString.from(prevValue.primitive + decodedPoint))
+                analyzer.memory.replaceLastStackCell(LxmString.from(prevValue.primitive + decodedPoint))
             }
         }
 

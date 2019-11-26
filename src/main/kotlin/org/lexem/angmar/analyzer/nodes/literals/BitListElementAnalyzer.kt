@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
@@ -27,7 +28,7 @@ internal object BitListElementAnalyzer {
                 }
 
                 // Add value to the bitlist.
-                val prev = analyzer.memory.popStack() as LxmBitList
+                val prev = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmBitList
                 val number = node.number!!
                 val bitSet = BitSet()
 
@@ -114,11 +115,11 @@ internal object BitListElementAnalyzer {
                     else -> throw AngmarUnreachableException()
                 }
 
-                analyzer.memory.pushStack(result)
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, result)
             }
             signalEndExpression -> {
                 // Check returned value is a bitlist.
-                val right = analyzer.memory.popStack()
+                val right = analyzer.memory.getLastFromStack()
 
                 if (right !is LxmBitList) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -134,7 +135,7 @@ internal object BitListElementAnalyzer {
                 }
 
                 // Add both.
-                val left = analyzer.memory.popStack() as LxmBitList
+                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmBitList
 
                 val resultBitSet = BitSet(left.size + right.size)
 
@@ -146,7 +147,11 @@ internal object BitListElementAnalyzer {
                     resultBitSet[i + left.size] = right.primitive[i]
                 }
 
-                analyzer.memory.pushStack(LxmBitList(left.size + right.size, resultBitSet))
+                val result = LxmBitList(left.size + right.size, resultBitSet)
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, result)
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
             }
         }
 

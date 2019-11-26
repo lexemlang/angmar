@@ -28,7 +28,7 @@ internal object VarDeclarationStmtAnalyzer {
             signalEndIdentifier -> {
                 // Check identifier if it is not a destructuring.
                 if (node.identifier !is DestructuringStmtNode) {
-                    val identifier = analyzer.memory.popStack()
+                    val identifier = analyzer.memory.getLastFromStack()
 
                     if (identifier !is LxmString) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -45,15 +45,16 @@ internal object VarDeclarationStmtAnalyzer {
                             }
                         }
                     }
-
-                    analyzer.memory.pushStack(identifier)
                 }
+
+                // Move Last to Key in stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
 
                 return analyzer.nextNode(node.value)
             }
             signalEndValue -> {
-                val value = analyzer.memory.popStack()
-                val identifier = analyzer.memory.popStack()
+                val value = analyzer.memory.getLastFromStack()
+                val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key)
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
 
                 // Perform the destructuring.
@@ -90,27 +91,24 @@ internal object VarDeclarationStmtAnalyzer {
                                     isConstant = descriptor.isConstant)
                         }
                     }
-
-                    // Reduce the reference of the value.
-                    (value as LxmReference).decreaseReferenceCount(analyzer.memory)
                 } else {
                     identifier as LxmString
 
                     context.setPropertyAsContext(analyzer.memory, identifier.primitive, value,
                             isConstant = node.isConstant)
 
-                    // Add it to the exports if the parent is a public macro
+                    // Add it to the exports if the parent is a public macro.
                     if (node.parent is PublicMacroStmtNode) {
                         val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                                 AnalyzerCommons.Identifiers.Exports)!!
 
                         exports.setProperty(analyzer.memory, identifier.primitive, value, isConstant = node.isConstant)
                     }
-
-                    if (value is LxmReference) {
-                        value.decreaseReferenceCount(analyzer.memory)
-                    }
                 }
+
+                // Remove Last and Key from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

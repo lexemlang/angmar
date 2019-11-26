@@ -13,10 +13,7 @@ internal object ElsePatternSelectiveStmtAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ElsePatternSelectiveStmtNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                // Remove the value.
-                analyzer.memory.popStack()
-
-                analyzer.memory.pushStack(LxmLogic.True)
+                analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
         }
 

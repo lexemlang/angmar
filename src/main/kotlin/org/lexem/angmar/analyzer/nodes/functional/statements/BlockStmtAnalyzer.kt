@@ -35,8 +35,11 @@ internal object BlockStmtAnalyzer {
             }
             signalEndTag -> {
                 // Sets a tag to this block.
-                val name = analyzer.memory.popStack() as LxmString
+                val name = analyzer.memory.getLastFromStack() as LxmString
                 AnalyzerCommons.namePreviousContextIfItHasNoName(analyzer.memory, name)
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (node.statements.isNotEmpty()) {
                     return analyzer.nextNode(node.statements[0])

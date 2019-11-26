@@ -11,7 +11,7 @@ import org.lexem.angmar.parser.functional.statements.*
 
 
 /**
- * Parser for lexem files.
+ * Parser for Lexem files.
  */
 internal class LexemFileNode private constructor(parser: LexemParser) : ParserNode(parser, null, 0) {
     val statements = mutableListOf<ParserNode>()
@@ -23,7 +23,7 @@ internal class LexemFileNode private constructor(parser: LexemParser) : ParserNo
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("statements", TreeLikePrintable.listToTest(statements))
+        result.add("statements", SerializationUtils.listToTest(statements))
 
         return result
     }
@@ -32,7 +32,7 @@ internal class LexemFileNode private constructor(parser: LexemParser) : ParserNo
 
     companion object {
         /**
-         * Parses a lexem file.
+         * Parses a Lexem file.
          */
         fun parse(parser: LexemParser): LexemFileNode? {
             parser.fromBuffer(parser.reader.currentPosition(), LexemFileNode::class.java)?.let {

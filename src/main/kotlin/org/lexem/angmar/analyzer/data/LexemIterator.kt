@@ -1,54 +1,58 @@
 package org.lexem.angmar.analyzer.data
 
+import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.errors.*
 
 /**
  * An iterator for an element.
  */
-internal interface LexemIterator : LexemPrimitive {
+internal abstract class LexemIterator : LxmObject {
+
+    // CONSTRUCTORS -----------------------------------------------------------
+
+    constructor(memory: LexemMemory) : super() {
+        restart(memory)
+    }
+
+    constructor(oldIterator: LexemIterator) : super(oldIterator)
+
+    // METHODS ----------------------------------------------------------------
+
     /**
      * The current position of the iterator.
      */
-    var index: Int
+    fun getIndex(memory: LexemMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
 
     /**
-     * The number of iteratiorns.
+     * The number of iterations.
      */
-    val size: Long
+    abstract val size: Long
 
     /**
      * Whether the iterator is ended or not.
      */
-    val isEnded get() = index >= size
+    fun isEnded(memory: LexemMemory) = getIndex(memory).primitive >= size
 
     /**
      * Returns the current element in a index-value pair.
      */
-    fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>?
+    abstract fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>?
 
     /**
      * Advance one iteration.
      */
     fun advance(memory: LexemMemory) {
-        index += 1
+        val prev = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
+        val new = LxmInteger.from(prev.primitive + 1)
+        setProperty(memory, AnalyzerCommons.Identifiers.Index, new)
     }
 
     /**
      * Restarts the iterator.
      */
     fun restart(memory: LexemMemory) {
-        index = 0
+        setProperty(memory, AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
     }
-
-    /**
-     * Finalizes the iterator.
-     */
-    fun finalize(memory: LexemMemory) = Unit
-
-    // OVERRIDE METHODS -------------------------------------------------------
-
-    override fun dereference(memory: LexemMemory) = throw AngmarUnreachableException()
-
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 }

@@ -9,13 +9,14 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
 /**
- * The lexem value of the List type.
+ * The Lexem value of the List type.
  */
 internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     private var isConstant = false
     var listSize: Int = oldList?.listSize ?: 0
         private set
     private var cellList = mutableMapOf<Int, LexemPrimitive>()
+    val currentListSize get() = cellList.size
 
     /**
      * Gets the value of a cell.
@@ -63,23 +64,25 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     /**
      * Adds a new cell to the list.
      */
-    fun addCell(memory: LexemMemory, value: LexemPrimitive) {
+    fun addCell(memory: LexemMemory, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
-        if (isConstant) {
+        if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
 
-        replaceCell(memory, listSize, value)
-        listSize += 1
+        for (value in values) {
+            replaceCell(memory, listSize, value)
+            listSize += 1
+        }
     }
 
     /**
      * Removes a cell.
      */
-    fun removeCell(memory: LexemMemory, index: Int, count: Int = 1) {
+    fun removeCell(memory: LexemMemory, index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
-        if (isConstant) {
+        if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
@@ -89,14 +92,68 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
 
-        for (i in index + count until listSize) {
+        val realCount = if (index + count > listSize) {
+            listSize - index
+        } else {
+            count
+        }
+
+        // Move to the start.
+        for (i in index + realCount until listSize) {
+            val oldIndex = i - count
+            val oldValue = getCellRecursively(memory, oldIndex)!!
+            val newValue = getCellRecursively(memory, i)!!
+
+            // Remove the cell and its value.
+            cellList[oldIndex] = newValue
+            memory.replacePrimitives(oldValue, newValue)
+        }
+
+        // Remove last count values.
+        for (i in listSize - realCount until listSize) {
             val value = getCellRecursively(memory, i)!!
-            cellList[i - count] = value
-            cellList.remove(i)
             memory.replacePrimitives(value, LxmNil)
+
+            cellList.remove(i)
         }
 
         listSize -= count
+    }
+
+    /**
+     * Inserts a set of cells at the specified position.
+     */
+    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
+        // Prevent modifications if the list is constant.
+        if (!ignoreConstant && isConstant) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
+                    "The list is constant therefore cannot be modified") {}
+        }
+
+        if (index > listSize) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
+                    "The list's length is ${cellList.size} but the position '$index' was required") {}
+        }
+
+        if (index == listSize) {
+            addCell(memory, *values, ignoreConstant = ignoreConstant)
+            return
+        }
+
+        // Move the cells to create space.
+        val count = values.size
+        for (i in listSize - 1 downTo index) {
+            val value = getCellRecursively(memory, i)!!
+            cellList[i + count] = value
+        }
+
+        // Add the new cells.
+        for ((i, value) in values.withIndex()) {
+            memory.replacePrimitives(LxmNil, value)
+            cellList[index + i] = value
+        }
+
+        listSize += values.size
     }
 
     /**
@@ -116,15 +173,19 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      * Gets all cells of the list in order.
      */
     fun getAllCells(): List<LexemPrimitive> {
-        val result = MutableList<LexemPrimitive>(listSize) { LxmNil }
+        val result = LinkedHashMap<Int, LexemPrimitive>(listSize)
 
         var currentList: LxmList? = this
         while (currentList != null) {
-            currentList.cellList.filter { it.key < listSize }.forEach { result[it.key] = it.value }
+            currentList.cellList.filter { it.key < listSize }.forEach { (key, value) ->
+                if (key !in result) {
+                    result[key] = value
+                }
+            }
             currentList = currentList.oldList
         }
 
-        return result
+        return List(listSize) { result[it]!! }
     }
 
     /**
@@ -140,16 +201,12 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     override val isImmutable: Boolean
         get() = isConstant
 
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmList(this)
-    }
+    override fun clone() = LxmList(this)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllCells()) {
             if (i is LxmReference) {
-                i.decreaseReferenceCount(memory)
+                i.decreaseReferences(memory)
             }
         }
 
@@ -159,9 +216,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
         for (i in getAllCells()) {
-            if (i is LxmReference) {
-                i.getCell(memory).spatialGarbageCollect(memory)
-            }
+            i.spatialGarbageCollect(memory)
         }
     }
 

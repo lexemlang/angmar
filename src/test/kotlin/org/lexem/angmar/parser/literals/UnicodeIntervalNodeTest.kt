@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -17,7 +18,7 @@ internal class UnicodeIntervalNodeTest {
         // AUX METHODS --------------------------------------------------------
 
         fun checkTestExpression(node: ParserNode) {
-            Assertions.assertTrue(node is UnicodeIntervalNode, "The node is not an UnicodeIntervalNode")
+            Assertions.assertTrue(node is UnicodeIntervalNode, "The node is not a unicodeIntervalNode")
             node as UnicodeIntervalNode
 
             UnicodeIntervalAbbrNodeTest.checkTestExpression(node.node)
@@ -29,7 +30,7 @@ internal class UnicodeIntervalNodeTest {
     @Test
     fun `parse correct unicode interval`() {
         val text = "${UnicodeIntervalNode.macroName}${UnicodeIntervalAbbrNodeTest.testExpression}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -43,9 +44,9 @@ internal class UnicodeIntervalNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect unicode interval without abbreviation`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.UnicodeIntervalWithoutStartToken) {
             val text = UnicodeIntervalNode.macroName
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             UnicodeIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -53,7 +54,7 @@ internal class UnicodeIntervalNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

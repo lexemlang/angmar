@@ -28,11 +28,14 @@ internal class AccessExplicitMemberAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmPropertySetter ?: throw Error(
+        val result = analyzer.memory.getLastFromStack() as? LxmPropertySetter ?: throw Error(
                 "The result must be a LxmPropertySetter")
         Assertions.assertEquals(objReference, result.obj, "The obj property is incorrect")
         Assertions.assertEquals(propName, result.property, "The property property is incorrect")
         Assertions.assertEquals(value, result.dereference(analyzer.memory), "The value property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -57,7 +60,7 @@ internal class AccessExplicitMemberAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
         val finalObject =
@@ -65,6 +68,9 @@ internal class AccessExplicitMemberAnalyzerTest {
         val property = finalObject.getDereferencedProperty<LxmInteger>(analyzer.memory, propName) ?: throw Error(
                 "The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }

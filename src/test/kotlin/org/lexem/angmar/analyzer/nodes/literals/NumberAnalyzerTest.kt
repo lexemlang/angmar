@@ -5,6 +5,7 @@ import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
 import java.lang.Math.*
@@ -48,10 +49,10 @@ internal class NumberAnalyzerTest {
         private fun generateIntegers(radix: Int): Stream<Arguments> {
             val result = sequence {
                 for (withExponent in 0..3) {
-                    for (withDecimals in 0..1) {
+                    for (withDecimals in listOf(false, true)) {
                         var num = integerPart.toString(radix)
 
-                        if (withDecimals == 1) {
+                        if (withDecimals) {
                             num += "${NumberNode.decimalSeparator}0"
                         }
 
@@ -120,9 +121,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(numberAsInt, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -135,9 +139,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(numberAsInt, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -150,9 +157,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(numberAsInt, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -164,9 +174,12 @@ internal class NumberAnalyzerTest {
                 parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(numberAsInt, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -179,9 +192,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(numberAsInt, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -196,9 +212,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmFloat ?: throw Error("The value of the stack must be a LxmFloat")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmFloat ?: throw Error(
+                "The value of the stack must be a LxmFloat")
         Assertions.assertEquals(numberAsFloat, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -211,9 +230,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmFloat ?: throw Error("The value of the stack must be a LxmFloat")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmFloat ?: throw Error(
+                "The value of the stack must be a LxmFloat")
         Assertions.assertEquals(numberAsFloat, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -226,9 +248,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmFloat ?: throw Error("The value of the stack must be a LxmFloat")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmFloat ?: throw Error(
+                "The value of the stack must be a LxmFloat")
         Assertions.assertEquals(numberAsFloat, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -240,9 +265,12 @@ internal class NumberAnalyzerTest {
                 parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmFloat ?: throw Error("The value of the stack must be a LxmFloat")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmFloat ?: throw Error(
+                "The value of the stack must be a LxmFloat")
         Assertions.assertEquals(numberAsFloat, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -255,9 +283,12 @@ internal class NumberAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmFloat ?: throw Error("The value of the stack must be a LxmFloat")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmFloat ?: throw Error(
+                "The value of the stack must be a LxmFloat")
         Assertions.assertEquals(numberAsFloat, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -265,7 +296,7 @@ internal class NumberAnalyzerTest {
     @Test
     @Incorrect
     fun `test too long number`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.NumberOverflow) {
             val text = "8174509634562345692364592360456293456923"
             val analyzer = TestUtils.createAnalyzerFrom(text,
                     parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)

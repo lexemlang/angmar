@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -20,8 +21,8 @@ internal class UnicodeIntervalAbbrNodeTest {
         @JvmStatic
         private fun provideSubIntervals(): Stream<Arguments> {
             val sequence = sequence {
-                for (exp in 0..1) {
-                    val expression = if (exp == 0) {
+                for (exp in listOf(false, true)) {
+                    val expression = if (!exp) {
                         UnicodeIntervalElementNodeTest.testExpression
                     } else {
                         UnicodeIntervalSubIntervalNodeTest.testExpression
@@ -30,8 +31,8 @@ internal class UnicodeIntervalAbbrNodeTest {
                     for (i in 0..3) {
                         val list = List(i) { expression }.joinToString(" ")
 
-                        for (reversed in 0..1) {
-                            val reverseText = if (reversed == 0) {
+                        for (reversed in listOf(false, true)) {
+                            val reverseText = if (!reversed) {
                                 ""
                             } else {
                                 UnicodeIntervalAbbrNode.reversedToken
@@ -39,7 +40,7 @@ internal class UnicodeIntervalAbbrNodeTest {
 
                             yield(Arguments.of(
                                     "${UnicodeIntervalAbbrNode.startToken}$reverseText$list${UnicodeIntervalAbbrNode.endToken}",
-                                    reversed == 1, i, exp == 1))
+                                    reversed, i, exp))
                         }
                     }
                 }
@@ -51,7 +52,7 @@ internal class UnicodeIntervalAbbrNodeTest {
         // AUX METHODS --------------------------------------------------------
 
         fun checkTestExpression(node: ParserNode) {
-            Assertions.assertTrue(node is UnicodeIntervalAbbrNode, "The node is not an UnicodeIntervalAbbrNode")
+            Assertions.assertTrue(node is UnicodeIntervalAbbrNode, "The node is not a unicodeIntervalAbbrNode")
             node as UnicodeIntervalAbbrNode
 
             Assertions.assertFalse(node.reversed, "The reversed property in incorrect")
@@ -67,7 +68,7 @@ internal class UnicodeIntervalAbbrNodeTest {
     @MethodSource("provideSubIntervals")
     fun `parse correct unicode interval abbreviation`(text: String, reversed: Boolean, numElements: Int,
             areElementsOfSubIntervals: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -90,9 +91,9 @@ internal class UnicodeIntervalAbbrNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect unicode interval abbreviation without endToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.UnicodeIntervalAbbreviationWithoutEndToken) {
             val text = UnicodeIntervalAbbrNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -100,7 +101,7 @@ internal class UnicodeIntervalAbbrNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalAbbrNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

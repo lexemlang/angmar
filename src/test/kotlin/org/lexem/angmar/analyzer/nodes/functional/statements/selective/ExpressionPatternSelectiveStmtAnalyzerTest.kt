@@ -16,13 +16,17 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = ExpressionPatternSelectiveStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.from(5))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
+
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -34,13 +38,17 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = ExpressionPatternSelectiveStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmString.Nil)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
+
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -56,14 +64,17 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.from(5))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
@@ -85,14 +96,17 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.from(5))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
@@ -114,14 +128,17 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmString.Nil)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(

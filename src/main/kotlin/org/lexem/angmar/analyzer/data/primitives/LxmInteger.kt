@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
 /**
- * The lexem values of the Integer type.
+ * The Lexem values of the Integer type.
  */
 internal class LxmInteger private constructor(val primitive: Int) : LexemPrimitive {
 

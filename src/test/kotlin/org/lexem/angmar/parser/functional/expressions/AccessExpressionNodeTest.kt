@@ -16,7 +16,7 @@ internal class AccessExpressionNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testExpression = "${ExpressionsCommonsTest.testLiteral}${AccessExplicitMemberNodeTest.testExpression}"
+        const val testExpression = "${IdentifierNodeTest.testExpression}${AccessExplicitMemberNodeTest.testExpression}"
 
         @JvmStatic
         private fun provideCorrectAccesses(): Stream<Arguments> {
@@ -47,7 +47,7 @@ internal class AccessExpressionNodeTest {
             node as AccessExpressionNode
 
             Assertions.assertNotNull(node.element, "The element property cannot be null")
-            ExpressionsCommonsTest.checkTestLiteral(node.element)
+            IdentifierNodeTest.checkTestExpression(node.element)
             Assertions.assertEquals(1, node.modifiers.size, "The number of modifiers is incorrect")
             AccessExplicitMemberNodeTest.checkTestExpression(node.modifiers.first())
         }
@@ -59,7 +59,7 @@ internal class AccessExpressionNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectAccesses")
     fun `parse correct accesses`(text: String, elementType: Int, modifierType: Int, modifier2Type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -120,7 +120,7 @@ internal class AccessExpressionNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -6,7 +6,7 @@ import org.lexem.angmar.io.readers.*
 
 internal class ForwardBufferTest {
 
-    private val parser = LexemParser(CustomStringReader.from(""))
+    private val parser = LexemParser(IOStringReader.from(""))
 
     @Test
     fun `add and find entries test`(): ForwardBuffer {

@@ -8,9 +8,10 @@ import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.parser.*
 
 /**
- * The lexem value of the function type.
+ * The Lexem value of the function type.
  */
-internal class LxmFunction : LexemReferenced, ExecutableValue {
+internal open class LxmFunction : LexemReferenced, ExecutableValue {
+    var name: String = "??"
     val node: ParserNode
     val contextReference: LxmReference
 
@@ -20,7 +21,7 @@ internal class LxmFunction : LexemReferenced, ExecutableValue {
         this.node = node
         this.contextReference = contextReference
 
-        contextReference.increaseReferenceCount(memory)
+        contextReference.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -34,15 +35,15 @@ internal class LxmFunction : LexemReferenced, ExecutableValue {
     override fun clone() = this
 
     override fun memoryDealloc(memory: LexemMemory) {
-        contextReference.decreaseReferenceCount(memory)
+        contextReference.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
-        contextReference.getCell(memory).spatialGarbageCollect(memory)
+        contextReference.spatialGarbageCollect(memory)
     }
 
     override fun getType(memory: LexemMemory) =
             AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, FunctionType.TypeName)
 
-    override fun toString() = "[Function]"
+    override fun toString() = "[Function] ${node.parser.reader.getSource()}::$name - Context: $contextReference"
 }

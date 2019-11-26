@@ -29,11 +29,11 @@ internal class NumberNodeTest {
             val sequence = sequence {
                 for (radixPrefix in radix.zip(prefixes)) {
                     for (integer in integers) {
-                        for (underscore in 0..1) {
+                        for (underscore in listOf(false, true)) {
                             val integerText = testInteger.toString(radixPrefix.first)
 
                             var formattedInteger = integerText
-                            if (underscore == 1) {
+                            if (underscore) {
                                 formattedInteger = underscoreNumber(formattedInteger)
                             }
 
@@ -51,11 +51,11 @@ internal class NumberNodeTest {
             val sequence = sequence {
                 for (radixPrefix in radix.zip(prefixes)) {
                     for (integer in integers) {
-                        for (underscore in 0..1) {
+                        for (underscore in listOf(false, true)) {
                             val integerText = testInteger.toString(radixPrefix.first)
 
                             var formattedInteger = integerText
-                            if (underscore == 1) {
+                            if (underscore) {
                                 formattedInteger = underscoreNumber(formattedInteger)
                             }
 
@@ -73,11 +73,11 @@ internal class NumberNodeTest {
         private fun provideAll(): Stream<Arguments> {
             val sequence = sequence {
                 for (radixPrefix in radix.zip(prefixes)) {
-                    for (underscore in 0..1) {
+                    for (underscore in listOf(false, true)) {
                         val integer = testInteger.toString(radixPrefix.first)
 
                         var formattedInteger = integer
-                        if (underscore == 1) {
+                        if (underscore) {
                             formattedInteger = underscoreNumber(formattedInteger)
                         }
 
@@ -152,7 +152,7 @@ internal class NumberNodeTest {
     @ParameterizedTest
     @MethodSource("provideIntegers")
     fun `parse correct integers`(text: String, radix: Int, integer: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = when (radix) {
             2 -> NumberNode.readBinaryInteger(parser)
             8 -> NumberNode.readOctalInteger(parser)
@@ -170,7 +170,7 @@ internal class NumberNodeTest {
     @ParameterizedTest
     @MethodSource("providePrefixedIntegers")
     fun `parse correct prefixed integers`(text: String, radix: Int, integer: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = NumberNode.parseAnyIntegerDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -188,7 +188,7 @@ internal class NumberNodeTest {
     @MethodSource("provideAll")
     fun `parse correct prefixed numbers`(text: String, radix: Int, integer: String, decimal: String?,
             exponentSign: Boolean, exponent: String?) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -208,7 +208,7 @@ internal class NumberNodeTest {
             decimal: String?, exponentSign: Boolean, exponent: String?) {
         val text =
                 "$number${NumberNode.decimalSeparator}t" // We use a t because is not inside the hexadecimal range of characters.
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -225,10 +225,23 @@ internal class NumberNodeTest {
     @ParameterizedTest
     @Incorrect
     @ValueSource(
-            strings = ["0${NumberNode.digitSeparator}", "${NumberNode.decimalPrefix}${NumberNode.digitSeparator}0", "${NumberNode.decimalPrefix}0${NumberNode.digitSeparator}", "0${NumberNode.decimalSeparator}0${NumberNode.digitSeparator}", "0${NumberNode.decimalSeparator}0e${NumberNode.exponentPositiveSign}${NumberNode.digitSeparator}0", "0${NumberNode.decimalSeparator}0e0${NumberNode.digitSeparator}"])
-    fun `parse incorrect numbers with bad underscores`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+            strings = ["0${NumberNode.digitSeparator}", "${NumberNode.decimalPrefix}0${NumberNode.digitSeparator}", "0${NumberNode.decimalSeparator}0${NumberNode.digitSeparator}", "0${NumberNode.decimalSeparator}0e0${NumberNode.digitSeparator}"])
+    fun `parse incorrect numbers with bad end underscores`(text: String) {
+        TestUtils.assertParserException(AngmarParserExceptionType.NumberWithSequenceEndedWithADigitSeparator) {
+            val parser = LexemParser(IOStringReader.from(text))
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+        }
+
+        // Note: "0._0" is interpreted as a Number(0) followed by a property access (._0)
+    }
+
+    @ParameterizedTest
+    @Incorrect
+    @ValueSource(
+            strings = ["${NumberNode.decimalPrefix}${NumberNode.digitSeparator}0", "0${NumberNode.decimalSeparator}0e${NumberNode.exponentPositiveSign}${NumberNode.digitSeparator}0"])
+    fun `parse incorrect numbers with bad start underscores`(text: String) {
+        TestUtils.assertParserException(AngmarParserExceptionType.NumberWithSequenceStartedWithADigitSeparator) {
+            val parser = LexemParser(IOStringReader.from(text))
             NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
 
@@ -240,8 +253,8 @@ internal class NumberNodeTest {
     @ValueSource(
             strings = ["${NumberNode.decimalPrefix}${NumberNode.decimalSeparator}0", "${NumberNode.decimalPrefix}e${NumberNode.exponentPositiveSign}0"])
     fun `parse incorrect numbers with no integer before decimal or exponent`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+        TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterPrefix) {
+            val parser = LexemParser(IOStringReader.from(text))
             NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -249,9 +262,9 @@ internal class NumberNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect numbers with no decimal after separator`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterDecimalSeparator) {
             val text = "${NumberNode.decimalPrefix}0${NumberNode.decimalSeparator}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
 
@@ -263,8 +276,8 @@ internal class NumberNodeTest {
     @ValueSource(
             strings = ["${NumberNode.decimalPrefix}0${NumberNode.decimalSeparator}0e", "${NumberNode.decimalPrefix}0${NumberNode.decimalSeparator}0e${NumberNode.exponentPositiveSign}", "${NumberNode.decimalPrefix}0${NumberNode.decimalSeparator}0e${NumberNode.exponentNegativeSign}"])
     fun `parse incorrect numbers with no exponent after the letter or sign`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+        TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterExponentSeparator) {
+            val parser = LexemParser(IOStringReader.from(text))
             NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -272,7 +285,7 @@ internal class NumberNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

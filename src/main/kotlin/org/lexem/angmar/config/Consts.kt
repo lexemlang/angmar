@@ -24,4 +24,8 @@ internal object Consts {
     object Memory {
         const val maxPoolSize = 50
     }
+
+    object Analyzer {
+        const val defaultTimeoutInMilliseconds = 20000L // 20 seconds
+    }
 }

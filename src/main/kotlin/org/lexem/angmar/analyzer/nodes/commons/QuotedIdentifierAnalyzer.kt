@@ -18,7 +18,7 @@ internal object QuotedIdentifierAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the first string.
-                analyzer.memory.pushStack(LxmString.from(node.texts[0]))
+                analyzer.memory.addToStackAsLast(LxmString.from(node.texts[0]))
 
                 if (node.escapes.isNotEmpty()) {
                     return analyzer.nextNode(node.escapes[0])
@@ -28,10 +28,10 @@ internal object QuotedIdentifierAnalyzer {
                 val position = (signal - signalEndFirstEscape) + 1
 
                 // Combine the strings.
-                val value = analyzer.memory.popStack() as LxmString
+                val value = analyzer.memory.getLastFromStack() as LxmString
                 val result = value.primitive + node.texts[position]
 
-                analyzer.memory.pushStack(LxmString.from(result))
+                analyzer.memory.replaceLastStackCell(LxmString.from(result))
 
                 // Evaluate the next operand.
                 if (position < node.escapes.size) {

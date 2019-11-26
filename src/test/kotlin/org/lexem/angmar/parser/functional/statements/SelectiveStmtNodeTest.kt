@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -23,15 +24,15 @@ internal class SelectiveStmtNodeTest {
         @JvmStatic
         private fun provideCorrectSelectiveStatement(): Stream<Arguments> {
             val sequence = sequence {
-                for (hasCondition in 0..1) {
-                    val condition = if (hasCondition == 0) {
+                for (hasCondition in listOf(false, true)) {
+                    val condition = if (!hasCondition) {
                         ""
                     } else {
                         ParenthesisExpressionNodeTest.testExpression
                     }
 
-                    for (hasTag in 0..1) {
-                        val tag = if (hasTag == 0) {
+                    for (hasTag in listOf(false, true)) {
+                        val tag = if (!hasTag) {
                             ""
                         } else {
                             "${SelectiveStmtNode.tagPrefix}${IdentifierNodeTest.testExpression}"
@@ -44,7 +45,7 @@ internal class SelectiveStmtNodeTest {
                             var text =
                                     "${SelectiveStmtNode.keyword} $condition ${SelectiveStmtNode.startToken}$tag $casesText ${SelectiveStmtNode.endToken}"
 
-                            yield(Arguments.of(text, i, hasCondition == 1, hasTag == 1))
+                            yield(Arguments.of(text, i, hasCondition, hasTag))
 
                             // without whitespaces
                             casesText = cases.joinToString("")
@@ -52,7 +53,7 @@ internal class SelectiveStmtNodeTest {
                             text =
                                     "${SelectiveStmtNode.keyword}$condition${SelectiveStmtNode.startToken}$tag $casesText${SelectiveStmtNode.endToken}"
 
-                            yield(Arguments.of(text, i, hasCondition == 1, hasTag == 1))
+                            yield(Arguments.of(text, i, hasCondition, hasTag))
                         }
                     }
                 }
@@ -79,7 +80,7 @@ internal class SelectiveStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectSelectiveStatement")
     fun `parse correct selective statement`(text: String, numCases: Int, hasCondition: Boolean, hasTag: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -111,9 +112,9 @@ internal class SelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect selective statement without startToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.SelectiveStatementWithoutStartToken) {
             val text = SelectiveStmtNode.keyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -121,9 +122,9 @@ internal class SelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect selective statement without any case`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.SelectiveStatementWithoutAnyCase) {
             val text = "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -131,10 +132,10 @@ internal class SelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect selective statement without endToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.SelectiveStatementWithoutEndToken) {
             val text =
                     "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken} ${SelectiveCaseStmtNodeTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -142,7 +143,7 @@ internal class SelectiveStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = SelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

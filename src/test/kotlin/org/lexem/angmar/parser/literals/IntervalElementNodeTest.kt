@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -66,7 +67,7 @@ internal class IntervalElementNodeTest {
     @ParameterizedTest
     @MethodSource("provideSimpleIntervals")
     fun `parse correct interval element`(text: String, isLeftNumber: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -85,7 +86,7 @@ internal class IntervalElementNodeTest {
     @ParameterizedTest
     @MethodSource("provideFullIntervals")
     fun `parse correct full interval element`(text: String, isLeftNumber: Boolean, isRightNumber: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -110,9 +111,9 @@ internal class IntervalElementNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect interval element without right element`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IntervalElementWithoutElementAfterRangeOperator) {
             val text = "3${IntervalElementNode.rangeToken}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -120,7 +121,7 @@ internal class IntervalElementNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

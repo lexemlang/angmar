@@ -14,12 +14,15 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertEquals(alias, destructuring.alias, "The alias property is incorrect")
         Assertions.assertNull(destructuring.spread, "The spread property is incorrect")
         Assertions.assertEquals(0, elements.size, "The number of elements is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -33,7 +36,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertNull(destructuring.alias, "The alias property is incorrect")
@@ -50,6 +53,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(elementOriginal, secondElement.original, "The original property is incorrect")
         Assertions.assertFalse(secondElement.isConstant, "The isConstant property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -61,7 +67,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertNull(destructuring.alias, "The alias property is incorrect")
@@ -71,6 +77,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(spreadAlias, spread.alias, "The alias property is incorrect")
         Assertions.assertEquals(spreadAlias, spread.original, "The original property is incorrect")
         Assertions.assertFalse(spread.isConstant, "The isConstant property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -85,7 +94,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertEquals(alias, destructuring.alias, "The alias property is incorrect")
@@ -102,6 +111,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(elementOriginal, secondElement.original, "The original property is incorrect")
         Assertions.assertFalse(secondElement.isConstant, "The isConstant property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -114,7 +126,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertEquals(alias, destructuring.alias, "The alias property is incorrect")
@@ -124,6 +136,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(spreadAlias, spread.alias, "The alias property is incorrect")
         Assertions.assertEquals(spreadAlias, spread.original, "The original property is incorrect")
         Assertions.assertFalse(spread.isConstant, "The isConstant property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -138,7 +153,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertNull(destructuring.alias, "The alias property is incorrect")
@@ -158,6 +173,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(spreadAlias, spread.alias, "The alias property is incorrect")
         Assertions.assertEquals(spreadAlias, spread.original, "The original property is incorrect")
         Assertions.assertFalse(spread.isConstant, "The isConstant property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -173,7 +191,7 @@ internal class DestructuringStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = DestructuringStmtNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val destructuring = analyzer.memory.popStack() as LxmDestructuring
+        val destructuring = analyzer.memory.getLastFromStack() as LxmDestructuring
         val elements = destructuring.getElements()
 
         Assertions.assertEquals(alias, destructuring.alias, "The alias property is incorrect")
@@ -193,6 +211,9 @@ internal class DestructuringStmtAnalyzerTest {
         Assertions.assertEquals(spreadAlias, spread.alias, "The alias property is incorrect")
         Assertions.assertEquals(spreadAlias, spread.original, "The original property is incorrect")
         Assertions.assertFalse(spread.isConstant, "The isConstant property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

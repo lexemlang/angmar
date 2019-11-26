@@ -43,9 +43,9 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("positiveElements", TreeLikePrintable.listToTest(positiveElements))
-        result.add("negativeElements", TreeLikePrintable.listToTest(negativeElements))
-        result.add("setElements", TreeLikePrintable.listToTest(setElements))
+        result.add("positiveElements", SerializationUtils.listToTest(positiveElements))
+        result.add("negativeElements", SerializationUtils.listToTest(negativeElements))
+        result.add("setElements", SerializationUtils.listToTest(setElements))
 
         return result
     }

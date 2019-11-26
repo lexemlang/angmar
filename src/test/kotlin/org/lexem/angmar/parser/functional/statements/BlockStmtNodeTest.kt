@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -60,7 +61,7 @@ internal class BlockStmtNodeTest {
     @MethodSource("provideCorrectStatements")
     fun `parse correct block`(statements: String, stmtNum: Int) {
         val text = "${BlockStmtNode.startToken}$statements${BlockStmtNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = BlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -81,7 +82,7 @@ internal class BlockStmtNodeTest {
     fun `parse correct block with tag`(statements: String, stmtNum: Int) {
         val text =
                 "${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}${IdentifierNodeTest.testExpression}\n$statements${BlockStmtNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = BlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -102,9 +103,9 @@ internal class BlockStmtNodeTest {
     @Incorrect
     @MethodSource("provideCorrectStatements")
     fun `parse incorrect block without endToken`(statements: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.BlockStatementWithoutEndToken) {
             val text = "${BlockStmtNode.startToken}$statements"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             BlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -112,7 +113,7 @@ internal class BlockStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = BlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -15,7 +15,8 @@ internal class PropertyStyleObjectAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -23,8 +24,8 @@ internal class PropertyStyleObjectAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         Assertions.assertFalse(result.isImmutable, "The isImmutable property is incorrect")
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -37,7 +38,8 @@ internal class PropertyStyleObjectAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -45,8 +47,8 @@ internal class PropertyStyleObjectAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         Assertions.assertTrue(result.isImmutable, "The isImmutable property is incorrect")
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

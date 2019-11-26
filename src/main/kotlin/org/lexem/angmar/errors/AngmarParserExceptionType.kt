@@ -15,11 +15,6 @@ enum class AngmarParserExceptionType {
     EscapedExpressionWithoutExpression,
     EscapedExpressionWithoutEndToken,
     EscapeWithoutCharacter,
-    PointEscapeWithoutValue,
-    PointEscapeWithFewerDigitsThanAllowed,
-    PointEscapeWithBracketsWithoutValue,
-    PointEscapeWithBracketsWithMoreDigitsThanAllowed,
-    PointEscapeWithBracketsWithoutEndToken,
     QuotedIdentifiersEmpty,
     QuotedIdentifiersWithoutEndQuote,
     QuotedIdentifiersMultilineNotAllowed,
@@ -141,6 +136,8 @@ enum class AngmarParserExceptionType {
     DestructuringSpreadStatementWithoutIdentifierAfterSpreadOperator,
     DestructuringStatementWithoutEndToken,
     FunctionStatementWithoutBlock,
+    ExpressionStatementWithoutBlock,
+    FilterStatementWithoutBlock,
     PublicMacroStatementWithoutValidStatement,
     SelectiveStatementWithoutStartToken,
     SelectiveStatementWithoutAnyCase,
@@ -149,4 +146,58 @@ enum class AngmarParserExceptionType {
     VarDeclarationStatementWithoutIdentifier,
     VarDeclarationStatementWithoutAssignOperator,
     VarDeclarationStatementWithoutExpressionAfterAssignOperator,
+
+    // DESCRIPTIVE > LEXEMES --------------------------------------------------
+
+    QuantifierWithoutMinimumExpression,
+    QuantifierWithoutEndToken,
+    QuantifierWithoutMaximumValue,
+    InlinePropertyPostfixWithoutProperty,
+    InlinePropertyPostfixWithBadEnd,
+    ExecutorWithoutEndToken,
+    ExecutorWithoutExpression,
+    ExecutorWithoutExpressionAfterSeparator,
+    AccessWithoutNextAccessAfterToken,
+    GroupWithoutEndToken,
+    GroupWithoutPatterns,
+    GroupWithoutLexemeAfterPatternToken,
+    QuantifiedGroupPatternWithoutLexemes,
+    QuantifiedGroupWithoutEndToken,
+    RelativeAnchorGroupWithoutEndToken,
+    RelativeAnchorGroupWithoutAnchors,
+    AbsoluteAnchorElementWithoutValue,
+    AbsoluteAnchorGroupWithoutEndToken,
+    AbsoluteAnchorGroupWithoutAnchors,
+    FilterLexemeWithoutSelector,
+    FilterLexemeWithoutEndToken,
+    AdditionFilterLexemeWithoutSelector,
+    AdditionFilterLexemeWithoutEndToken,
+    AdditionFilterLexemeWithoutNextAccessAfterToken,
+    AdditionFilterWithIncorrectSelector,
+
+    // DESCRIPTIVE > SELECTORS ------------------------------------------------
+
+    SelectorMethodWithoutName,
+    SelectorMethodArgumentsWithoutEndToken,
+    SelectorMethodArgumentsWithoutCondition,
+    SelectorPropertyBlockWithoutEndToken,
+    SelectorPropertyBlockWithoutCondition,
+    SelectorNameGroupWithoutNames,
+    SelectorNameGroupWithoutEndToken,
+    SelectorPropertyWithoutIdentifier,
+    SelectorPropertyGroupWithoutProperties,
+    SelectorPropertyGroupWithoutEndToken,
+
+    // DESCRIPTIVE > PATTERNS -------------------------------------------------
+
+    SlaveQuantifiedPatternWithoutMaster,
+
+    // DESCRIPTIVE > STATEMENTS -----------------------------------------------
+
+    OnBackBlockWithoutBlock,
+
+    // DESCRIPTIVE > STATEMENTS > LOOPS ---------------------------------------
+
+    QuantifiedLoopStatementWithoutQuantifier,
+    QuantifiedLoopStatementWithoutBlock,
 }

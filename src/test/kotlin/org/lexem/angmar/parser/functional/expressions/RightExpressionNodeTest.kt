@@ -24,7 +24,7 @@ internal class RightExpressionNodeTest {
     @Test
     fun `parse correct right expression`() {
         val text = ConditionalExpressionNodeTest.testExpression
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = RightExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")

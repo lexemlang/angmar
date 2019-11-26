@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.statements
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -20,7 +21,7 @@ internal object DestructuringStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Adds the destructuring object to the stack.
-                analyzer.memory.pushStack(LxmDestructuring())
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Destructuring, LxmDestructuring())
 
                 if (node.alias != null) {
                     return analyzer.nextNode(node.alias)
@@ -33,15 +34,20 @@ internal object DestructuringStmtAnalyzer {
                 if (node.spread != null) {
                     return analyzer.nextNode(node.spread)
                 }
+
+                // Move Destructuring to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Destructuring)
             }
             signalEndAlias -> {
                 // Add alias.
-                val alias = analyzer.memory.popStack() as LxmString
-                val destructuring = analyzer.memory.popStack() as LxmDestructuring
+                val alias = analyzer.memory.getLastFromStack() as LxmString
+                val destructuring =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Destructuring) as LxmDestructuring
 
                 destructuring.setAlias(alias.primitive)
 
-                analyzer.memory.pushStack(destructuring)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])
@@ -50,6 +56,9 @@ internal object DestructuringStmtAnalyzer {
                 if (node.spread != null) {
                     return analyzer.nextNode(node.spread)
                 }
+
+                // Move Destructuring to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Destructuring)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -61,9 +70,13 @@ internal object DestructuringStmtAnalyzer {
                 if (node.spread != null) {
                     return analyzer.nextNode(node.spread)
                 }
+
+                // Move Destructuring to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Destructuring)
             }
             signalEndSpread -> {
-                // Return the destructuring object.
+                // Move Destructuring to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Destructuring)
             }
         }
 

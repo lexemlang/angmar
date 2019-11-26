@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -49,7 +50,7 @@ internal class StringNodeTest {
             strings = ["a", "this", "longText_with_a lotOfThings", "texts with\n break lines", "$additionalDelimiter$additionalDelimiter"])
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -69,7 +70,7 @@ internal class StringNodeTest {
     @ValueSource(strings = ["\\\"", "this \\is test", "this \\ have \\two", "\\x at the begining", "or at the end\\x"])
     fun `parse simple correct strings with escapes`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -100,7 +101,7 @@ internal class StringNodeTest {
         val additionalDelimiter = additionalDelimiter.repeat(
                 textContent.filter { it.toString() == StringNode.startToken || it.toString() == StringNode.endToken || it.toString() == additionalDelimiter }.length)
         val text = "$additionalDelimiter${StringNode.startToken}$textContent${StringNode.endToken}$additionalDelimiter"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -127,9 +128,9 @@ internal class StringNodeTest {
 
     @Test
     fun `parse unclosed string`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.StringWithoutEndQuote) {
             val text = "$additionalDelimiter${StringNode.startToken} this is a test"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -138,7 +139,7 @@ internal class StringNodeTest {
     @MethodSource("provideComplexStrings")
     fun `parse incorrect complex strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -157,7 +158,7 @@ internal class StringNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3", additionalDelimiter])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

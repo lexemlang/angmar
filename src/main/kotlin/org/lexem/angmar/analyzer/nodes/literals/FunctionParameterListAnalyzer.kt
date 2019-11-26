@@ -22,7 +22,7 @@ internal object FunctionParameterListAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add a parameters object.
-                analyzer.memory.pushStack(LxmParameters())
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Parameters, LxmParameters())
 
                 if (node.parameters.isNotEmpty()) {
                     return analyzer.nextNode(node.parameters[0])
@@ -57,11 +57,12 @@ internal object FunctionParameterListAnalyzer {
             }
             signalEndPositionalSpread -> {
                 // Add the identifier.
-                val identifier = analyzer.memory.popStack() as LxmString
-                val parameters = analyzer.memory.popStack() as LxmParameters
+                val identifier = analyzer.memory.getLastFromStack() as LxmString
+                val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
                 parameters.setPositionalSpreadArgument(identifier.primitive)
 
-                analyzer.memory.pushStack(parameters)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (node.namedSpread != null) {
                     return analyzer.nextNode(node.namedSpread)
@@ -71,11 +72,12 @@ internal object FunctionParameterListAnalyzer {
             }
             signalEndNamedSpread -> {
                 // Add the identifier.
-                val identifier = analyzer.memory.popStack() as LxmString
-                val parameters = analyzer.memory.popStack() as LxmParameters
+                val identifier = analyzer.memory.getLastFromStack() as LxmString
+                val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
                 parameters.setNamedSpreadArgument(identifier.primitive)
 
-                analyzer.memory.pushStack(parameters)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 processParameters(analyzer, node)
             }
@@ -89,13 +91,18 @@ internal object FunctionParameterListAnalyzer {
      */
     private fun processParameters(analyzer: LexemAnalyzer, node: FunctionParameterListNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val parameters = analyzer.memory.popStack() as LxmParameters
-        val argumentsRef = analyzer.memory.popStack() as LxmReference
-        val arguments = argumentsRef.dereference(analyzer.memory) as LxmArguments
+        val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
+        val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments)
 
-        arguments.mapArgumentsToContext(analyzer.memory, parameters, context)
+        if (argumentsRef is LxmBacktrackingData) {
+            argumentsRef.mapBacktrackingDataToContext(analyzer.memory, parameters, context)
+        } else {
+            val arguments = argumentsRef.dereference(analyzer.memory) as LxmArguments
+            arguments.mapArgumentsToContext(analyzer.memory, parameters, context)
+        }
 
-        // Decrease the reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Arguments and Parameters from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Parameters)
     }
 }

@@ -19,7 +19,6 @@ enum class AngmarAnalyzerExceptionType {
 
     // MEMORY -----------------------------------------------------------------
 
-    StackUnderflow,
     StackNotFoundElement,
 
     HeapSegmentationFault,
@@ -37,6 +36,10 @@ enum class AngmarAnalyzerExceptionType {
 
     IncorrectRangeBounds,
 
+    // QUANTIFIERS ------------------------------------------------------------
+
+    IncorrectQuantifierBounds,
+
     // OBJECTS ----------------------------------------------------------------
 
     CannotModifyAConstantList,
@@ -53,7 +56,29 @@ enum class AngmarAnalyzerExceptionType {
     BadThisArgumentTypeError,
     FunctionCallWithoutThisArgument,
 
+    // FILTERS ----------------------------------------------------------------
+
+    FilterCallWithoutNode2FilterArgument,
+
     // TEST -------------------------------------------------------------------
 
     TestControlSignalRaised,
+
+    // SELECTORS --------------------------------------------------------------
+
+    UnrecognizedSelectorPropertyAtIdentifier,
+    UnrecognizedSelectorMethod,
+    IncorrectSelectorMethodArguments,
+
+    // LEXEMES ----------------------------------------------------------------
+
+    AccessLexemWithNextRequiresANode,
+    AdditionLexemWithNextRequiresANode,
+    FilterLexemWithNextRequiresANode,
+
+    // PATTERNS ---------------------------------------------------------------
+
+    PatternUnionAlreadyExists,
+    PatternUnionWithoutQuantifier,
+    QuantifierMinimumIsGreaterThanNumberOfPatterns,
 }

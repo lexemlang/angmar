@@ -2,7 +2,9 @@ package org.lexem.angmar.analyzer.nodes.literals
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -20,12 +22,13 @@ internal class BitListElementAnalyzerTest {
         val initialSize = 3
         val initialValue = BitSet()
         initialValue[1] = true
-        analyzer.memory.pushStack(LxmBitList(initialSize, initialValue))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList(initialSize, initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmBitList ?: throw Error(
+                        "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         for (i in 0 until initialSize) {
             resultValue[i] = initialValue[i]
@@ -36,6 +39,9 @@ internal class BitListElementAnalyzerTest {
         Assertions.assertEquals(4 + initialSize, stackValue.size,
                 "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -51,12 +57,13 @@ internal class BitListElementAnalyzerTest {
         val initialSize = 3
         val initialValue = BitSet()
         initialValue[1] = true
-        analyzer.memory.pushStack(LxmBitList(initialSize, initialValue))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList(initialSize, initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmBitList ?: throw Error(
+                        "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         for (i in 0 until initialSize) {
             resultValue[i] = initialValue[i]
@@ -68,6 +75,9 @@ internal class BitListElementAnalyzerTest {
         Assertions.assertEquals(6 + initialSize, stackValue.size,
                 "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -83,12 +93,13 @@ internal class BitListElementAnalyzerTest {
         val initialSize = 3
         val initialValue = BitSet()
         initialValue[1] = true
-        analyzer.memory.pushStack(LxmBitList(initialSize, initialValue))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList(initialSize, initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmBitList ?: throw Error(
+                        "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         for (i in 0 until initialSize) {
             resultValue[i] = initialValue[i]
@@ -105,6 +116,9 @@ internal class BitListElementAnalyzerTest {
                 "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -120,12 +134,13 @@ internal class BitListElementAnalyzerTest {
         val initialSize = 3
         val initialValue = BitSet()
         initialValue[1] = true
-        analyzer.memory.pushStack(LxmBitList(initialSize, initialValue))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList(initialSize, initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmBitList ?: throw Error(
+                        "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         for (i in 0 until initialSize) {
             resultValue[i] = initialValue[i]
@@ -137,13 +152,16 @@ internal class BitListElementAnalyzerTest {
                 "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @Test
     @Incorrect
     fun `test incorrect expression`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text = "${EscapedExpressionNode.startToken}1234${EscapedExpressionNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFrom(text) { parser, parent, parentSignal ->
                 BitlistElementNode.parse(parser, parent, parentSignal, 16)
@@ -153,7 +171,7 @@ internal class BitListElementAnalyzerTest {
             val initialSize = 3
             val initialValue = BitSet()
             initialValue[1] = true
-            analyzer.memory.pushStack(LxmBitList(initialSize, initialValue))
+            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList(initialSize, initialValue))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

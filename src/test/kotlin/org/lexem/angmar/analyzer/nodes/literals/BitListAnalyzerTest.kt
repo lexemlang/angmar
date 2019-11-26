@@ -13,13 +13,16 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue[1] = true
         resultValue[2] = true
         Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -30,8 +33,8 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue[2] = true
         resultValue[4] = true
@@ -39,9 +42,11 @@ internal class BitListAnalyzerTest {
         Assertions.assertEquals(6, stackValue.size, "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
-
 
     @Test
     fun `test radix 16`() {
@@ -49,8 +54,8 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue[2] = true
         resultValue[4] = true
@@ -63,6 +68,9 @@ internal class BitListAnalyzerTest {
                 "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -72,9 +80,12 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         Assertions.assertEquals(LxmBitList.Empty, stackValue, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -85,13 +96,15 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         Assertions.assertEquals(LxmBitList.Empty, stackValue, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
-
 
     @Test
     fun `test empty radix 16`() {
@@ -99,9 +112,12 @@ internal class BitListAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BitlistNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmBitList ?: throw Error("The value of the stack must be a LxmBitList")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
+                "The value of the stack must be a LxmBitList")
         Assertions.assertEquals(LxmBitList.Empty, stackValue, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

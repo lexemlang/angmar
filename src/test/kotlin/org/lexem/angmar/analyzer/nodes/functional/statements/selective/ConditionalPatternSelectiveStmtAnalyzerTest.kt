@@ -13,14 +13,14 @@ internal class ConditionalPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text,
                 parserFunction = ConditionalPatternSelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -31,14 +31,14 @@ internal class ConditionalPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text,
                 parserFunction = ConditionalPatternSelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -49,14 +49,14 @@ internal class ConditionalPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text,
                 parserFunction = ConditionalPatternSelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -67,14 +67,14 @@ internal class ConditionalPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text,
                 parserFunction = ConditionalPatternSelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

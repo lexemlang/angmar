@@ -128,7 +128,7 @@ internal class IdentifierNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectSimpleIdentifiers")
     fun `parse simple identifier`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -156,7 +156,7 @@ internal class IdentifierNodeTest {
     @ValueSource(strings = ["this is an example with escapes \\k \\ll"])
     fun `parse quoted identifier`(identifier: String) {
         val text = "${QuotedIdentifierNode.startQuote}$identifier${QuotedIdentifierNode.endQuote}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -171,7 +171,7 @@ internal class IdentifierNodeTest {
     @ParameterizedTest
     @MethodSource("provideBadIdentifiers")
     fun `not parse the node`(identifier: String) {
-        val parser = LexemParser(CustomStringReader.from(identifier))
+        val parser = LexemParser(IOStringReader.from(identifier))
         val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The parser must not capture anything")

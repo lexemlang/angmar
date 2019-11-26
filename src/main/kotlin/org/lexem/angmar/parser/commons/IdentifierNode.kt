@@ -28,7 +28,7 @@ internal class IdentifierNode private constructor(parser: LexemParser, parent: P
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("simpleIdentifiers", TreeLikePrintable.stringListToTest(simpleIdentifiers))
+        result.add("simpleIdentifiers", SerializationUtils.stringListToTest(simpleIdentifiers))
 
         return result
     }

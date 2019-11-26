@@ -27,8 +27,8 @@ internal object VarPatternSelectiveStmtAnalyzer {
                 return analyzer.nextNode(node.identifier)
             }
             signalEndIdentifier -> {
-                val identifier = analyzer.memory.popStack()
-                val mainValue = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
+                val mainValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
 
                 // Check identifier if it is not a destructuring.
@@ -69,24 +69,21 @@ internal object VarPatternSelectiveStmtAnalyzer {
                                     "The value is received from the ${SelectiveStmtNode.keyword} statement's condition. Review that value.")
                         }
                     }
-
-                    (mainValue as LxmReference).decreaseReferenceCount(analyzer.memory)
                 } else {
                     identifier as LxmString
 
                     context.setPropertyAsContext(analyzer.memory, identifier.primitive, mainValue,
                             isConstant = node.isConstant)
-
-                    if (mainValue is LxmReference) {
-                        mainValue.decreaseReferenceCount(analyzer.memory)
-                    }
                 }
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (node.conditional != null) {
                     return analyzer.nextNode(node.conditional)
                 }
 
-                analyzer.memory.pushStack(LxmLogic.True)
+                analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
             signalEndConditional -> {
                 // Returns the value of the conditional.

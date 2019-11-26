@@ -1,6 +1,9 @@
 package org.lexem.angmar.parser
 
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
+import org.lexem.angmar.parser.descriptive.*
+import org.lexem.angmar.parser.descriptive.statements.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 import org.lexem.angmar.parser.functional.statements.loops.*
@@ -18,8 +21,8 @@ internal object GlobalCommons {
     const val notToken = "!"
     const val wildcardVariable = "_"
     const val tagPrefix = "'"
-    val keywords = listOf(NilNode.nilLiteral, LogicNode.trueLiteral, LogicNode.falseLiteral,
-            FunctionNode.keyword /* TODO add exp and filter */, ConditionalStmtNode.ifKeyword,
+    val keywords = listOf(NilNode.nilLiteral, LogicNode.trueLiteral, LogicNode.falseLiteral, FunctionNode.keyword,
+            ExpressionStmtNode.keyword, FilterStmtNode.keyword, ConditionalStmtNode.ifKeyword,
             ConditionalStmtNode.unlessKeyword, ConditionalStmtNode.elseKeyword, ConditionalLoopStmtNode.whileKeyword,
             ConditionalLoopStmtNode.untilKeyword, InfiniteLoopStmtNode.keyword, IteratorLoopStmtNode.keyword,
             LoopClausesStmtNode.elseKeyword, LoopClausesStmtNode.lastKeyword, SelectiveStmtNode.keyword,
@@ -28,22 +31,35 @@ internal object GlobalCommons {
             ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword,
             ControlWithoutExpressionStmtNode.restartKeyword)
 
+    /**
+     * Parses a block statement depending on the context.
+     */
+    fun parseBlockStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            if (parser.isDescriptiveCode) {
+                if (parser.isFilterCode) {
+                    // Descriptive code (filters)
+                    StatementCommons.parseAnyDescriptiveStatement(parser, parent, parentSignal)
+                } else {
+                    // Descriptive code (expressions)
+                    StatementCommons.parseAnyDescriptiveStatement(parser, parent, parentSignal)
+                }
+            } else {
+                // Functional code
+                StatementCommons.parseAnyStatement(parser, parent, parentSignal)
+            }
 
     /**
-     * Parses a block depending on the context.
+     * Parses a lexeme depending on the context.
      */
-    fun parseBlock(parser: LexemParser, parent: ParserNode, parentSignal: Int) = if (parser.isDescriptiveCode) {
+    fun parseLexem(parser: LexemParser, parent: ParserNode, parentSignal: Int) = if (parser.isDescriptiveCode) {
         if (parser.isFilterCode) {
             // Descriptive code (filters)
-            // TODO replace with block
-            NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal)
+            AnyFilterLexemeNode.parse(parser, parent, parentSignal)
         } else {
             // Descriptive code (expressions)
-            // TODO replace with block
-            NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal)
+            AnyLexemeNode.parse(parser, parent, parentSignal)
         }
     } else {
-        // Functional code
-        BlockStmtNode.parse(parser, parent, parentSignal)
+        throw AngmarUnreachableException()
     }
 }

@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
 /**
- * The lexem values of the Float type.
+ * The Lexem values of the Float type.
  */
 internal class LxmFloat private constructor(val primitive: Float) : LexemPrimitive {
 

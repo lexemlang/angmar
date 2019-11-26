@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -22,15 +23,15 @@ internal class VarDeclarationStmtNodeTest {
         @JvmStatic
         fun proviceCorrectVariableDeclaration(): Stream<Arguments> {
             val sequence = sequence {
-                for (isConst in 0..1) {
-                    val keyword = if (isConst == 0) {
+                for (isConst in listOf(false, true)) {
+                    val keyword = if (!isConst) {
                         VarDeclarationStmtNode.variableKeyword
                     } else {
                         VarDeclarationStmtNode.constKeyword
                     }
 
-                    for (isDestructuring in 0..1) {
-                        val name = if (isDestructuring == 1) {
+                    for (isDestructuring in listOf(false, true)) {
+                        val name = if (isDestructuring) {
                             DestructuringStmtNodeTest.testExpression
                         } else {
                             CommonsTest.testDynamicIdentifier
@@ -38,12 +39,12 @@ internal class VarDeclarationStmtNodeTest {
 
                         var text =
                                 "$keyword $name${VarDeclarationStmtNode.assignOperator}${ExpressionsCommonsTest.testExpression}"
-                        yield(Arguments.of(text, isConst == 1, isDestructuring == 1))
+                        yield(Arguments.of(text, isConst, isDestructuring))
 
                         // With whitespace
                         text =
                                 "$keyword $name ${VarDeclarationStmtNode.assignOperator} ${ExpressionsCommonsTest.testExpression}"
-                        yield(Arguments.of(text, isConst == 1, isDestructuring == 1))
+                        yield(Arguments.of(text, isConst, isDestructuring))
                     }
                 }
             }
@@ -68,7 +69,7 @@ internal class VarDeclarationStmtNodeTest {
     @ParameterizedTest
     @MethodSource("proviceCorrectVariableDeclaration")
     fun `parse correct var declaration`(text: String, isConst: Boolean, isDestructuring: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -90,9 +91,9 @@ internal class VarDeclarationStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without identifier`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.VarDeclarationStatementWithoutIdentifier) {
             val text = VarDeclarationStmtNode.variableKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -100,9 +101,9 @@ internal class VarDeclarationStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without assign operator`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.VarDeclarationStatementWithoutAssignOperator) {
             val text = "${VarDeclarationStmtNode.variableKeyword} ${IdentifierNodeTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -110,10 +111,11 @@ internal class VarDeclarationStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable declaration without expression`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.VarDeclarationStatementWithoutExpressionAfterAssignOperator) {
             val text =
                     "${VarDeclarationStmtNode.variableKeyword} ${IdentifierNodeTest.testExpression} ${VarDeclarationStmtNode.assignOperator}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -121,7 +123,7 @@ internal class VarDeclarationStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = VarDeclarationStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -12,8 +12,11 @@ internal class LogicAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -24,8 +27,11 @@ internal class LogicAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.False, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

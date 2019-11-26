@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -17,12 +18,15 @@ internal object BitListAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BitlistNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                // Empty bitlist.
-                analyzer.memory.pushStack(LxmBitList.Empty)
-
                 if (node.elements.isNotEmpty()) {
+                    // Empty bitlist.
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList.Empty)
+
                     return analyzer.nextNode(node.elements[0])
                 }
+
+                // Empty bitlist.
+                analyzer.memory.addToStackAsLast(LxmBitList.Empty)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -31,6 +35,9 @@ internal object BitListAnalyzer {
                 if (position < node.elements.size) {
                     return analyzer.nextNode(node.elements[position])
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

@@ -22,7 +22,7 @@ internal object IdentifierAnalyzer {
                 }
 
                 val value = node.simpleIdentifiers.joinToString(IdentifierNode.middleChar)
-                analyzer.memory.pushStack(LxmString.from(value))
+                analyzer.memory.addToStackAsLast(LxmString.from(value))
             }
         }
 

@@ -39,7 +39,7 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
         val result = super.toTree()
 
         result.add("alias", alias?.toTree())
-        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.add("elements", SerializationUtils.listToTest(elements))
         result.add("spread", spread?.toTree())
 
         return result

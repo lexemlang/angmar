@@ -31,7 +31,7 @@ internal class ObjectNode private constructor(parser: LexemParser, parent: Parse
         val result = super.toTree()
 
         result.addProperty("isConstant", isConstant)
-        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.add("elements", SerializationUtils.listToTest(elements))
 
         return result
     }

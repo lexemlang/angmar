@@ -84,7 +84,7 @@ internal class ObjectSimplificationNode private constructor(parser: LexemParser,
 
                 val keepIsDescriptiveCode = parser.isDescriptiveCode
                 parser.isDescriptiveCode = false
-                result.block = GlobalCommons.parseBlock(parser, result, ObjectSimplificationAnalyzer.signalEndBlock)
+                result.block = BlockStmtNode.parse(parser, result, ObjectSimplificationAnalyzer.signalEndBlock)
                         ?: throw AngmarParserException(AngmarParserExceptionType.ObjectSimplificationWithoutBlock,
                                 "A block of code was expected after the argument list.") {
                             val fullText = parser.reader.readAllText()

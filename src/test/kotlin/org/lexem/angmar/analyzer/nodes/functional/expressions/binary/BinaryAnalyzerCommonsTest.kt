@@ -7,6 +7,7 @@ import org.lexem.angmar.analyzer.AnalyzerCommons.getCurrentContext
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -33,7 +34,7 @@ internal class BinaryAnalyzerCommonsTest {
     @Test
     @Incorrect
     fun `test get undefined operator function`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty) {
             val text = "${NilNode.nilLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
@@ -47,7 +48,7 @@ internal class BinaryAnalyzerCommonsTest {
     @Test
     @Incorrect
     fun `test get not callable operator function`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text = "${LogicNode.trueLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 

@@ -40,8 +40,8 @@ internal class StringNode private constructor(parser: LexemParser, parent: Parse
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("texts", TreeLikePrintable.stringListToTest(texts))
-        result.add("escapes", TreeLikePrintable.listToTest(escapes))
+        result.add("texts", SerializationUtils.stringListToTest(texts))
+        result.add("escapes", SerializationUtils.listToTest(escapes))
 
         return result
     }

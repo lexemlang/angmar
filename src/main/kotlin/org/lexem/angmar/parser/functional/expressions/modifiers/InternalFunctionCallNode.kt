@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.*
 /**
  * Special node for calling internal functions. It cannot be parsed.
  */
-internal object InternalFunctionCallNode : ParserNode(LexemParser(CustomStringReader.from("")), null, 0) {
+internal object InternalFunctionCallNode : ParserNode(LexemParser(IOStringReader.from("")), null, 0) {
     override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
             InternalFunctionCallAnalyzer.stateMachine(analyzer, signal)
 

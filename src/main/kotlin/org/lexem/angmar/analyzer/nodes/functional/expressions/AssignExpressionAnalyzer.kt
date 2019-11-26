@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.config.*
@@ -25,7 +26,7 @@ internal object AssignExpressionAnalyzer {
             }
             signalEndLeft -> {
                 // Check left.
-                val left = analyzer.memory.popStack()
+                val left = analyzer.memory.getLastFromStack()
 
                 if (left !is LexemSetter) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.AssignToConstant,
@@ -43,7 +44,8 @@ internal object AssignExpressionAnalyzer {
                     }
                 }
 
-                analyzer.memory.pushStack(left)
+                // Move Last to Left in the stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
 
                 return analyzer.nextNode(node.right)
             }

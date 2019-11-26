@@ -8,7 +8,7 @@ import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.data.*
 
 /**
- * The lexem values of the Interval type.
+ * The Lexem values of the Interval type.
  */
 internal class LxmInterval private constructor(val primitive: IntegerInterval) : LexemPrimitive {
 
@@ -25,12 +25,14 @@ internal class LxmInterval private constructor(val primitive: IntegerInterval) :
 
     companion object {
         val Empty = LxmInterval(IntegerInterval.Empty)
+        val Full = LxmInterval(IntegerInterval.Full)
 
         /**
          * Returns the [LxmInterval] equivalent of an [IntegerInterval] value.
          */
         fun from(value: IntegerInterval) = when (value) {
             Empty.primitive -> Empty
+            Full.primitive -> Full
             else -> LxmInterval(value)
         }
     }

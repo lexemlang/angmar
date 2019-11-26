@@ -7,6 +7,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.descriptive.expressions.macros.*
 import org.lexem.angmar.parser.functional.expressions.macros.*
 import org.lexem.angmar.parser.literals.*
 import java.util.stream.*
@@ -37,7 +38,7 @@ internal class ExpressionsCommonsTest {
         @JvmStatic
         private fun provideMacros(): Stream<Arguments> {
             val sequence = sequence {
-                val tests = listOf(MacroCheckPropsTest.testExpression, MacroBacktrackTest.testExpression,
+                val tests = listOf(MacroCheckPropsNodeTest.testExpression, MacroBacktrackNodeTest.testExpression,
                         MacroExpressionNodeTest.testExpression)
 
                 for (test in tests.withIndex()) {
@@ -83,7 +84,7 @@ internal class ExpressionsCommonsTest {
     @ParameterizedTest
     @MethodSource("provideExpressions")
     fun `parse correct expression`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionsCommons.parseExpression(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -101,15 +102,15 @@ internal class ExpressionsCommonsTest {
     @ParameterizedTest
     @MethodSource("provideMacros")
     fun `parse correct macro`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionsCommons.parseMacro(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
 
         when (type) {
-            0 -> MacroCheckPropsTest.checkTestExpression(res)
-            1 -> MacroBacktrackTest.checkTestExpression(res)
+            0 -> MacroCheckPropsNodeTest.checkTestExpression(res)
+            1 -> MacroBacktrackNodeTest.checkTestExpression(res)
             2 -> MacroExpressionNodeTest.checkTestExpression(res)
             else -> throw AngmarUnreachableException()
         }
@@ -120,7 +121,7 @@ internal class ExpressionsCommonsTest {
     @ParameterizedTest
     @MethodSource("provideLiterals")
     fun `parse correct literal`(text: String, type: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionsCommons.parseLiteral(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -147,7 +148,7 @@ internal class ExpressionsCommonsTest {
     @Test
     fun `parse correct left expression`() {
         val text = AccessExpressionNodeTest.testExpression
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionsCommons.parseLeftExpression(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")

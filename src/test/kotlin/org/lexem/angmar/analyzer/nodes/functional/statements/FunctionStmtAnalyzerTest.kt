@@ -7,6 +7,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -24,8 +25,10 @@ internal class FunctionStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.getPropertyValue(analyzer.memory, fnName)?.dereference(analyzer.memory) as? LxmFunction ?: throw Error(
-                "The result must be a LxmFunction")
+        val fn = context.getPropertyValue(analyzer.memory, fnName)?.dereference(analyzer.memory) as? LxmFunction
+                ?: throw Error("The result must be a LxmFunction")
+
+        Assertions.assertEquals(fnName, fn.name, "The name property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(fnName))
     }
@@ -40,8 +43,10 @@ internal class FunctionStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.getPropertyValue(analyzer.memory, fnName)?.dereference(analyzer.memory) as? LxmFunction ?: throw Error(
-                "The result must be a LxmFunction")
+        val fn = context.getPropertyValue(analyzer.memory, fnName)?.dereference(analyzer.memory) as? LxmFunction
+                ?: throw Error("The result must be a LxmFunction")
+
+        Assertions.assertEquals(fnName, fn.name, "The name property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(fnName))
     }
@@ -171,7 +176,7 @@ internal class FunctionStmtAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val text = let {
                 val callFn = "$fnName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
@@ -191,7 +196,7 @@ internal class FunctionStmtAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals with tag and without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val tagName = "tag"
             val text = let {

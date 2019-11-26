@@ -23,11 +23,13 @@ internal class AccessExpressionAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result =
-                analyzer.memory.popStack() as? LxmAccessSetter ?: throw Error("The result must be a LxmAccessSetter")
-        Assertions.assertTrue(result.context is LxmReference, "The context property is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmAccessSetter ?: throw Error(
+                "The result must be a LxmAccessSetter")
         Assertions.assertEquals(varName, result.variableName, "The variableName property is incorrect")
         Assertions.assertEquals(value, result.dereference(analyzer.memory), "The value property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -57,8 +59,11 @@ internal class AccessExpressionAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -77,13 +82,16 @@ internal class AccessExpressionAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val property = finalContext.getDereferencedProperty<LxmInteger>(analyzer.memory, varName) ?: throw Error(
                 "The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }

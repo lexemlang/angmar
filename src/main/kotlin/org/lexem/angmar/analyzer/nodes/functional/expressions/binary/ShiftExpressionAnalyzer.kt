@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions.binary
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.BinaryAnalyzerCommons.createArguments
 import org.lexem.angmar.errors.*
@@ -30,6 +31,9 @@ internal object ShiftExpressionAnalyzer {
                 }
                 // Evaluate the next operand.
                 else {
+                    // Move Last to Left in the stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                     return analyzer.nextNode(node.expressions[position])
                 }
             }
@@ -45,8 +49,9 @@ internal object ShiftExpressionAnalyzer {
         val operator = node.operators[position / 2 - 1]
 
         // Get operand values.
-        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
-        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
+        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left))
 
         // Get operand function.
         val operatorFunctionName = when (operator) {
@@ -57,13 +62,18 @@ internal object ShiftExpressionAnalyzer {
             else -> throw AngmarUnreachableException()
         }
 
-        val operatorFunction =
+        val operatorFunctionRef =
                 BinaryAnalyzerCommons.getOperatorFunction(analyzer, left, node, node.expressions[position - 2],
                         operator, operatorFunctionName)
 
         // Create argument values.
         val arguments = createArguments(analyzer, left, right)
 
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunction, arguments, node, signal + 1)
+        // Remove operands from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
+        analyzer.memory.removeLastFromStack()
+
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
+                LxmCodePoint(node, signal + 1))
     }
 }

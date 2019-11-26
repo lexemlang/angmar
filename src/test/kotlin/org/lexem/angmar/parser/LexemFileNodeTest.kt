@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -43,8 +44,8 @@ internal class LexemFileNodeTest {
 
     @ParameterizedTest
     @MethodSource("provideCorrectStatements")
-    fun `parse correct lexem file`(text: String, stmtNum: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+    fun `parse correct Lexem file`(text: String, stmtNum: Int) {
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LexemFileNode.parse(parser)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -61,10 +62,10 @@ internal class LexemFileNodeTest {
 
     @Test
     @Incorrect
-    fun `parse incorrect lexem file without end of file`() {
-        TestUtils.assertParserException {
+    fun `parse incorrect Lexem file without end of file`() {
+        TestUtils.assertParserException(AngmarParserExceptionType.LexemFileEOFExpected) {
             val text = "∫ another text \nthat do not match"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             LexemFileNode.parse(parser)
         }
     }
@@ -73,7 +74,7 @@ internal class LexemFileNodeTest {
     fun `not parse the node`() {
         val prefix = "a"
         val text = "$prefix test"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         parser.readText(prefix)
         val res = LexemFileNode.parse(parser)
 

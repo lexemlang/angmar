@@ -49,7 +49,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsNoComments")
     fun `parse correct whitespaces with end-of-lines`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -60,7 +60,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [multilineComment, singleLineComment])
     fun `parse correct comments`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -71,7 +71,7 @@ internal class WhitespaceNodeTest {
     @Test
     fun `parse correct complex whitespaces`() {
         val text = "$multilineComment$singleLineComment\n$multilineComment$allWhiteCharsTest"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -82,7 +82,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsNoComments")
     fun `parse correct simple whitespaces`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parseSimpleWhitespaces(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -93,7 +93,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [multilineComment, singleLineComment])
     fun `parse incorrect simple whitespaces`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parseSimpleWhitespaces(parser)
 
         Assertions.assertFalse(res, "The parser must capture something")
@@ -104,7 +104,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @MethodSource("provideEOL")
     fun `read correct line breaks`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.readLineBreak(parser)
 
         Assertions.assertNotNull(res, "The parser must capture something")
@@ -116,7 +116,7 @@ internal class WhitespaceNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNode.parse(parser)
 
         Assertions.assertFalse(res, "The input has incorrectly parsed anything")

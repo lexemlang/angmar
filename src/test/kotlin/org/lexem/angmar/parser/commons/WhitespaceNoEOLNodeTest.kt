@@ -19,7 +19,7 @@ internal class WhitespaceNoEOLNodeTest {
         }.toString()
 
         @JvmStatic
-        private fun provideWsNoComments(): Stream<Arguments> {
+        fun provideWsNoComments(): Stream<Arguments> {
             val sequence = sequence {
                 for (c in WhitespaceNode.whitespaceChars) {
                     yield("$c")
@@ -33,7 +33,7 @@ internal class WhitespaceNoEOLNodeTest {
         }
 
         @JvmStatic
-        private fun provideWsWithComments(): Stream<Arguments> {
+        fun provideWsWithComments(): Stream<Arguments> {
             val sequence = sequence {
                 val comment =
                         "${CommentMultilineNode.MultilineStartToken} comment\nmultiline ${CommentMultilineNode.MultilineEndToken}"
@@ -80,7 +80,7 @@ internal class WhitespaceNoEOLNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsNoComments")
     fun `parse correct whitespace without eol and comments`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNoEOLNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -91,7 +91,7 @@ internal class WhitespaceNoEOLNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsWithComments")
     fun `parse correct whitespace without eol but with comments`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNoEOLNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -102,7 +102,7 @@ internal class WhitespaceNoEOLNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "text"])
     fun `parse no whitespace`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceNoEOLNode.parse(parser)
 
         Assertions.assertFalse(res, "The parser must not capture anything")

@@ -47,9 +47,9 @@ internal object NumberAnalyzer {
 
             // Add an integer or a float
             if (result % 1 == 0.0f) {
-                analyzer.memory.pushStack(LxmInteger.from(result.toInt()))
+                analyzer.memory.addToStackAsLast(LxmInteger.from(result.toInt()))
             } else {
-                analyzer.memory.pushStack(LxmFloat.from(result))
+                analyzer.memory.addToStackAsLast(LxmFloat.from(result))
             }
 
             return analyzer.nextNode(node.parent, node.parentSignal)

@@ -12,7 +12,7 @@ import org.lexem.angmar.io.readers.*
  * Generic object for parser nodes.
  */
 internal abstract class ParserNode(val parser: LexemParser, var parent: ParserNode?, var parentSignal: Int) :
-        ITreeLikePrintable {
+        JsonSerializable {
     var from: ITextReaderCursor = ITextReaderCursor.Empty
     var to: ITextReaderCursor = ITextReaderCursor.Empty
 
@@ -28,7 +28,7 @@ internal abstract class ParserNode(val parser: LexemParser, var parent: ParserNo
     // STATIC -----------------------------------------------------------------
 
     companion object {
-        object EmptyParserNode : ParserNode(LexemParser(CustomStringReader.from("")), null, 0) {
+        object EmptyParserNode : ParserNode(LexemParser(IOStringReader.from("")), null, 0) {
             override fun analyze(analyzer: LexemAnalyzer, signal: Int) {
                 when (signal) {
                     // Propagate the control signal.

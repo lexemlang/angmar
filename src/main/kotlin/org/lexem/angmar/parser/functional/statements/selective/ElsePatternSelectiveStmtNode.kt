@@ -1,6 +1,5 @@
 package org.lexem.angmar.parser.functional.statements.selective
 
-import com.google.gson.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
 import org.lexem.angmar.parser.*
@@ -15,10 +14,6 @@ internal class ElsePatternSelectiveStmtNode private constructor(parser: LexemPar
     override fun toString() = StringBuilder().apply {
         append(elseKeyword)
     }.toString()
-
-    override fun toTree(): JsonObject {
-        return super.toTree()
-    }
 
     override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
             ElsePatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)

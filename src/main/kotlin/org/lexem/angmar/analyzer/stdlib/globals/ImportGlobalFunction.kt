@@ -53,7 +53,7 @@ internal object ImportGlobalFunction {
                 let {
                     val exports = findPathInMap(analyzer.memory, context, reader.getSource())
                     if (exports != null) {
-                        analyzer.memory.pushStack(exports)
+                        analyzer.memory.addToStackAsLast(exports)
                         return true
                     }
                 }
@@ -63,19 +63,18 @@ internal object ImportGlobalFunction {
                 try {
                     val grammarNode = LexemFileNode.parse(parser) ?: throw AngmarAnalyzerException(
                             AngmarAnalyzerExceptionType.FileIsNotLexem,
-                            "The file '${reader.getSource()}' is not a valid lexem file") {}
+                            "The file '${reader.getSource()}' is not a valid Lexem file") {}
 
                     analyzer.nextNode(grammarNode)
                 } catch (e: AngmarParserException) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileIsNotLexem,
-                            "The file '${reader.getSource()}' is not a valid lexem file") {
+                            "The file '${reader.getSource()}' is not a valid Lexem file") {
                         this.cause = e.logger
                     }
                 }
 
-
                 // Add the elements to recover this call.
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastModuleCodePoint,
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.ReturnCodePoint,
                         LxmCodePoint(InternalFunctionCallNode, EndOfImportSignal))
 
                 return false

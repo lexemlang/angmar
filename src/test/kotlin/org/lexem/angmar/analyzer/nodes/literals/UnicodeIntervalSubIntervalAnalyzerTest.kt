@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.junit.jupiter.api.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.data.*
 import org.lexem.angmar.parser.literals.*
@@ -16,11 +17,13 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new(3))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals(3, result.primitive.rangeAtOrNull(0)?.from, "The range[0].from property is incorrect")
@@ -29,6 +32,9 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
                 "The range[1].from property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -42,17 +48,22 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new('a'.toInt(), 'c'.toInt()))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(1, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('b'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
                 "The range[0].from property is incorrect")
         Assertions.assertEquals('c'.toInt(), result.primitive.rangeAtOrNull(0)?.to,
                 "The range[0].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -66,17 +77,22 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new('a'.toInt(), 'b'.toInt()))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(1, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
                 "The range[0].from property is incorrect")
         Assertions.assertEquals('b'.toInt(), result.primitive.rangeAtOrNull(0)?.to,
                 "The range[0].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -90,11 +106,13 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.Companion.new('b'.toInt()))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
@@ -105,6 +123,9 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
                 "The range[1].from property is incorrect")
         Assertions.assertEquals('c'.toInt(), result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -118,11 +139,13 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new(3))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(IntegerRange.Unicode.to.toLong(), result.primitive.pointCount,
                 "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
@@ -133,6 +156,9 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
                 "The range[1].from property is incorrect")
         Assertions.assertEquals(IntegerRange.Unicode.to, result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -146,17 +172,22 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new('a'.toInt() - 10, 'a'.toInt() + 10))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(1, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(1, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
                 "The range[0].from property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.to,
                 "The range[0].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -170,11 +201,13 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new('a'.toInt() - 10, 'a'.toInt() + 10))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(20, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt() - 10, result.primitive.rangeAtOrNull(0)?.from,
@@ -185,6 +218,9 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
                 "The range[1].from property is incorrect")
         Assertions.assertEquals('a'.toInt() + 10, result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -198,11 +234,13 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
 
         // Prepare stack.
         val initial = IntegerInterval.new(IntegerRange.new('a'.toInt() - 10, 'a'.toInt() + 10))
-        analyzer.memory.pushStack(LxmInterval.from(initial))
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(initial))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
+                        "The result must be a LxmInterval")
         Assertions.assertEquals(IntegerRange.Unicode.to - 19L, result.primitive.pointCount,
                 "The pointCount property is incorrect")
         Assertions.assertEquals(3, result.primitive.rangeCount, "The rangeCount property is incorrect")
@@ -217,6 +255,9 @@ internal class UnicodeIntervalSubIntervalAnalyzerTest {
                 "The range[2].from property is incorrect")
         Assertions.assertEquals(IntegerRange.Unicode.to, result.primitive.rangeAtOrNull(2)?.to,
                 "The range[2].to property is incorrect")
+
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

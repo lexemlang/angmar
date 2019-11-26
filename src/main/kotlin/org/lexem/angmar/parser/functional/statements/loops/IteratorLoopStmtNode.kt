@@ -165,7 +165,7 @@ internal class IteratorLoopStmtNode private constructor(parser: LexemParser, par
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = GlobalCommons.parseBlock(parser, result, IteratorLoopStmtAnalyzer.signalEndThenBlock)
+            result.thenBlock = BlockStmtNode.parse(parser, result, IteratorLoopStmtAnalyzer.signalEndThenBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutBlock,
                             "A block was expected after the condition expression to act as the code to be executed if the condition match.") {
                         val fullText = parser.reader.readAllText()

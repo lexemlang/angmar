@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
@@ -27,7 +28,7 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 if (node.right != null) {
-                    analyzer.memory.pushStack(LxmString.from("${node.leftChar}"))
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.from("${node.leftChar}"))
                     return analyzer.nextNode(node.right)
                 }
 
@@ -41,7 +42,7 @@ internal object UnicodeIntervalElementAnalyzer {
             }
             signalEndLeft -> {
                 // Check value.
-                val left = analyzer.memory.popStack()
+                val left = analyzer.memory.getLastFromStack()
 
                 if (left !is LxmString) {
                     val msg = if (node.right != null) {
@@ -81,7 +82,7 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 if (node.right != null) {
-                    analyzer.memory.pushStack(left)
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
                     return analyzer.nextNode(node.right)
                 }
 
@@ -92,10 +93,13 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 operate(analyzer, left.primitive, right, node)
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
             }
             signalEndRight -> {
                 // Check value.
-                val right = analyzer.memory.popStack()
+                val right = analyzer.memory.getLastFromStack()
 
                 if (right !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -130,9 +134,13 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 // Add the value to the interval.
-                val left = analyzer.memory.popStack() as LxmString
+                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmString
 
                 operate(analyzer, left.primitive, right.primitive, node)
+
+                // Remove Left and Last from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
+                analyzer.memory.removeLastFromStack()
             }
         }
 
@@ -144,11 +152,11 @@ internal object UnicodeIntervalElementAnalyzer {
      */
     private fun operate(analyzer: LexemAnalyzer, left: String, right: String, node: UnicodeIntervalElementNode) {
         try {
-            val itv = analyzer.memory.popStack() as LxmInterval
+            val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
             val range = IntegerRange.new(left.codePointAt(0), right.codePointAt(0))
             val resInterval = itv.primitive.plus(range)
 
-            analyzer.memory.pushStack(LxmInterval.from(resInterval))
+            analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))
         } catch (e: AngmarException) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
                     "The left value must be lower or equal than the right value. Actual left: $left, actual right: $right") {

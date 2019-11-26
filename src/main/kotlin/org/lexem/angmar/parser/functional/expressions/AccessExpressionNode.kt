@@ -27,7 +27,7 @@ internal class AccessExpressionNode private constructor(parser: LexemParser, par
         val result = super.toTree()
 
         result.add("element", element.toTree())
-        result.add("modifiers", TreeLikePrintable.listToTest(modifiers))
+        result.add("modifiers", SerializationUtils.listToTest(modifiers))
 
         return result
     }

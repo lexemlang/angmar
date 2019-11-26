@@ -17,7 +17,7 @@ internal class AssignOperatorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AssignExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -25,6 +25,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(right, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -43,7 +46,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -51,6 +54,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(right, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -71,7 +77,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -79,6 +85,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -99,7 +108,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -107,6 +116,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -127,7 +139,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -135,6 +147,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -155,7 +170,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -163,6 +178,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -182,7 +200,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -190,6 +208,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -209,7 +230,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -217,6 +238,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -240,7 +264,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
+        val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
         Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
@@ -250,6 +274,9 @@ internal class AssignOperatorAnalyzerTest {
 
         Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -273,7 +300,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
+        val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
         Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
@@ -283,6 +310,9 @@ internal class AssignOperatorAnalyzerTest {
 
         Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -306,7 +336,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
+        val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
         Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
@@ -316,6 +346,9 @@ internal class AssignOperatorAnalyzerTest {
 
         Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -339,7 +372,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
+        val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
         Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
@@ -349,6 +382,9 @@ internal class AssignOperatorAnalyzerTest {
 
         Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -369,7 +405,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
+        val result = analyzer.memory.getLastFromStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -377,6 +413,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -397,7 +436,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
+        val result = analyzer.memory.getLastFromStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -405,6 +444,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -425,7 +467,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
+        val result = analyzer.memory.getLastFromStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -433,6 +475,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -452,7 +497,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
+        val result = analyzer.memory.getLastFromStack() as? LxmLogic ?: throw Error("The result must be a LxmLogic")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -460,6 +505,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -479,7 +527,7 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -487,6 +535,9 @@ internal class AssignOperatorAnalyzerTest {
                 "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -496,7 +547,6 @@ internal class AssignOperatorAnalyzerTest {
         val varName = "test"
         val left = 2
         val right = 1
-        val resultValue = false
         val text = "$varName ${ConditionalExpressionNode.xorOperator}${AssignOperatorNode.assignOperator} $right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AssignExpressionNode.Companion::parse)
 
@@ -506,10 +556,13 @@ internal class AssignOperatorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        analyzer.memory.popStack() as? LxmNil ?: throw Error("The result must be a LxmNil")
+        analyzer.memory.getLastFromStack() as? LxmNil ?: throw Error("The result must be a LxmNil")
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.getDereferencedProperty<LxmNil>(analyzer.memory, varName) ?: throw Error(
                 "The property must be a LxmNil")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }

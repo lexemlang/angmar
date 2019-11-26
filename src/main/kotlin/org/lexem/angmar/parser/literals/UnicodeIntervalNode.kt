@@ -38,7 +38,7 @@ internal class UnicodeIntervalNode private constructor(parser: LexemParser, pare
         // METHODS ------------------------------------------------------------
 
         /**
-         * Parses an unicode interval literal.
+         * Parses a unicode interval literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalNode? {
             parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalNode::class.java)?.let {

@@ -14,7 +14,7 @@ internal object UnescapedStringAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the first string.
-                analyzer.memory.pushStack(LxmString.from(node.text))
+                analyzer.memory.addToStackAsLast(LxmString.from(node.text))
             }
         }
 

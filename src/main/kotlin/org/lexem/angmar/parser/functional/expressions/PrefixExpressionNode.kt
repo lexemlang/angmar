@@ -34,7 +34,6 @@ internal class PrefixExpressionNode private constructor(parser: LexemParser, par
             PrefixExpressionAnalyzer.stateMachine(analyzer, signal, this)
 
     companion object {
-
         /**
          * Parses a prefix expression.
          */

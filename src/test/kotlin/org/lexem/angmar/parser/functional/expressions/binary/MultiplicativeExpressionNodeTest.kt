@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -78,7 +79,7 @@ internal class MultiplicativeExpressionNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectExpression")
     fun `parse correct multiplicative expression`(text: String, operator: String, numExpressions: Int) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -104,10 +105,11 @@ internal class MultiplicativeExpressionNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect multiplicative expression without operand after the operator`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.MultiplicativeExpressionWithoutExpressionAfterOperator) {
             val text =
                     "${PrefixExpressionNodeTest.testExpression}${MultiplicativeExpressionNode.multiplicationOperator}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -115,7 +117,7 @@ internal class MultiplicativeExpressionNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MultiplicativeExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

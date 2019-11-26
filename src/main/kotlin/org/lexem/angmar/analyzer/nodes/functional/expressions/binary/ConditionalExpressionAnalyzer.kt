@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions.binary
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
@@ -22,13 +23,13 @@ internal object ConditionalExpressionAnalyzer {
                 // Add initial previous value.
                 when (node.operators[0]) {
                     ConditionalExpressionNode.andOperator -> {
-                        analyzer.memory.pushStack(LxmLogic.True)
+                        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmLogic.True)
                     }
                     ConditionalExpressionNode.orOperator -> {
-                        analyzer.memory.pushStack(LxmLogic.False)
+                        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmLogic.False)
                     }
                     ConditionalExpressionNode.xorOperator -> {
-                        analyzer.memory.pushStack(LxmLogic.False)
+                        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmLogic.False)
                     }
                     else -> throw AngmarUnreachableException()
                 }
@@ -44,16 +45,22 @@ internal object ConditionalExpressionAnalyzer {
                     val operator = node.operators[(position + 1) / 2 - 1]
                     for (i in (position + 1) / 2 until node.operators.size) {
                         if (operator != node.operators[i]) {
+                            // Move Last to Left in the stack.
+                            analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                             return analyzer.nextNode(node.expressions[i + 1])
                         }
                     }
 
-                    // Finalize
+                    // Finalize.
                     return analyzer.nextNode(node.parent, node.parentSignal)
                 }
 
                 // Evaluate the next operand.
                 if (position < node.expressions.size) {
+                    // Move Last to Left in the stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                     return analyzer.nextNode(node.expressions[position])
                 }
             }
@@ -70,10 +77,14 @@ internal object ConditionalExpressionAnalyzer {
         val operator = node.operators[(position + 1) / 2 - 1]
 
         // Get operand values.
-        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
-        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
+        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left))
         val rightBool = RelationalFunctions.isTruthy(right)
         val leftBool = RelationalFunctions.isTruthy(left)
+
+        // Remove the Left from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
 
         // Get operand function.
         var result = false
@@ -93,11 +104,14 @@ internal object ConditionalExpressionAnalyzer {
                     leftBool -> {
                         if (rightBool) {
                             // true ^^ true
-                            analyzer.memory.pushStack(LxmNil)
+                            analyzer.memory.replaceLastStackCell(LxmNil)
                             return true
                         } else {
                             // true ^^ false
-                            analyzer.memory.pushStack(left)
+                            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, left)
+
+                            // Remove Last from the stack.
+                            analyzer.memory.removeLastFromStack()
                             return false
                         }
                     }
@@ -106,7 +120,7 @@ internal object ConditionalExpressionAnalyzer {
                     }
                     else -> {
                         // false ^^ false
-                        analyzer.memory.pushStack(LxmNil)
+                        analyzer.memory.replaceLastStackCell(LxmNil)
                         return true
                     }
                 }
@@ -114,7 +128,6 @@ internal object ConditionalExpressionAnalyzer {
             else -> throw AngmarUnreachableException()
         }
 
-        analyzer.memory.pushStack(right)
         return result
     }
 }

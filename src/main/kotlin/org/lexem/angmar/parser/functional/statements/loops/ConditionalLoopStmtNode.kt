@@ -137,7 +137,7 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = GlobalCommons.parseBlock(parser, result, ConditionalLoopStmtAnalyzer.signalEndThenBlock)
+            result.thenBlock = BlockStmtNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndThenBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.ConditionalLoopStatementWithoutBlock,
                             "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
                         val fullText = parser.reader.readAllText()

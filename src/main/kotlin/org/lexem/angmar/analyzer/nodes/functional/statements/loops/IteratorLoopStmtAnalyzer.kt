@@ -4,8 +4,8 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.analyzer.data.primitives.iterators.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.analyzer.data.referenced.iterators.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.config.*
@@ -32,9 +32,8 @@ internal object IteratorLoopStmtAnalyzer {
                 // Generate an intermediate context.
                 AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
 
-                // Save the index
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, LxmInteger.Num0)
+                // Save the index.
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
                 if (node.index != null) {
                     return analyzer.nextNode(node.index)
@@ -43,11 +42,12 @@ internal object IteratorLoopStmtAnalyzer {
                 return analyzer.nextNode(node.variable)
             }
             signalEndIndex -> {
-                // Save the index
-                val indexName = analyzer.memory.popStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                // Save the index.
+                val indexName = analyzer.memory.getLastFromStack() as LxmString
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopIndexName)
 
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexName, indexName)
+                // Set the index in the context.
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.variable)
@@ -55,7 +55,7 @@ internal object IteratorLoopStmtAnalyzer {
             signalEndVariable -> {
                 // Check identifier if it is not a destructuring.
                 if (node.variable !is DestructuringStmtNode) {
-                    val variable = analyzer.memory.popStack()
+                    val variable = analyzer.memory.getLastFromStack()
 
                     if (variable !is LxmString) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -73,21 +73,20 @@ internal object IteratorLoopStmtAnalyzer {
                         }
                     }
 
-                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                    context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopVariable, variable)
+                    // Move Last to LoopVariable in the stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopVariable)
                 }
 
                 return analyzer.nextNode(node.condition)
             }
             signalEndCondition -> {
                 // Create the iterator.
-                val value = analyzer.memory.popStack()
-                val derefValue = value.dereference(analyzer.memory)
+                val valueRef = analyzer.memory.getLastFromStack()
+                val value = valueRef.dereference(analyzer.memory)
 
-                val iterator =
-                        AnalyzerIteratorCommons.createIterator(analyzer.memory, value) ?: throw AngmarAnalyzerException(
-                                AngmarAnalyzerExceptionType.IncompatibleType,
-                                "The fo loops cannot iterate over the returned value by the expression. Actual value: $derefValue") {
+                val iterator = AnalyzerIteratorCommons.createIterator(analyzer.memory, valueRef)
+                        ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
+                                "The iterator loop cannot iterate over the returned value by the expression. Actual value: $value") {
                             val fullText = node.parser.reader.readAllText()
                             addSourceCode(fullText, node.parser.reader.getSource()) {
                                 title = Consts.Logger.codeTitle
@@ -99,14 +98,13 @@ internal object IteratorLoopStmtAnalyzer {
                                 message = "Review the returned value of this expression"
                             }
                         }
+                val iteratorRef = analyzer.memory.add(iterator)
 
-                // Decrement the reference count.
-                if (value is LxmReference) {
-                    value.decreaseReferenceCount(analyzer.memory)
-                }
+                // Save iterator.
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIterator, iteratorRef)
 
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIterator, iterator)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 return advanceIterator(analyzer, node, advance = false)
             }
@@ -114,79 +112,81 @@ internal object IteratorLoopStmtAnalyzer {
                 return advanceIterator(analyzer, node)
             }
             signalEndLastClause -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
             }
             // Process the control signals.
             AnalyzerNodesCommons.signalExitControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
             }
             AnalyzerNodesCommons.signalNextControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 return advanceIterator(analyzer, node)
             }
             AnalyzerNodesCommons.signalRedoControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 return advanceIterator(analyzer, node, advance = false)
             }
             AnalyzerNodesCommons.signalRestartControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    // Remove the iteration context.
-                    AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                    finish(analyzer, node)
 
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
 
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
+
                 // Start again the loop.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                val iterator = context.getPropertyValue(analyzer.memory,
-                        AnalyzerCommons.Identifiers.HiddenLoopIterator) as LexemIterator
-                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, LxmInteger.Num0)
+                val iteratorRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator)
+                val iterator = iteratorRef.dereference(analyzer.memory) as LexemIterator
                 iterator.restart(analyzer.memory)
+
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
                 return advanceIterator(analyzer, node, advance = false)
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalReturnControl -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
 
                 return analyzer.nextNode(node.parent, signal)
             }
@@ -199,17 +199,15 @@ internal object IteratorLoopStmtAnalyzer {
      * Increment the iteration index.
      */
     private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode, count: Int = 1) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val lastIndex = context.getDereferencedProperty<LxmInteger>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLoopIndexValue)!!
+        val lastIndex = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
         val newIndex = LxmInteger.from(lastIndex.primitive + count)
 
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLoopIndexValue, newIndex)
+        analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, newIndex)
 
         // Set the index if there is an index expression.
         if (node.index != null) {
-            val indexName = context.getDereferencedProperty<LxmString>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.HiddenLoopIndexName)!!
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
             context.setProperty(analyzer.memory, indexName.primitive, newIndex)
         }
@@ -219,11 +217,10 @@ internal object IteratorLoopStmtAnalyzer {
      * Advances the iterator assigning the next value.
      */
     private fun advanceIterator(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode, advance: Boolean = true) {
+        val iteratorRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator)
+        val iterator = iteratorRef.dereference(analyzer.memory) as LexemIterator
+        val variable = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopVariable)
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val iterator = context.getPropertyValue(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLoopIterator) as LexemIterator
-        val variable = context.getPropertyValue(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLoopVariable) as LexemPrimitive
 
         if (advance) {
             iterator.advance(analyzer.memory)
@@ -232,12 +229,8 @@ internal object IteratorLoopStmtAnalyzer {
             incrementIterationIndex(analyzer, node)
         }
 
-        if (iterator.isEnded) {
-            val indexValue = context.getDereferencedProperty<LxmInteger>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.HiddenLoopIndexValue)!!
-
-            // Call the destroy over the iterator.
-            iterator.finalize(analyzer.memory)
+        if (iterator.isEnded(analyzer.memory)) {
+            val indexValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
 
             if (indexValue.primitive == 0 && node.lastClauses?.elseBlock != null) {
                 return analyzer.nextNode(node.lastClauses!!.elseBlock)
@@ -250,8 +243,7 @@ internal object IteratorLoopStmtAnalyzer {
                 return analyzer.nextNode(node.lastClauses!!.lastBlock)
             }
 
-            // Remove the iteration and intermediate contexts.
-            AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+            finish(analyzer, node)
 
             return analyzer.nextNode(node.parent, node.parentSignal)
         }
@@ -296,5 +288,21 @@ internal object IteratorLoopStmtAnalyzer {
         }
 
         return analyzer.nextNode(node.thenBlock)
+    }
+
+    /**
+     * Process the finalization of the loop.
+     */
+    private fun finish(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode) {
+        // Remove the intermediate context.
+        AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+
+        // Remove LoopIndexName, LoopVariable, LoopIterator and LoopIndexValue from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopIndexValue)
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopVariable)
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopIterator)
+        if (node.index != null) {
+            analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LoopIndexName)
+        }
     }
 }

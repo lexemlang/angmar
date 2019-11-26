@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
@@ -19,13 +20,21 @@ internal object AccessExplicitMemberAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AccessExplicitMemberNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
+                // Move Last to Accumulator in stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Accumulator)
+
                 return analyzer.nextNode(node.identifier)
             }
             signalEndIdentifier -> {
-                val identifier = analyzer.memory.popStack() as LxmString
-                val element = (analyzer.memory.popStack() as LexemSetter).resolve(analyzer.memory)
+                val identifier = analyzer.memory.getLastFromStack() as LxmString
+                val element = (analyzer.memory.getFromStack(
+                        AnalyzerCommons.Identifiers.Accumulator) as LexemSetter).getPrimitive(analyzer.memory)
 
-                analyzer.memory.pushStack(LxmPropertySetter(element, identifier.primitive, node, analyzer.memory))
+                analyzer.memory.replaceLastStackCell(
+                        LxmPropertySetter(element, identifier.primitive, node, analyzer.memory))
+
+                // Remove Accumulator from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

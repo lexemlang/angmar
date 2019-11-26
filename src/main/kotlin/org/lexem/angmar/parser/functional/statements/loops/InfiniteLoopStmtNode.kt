@@ -84,7 +84,7 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = GlobalCommons.parseBlock(parser, result, InfiniteLoopStmtAnalyzer.signalEndThenBlock)
+            result.thenBlock = BlockStmtNode.parse(parser, result, InfiniteLoopStmtAnalyzer.signalEndThenBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.InfiniteLoopStatementWithoutBlock,
                             "A block was expected after the loop keyword '$keyword' to act as the code of the loop.") {
                         val fullText = parser.reader.readAllText()

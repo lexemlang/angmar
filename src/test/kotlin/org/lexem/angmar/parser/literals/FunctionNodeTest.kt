@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -39,7 +40,7 @@ internal class FunctionNodeTest {
     @ValueSource(
             strings = ["${FunctionNode.keyword}${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}  ${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}\n${BlockStmtNodeTest.testExpression}"])
     fun `parse correct function node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -55,7 +56,7 @@ internal class FunctionNodeTest {
     @ValueSource(
             strings = ["${FunctionNode.keyword}${FunctionParameterListNodeTest.testExpression}${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword} ${FunctionParameterListNodeTest.testExpression} ${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}\n ${FunctionParameterListNodeTest.testExpression} \n ${BlockStmtNodeTest.testExpression}"])
     fun `parse correct function node with parameters`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -72,8 +73,8 @@ internal class FunctionNodeTest {
     @ValueSource(
             strings = [FunctionNode.keyword, "${FunctionNode.keyword}${FunctionParameterListNodeTest.testExpression}"])
     fun `parse incorrect function node without a block`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+        TestUtils.assertParserException(AngmarParserExceptionType.FunctionWithoutBlock) {
+            val parser = LexemParser(IOStringReader.from(text))
             FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -81,7 +82,7 @@ internal class FunctionNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

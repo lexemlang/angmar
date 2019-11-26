@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -34,7 +35,7 @@ internal class IndexerNodeTest {
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse correct indexer`(expression: String) {
         val text = "${IndexerNode.startToken}$expression${IndexerNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -49,7 +50,7 @@ internal class IndexerNodeTest {
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse correct indexer with whites`(expression: String) {
         val text = "${IndexerNode.startToken}  $expression  ${IndexerNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -63,9 +64,9 @@ internal class IndexerNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect indexer with no expression`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IndexerWithoutStartToken) {
             val text = IndexerNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -74,9 +75,9 @@ internal class IndexerNodeTest {
     @Incorrect
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse incorrect indexer with no endToken`(expression: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IndexerWithoutEndToken) {
             val text = "${IndexerNode.startToken}$expression"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -84,7 +85,7 @@ internal class IndexerNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

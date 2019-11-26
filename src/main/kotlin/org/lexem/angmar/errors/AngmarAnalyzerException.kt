@@ -9,10 +9,6 @@ import org.lexem.angmar.config.*
 class AngmarAnalyzerException : AngmarLoggedException {
     val type: AngmarAnalyzerExceptionType
 
-    constructor(type: AngmarAnalyzerExceptionType, logger: Logger) : super(logger) {
-        this.type = type
-    }
-
     constructor(type: AngmarAnalyzerExceptionType, message: String, builder: Logger.() -> Unit) : super(message,
             builder) {
         this.type = type

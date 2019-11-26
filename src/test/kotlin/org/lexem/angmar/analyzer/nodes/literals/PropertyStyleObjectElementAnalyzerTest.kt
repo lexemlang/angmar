@@ -2,8 +2,10 @@ package org.lexem.angmar.analyzer.nodes.literals
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -20,11 +22,13 @@ internal class PropertyStyleObjectElementAnalyzerTest {
         // Prepare stack
         val obj = LxmObject()
         val objRef = analyzer.memory.add(obj)
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         Assertions.assertEquals(objRef, resultRef, "The resultRef is incorrect")
 
         val result =
@@ -33,8 +37,8 @@ internal class PropertyStyleObjectElementAnalyzerTest {
                 "The property must be a LxmInteger")
         Assertions.assertEquals(345, property.primitive, "The primitive property is incorrect")
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -42,7 +46,7 @@ internal class PropertyStyleObjectElementAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect key`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text =
                     "${EscapedExpressionNode.startToken}222${EscapedExpressionNode.endToken}${ParenthesisExpressionNode.startToken}345${ParenthesisExpressionNode.endToken}"
             val analyzer =
@@ -51,7 +55,7 @@ internal class PropertyStyleObjectElementAnalyzerTest {
             // Prepare stack
             val obj = LxmObject()
             val objRef = analyzer.memory.add(obj)
-            analyzer.memory.pushStack(objRef)
+            analyzer.memory.addToStackAsLast(objRef)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

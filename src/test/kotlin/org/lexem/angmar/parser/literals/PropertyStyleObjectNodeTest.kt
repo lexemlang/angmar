@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -32,7 +33,7 @@ internal class PropertyStyleObjectNodeTest {
     @Test
     fun `parse correct prop-style object`() {
         val text = "${PropertyStyleObjectNode.startToken}${PropertyStyleObjectBlockNodeTest.testExpression}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -48,7 +49,7 @@ internal class PropertyStyleObjectNodeTest {
     fun `parse correct constant prop-style object`() {
         val text =
                 "${PropertyStyleObjectNode.startToken}${PropertyStyleObjectNode.constantToken}${PropertyStyleObjectBlockNodeTest.testExpression}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -63,9 +64,9 @@ internal class PropertyStyleObjectNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect prop-style object with no block`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.PropertyStyleObjectWithoutStartToken) {
             val text = PropertyStyleObjectNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -73,7 +74,7 @@ internal class PropertyStyleObjectNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

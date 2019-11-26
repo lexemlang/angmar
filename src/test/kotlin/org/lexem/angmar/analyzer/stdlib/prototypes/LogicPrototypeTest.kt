@@ -19,10 +19,10 @@ internal class LogicPrototypeTest {
         @JvmStatic
         private fun provideCombinations(): Stream<Arguments> {
             val result = sequence {
-                for (left in 0..1) {
-                    for (right in 0..1) {
+                for (left in listOf(false, true)) {
+                    for (right in listOf(false, true)) {
                         var leftValue = false
-                        val leftStr = if (left == 1) {
+                        val leftStr = if (left) {
                             leftValue = true
                             LogicNode.trueLiteral
                         } else {
@@ -30,7 +30,7 @@ internal class LogicPrototypeTest {
                         }
 
                         var rightValue = false
-                        val rightStr = if (right == 1) {
+                        val rightStr = if (right) {
                             rightValue = true
                             LogicNode.trueLiteral
                         } else {
@@ -60,7 +60,10 @@ internal class LogicPrototypeTest {
             LxmLogic.True
         } else {
             LxmLogic.False
-        }, analyzer.memory.popStack(), "The value inserted in the stack is incorrect")
+        }, analyzer.memory.getLastFromStack(), "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -77,7 +80,10 @@ internal class LogicPrototypeTest {
             LxmLogic.True
         } else {
             LxmLogic.False
-        }, analyzer.memory.popStack(), "The value inserted in the stack is incorrect")
+        }, analyzer.memory.getLastFromStack(), "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -93,7 +99,10 @@ internal class LogicPrototypeTest {
             LxmLogic.True
         } else {
             LxmLogic.False
-        }, analyzer.memory.popStack(), "The value inserted in the stack is incorrect")
+        }, analyzer.memory.getLastFromStack(), "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

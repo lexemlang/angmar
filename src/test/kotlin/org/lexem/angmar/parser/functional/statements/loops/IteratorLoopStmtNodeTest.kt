@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -18,46 +19,46 @@ internal class IteratorLoopStmtNodeTest {
 
     companion object {
         const val testExpression =
-                "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression} ${BlockStmtNodeTest.testExpression}"
 
         @JvmStatic
         private fun provideCorrectIteratorStmt(): Stream<Arguments> {
             val sequence = sequence {
-                for (isDestructuring in 0..1) {
-                    val variable = if (isDestructuring == 0) {
+                for (isDestructuring in listOf(false, true)) {
+                    val variable = if (!isDestructuring) {
                         CommonsTest.testDynamicIdentifier
                     } else {
                         DestructuringStmtNodeTest.testExpression
                     }
 
-                    for (hasClauses in 0..1) {
-                        for (hasIndex in 0..1) {
+                    for (hasClauses in listOf(false, true)) {
+                        for (hasIndex in listOf(false, true)) {
                             var text =
-                                    "${IteratorLoopStmtNode.keyword} $variable ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                                    "${IteratorLoopStmtNode.keyword} $variable ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression} ${BlockStmtNodeTest.testExpression}"
 
-                            if (hasIndex == 1) {
+                            if (hasIndex) {
                                 text = "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression} $text"
                             }
 
-                            if (hasClauses == 1) {
+                            if (hasClauses) {
                                 text += " ${LoopClausesStmtNodeTest.testExpression}"
                             }
 
-                            yield(Arguments.of(text, isDestructuring == 1, hasClauses == 1, hasIndex == 1))
+                            yield(Arguments.of(text, isDestructuring, hasClauses, hasIndex))
 
                             // Without whitespaces
                             text =
-                                    "${IteratorLoopStmtNode.keyword} $variable ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression}${GlobalCommonsTest.testBlock}"
+                                    "${IteratorLoopStmtNode.keyword} $variable ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression}${BlockStmtNodeTest.testExpression}"
 
-                            if (hasIndex == 1) {
+                            if (hasIndex) {
                                 text = "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression} $text"
                             }
 
-                            if (hasClauses == 1) {
+                            if (hasClauses) {
                                 text += LoopClausesStmtNodeTest.testExpression
                             }
 
-                            yield(Arguments.of(text, isDestructuring == 1, hasClauses == 1, hasIndex == 1))
+                            yield(Arguments.of(text, isDestructuring, hasClauses, hasIndex))
                         }
                     }
                 }
@@ -76,7 +77,7 @@ internal class IteratorLoopStmtNodeTest {
             Assertions.assertNull(node.index, "The index property must be null")
             Assertions.assertNull(node.lastClauses, "The lastClauses property must be null")
             ExpressionsCommonsTest.checkTestExpression(node.condition)
-            GlobalCommonsTest.checkTestBlock(node.thenBlock)
+            BlockStmtNodeTest.checkTestExpression(node.thenBlock)
         }
     }
 
@@ -86,7 +87,7 @@ internal class IteratorLoopStmtNodeTest {
     @MethodSource("provideCorrectIteratorStmt")
     fun `parse correct iterator loop statement`(text: String, isDestructuring: Boolean, hasClauses: Boolean,
             hasIndex: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -113,7 +114,7 @@ internal class IteratorLoopStmtNodeTest {
         }
 
         ExpressionsCommonsTest.checkTestExpression(res.condition)
-        GlobalCommonsTest.checkTestBlock(res.thenBlock)
+        BlockStmtNodeTest.checkTestExpression(res.thenBlock)
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -121,9 +122,9 @@ internal class IteratorLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect iterator loop statement without variable`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutIdentifier) {
             val text = IteratorLoopStmtNode.keyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -131,9 +132,9 @@ internal class IteratorLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect iterator loop statement without relationalKeyword`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutRelationalKeyword) {
             val text = "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -141,10 +142,11 @@ internal class IteratorLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect iterator loop statement without condition`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.IteratorLoopStatementWithoutExpressionAfterRelationalKeyword) {
             val text =
                     "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -152,10 +154,10 @@ internal class IteratorLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect iterator loop statement without thenBlock`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutBlock) {
             val text =
                     "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -163,7 +165,7 @@ internal class IteratorLoopStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression}"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

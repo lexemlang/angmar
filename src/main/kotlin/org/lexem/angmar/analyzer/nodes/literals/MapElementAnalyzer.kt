@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -21,18 +22,23 @@ internal object MapElementAnalyzer {
                 return analyzer.nextNode(node.key)
             }
             signalEndKey -> {
+                // Move last to key.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
+
                 return analyzer.nextNode(node.value)
             }
             signalEndValue -> {
                 // Add the value to the object.
-                val value = analyzer.memory.popStack()
-                val key = analyzer.memory.popStack()
-                val mapRef = analyzer.memory.popStack()
-                val map = mapRef.dereference(analyzer.memory) as LxmMap
+                val value = analyzer.memory.getLastFromStack()
+                val key = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key)
+                val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmMap
 
                 map.setProperty(analyzer.memory, key, value)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(mapRef)
+                // Remove the key and value from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

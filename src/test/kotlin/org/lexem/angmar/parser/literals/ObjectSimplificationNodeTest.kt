@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -51,7 +52,7 @@ internal class ObjectSimplificationNodeTest {
     @ValueSource(
             strings = ["${IdentifierNodeTest.testExpression}  ${ObjectNode.elementSeparator}", "${IdentifierNodeTest.testExpression}${ObjectNode.endToken}"])
     fun `parse correct object simplification`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectSimplificationNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -72,7 +73,7 @@ internal class ObjectSimplificationNodeTest {
     @ValueSource(
             strings = ["${ObjectSimplificationNode.constantToken}${IdentifierNodeTest.testExpression}${ObjectNode.elementSeparator}", "${ObjectSimplificationNode.constantToken}${IdentifierNodeTest.testExpression}  ${ObjectNode.endToken}"])
     fun `parse correct constant object simplification`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectSimplificationNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -93,7 +94,7 @@ internal class ObjectSimplificationNodeTest {
     @ValueSource(
             strings = ["${IdentifierNodeTest.testExpression}${FunctionParameterListNodeTest.testExpression}${BlockStmtNodeTest.testExpression}", "${IdentifierNodeTest.testExpression}  ${FunctionParameterListNodeTest.testExpression}  ${BlockStmtNodeTest.testExpression}"])
     fun `parse correct object simplification like function`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectSimplificationNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -112,8 +113,8 @@ internal class ObjectSimplificationNodeTest {
     @Incorrect
     @ValueSource(strings = ["${IdentifierNodeTest.testExpression}${FunctionParameterListNodeTest.testExpression}"])
     fun `parse incorrect object simplification without a block`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+        TestUtils.assertParserException(AngmarParserExceptionType.ObjectSimplificationWithoutBlock) {
+            val parser = LexemParser(IOStringReader.from(text))
             ObjectSimplificationNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -122,7 +123,7 @@ internal class ObjectSimplificationNodeTest {
     @ValueSource(
             strings = ["", ObjectSimplificationNode.constantToken, IdentifierNodeTest.testExpression, "${ObjectSimplificationNode.constantToken}${IdentifierNodeTest.testExpression} a"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectSimplificationNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

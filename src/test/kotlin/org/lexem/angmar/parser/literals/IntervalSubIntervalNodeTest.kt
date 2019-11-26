@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -20,8 +21,8 @@ internal class IntervalSubIntervalNodeTest {
         @JvmStatic
         private fun provideSubIntervals(): Stream<Arguments> {
             val sequence = sequence {
-                for (exp in 0..1) {
-                    val expression = if (exp == 0) {
+                for (exp in listOf(false, true)) {
+                    val expression = if (!exp) {
                         IntervalElementNodeTest.testExpression
                     } else {
                         testExpression
@@ -32,11 +33,11 @@ internal class IntervalSubIntervalNodeTest {
 
                         yield(Arguments.of(
                                 "${IntervalSubIntervalNode.startToken}$list${IntervalSubIntervalNode.endToken}",
-                                IntervalSubIntervalNode.Operator.Add, false, i, exp == 1))
+                                IntervalSubIntervalNode.Operator.Add, false, i, exp))
 
                         for (op in IntervalSubIntervalNode.Operator.values()) {
-                            for (reversed in 0..1) {
-                                val reverseText = if (reversed == 0) {
+                            for (reversed in listOf(false, true)) {
+                                val reverseText = if (!reversed) {
                                     ""
                                 } else {
                                     IntervalSubIntervalNode.reversedToken
@@ -44,7 +45,7 @@ internal class IntervalSubIntervalNodeTest {
 
                                 yield(Arguments.of(
                                         "${IntervalSubIntervalNode.startToken}${op.operator}$reverseText$list${IntervalSubIntervalNode.endToken}",
-                                        op, reversed == 1, i, exp == 1))
+                                        op, reversed, i, exp))
                             }
                         }
                     }
@@ -75,7 +76,7 @@ internal class IntervalSubIntervalNodeTest {
     @MethodSource("provideSubIntervals")
     fun `parse correct sub interval element`(text: String, operator: IntervalSubIntervalNode.Operator,
             reversed: Boolean, numElements: Int, areElementsOfSubIntervals: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -99,9 +100,9 @@ internal class IntervalSubIntervalNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect sub interval element without right element`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.IntervalSubIntervalWithoutEndToken) {
             val text = "${IntervalSubIntervalNode.startToken}3"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -109,7 +110,7 @@ internal class IntervalSubIntervalNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = IntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

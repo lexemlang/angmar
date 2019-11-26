@@ -28,7 +28,7 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("patterns", TreeLikePrintable.listToTest(patterns))
+        result.add("patterns", SerializationUtils.listToTest(patterns))
         result.add("block", block.toTree())
 
         return result
@@ -109,7 +109,7 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
 
             WhitespaceNode.parse(parser)
 
-            result.block = GlobalCommons.parseBlock(parser, result, SelectiveCaseStmtAnalyzer.signalEndBlock)
+            result.block = BlockStmtNode.parse(parser, result, SelectiveCaseStmtAnalyzer.signalEndBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.SelectiveCaseStatementWithoutBlock,
                             "A block was expected after the patterns of the case to be executed when any of the patterns match.") {
                         val fullText = parser.reader.readAllText()

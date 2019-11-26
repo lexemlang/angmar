@@ -45,7 +45,7 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
 
         result.add("condition", condition?.toTree())
         result.add("tag", tag?.toTree())
-        result.add("cases", TreeLikePrintable.listToTest(cases))
+        result.add("cases", SerializationUtils.listToTest(cases))
 
         return result
     }

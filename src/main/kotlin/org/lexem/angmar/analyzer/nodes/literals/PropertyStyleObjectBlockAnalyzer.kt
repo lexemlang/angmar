@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -23,7 +24,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 // Create object
                 val arguments = LxmObject()
-                analyzer.memory.pushStack(analyzer.memory.add(arguments))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, analyzer.memory.add(arguments))
 
                 // Call next element
                 if (node.positiveElements.isNotEmpty()) {
@@ -37,12 +38,15 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 if (node.setElements.isNotEmpty()) {
                     return analyzer.nextNode(node.setElements[0])
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Positives
             in signalEndFirstElement until signalEndFirstElement + node.positiveElements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
-                val identifier = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -61,12 +65,13 @@ internal object PropertyStyleObjectBlockAnalyzer {
                     }
                 }
 
-                val objRef = analyzer.memory.popStack()
-                val obj = objRef.dereference(analyzer.memory) as LxmObject
+                val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmObject
 
                 obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.True)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(objRef)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 // Call next element
                 if (position < node.positiveElements.size) {
@@ -80,12 +85,15 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 if (node.setElements.isNotEmpty()) {
                     return analyzer.nextNode(node.setElements[0])
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Negatives
             in signalEndFirstElement + node.positiveElements.size until signalEndFirstElement + node.positiveElements.size + node.negativeElements.size -> {
                 val position = (signal - (signalEndFirstElement + node.positiveElements.size)) + 1
 
-                val identifier = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -104,12 +112,13 @@ internal object PropertyStyleObjectBlockAnalyzer {
                     }
                 }
 
-                val objRef = analyzer.memory.popStack()
-                val obj = objRef.dereference(analyzer.memory) as LxmObject
+                val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmObject
 
                 obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.False)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(objRef)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 // Call next element
                 if (position < node.negativeElements.size) {
@@ -119,6 +128,9 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 if (node.setElements.isNotEmpty()) {
                     return analyzer.nextNode(node.setElements[0])
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Sets
             in signalEndFirstElement + node.positiveElements.size + node.negativeElements.size until signalEndFirstElement + node.positiveElements.size + node.negativeElements.size + node.setElements.size -> {
@@ -129,6 +141,9 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 if (position < node.setElements.size) {
                     return analyzer.nextNode(node.setElements[position])
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

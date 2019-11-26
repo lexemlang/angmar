@@ -26,7 +26,7 @@ internal object FunctionParameterAnalyzer {
             }
             signalEndIdentifier -> {
                 // Check identifier.
-                val identifier = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -45,30 +45,32 @@ internal object FunctionParameterAnalyzer {
                 }
 
                 // Add to the parameters.
-                val parameters = analyzer.memory.popStack() as LxmParameters
+                val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
                 parameters.addParameter(identifier.primitive)
 
-                analyzer.memory.pushStack(parameters)
-
                 if (node.expression != null) {
-                    analyzer.memory.pushStack(identifier)
+                    // Move Last to Key in stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
+
                     return analyzer.nextNode(node.expression)
                 }
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 context.setProperty(analyzer.memory, identifier.primitive, LxmNil)
             }
             signalEndExpression -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                val value = analyzer.memory.popStack()
-                val identifier = analyzer.memory.popStack() as LxmString
+                val value = analyzer.memory.getLastFromStack()
+                val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
 
                 context.setProperty(analyzer.memory, identifier.primitive, value)
 
-                // Decrement the reference count of the value.
-                if (value is LxmReference) {
-                    value.decreaseReferenceCount(analyzer.memory)
-                }
+                // Remove Last and Key from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
@@ -15,11 +16,17 @@ import java.net.*
  */
 internal object AnalyzerCommons {
     object Identifiers {
+        private const val HiddenPrefix = "\n"
+
+        // Generic
         const val Prototype = "prototype"
         const val Key = "key"
+        const val Keys = "keys"
+        const val Index = "idx"
         const val Value = "value"
         const val EntryPoint = "entryPoint"
         const val Exports = "exports"
+        const val List = "list"
 
         // Functions
         const val This = "this"
@@ -31,22 +38,106 @@ internal object AnalyzerCommons {
 
         // Nodes
         const val Root = "root"
+        const val Parent = "parent"
         const val Children = "children"
+        const val Node = "node"
+        const val Properties = "properties"
+        const val Name = "name"
+        const val From = "from"
+        const val To = "to"
 
-        // Hidden properties
-        private const val HiddenPrefix = "\n"
+        // Selector
+        const val DefaultPropertyName = "it"
+        const val Property = "property"
+
+        // Stack
+        const val Accumulator = "acc"
+        const val Last = "last"
+        const val Left = "left"
+        const val Destructuring = "destructuring"
+        const val Auxiliary = "aux"
+
+        // Function calls
+        const val Function = "fn"
+        const val Parameters = "params"
+        const val ReturnCodePoint = "retCodePoint"
+        const val Control = "ctrl"
+
+        // Expression calls
+        const val LastNode = "lastNode"
+
+        // Expressions
+        const val HiddenPatternUnions = "${HiddenPrefix}patternUnions"
+
+        // Filters
+        const val FilterNode = "filterNode"
+        const val FilterNodePosition = "filterNodePos"
+        const val SavedFilterNodePosition = "savedFilterNodePos"
+        const val Node2FilterParameter = "node2Filter"
+
+        // Contexts
         const val HiddenCurrentContext = "${HiddenPrefix}ctx"
         const val HiddenCallerContext = "${HiddenPrefix}callerCtx"
-        const val HiddenInternalFunction = "${HiddenPrefix}fn"
-        const val HiddenLastCodePoint = "${HiddenPrefix}lcp"
-        const val HiddenLastModuleCodePoint = "${HiddenPrefix}lmcp"
         const val HiddenContextTag = "${HiddenPrefix}ctxTag"
+        const val HiddenLastResultNode = "${HiddenPrefix}lastResNode"
         const val HiddenFilePath = "${HiddenPrefix}filePath"
         const val HiddenFileMap = "${HiddenPrefix}fileMap"
-        const val HiddenLoopIndexName = "${HiddenPrefix}loopIdxName"
-        const val HiddenLoopIndexValue = "${HiddenPrefix}loopIdxValue"
-        const val HiddenLoopVariable = "${HiddenPrefix}loopIdxVariable"
-        const val HiddenLoopIterator = "${HiddenPrefix}loopIdxIterator"
+        const val HiddenAnalyzerText = "${HiddenPrefix}analyzerText"
+        const val HiddenNode2Filter = "${HiddenPrefix}node2Filter"
+        const val HiddenRollbackCodePoint = "${HiddenPrefix}rollbackCodePoint"
+
+        // Loops
+        const val LoopIndexName = "loopIdxName"
+        const val LoopIndexValue = "loopIdxValue"
+        const val LoopVariable = "loopVariable"
+        const val LoopIterator = "loopIterator"
+        const val LoopUnion = "loopUnion"
+
+        // Selective
+        const val SelectiveCondition = "selCondition"
+
+        // Lexemes
+        const val AtomicFirstIndex = "atomicFirstIndex"
+        const val LexemeDataCapturingName = "lxmDataCapName"
+        const val LexemeDataCapturingList = "lxmDataCapList"
+        const val LexemeUnion = "lxmUnion"
+        const val AnchorIsStart = "anchorIsStart"
+        const val SelectorMethodIterator = "methodIterator"
+    }
+
+    object Properties {
+        const val Capture = "capture"
+        const val Children = "children"
+        const val Property = "property"
+        const val Insensible = "insensible"
+        const val Backtrack = "backtrack"
+        const val Reverse = "reverse"
+        const val Consume = "consume"
+    }
+
+    object SelectorAtIdentifiers {
+        const val Name = "name"
+        const val Content = "content"
+        const val Start = "start"
+        const val End = "end"
+    }
+
+    object SelectorMethods {
+        const val Root = "root"
+        const val Empty = "empty"
+        const val ChildCount = "child-count"
+        const val FirstChild = "first-child"
+        const val LastChild = "last-child"
+        const val NthChild = "nth-child"
+        const val Parent = "parent"
+        const val AllChildren = "all-children"
+        const val AnyChild = "any-child"
+        const val Node = "node"
+
+        val all = setOf(Root, Empty, ChildCount, FirstChild, LastChild, NthChild, Parent, AllChildren, AnyChild, Node)
+        val allSimple = setOf(Root, Empty, FirstChild, LastChild)
+        val allWithSelectors = setOf(Parent, AllChildren, AnyChild, Node)
+        val AllWithCondition = setOf(ChildCount, NthChild, Parent, AllChildren, AnyChild, Node)
     }
 
     object Operators {
@@ -73,12 +164,6 @@ internal object AnalyzerCommons {
         const val RightRotate = "rightRotate"
     }
 
-    object ContextTypes {
-        const val Functional = "fun"
-        const val Expression = "exp"
-        const val Filter = "fil"
-    }
-
     // METHODS ----------------------------------------------------------------
 
     /**
@@ -99,16 +184,17 @@ internal object AnalyzerCommons {
             getStdLibContext(memory).getDereferencedProperty<LxmContext>(memory, Identifiers.HiddenCurrentContext)!!
 
     /**
-     * Gets the actual hierarchy of the context.
+     * Gets the actual call hierarchy.
      */
-    fun getCurrentContextHierarchy(memory: LexemMemory): List<LxmContext> {
-        val list = mutableListOf<LxmContext>()
-        var current: LxmContext? = getCurrentContext(memory)
+    fun getCallHierarchy(memory: LexemMemory): List<LxmCodePoint> {
+        val list = mutableListOf<LxmCodePoint>()
 
-        while (current != null) {
-            list.add(current)
-
-            current = current.getPrototype(memory) as? LxmContext
+        try {
+            while (true) {
+                val lastCodePoint = memory.getFromStack(Identifiers.ReturnCodePoint) as LxmCodePoint
+                list.add(lastCodePoint)
+            }
+        } catch (e: AngmarAnalyzerException) {
         }
 
         list.reverse()
@@ -170,11 +256,11 @@ internal object AnalyzerCommons {
                 lastContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
 
         // Done like this to avoid premature removal.
-        lastContextReference.increaseReferenceCount(memory)
+        lastContextReference.increaseReferences(memory)
         stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, callerContextReference)
         lastContext.removePropertyIgnoringConstants(memory, Identifiers.HiddenCallerContext)
 
-        lastContextReference.decreaseReferenceCount(memory)
+        lastContextReference.decreaseReferences(memory)
     }
 
     /**
@@ -220,14 +306,14 @@ internal object AnalyzerCommons {
         val lastContextRef = currentContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
 
         // Done like this to avoid premature removal.
-        currentContextReference.increaseReferenceCount(memory)
+        currentContextReference.increaseReferences(memory)
 
         stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, lastContextRef)
 
         // Remove the property to unlink the previous context.
         currentContext.removePropertyIgnoringConstants(memory, Identifiers.HiddenCallerContext)
 
-        currentContextReference.decreaseReferenceCount(memory)
+        currentContextReference.decreaseReferences(memory)
     }
 
     /**
@@ -247,6 +333,16 @@ internal object AnalyzerCommons {
     }
 
     /**
+     * Returns the property object of the current node.
+     */
+    fun getCurrentNodeProps(memory: LexemMemory): LxmObject {
+        val context = getCurrentContext(memory)
+        val node = context.getDereferencedProperty<LxmNode>(memory, Identifiers.Node)!!
+
+        return node.getProperties(memory)
+    }
+
+    /**
      * Resolves the relative uri using main as root.
      */
     fun resolveRelativeUriToReader(analyzer: LexemAnalyzer, main: String, relative: String): ITextReader {
@@ -255,7 +351,7 @@ internal object AnalyzerCommons {
             val relativeWithoutPrefix = relative.removePrefix("root:")
             val file = File(analyzer.rootFilePath).resolveSibling(relativeWithoutPrefix).canonicalFile
             try {
-                return CustomStringReader.from(file)
+                return IOStringReader.from(file)
             } catch (e: FileNotFoundException) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
                         "The resolved file from '$relative' at '${main}' does not exist. Actual: '${file.canonicalPath}'") {}
@@ -279,7 +375,7 @@ internal object AnalyzerCommons {
             try {
                 val text = uri.toURL().readText()
 
-                return CustomStringReader(uri.toString(), text)
+                return IOStringReader(uri.toString(), text)
             } catch (e: Throwable) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
                         "The resolved url from '$relative' at '$main' does not exist. Actual: '$uri'") {}
@@ -287,11 +383,42 @@ internal object AnalyzerCommons {
         } else {
             // Local paths.
             try {
-                return CustomStringReader.from(File(uri.toString()))
+                return IOStringReader.from(File(uri.toString()))
             } catch (e: FileNotFoundException) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
                         "The file '$uri' does not exist") {}
             }
+        }
+    }
+
+    /**
+     * Creates a new reader from the specified primitive.
+     */
+    fun createReaderFrom(primitive: LexemPrimitive) = when (primitive) {
+        is LxmString -> {
+            IOStringReader.from(primitive.primitive)
+        }
+        is LxmBitList -> {
+            IOBinaryReader("", primitive.primitive, primitive.size)
+        }
+        else -> {
+            throw AngmarException("Angmar only accept textual or binary readers.")
+        }
+    }
+
+    /**
+     * Gets a subsequence of a reader.
+     */
+    fun substringReader(reader: IReader, from: IReaderCursor, to: IReaderCursor) = when (reader) {
+        is ITextReader -> {
+            LxmString.from(reader.substring(from as ITextReaderCursor, to as ITextReaderCursor))
+        }
+        is IBinaryReader -> {
+            val size = to.position() - from.position()
+            LxmBitList(size, reader.subSet(from as IBinaryReaderCursor, to as IBinaryReaderCursor))
+        }
+        else -> {
+            throw AngmarException("Angmar only accept textual or binary readers.")
         }
     }
 }

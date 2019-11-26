@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -47,7 +48,7 @@ internal class DestructuringSpreadStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectDestructuringSpreadStmt")
     fun `parse correct destructuring spread statement`(text: String, isConstant: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -62,9 +63,10 @@ internal class DestructuringSpreadStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect destructuring spread statement without identifier`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.DestructuringSpreadStatementWithoutIdentifierAfterSpreadOperator) {
             val text = "${DestructuringSpreadStmtNode.spreadToken}${DestructuringSpreadStmtNode.constantToken}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -72,7 +74,7 @@ internal class DestructuringSpreadStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringSpreadStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

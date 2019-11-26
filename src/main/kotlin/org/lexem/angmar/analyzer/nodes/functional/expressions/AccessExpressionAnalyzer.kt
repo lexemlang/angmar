@@ -26,13 +26,14 @@ internal object AccessExpressionAnalyzer {
             signalEndElement -> {
                 // Performs the access if the element is an identifier.
                 if (node.element is IdentifierNode) {
-                    val id = analyzer.memory.popStack() as LxmString
+                    val id = analyzer.memory.getLastFromStack() as LxmString
                     val context = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
 
-                    analyzer.memory.pushStack(LxmAccessSetter(analyzer.memory, context, id.primitive, node))
+                    analyzer.memory.replaceLastStackCell(
+                            LxmAccessSetter(analyzer.memory, context, id.primitive, node, node.element))
                 }
 
-                // Process the next operand
+                // Process the next operand.
                 if (node.modifiers.isNotEmpty()) {
                     return analyzer.nextNode(node.modifiers[0])
                 }

@@ -5,6 +5,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.selective.*
@@ -18,7 +19,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = VarPatternSelectiveStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmLogic.True)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -31,7 +32,11 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         Assertions.assertFalse(property.isConstant, "The primitive property is incorrect")
         Assertions.assertTrue(value.primitive, "The primitive property is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(), "The mainValue is incorrect")
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The mainValue is incorrect")
+
+        // Remove SelectiveCondition and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -43,7 +48,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = VarPatternSelectiveStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmLogic.True)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -56,7 +61,11 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         Assertions.assertTrue(property.isConstant, "The primitive property is incorrect")
         Assertions.assertTrue(value.primitive, "The primitive property is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(), "The mainValue is incorrect")
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The mainValue is incorrect")
+
+        // Remove SelectiveCondition and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -74,7 +83,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         val objRef = analyzer.memory.add(obj)
         obj.setProperty(analyzer.memory, elementAlias, LxmInteger.from(valueInt))
 
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -84,7 +93,11 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(), "The mainValue is incorrect")
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The mainValue is incorrect")
+
+        // Remove SelectiveCondition and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(elementAlias))
     }
@@ -102,7 +115,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         val listRef = analyzer.memory.add(list)
         list.addCell(analyzer.memory, LxmInteger.from(valueInt))
 
-        analyzer.memory.pushStack(listRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, listRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -112,7 +125,11 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(), "The mainValue is incorrect")
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The mainValue is incorrect")
+
+        // Remove SelectiveCondition and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(elementAlias))
     }
@@ -120,7 +137,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect destructuring`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val elementAlias = "elementAlias"
             val destructuring = "${DestructuringStmtNode.startToken} $elementAlias ${DestructuringStmtNode.endToken}"
             val text = "${VarPatternSelectiveStmtNode.variableKeyword} $destructuring"
@@ -128,7 +145,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
                     TestUtils.createAnalyzerFrom(text, parserFunction = VarPatternSelectiveStmtNode.Companion::parse)
 
             // Prepare stack.
-            analyzer.memory.pushStack(LxmInteger.Num10)
+            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -137,14 +154,14 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect identifier`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text =
                     "${VarPatternSelectiveStmtNode.constKeyword} ${EscapedExpressionNode.startToken}${LxmLogic.True}${EscapedExpressionNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = VarPatternSelectiveStmtNode.Companion::parse)
 
             // Prepare stack.
-            analyzer.memory.pushStack(LxmInteger.Num10)
+            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

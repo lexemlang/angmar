@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -55,7 +56,7 @@ internal class PrefixOperatorNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectOperators")
     fun `parse correct prefix operator`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -69,7 +70,7 @@ internal class PrefixOperatorNodeTest {
     @MethodSource("provideCorrectOperators")
     fun `parse correct prefix operator with value`(operator: String) {
         val text = "${operator}125"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -83,8 +84,8 @@ internal class PrefixOperatorNodeTest {
     @ParameterizedTest
     @MethodSource("provideIncorrectOperators")
     fun `parse incorrect assign operator`(text: String) {
-        TestUtils.assertParserException {
-            val parser = LexemParser(CustomStringReader.from(text))
+        TestUtils.assertParserException(AngmarParserExceptionType.PrefixOperatorFollowedByAnotherOperator) {
+            val parser = LexemParser(IOStringReader.from(text))
             PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -92,7 +93,7 @@ internal class PrefixOperatorNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.junit.jupiter.api.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.parser.literals.*
@@ -17,11 +18,13 @@ internal class ObjectElementAnalyzerTest {
         // Prepare stack.
         val obj = LxmObject()
         val objRef = analyzer.memory.add(obj)
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         val objDeref =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
@@ -30,8 +33,8 @@ internal class ObjectElementAnalyzerTest {
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
         Assertions.assertFalse(property.isConstant, "The isConstant property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -46,11 +49,13 @@ internal class ObjectElementAnalyzerTest {
         // Prepare stack.
         val obj = LxmObject()
         val objRef = analyzer.memory.add(obj)
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         val objDeref =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
@@ -59,8 +64,8 @@ internal class ObjectElementAnalyzerTest {
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
         Assertions.assertTrue(property.isConstant, "The isConstant property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

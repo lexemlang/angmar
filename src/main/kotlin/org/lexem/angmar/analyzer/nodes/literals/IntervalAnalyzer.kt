@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -17,10 +18,16 @@ internal object IntervalAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IntervalNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                analyzer.memory.pushStack(LxmInterval.Empty)
-
                 if (node.elements.isNotEmpty()) {
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
+
                     return analyzer.nextNode(node.elements[0])
+                }
+
+                if (node.reversed) {
+                    analyzer.memory.addToStackAsLast(LxmInterval.Full)
+                } else {
+                    analyzer.memory.addToStackAsLast(LxmInterval.Empty)
                 }
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
@@ -30,13 +37,16 @@ internal object IntervalAnalyzer {
                 if (position < node.elements.size) {
                     return analyzer.nextNode(node.elements[position])
                 }
-            }
-        }
 
-        if (node.reversed) {
-            val interval = analyzer.memory.popStack() as LxmInterval
-            val result = !interval.primitive
-            analyzer.memory.pushStack(LxmInterval.from(result))
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
+
+                if (node.reversed) {
+                    val interval = analyzer.memory.getLastFromStack() as LxmInterval
+                    val result = !interval.primitive
+                    analyzer.memory.replaceLastStackCell(LxmInterval.from(result))
+                }
+            }
         }
 
         return analyzer.nextNode(node.parent, node.parentSignal)

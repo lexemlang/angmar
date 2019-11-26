@@ -7,6 +7,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -23,8 +24,11 @@ internal class FunctionAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        analyzer.memory.popStack().dereference(analyzer.memory) as? LxmFunction ?: throw Error(
+        analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmFunction ?: throw Error(
                 "The result must be a LxmFunction")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
@@ -103,7 +107,7 @@ internal class FunctionAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val text = let {
                 val callFn = "$fnName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
@@ -116,7 +120,6 @@ internal class FunctionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 
@@ -125,7 +128,7 @@ internal class FunctionAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals with tag and without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val tagName = "tag"
             val text = let {
@@ -140,7 +143,6 @@ internal class FunctionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 

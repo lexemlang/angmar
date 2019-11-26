@@ -39,7 +39,7 @@ internal class CommonsTest {
     @ValueSource(strings = ["012345"])
     fun `parse correct unicode-like escape`(number: String) {
         val text = "${UnicodeEscapeNode.escapeStart}$number"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -54,7 +54,7 @@ internal class CommonsTest {
     @ValueSource(strings = ["a", "v", "t", "\n", "'", "\"", WhitespaceNode.windowsEndOfLine])
     fun `parse correct escape`(escapeLetter: String) {
         val text = "${EscapeNode.startToken}$escapeLetter"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -69,7 +69,7 @@ internal class CommonsTest {
     @ValueSource(strings = [ExpressionsCommonsTest.testExpression])
     fun `parse correct dynamic identifier - escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -83,7 +83,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @ValueSource(strings = ["a", "test"])
     fun `parse correct dynamic identifier - simple identifier`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -104,7 +104,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @ValueSource(strings = ["a", "abc231"])
     fun `check identifier`(identifier: String) {
-        val parser = LexemParser(CustomStringReader.from(identifier))
+        val parser = LexemParser(IOStringReader.from(identifier))
         val res = Commons.checkIdentifier(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -115,7 +115,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "123", ":s"])
     fun `check bad identifier`(identifier: String) {
-        val parser = LexemParser(CustomStringReader.from(identifier))
+        val parser = LexemParser(IOStringReader.from(identifier))
         val res = Commons.checkIdentifier(parser)
 
         Assertions.assertFalse(res, "The parser must not capture anything")
@@ -126,7 +126,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @MethodSource("provideKeywords")
     fun `parse a correct specific keyword`(keyword: String) {
-        val parser = LexemParser(CustomStringReader.from(keyword))
+        val parser = LexemParser(IOStringReader.from(keyword))
         val res = Commons.parseKeyword(parser, keyword)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -138,7 +138,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @MethodSource("provideKeywords")
     fun `parse an incorrect specific keyword`(keyword: String) {
-        val parser = LexemParser(CustomStringReader.from("${keyword}a"))
+        val parser = LexemParser(IOStringReader.from("${keyword}a"))
         val res = Commons.parseKeyword(parser, keyword)
 
         Assertions.assertFalse(res, "The parser must not capture anything")
@@ -149,7 +149,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @MethodSource("provideKeywords")
     fun `parse any correct keyword`(keyword: String) {
-        val parser = LexemParser(CustomStringReader.from(keyword))
+        val parser = LexemParser(IOStringReader.from(keyword))
         val res = Commons.parseAnyKeyword(parser)
 
         Assertions.assertEquals(res, keyword, "The parser must capture something")
@@ -161,7 +161,7 @@ internal class CommonsTest {
     @ParameterizedTest
     @MethodSource("provideKeywords")
     fun `parse any incorrect keyword`(keyword: String) {
-        val parser = LexemParser(CustomStringReader.from("${keyword}a"))
+        val parser = LexemParser(IOStringReader.from("${keyword}a"))
         val res = Commons.parseAnyKeyword(parser)
 
         Assertions.assertNull(res, "The parser must not capture anything")

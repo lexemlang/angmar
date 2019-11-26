@@ -5,6 +5,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
 internal class BigNodeCellTest {
@@ -76,8 +77,8 @@ internal class BigNodeCellTest {
         checkCell(cell0, 0, LxmList.Empty)
 
         // Reduce the reference count.
-        cell0.increaseReferenceCount()
-        cell0.decreaseReferenceCount(memory)
+        cell0.increaseReferences()
+        cell0.decreaseReferences(memory)
         checkCell(cell0, 0, BigNodeCell.EmptyCell, referenceCount = 1, isFreed = true) // 1 = lastFreeCell
     }
 
@@ -88,7 +89,7 @@ internal class BigNodeCellTest {
 
         val cell0Value = LxmList()
         val cell0 = bigNode.alloc(memory, cell0Value)
-        cell0.increaseReferenceCount()
+        cell0.increaseReferences()
 
         checkCell(cell0, 0, cell0Value, referenceCount = 1)
 
@@ -112,7 +113,7 @@ internal class BigNodeCellTest {
         obj.setProperty(memory, "test", LxmReference(cell0.position))
 
         val cell1 = bigNode.alloc(memory, obj)
-        cell1.increaseReferenceCount()
+        cell1.increaseReferences()
 
         checkCell(cell0, 0, LxmObject.Empty, referenceCount = 1)
         checkCell(cell1, 1, obj, referenceCount = 1)
@@ -146,7 +147,7 @@ internal class BigNodeCellTest {
         val cell = bigNode.alloc(memory, LxmObject.Empty)
 
         // Add reference to increase the count.
-        cell.increaseReferenceCount()
+        cell.increaseReferences()
 
         checkCell(cell, 0, LxmObject.Empty, referenceCount = 1)
 
@@ -157,12 +158,76 @@ internal class BigNodeCellTest {
 
     @Test
     @Incorrect
-    fun `test free a referenced cell`() {
-        TestUtils.assertAnalyzerException {
+    fun `test set a freed cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val cell0 = bigNode.alloc(memory, LxmObject.Empty)
-            cell0.increaseReferenceCount()
+            cell0.increaseReferences()
+
+            // Free
+            cell0.decreaseReferences(memory)
+
+            cell0.setValue(LxmObject.Empty)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `test free a freed cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
+            val memory = LexemMemory()
+            val bigNode = memory.lastNode
+            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            cell0.increaseReferences()
+
+            // Free
+            cell0.decreaseReferences(memory)
+
+            cell0.freeCell(memory, 0)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `test increase references of a freed cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
+            val memory = LexemMemory()
+            val bigNode = memory.lastNode
+            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            cell0.increaseReferences()
+
+            // Free
+            cell0.decreaseReferences(memory)
+
+            cell0.increaseReferences()
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `test decrease references of a freed cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
+            val memory = LexemMemory()
+            val bigNode = memory.lastNode
+            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            cell0.increaseReferences()
+
+            // Free
+            cell0.decreaseReferences(memory)
+
+            cell0.decreaseReferences(memory)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `test free a referenced cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed) {
+            val memory = LexemMemory()
+            val bigNode = memory.lastNode
+            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            cell0.increaseReferences()
 
             // Free
             cell0.freeCell(memory, 5)
@@ -172,11 +237,11 @@ internal class BigNodeCellTest {
     @Test
     @Incorrect
     fun `test decrease a zero-reference cell`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferenceCountUnderflow) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val cell0 = bigNode.alloc(memory, LxmObject.Empty)
-            cell0.decreaseReferenceCount(memory)
+            cell0.decreaseReferences(memory)
         }
     }
 }

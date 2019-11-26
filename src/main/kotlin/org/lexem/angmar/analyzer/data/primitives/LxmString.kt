@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
 /**
- * The lexem values of the String type.
+ * The Lexem values of the String type.
  */
 internal class LxmString private constructor(val primitive: String) : LexemPrimitive {
 

@@ -27,8 +27,8 @@ internal object SelectiveStmtAnalyzer {
                     return analyzer.nextNode(node.condition)
                 }
 
-                // Add null as value.
-                analyzer.memory.pushStack(LxmNil)
+                // Add null as condition.
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmNil)
 
                 if (node.tag != null) {
                     return analyzer.nextNode(node.tag)
@@ -37,6 +37,9 @@ internal object SelectiveStmtAnalyzer {
                 return analyzer.nextNode(node.cases[0])
             }
             signalEndCondition -> {
+                // Move Last to SelectiveCondition in the stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.SelectiveCondition)
+
                 if (node.tag != null) {
                     return analyzer.nextNode(node.tag)
                 }
@@ -45,15 +48,22 @@ internal object SelectiveStmtAnalyzer {
             }
             signalEndTag -> {
                 // Set the name of the context.
-                val identifier = analyzer.memory.popStack() as LxmString
+                val identifier = analyzer.memory.getLastFromStack() as LxmString
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
                 context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag, identifier)
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 return analyzer.nextNode(node.cases[0])
             }
             in signalEndFirstCase until signalEndFirstCase + node.cases.size -> {
                 // Check the result.
-                val result = analyzer.memory.popStack() as LxmLogic
+                val result = analyzer.memory.getLastFromStack() as LxmLogic
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
+
                 if (!result.primitive) {
                     val position = (signal - signalEndFirstCase) + 1
                     if (position < node.cases.size) {
@@ -61,54 +71,47 @@ internal object SelectiveStmtAnalyzer {
                     }
                 }
 
-                // Remove the condition value.
-                analyzer.memory.popStack()
-
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+                finish(analyzer, node)
             }
             // Process the control signal.
             AnalyzerNodesCommons.signalExitControl -> {
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
-
-                // Remove the condition value.
-                analyzer.memory.popStack()
+                finish(analyzer, node)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
-                    analyzer.memory.pushStack(control)
                     return analyzer.nextNode(node.parent, signal)
                 }
+
+                // Remove Control from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
-
-                // Remove the condition value.
-                val control = analyzer.memory.popStack() as LxmControl
-                analyzer.memory.popStack()
-                analyzer.memory.pushStack(control)
+                finish(analyzer, node)
 
                 return analyzer.nextNode(node.parent, signal)
             }
             AnalyzerNodesCommons.signalRestartControl, AnalyzerNodesCommons.signalReturnControl -> {
-                // Remove the intermediate context.
-                AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
-
-                // Remove the condition value.
-                val control = analyzer.memory.popStack() as LxmControl
-                analyzer.memory.popStack()
-                analyzer.memory.pushStack(control)
+                finish(analyzer, node)
 
                 return analyzer.nextNode(node.parent, signal)
             }
         }
 
         return analyzer.nextNode(node.parent, node.parentSignal)
+    }
+
+    /**
+     * Process the finalization of the loop.
+     */
+    private fun finish(analyzer: LexemAnalyzer, node: SelectiveStmtNode) {
+        // Remove the intermediate context.
+        AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
+
+        // Remove SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
     }
 }

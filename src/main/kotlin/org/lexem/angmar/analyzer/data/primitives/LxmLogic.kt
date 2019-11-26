@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
 /**
- * The lexem values of the Logic type.
+ * The Lexem values of the Logic type.
  */
 internal class LxmLogic private constructor(val primitive: Boolean) : LexemPrimitive {
 

@@ -13,7 +13,8 @@ internal class UnicodeIntervalAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getLastFromStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
@@ -24,6 +25,9 @@ internal class UnicodeIntervalAnalyzerTest {
                 "The range[1].from property is incorrect")
         Assertions.assertEquals('x'.toInt(), result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

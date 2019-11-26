@@ -9,7 +9,7 @@ import org.lexem.angmar.parser.*
 
 
 /**
- * Analyzer for lexem files.
+ * Analyzer for Lexem files.
  */
 internal object LexemFileAnalyzer {
     const val signalEndFirstStatement = AnalyzerNodesCommons.signalStart + 1
@@ -41,8 +41,7 @@ internal object LexemFileAnalyzer {
 
             // Throw an error.
             AnalyzerNodesCommons.signalReturnControl, AnalyzerNodesCommons.signalExitControl, AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl, AnalyzerNodesCommons.signalRestartControl -> {
-                // Get the control
-                val control = analyzer.memory.popStack() as LxmControl
+                val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
 
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal,
                         "The ${control.type} control signal has not reached any valid statement.") {
@@ -73,28 +72,29 @@ internal object LexemFileAnalyzer {
      * Finalizes the file node.
      */
     private fun finalizeFile(analyzer: LexemAnalyzer, node: LexemFileNode) {
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val exports = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Exports) as LxmReference
 
-        analyzer.memory.pushStack(exports)
+        analyzer.memory.addToStackAsLast(exports)
 
         // Remove the context.
         AnalyzerCommons.removeModuleContextAndAssignPrevious(analyzer.memory)
 
-        // Recover the last code point.
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val lmcp = context.getDereferencedProperty<LxmCodePoint>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenLastModuleCodePoint)
+        // Recover the last module code point.
+        val lastModuleCodePoint =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as? LxmCodePoint
 
-        return if (lmcp != null) {
-            analyzer.nextNode(lmcp)
+        // Remove HiddenLastModuleCodePoint from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint)
+
+        return if (lastModuleCodePoint != null) {
+            analyzer.nextNode(lastModuleCodePoint)
         } else {
             // Root file.
             analyzer.nextNode(node.parent, node.parentSignal)
 
-            // Remove the exports from stack.
-            analyzer.memory.popStack()
-            exports.decreaseReferenceCount(analyzer.memory)
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
         }
     }
 }

@@ -238,15 +238,23 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     fun removeTreeFromBuffer(node: ParserNode) = forwardBuffer?.remove(node.from.position(), node.to.position())
 
     /**
-     * Finalize a node, setting its points
+     * Finalize a node, setting its bounds and adding it to the forward buffer.
      */
     fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
+        finalizeNodeNoBuffer(node, initCursor)
+        addInBuffer(node)
+        return node
+    }
+
+    /**
+     * Finalize a node setting its bounds.
+     */
+    fun <T : ParserNode> finalizeNodeNoBuffer(node: T, initCursor: ITextReaderCursor): T {
         val finalCursor = reader.saveCursor()
 
         node.from = initCursor
         node.to = finalCursor
 
-        addInBuffer(node)
         return node
     }
 }

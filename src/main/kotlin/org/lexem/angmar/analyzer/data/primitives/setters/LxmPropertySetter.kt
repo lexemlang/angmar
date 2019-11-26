@@ -23,28 +23,18 @@ internal class LxmPropertySetter : LexemSetter {
         this.property = property
         this.node = node
 
-        increaseReferenceCount(memory)
-    }
-
-    // METHODS ----------------------------------------------------------------
-
-    /**
-     * Frees the references to the components of the setter.
-     */
-    private fun freeReferences(memory: LexemMemory) {
         if (obj is LxmReference) {
-            obj.decreaseReferenceCount(memory)
+            obj.increaseReferences(memory)
         }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun resolve(memory: LexemMemory): LexemPrimitive {
+    override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
         val objDeref = obj.dereference(memory)
-
         val obj = objDeref.getObjectOrPrototype(memory)
 
-        val res = obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
+        return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType,
                 "Undefined property called \"$property\" in object. Actual value: $obj") {
             val fullText = node.parser.reader.readAllText()
@@ -54,12 +44,9 @@ internal class LxmPropertySetter : LexemSetter {
                 message = "Review the returned object by this expression"
             }
         }
-
-        freeReferences(memory)
-        return res
     }
 
-    override fun set(memory: LexemMemory, value: LexemPrimitive) {
+    override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
         val obj = obj.dereference(memory)
 
         if (obj !is LxmObject) {
@@ -75,13 +62,18 @@ internal class LxmPropertySetter : LexemSetter {
         }
 
         obj.setProperty(memory, property, value)
-        freeReferences(memory)
     }
 
-    override fun increaseReferenceCount(memory: LexemMemory) {
-        if (obj is LxmReference) {
-            obj.increaseReferenceCount(memory)
-        }
+    override fun increaseReferences(memory: LexemMemory) {
+        obj.increaseReferences(memory)
+    }
+
+    override fun decreaseReferences(memory: LexemMemory) {
+        obj.decreaseReferences(memory)
+    }
+
+    override fun spatialGarbageCollect(memory: LexemMemory) {
+        obj.spatialGarbageCollect(memory)
     }
 
     override fun toString() = "LxmAccessSetter(obj: $obj, property: $property)"

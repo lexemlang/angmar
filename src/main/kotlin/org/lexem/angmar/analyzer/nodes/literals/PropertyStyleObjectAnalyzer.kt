@@ -21,12 +21,9 @@ internal object PropertyStyleObjectAnalyzer {
             }
             signalEndBlock -> {
                 if (node.isConstant) {
-                    val objRef = analyzer.memory.popStack()
-                    val obj = objRef.dereference(analyzer.memory) as LxmObject
+                    val obj = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmObject
 
                     obj.makeConstant(analyzer.memory)
-
-                    analyzer.memory.pushStackIgnoringReferenceCount(objRef)
                 }
             }
         }

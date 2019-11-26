@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -29,7 +30,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -38,8 +40,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -52,7 +54,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -61,8 +64,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -75,7 +78,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -85,8 +89,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -99,7 +103,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -113,8 +118,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -127,7 +132,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -142,8 +148,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -156,7 +162,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -171,8 +178,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -185,7 +192,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectBlockNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val result =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
 
@@ -205,8 +213,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
-        // Decrease the reference count.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -214,7 +222,7 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect positive`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text =
                     "${PropertyStyleObjectBlockNode.startToken}${EscapedExpressionNode.startToken}222${EscapedExpressionNode.endToken}${PropertyStyleObjectBlockNode.endToken}"
             val analyzer =
@@ -226,7 +234,7 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect negative`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text =
                     "${PropertyStyleObjectBlockNode.startToken}${PropertyStyleObjectBlockNode.negativeToken}${EscapedExpressionNode.startToken}222${EscapedExpressionNode.endToken}${PropertyStyleObjectBlockNode.endToken}"
             val analyzer =

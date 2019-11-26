@@ -1,6 +1,5 @@
 package org.lexem.angmar.parser.literals
 
-import com.google.gson.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.parser.*
@@ -13,10 +12,6 @@ import org.lexem.angmar.parser.commons.*
 internal class NilNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
         ParserNode(parser, parent, parentSignal) {
     override fun toString() = nilLiteral
-
-    override fun toTree(): JsonObject {
-        return super.toTree()
-    }
 
     override fun analyze(analyzer: LexemAnalyzer, signal: Int) = NilAnalyzer.stateMachine(analyzer, signal, this)
 

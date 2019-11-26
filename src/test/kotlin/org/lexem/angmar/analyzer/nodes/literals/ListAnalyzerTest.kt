@@ -19,7 +19,8 @@ internal class ListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val list = resultRef.dereferenceAs<LxmList>(analyzer.memory) ?: throw Error("The result must be a LxmList")
         val cells = list.getAllCells()
 
@@ -32,9 +33,9 @@ internal class ListAnalyzerTest {
 
         Assertions.assertFalse(list.isImmutable, "The isImmutable property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-        // Remove the list.
-        resultRef.decreaseReferenceCount(analyzer.memory)
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -45,7 +46,8 @@ internal class ListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val list = resultRef.dereferenceAs<LxmList>(analyzer.memory) ?: throw Error("The result must be a LxmList")
         val cells = list.getAllCells()
 
@@ -58,8 +60,9 @@ internal class ListAnalyzerTest {
 
         Assertions.assertTrue(list.isImmutable, "The isImmutable property is incorrect")
 
-        // Remove the list.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -70,16 +73,17 @@ internal class ListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val list = resultRef.dereferenceAs<LxmList>(analyzer.memory) ?: throw Error("The result must be a LxmList")
         val cells = list.getAllCells()
 
         Assertions.assertEquals(0, cells.size, "The number of cells is incorrect")
         Assertions.assertFalse(list.isImmutable, "The isImmutable property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-        // Remove the list.
-        resultRef.decreaseReferenceCount(analyzer.memory)
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -90,16 +94,17 @@ internal class ListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val list = resultRef.dereferenceAs<LxmList>(analyzer.memory) ?: throw Error("The result must be a LxmList")
         val cells = list.getAllCells()
 
         Assertions.assertEquals(0, cells.size, "The number of cells is incorrect")
         Assertions.assertTrue(list.isImmutable, "The isImmutable property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-        // Remove the list.
-        resultRef.decreaseReferenceCount(analyzer.memory)
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 }

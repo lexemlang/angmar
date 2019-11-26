@@ -4,7 +4,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 
 /**
- * The lexem value for the context.
+ * The Lexem value for the context.
  */
 internal class LxmContext : LxmObject {
 
@@ -41,7 +41,7 @@ internal class LxmContext : LxmObject {
             // Property in past version of the object
             lastProperty != null -> {
                 // Set property to remove.
-                val cloned = lastProperty.cloneAlways(isIterable = false, isRemoved = true)
+                val cloned = lastProperty.clone(isIterable = false, isRemoved = true)
                 cloned.replaceValue(memory, LxmNil)
                 properties[identifier] = cloned
             }
@@ -50,11 +50,7 @@ internal class LxmContext : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmContext(this)
-    }
+    override fun clone() = LxmContext(this)
 
     override fun toString() = "[CONTEXT] ${super.toString()}"
 }

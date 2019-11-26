@@ -9,6 +9,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.commands.*
 import org.lexem.angmar.errors.*
+import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import java.io.*
@@ -58,11 +59,15 @@ object TestUtils {
     /**
      * Ensures an [AngmarParserException] or throws an error.
      */
-    internal inline fun assertParserException(fn: () -> Unit) {
+    internal inline fun assertParserException(type: AngmarParserExceptionType?, fn: () -> Unit) {
         try {
             fn()
             throw Exception("This method should throw an AngmarParserException")
         } catch (e: AngmarParserException) {
+            if (type != null && e.type != type) {
+                throw AngmarException("The expected AngmarParserException is $type but actually it is ${e.type}", e)
+            }
+
             e.logMessage()
         }
     }
@@ -70,11 +75,16 @@ object TestUtils {
     /**
      * Ensures an [AngmarAnalyzerException] or throws an error.
      */
-    internal inline fun assertAnalyzerException(print: Boolean = true, fn: () -> Unit) {
+    internal inline fun assertAnalyzerException(type: AngmarAnalyzerExceptionType?, print: Boolean = true,
+            fn: () -> Unit) {
         try {
             fn()
             throw Exception("This method should throw an AngmarAnalyzerException")
         } catch (e: AngmarAnalyzerException) {
+            if (type != null && e.type != type) {
+                throw AngmarException("The expected AngmarAnalyzerException was $type but it is ${e.type}", e)
+            }
+
             if (print) {
                 e.logMessage()
             }
@@ -95,10 +105,12 @@ object TestUtils {
             }
 
             // Check stack.
-            val controlValue = analyzer.memory.popStack() as LxmControl
+            val controlValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
             Assertions.assertEquals(control, controlValue.type, "The type property is incorrect")
             Assertions.assertEquals(tagName, controlValue.tag, "The tag property is incorrect")
             Assertions.assertEquals(value, controlValue.value, "The value property is incorrect")
+
+            analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
         }
     }
 
@@ -110,9 +122,12 @@ object TestUtils {
     /**
      * Creates an analyzer from the specified parameter.
      */
-    internal fun createAnalyzerFrom(grammarText: String,
+    internal fun createAnalyzerFrom(grammarText: String, isDescriptiveCode: Boolean = false,
+            isFilterCode: Boolean = false,
             parserFunction: (LexemParser, ParserNode, Int) -> ParserNode?): LexemAnalyzer {
-        val parser = LexemParser(CustomStringReader.from(grammarText))
+        val parser = LexemParser(IOStringReader.from(grammarText))
+        parser.isDescriptiveCode = isDescriptiveCode || isFilterCode
+        parser.isFilterCode = isFilterCode
         val grammar = parserFunction(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(grammar, "The grammar cannot be null")
@@ -125,7 +140,7 @@ object TestUtils {
      */
     internal fun createAnalyzerFromFile(filePath: String,
             parserFunction: (LexemParser, ParserNode, Int) -> ParserNode?): LexemAnalyzer {
-        val parser = LexemParser(CustomStringReader.from(File(filePath)))
+        val parser = LexemParser(IOStringReader.from(File(filePath)))
         val grammar = parserFunction(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(grammar, "The grammar cannot be null")
@@ -136,16 +151,33 @@ object TestUtils {
     /**
      * Executes the analyzer and checks its results are empty.
      */
-    internal fun processAndCheckEmpty(analyzer: LexemAnalyzer) {
-        val results = analyzer.process(CustomStringReader.from(""))
+    internal fun processAndCheckEmpty(analyzer: LexemAnalyzer, text: IReader = IOStringReader.from(""),
+            status: LexemAnalyzer.ProcessStatus = LexemAnalyzer.ProcessStatus.Forward,
+            hasBacktrackingData: Boolean = false, bigNodeCount: Int = 1) {
+        val result = analyzer.start(text, timeoutInMilliseconds = 5 * 60 * 1000 /* 5 minutes */)
 
         // Assert status of the analyzer.
-        Assertions.assertEquals(LexemAnalyzer.AnalyzerStatus.Forward, analyzer.status, "The status is incorrect")
+        Assertions.assertEquals(status, analyzer.processStatus, "The status is incorrect")
         Assertions.assertNull(analyzer.nextNode, "The next node must be null")
         Assertions.assertEquals(0, analyzer.signal, "The signal is incorrect")
 
+        if (!hasBacktrackingData) {
+            Assertions.assertNull(analyzer.backtrackingData, "The backtrackingData must be null")
+        } else {
+            Assertions.assertNotNull(analyzer.backtrackingData, "The backtrackingData cannot be null")
+        }
+
         // Assert status of the result.
-        Assertions.assertTrue(results.isEmpty(), "The number of results is incorrect")
+        Assertions.assertTrue(result, "The result must be true")
+
+        // Check the memory has only n big nodes apart from the stdlib.
+        var node = analyzer.memory.lastNode
+        for (i in 0 until bigNodeCount) {
+            Assertions.assertNotNull(node.previousNode, "The memory has lower than $bigNodeCount big nodes")
+            node = node.previousNode!!
+        }
+
+        Assertions.assertNull(node.previousNode, "The memory has more than $bigNodeCount big nodes")
     }
 
     /**
@@ -181,11 +213,16 @@ object TestUtils {
     internal fun checkEmptyStackAndContext(analyzer: LexemAnalyzer, valuesToRemove: List<String>? = null) {
         val memory = analyzer.memory
 
-        // Check stack.
+        // Remove from the stack.
         try {
-            memory.popStack()
-            throw Exception("The stack must be empty")
+            memory.removeFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint)
         } catch (e: AngmarAnalyzerException) {
+        }
+
+        // Check stack.
+        if (memory.lastNode.actualStackSize != 0) {
+            throw Exception(
+                    "The stack must be empty. It contains ${memory.lastNode.actualStackSize} remaining elements in ${memory.lastNode.actualStackLevelSize} levels: ${memory.lastNode}")
         }
 
         // Check context.
@@ -206,15 +243,18 @@ object TestUtils {
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenFileMap)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.EntryPoint)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext)
+        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
+        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)
 
         // Check whether the context is empty.
-        Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty")
+        Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 
         // Remove the stdlib context.
         val stdLibCell = memory.lastNode.getCell(LxmReference.StdLibContext.position)
-        stdLibCell.decreaseReferenceCount(memory, 1)
+        stdLibCell.decreaseReferences(memory, 1)
 
         // Check whether the memory is empty.
-        Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount, "The memory must be completely cleared")
+        Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,
+                "The memory must be completely cleared. Remaining cells with values: ${memory.lastNode.actualUsedCellCount}")
     }
 }

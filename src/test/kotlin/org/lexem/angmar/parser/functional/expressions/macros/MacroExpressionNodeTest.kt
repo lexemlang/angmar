@@ -42,7 +42,7 @@ internal class MacroExpressionNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectMacros")
     fun `parse correct macro expression`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -56,7 +56,7 @@ internal class MacroExpressionNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3", "no_macro!"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.statements
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -20,12 +21,14 @@ internal object DestructuringSpreadStmtAnalyzer {
                 return analyzer.nextNode(node.identifier)
             }
             signalEndIdentifier -> {
-                val identifier = analyzer.memory.popStack() as LxmString
-                val destructuring = analyzer.memory.popStack() as LxmDestructuring
+                val identifier = analyzer.memory.getLastFromStack() as LxmString
+                val destructuring =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Destructuring) as LxmDestructuring
 
                 destructuring.setSpread(identifier.primitive, node.isConstant)
 
-                analyzer.memory.pushStack(destructuring)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
             }
         }
 

@@ -164,17 +164,20 @@ internal class FunctionCallAnalyzerTest {
             Assertions.assertEquals(namedSize, allNamed.size, "The number of named arguments is incorrect")
 
             // Always return a value
-            analyzer.memory.pushStack(LxmNil)
+            analyzer.memory.addToStackAsLast(LxmNil)
             return@LxmInternalFunction true
         }
 
-        analyzer.memory.pushStack(function)
+        analyzer.memory.addToStackAsLast(function)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertTrue(executed, "The function has not been executed")
 
-        Assertions.assertEquals(LxmNil, analyzer.memory.popStack(), "The returned value must be nil")
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The returned value must be nil")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

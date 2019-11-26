@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -13,7 +14,7 @@ internal class QuotedIdentifierNodeTest {
     @ValueSource(strings = ["a", "this", "longText_with_a_lotOfThings"])
     fun `parse simple quoted identifier`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -32,7 +33,7 @@ internal class QuotedIdentifierNodeTest {
             strings = ["this an example with whitespaces", "this is an example with , commas dots . and another characters +"])
     fun `parse complex quoted identifier`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -51,7 +52,7 @@ internal class QuotedIdentifierNodeTest {
             strings = ["this is an example with escapes ${EscapeNode.startToken}k ${EscapeNode.startToken}ll", "${EscapeNode.startToken}k ${EscapeNode.startToken}ll this is an example with escapes "])
     fun `parse complex quoted identifier with escapes`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -78,9 +79,9 @@ internal class QuotedIdentifierNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect empty quoted identifier`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersEmpty) {
             val text = "${QuotedIdentifierNode.startQuote}${QuotedIdentifierNode.endQuote}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -89,9 +90,9 @@ internal class QuotedIdentifierNodeTest {
     @Incorrect
     @ValueSource(strings = ["this is\nan example\r\nwith end of lines"])
     fun `parse incorrect complex quoted identifier`(id: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersMultilineNotAllowed) {
             val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -100,9 +101,9 @@ internal class QuotedIdentifierNodeTest {
     @Incorrect
     @ValueSource(strings = ["example\\`", "example"])
     fun `parse incorrect not-ended quoted identifier`(id: String) {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersWithoutEndQuote) {
             val text = "${QuotedIdentifierNode.startQuote}$id"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -110,7 +111,7 @@ internal class QuotedIdentifierNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
 /**
- * The lexem value of the Nil type.
+ * The Lexem value of the Nil type.
  */
 internal object LxmNil : LexemPrimitive {
 

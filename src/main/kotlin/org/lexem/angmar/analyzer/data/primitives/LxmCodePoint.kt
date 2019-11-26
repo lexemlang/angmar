@@ -6,7 +6,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
 
 /**
- * The lexem value of a position in code.
+ * The Lexem value of a position in code.
  */
 internal open class LxmCodePoint(val node: ParserNode, val signal: Int) : LexemPrimitive {
 

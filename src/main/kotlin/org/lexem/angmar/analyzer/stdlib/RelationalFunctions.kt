@@ -6,7 +6,7 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 
 /**
- * Relational functions for lexem values.
+ * Relational functions for Lexem values.
  */
 internal object RelationalFunctions {
 

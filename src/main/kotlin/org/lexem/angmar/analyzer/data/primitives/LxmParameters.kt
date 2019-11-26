@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
 /**
- * The lexem value of the parameters of a function.
+ * The Lexem value of the parameters of a function.
  */
 internal class LxmParameters : LexemPrimitive {
     private val parameters = mutableListOf<String>()

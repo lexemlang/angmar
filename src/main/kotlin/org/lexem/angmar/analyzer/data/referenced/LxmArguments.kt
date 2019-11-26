@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
 /**
- * The lexem value for the arguments of a function.
+ * The Lexem value for the arguments of a function.
  */
 internal class LxmArguments : LxmObject {
 
@@ -51,6 +51,12 @@ internal class LxmArguments : LxmObject {
             getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.ArgumentsNamed)!!
 
     /**
+     * Adds a named argument.
+     */
+    fun getNamedArgument(memory: LexemMemory, identifier: String) =
+            getNamedObject(memory).getPropertyValue(memory, identifier)
+
+    /**
      * Adds a positional argument.
      */
     fun addPositionalArgument(memory: LexemMemory, value: LexemPrimitive) {
@@ -62,6 +68,25 @@ internal class LxmArguments : LxmObject {
      */
     fun addNamedArgument(memory: LexemMemory, identifier: String, value: LexemPrimitive) {
         getNamedObject(memory).setProperty(memory, identifier, value)
+    }
+
+    /**
+     * Maps the [LxmArguments] to a [LxmBacktrackingData].
+     */
+    fun mapToBacktrackingData(memory: LexemMemory): LxmBacktrackingData {
+        val positionalArguments = getPositionalList(memory).getAllCells()
+        val namedArguments = getNamedObject(memory).getAllIterableProperties()
+
+        val mappedArguments = namedArguments.mapValues { (_, property) ->
+            val deref = property.value.dereference(memory)
+            if (deref is LexemPrimitive) {
+                deref
+            } else {
+                LxmNil
+            }
+        }
+
+        return LxmBacktrackingData(positionalArguments, mappedArguments)
     }
 
     /**
@@ -147,24 +172,24 @@ internal class LxmArguments : LxmObject {
             val obj = LxmObject()
             val objRef = memory.add(obj)
 
-            for (argument in namedArguments) {
-                val value = argument.value.value
-                if (result.contains(argument.key)) {
-                    context.setProperty(memory, argument.key, value)
+            for ((key, argument) in namedArguments) {
+                val value = argument.value
+                if (result.contains(key)) {
+                    context.setProperty(memory, key, value)
                 } else {
                     // Add named arguments to spread parameter.
-                    if (argument.key != AnalyzerCommons.Identifiers.This) {
-                        obj.setProperty(memory, argument.key, value)
+                    if (key != AnalyzerCommons.Identifiers.This) {
+                        obj.setProperty(memory, key, value)
                     }
                 }
             }
 
             context.setProperty(memory, parameters.namedSpread!!, objRef)
         } else {
-            for (argument in namedArguments) {
-                val value = argument.value.value
-                if (result.contains(argument.key)) {
-                    context.setProperty(memory, argument.key, value)
+            for ((key, argument) in namedArguments) {
+                val value = argument.value
+                if (result.contains(key)) {
+                    context.setProperty(memory, key, value)
                 }
             }
         }
@@ -180,17 +205,13 @@ internal class LxmArguments : LxmObject {
         val positional = getPropertyValue(memory, AnalyzerCommons.Identifiers.ArgumentsPositional) as LxmReference
         val named = getPropertyValue(memory, AnalyzerCommons.Identifiers.ArgumentsNamed) as LxmReference
 
-        positional.decreaseReferenceCount(memory)
-        named.decreaseReferenceCount(memory)
+        positional.decreaseReferences(memory)
+        named.decreaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmArguments(this)
-    }
+    override fun clone() = LxmArguments(this)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

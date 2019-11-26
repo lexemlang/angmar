@@ -30,7 +30,7 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("expressions", TreeLikePrintable.listToTest(expressions))
+        result.add("expressions", SerializationUtils.listToTest(expressions))
 
         return result
     }

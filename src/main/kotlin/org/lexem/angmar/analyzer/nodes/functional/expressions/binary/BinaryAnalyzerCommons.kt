@@ -19,30 +19,14 @@ internal object BinaryAnalyzerCommons {
      * Gets the function of an operator.
      */
     fun getOperatorFunction(analyzer: LexemAnalyzer, value: LexemPrimitive, expressionNode: ParserNode,
-            leftOperand: ParserNode, operator: String, operatorFunctionName: String): ExecutableValue {
+            leftOperand: ParserNode, operator: String, operatorFunctionName: String): LexemPrimitive {
         val derefValue = value.dereference(analyzer.memory)
         val prototype = derefValue.getObjectOrPrototype(analyzer.memory)
 
-        val operatorFunction =
-                prototype.getDereferencedProperty<LexemMemoryValue>(analyzer.memory, operatorFunctionName)
-                        ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty,
-                                "The operator $operator is associated to a function called '$operatorFunctionName' which is not contained inside the prototype of the operand. Current: $prototype") {
-                            val fullText = expressionNode.parser.reader.readAllText()
-                            addSourceCode(fullText, expressionNode.parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(expressionNode.from.position(), expressionNode.to.position() - 1)
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightSection(expressionNode.from.position(), leftOperand.to.position() - 1)
-                                message =
-                                        "The returned value by this expression has not a property called '$operatorFunctionName'"
-                            }
-                        }
-
-        return operatorFunction as? ExecutableValue ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.IncompatibleType,
-                "The operator $operator is associated to a function called '$operatorFunctionName' but the returned value is not callable, i.e. a function or expression. Current: $operatorFunction") {
+        val operatorFunctionRef = prototype.getPropertyValue(analyzer.memory, operatorFunctionName)
+        val operatorFunction = operatorFunctionRef?.dereference(analyzer.memory) ?: throw AngmarAnalyzerException(
+                AngmarAnalyzerExceptionType.UndefinedObjectProperty,
+                "The operator $operator is associated to a function called '$operatorFunctionName' which is not contained inside the prototype of the operand. Current: $prototype") {
             val fullText = expressionNode.parser.reader.readAllText()
             addSourceCode(fullText, expressionNode.parser.reader.getSource()) {
                 title = Consts.Logger.codeTitle
@@ -51,10 +35,28 @@ internal object BinaryAnalyzerCommons {
             addSourceCode(fullText, null) {
                 title = Consts.Logger.hintTitle
                 highlightSection(expressionNode.from.position(), leftOperand.to.position() - 1)
-                message =
-                        "The property called '$operatorFunctionName' of the returned value by this expression is not callable."
+                message = "The returned value by this expression has not a property called '$operatorFunctionName'"
             }
         }
+
+        if (operatorFunction !is ExecutableValue) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
+                    "The operator $operator is associated to a function called '$operatorFunctionName' but the returned value is not callable, i.e. a function or expression. Current: $operatorFunction") {
+                val fullText = expressionNode.parser.reader.readAllText()
+                addSourceCode(fullText, expressionNode.parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(expressionNode.from.position(), expressionNode.to.position() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(expressionNode.from.position(), leftOperand.to.position() - 1)
+                    message =
+                            "The property called '$operatorFunctionName' of the returned value by this expression is not callable."
+                }
+            }
+        }
+
+        return operatorFunctionRef
     }
 
     /**
@@ -66,13 +68,11 @@ internal object BinaryAnalyzerCommons {
 
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, left)
 
-        val reference = analyzer.memory.add(arguments)
-        reference.increaseReferenceCount(analyzer.memory)
-        return reference
+        return analyzer.memory.add(arguments)
     }
 
     /**
-     * Executes an unitary operator.
+     * Executes a unitary operator.
      */
     inline fun <reified T : LexemMemoryValue> executeUnitaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, thisTypeName: String,
@@ -88,7 +88,7 @@ internal object BinaryAnalyzerCommons {
 
         val result = processFunction(analyzer, thisValue)
 
-        analyzer.memory.pushStack(analyzer.memory.valueToPrimitive(result))
+        analyzer.memory.addToStackAsLast(analyzer.memory.valueToPrimitive(result))
         return true
     }
 
@@ -122,7 +122,7 @@ internal object BinaryAnalyzerCommons {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError, message) {}
         }
 
-        analyzer.memory.pushStack(analyzer.memory.valueToPrimitive(result))
+        analyzer.memory.addToStackAsLast(analyzer.memory.valueToPrimitive(result))
         return true
     }
 }

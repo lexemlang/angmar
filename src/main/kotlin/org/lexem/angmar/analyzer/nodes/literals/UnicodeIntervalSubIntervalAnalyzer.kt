@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -17,7 +18,11 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeIntervalSubIntervalNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                analyzer.memory.pushStack(LxmInterval.Empty)
+                // Copy accumulator to parent.
+                analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Accumulator,
+                        AnalyzerCommons.Identifiers.Parent)
+
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])
@@ -42,8 +47,8 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
      * Operates the sub-interval.
      */
     private fun operate(analyzer: LexemAnalyzer, node: UnicodeIntervalSubIntervalNode) {
-        val subInterval = analyzer.memory.popStack() as LxmInterval
-        val interval = analyzer.memory.popStack() as LxmInterval
+        val subInterval = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
+        val interval = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parent) as LxmInterval
 
         var finalValue = if (node.reversed) {
             subInterval.primitive.unicodeNot()
@@ -58,6 +63,8 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
             IntervalSubIntervalNode.Operator.NotCommon -> interval.primitive.notCommon(finalValue)
         }
 
-        analyzer.memory.pushStack(LxmInterval.from(finalValue))
+        // Remove Parent and set the Accumulator.
+        analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(finalValue))
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Parent)
     }
 }

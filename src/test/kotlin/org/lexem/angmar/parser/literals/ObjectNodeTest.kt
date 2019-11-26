@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -108,7 +109,7 @@ internal class ObjectNodeTest {
     @MethodSource("provideCorrectObjects")
     fun `parse correct object literal`(objects: String, size: Int, type: Int) {
         val text = "${ObjectNode.startToken}$objects${ObjectNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -142,7 +143,7 @@ internal class ObjectNodeTest {
     @MethodSource("provideCorrectConstantObjects")
     fun `parse correct constant object literal`(objects: String, size: Int, type: Int) {
         val text = "${ObjectNode.constantToken}${ObjectNode.startToken}$objects${ObjectNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -176,7 +177,7 @@ internal class ObjectNodeTest {
     @MethodSource("provideCorrectObjectWithWS")
     fun `parse correct object literal with whitespaces`(objects: String, size: Int, type: Int) {
         val text = "${ObjectNode.startToken} $objects ${ObjectNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -210,7 +211,7 @@ internal class ObjectNodeTest {
     @MethodSource("provideCorrectObjects")
     fun `parse correct object literal with trailing comma`(objects: String, size: Int, type: Int) {
         val text = "${ObjectNode.startToken}$objects${ObjectNode.elementSeparator}${ObjectNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -243,9 +244,9 @@ internal class ObjectNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect object literal with no endToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ObjectWithoutEndToken) {
             val text = "${ObjectNode.startToken}${ObjectElementNodeTest.correctObjectElement}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -253,7 +254,7 @@ internal class ObjectNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3", ObjectNode.constantToken])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

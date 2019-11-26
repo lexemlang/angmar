@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -21,37 +22,37 @@ internal class VarPatternSelectiveStmtNodeTest {
         @JvmStatic
         private fun provideCorrectVariablePatterns(): Stream<Arguments> {
             val sequence = sequence {
-                for (isConst in 0..1) {
-                    val keyword = if (isConst == 0) {
+                for (isConst in listOf(false, true)) {
+                    val keyword = if (!isConst) {
                         VarPatternSelectiveStmtNode.variableKeyword
                     } else {
                         VarPatternSelectiveStmtNode.constKeyword
                     }
 
-                    for (isDestructuring in 0..1) {
-                        val identifier = if (isDestructuring == 0) {
+                    for (isDestructuring in listOf(false, true)) {
+                        val identifier = if (!isDestructuring) {
                             CommonsTest.testDynamicIdentifier
                         } else {
                             DestructuringStmtNodeTest.testExpression
                         }
 
-                        for (hasConditional in 0..1) {
+                        for (hasConditional in listOf(false, true)) {
                             var text = "$keyword $identifier"
 
-                            if (hasConditional == 1) {
+                            if (hasConditional) {
                                 text += " ${ConditionalPatternSelectiveStmtNodeTest.testExpression}"
                             }
 
-                            yield(Arguments.of(text, isConst == 1, isDestructuring == 1, hasConditional == 1))
+                            yield(Arguments.of(text, isConst, isDestructuring, hasConditional))
 
                             // Without whitespace
                             text = "$keyword $identifier"
 
-                            if (hasConditional == 1) {
+                            if (hasConditional) {
                                 text += ConditionalPatternSelectiveStmtNodeTest.testExpression
                             }
 
-                            yield(Arguments.of(text, isConst == 1, isDestructuring == 1, hasConditional == 1))
+                            yield(Arguments.of(text, isConst, isDestructuring, hasConditional))
                         }
                     }
                 }
@@ -78,7 +79,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     @MethodSource("provideCorrectVariablePatterns")
     fun `parse correct variable pattern`(text: String, isConst: Boolean, isDestructuring: Boolean,
             hasConditional: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -105,9 +106,9 @@ internal class VarPatternSelectiveStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect variable pattern without identifier`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.VarPatternSelectiveStatementWithoutIdentifier) {
             val text = VarPatternSelectiveStmtNode.variableKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -115,7 +116,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

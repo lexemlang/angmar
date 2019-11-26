@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -21,8 +20,7 @@ internal object SetAnalyzer {
                 return analyzer.nextNode(node.list)
             }
             signalEndList -> {
-                val listRef = analyzer.memory.popStack() as LxmReference
-                val list = listRef.dereference(analyzer.memory) as LxmList
+                val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmList
                 val set = LxmSet(null)
                 val setRef = analyzer.memory.add(set)
 
@@ -30,14 +28,11 @@ internal object SetAnalyzer {
                     set.addValue(analyzer.memory, i)
                 }
 
-                analyzer.memory.pushStack(setRef)
+                analyzer.memory.replaceLastStackCell(setRef)
 
                 if (node.list.isConstant) {
                     set.makeConstant(analyzer.memory)
                 }
-
-                // Remove the list.
-                listRef.decreaseReferenceCount(analyzer.memory)
             }
         }
 

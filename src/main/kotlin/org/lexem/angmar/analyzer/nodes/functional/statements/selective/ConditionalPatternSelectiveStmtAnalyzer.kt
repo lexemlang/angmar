@@ -18,21 +18,18 @@ internal object ConditionalPatternSelectiveStmtAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ConditionalPatternSelectiveStmtNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                // Remove the value.
-                analyzer.memory.popStack()
-
                 return analyzer.nextNode(node.condition)
             }
             signalEndCondition -> {
                 // Evaluate the condition.
-                val condition = analyzer.memory.popStack()
+                val condition = analyzer.memory.getLastFromStack()
                 var conditionTruthy = RelationalFunctions.isTruthy(condition)
 
                 if (node.isUnless) {
                     conditionTruthy = !conditionTruthy
                 }
 
-                analyzer.memory.pushStack(LxmLogic.from(conditionTruthy))
+                analyzer.memory.replaceLastStackCell(LxmLogic.from(conditionTruthy))
             }
         }
 

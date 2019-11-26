@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -20,7 +21,7 @@ internal object ObjectAnalyzer {
                 // Add the new object.
                 val obj = LxmObject()
                 val objRef = analyzer.memory.add(obj)
-                analyzer.memory.pushStack(objRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])
@@ -29,6 +30,9 @@ internal object ObjectAnalyzer {
                 if (node.isConstant) {
                     obj.makeConstant(analyzer.memory)
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -39,13 +43,14 @@ internal object ObjectAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    val objRef = analyzer.memory.popStack()
-                    val obj = objRef.dereference(analyzer.memory) as LxmObject
+                    val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                            analyzer.memory) as LxmObject
 
                     obj.makeConstant(analyzer.memory)
-
-                    analyzer.memory.pushStackIgnoringReferenceCount(objRef)
                 }
+
+                // Move Accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.statements.selective
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
@@ -23,20 +24,19 @@ internal object ExpressionPatternSelectiveStmtAnalyzer {
             }
             signalEndExpression -> {
                 // Evaluate the expression.
-                val value = analyzer.memory.popStack()
-                val mainValue = analyzer.memory.popStack()
+                val value = analyzer.memory.getLastFromStack()
+                val mainValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
                 if (RelationalFunctions.lxmEquals(analyzer.memory, value, mainValue)) {
                     if (node.conditional != null) {
-                        // Add the main value for the conditional.
-                        analyzer.memory.pushStack(mainValue)
+                        analyzer.memory.removeLastFromStack()
 
                         return analyzer.nextNode(node.conditional)
                     }
 
-                    analyzer.memory.pushStack(LxmLogic.True)
+                    analyzer.memory.replaceLastStackCell(LxmLogic.True)
                 } else {
-                    analyzer.memory.pushStack(LxmLogic.False)
+                    analyzer.memory.replaceLastStackCell(LxmLogic.False)
                 }
             }
             signalEndConditional -> {

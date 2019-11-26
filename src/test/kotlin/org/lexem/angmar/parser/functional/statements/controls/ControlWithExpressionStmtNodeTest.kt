@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -48,7 +49,7 @@ internal class ControlWithExpressionStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectControlWithExpression")
     fun `parse correct destructuring spread statement`(text: String, hasTag: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
                 ControlWithExpressionStmtNode.returnKeyword, false)
 
@@ -66,9 +67,9 @@ internal class ControlWithExpressionStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect control without expression`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ControlWithExpressionStatementWithoutExpression) {
             val text = ControlWithExpressionStmtNode.returnKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
                     ControlWithExpressionStmtNode.returnKeyword)
         }
@@ -77,7 +78,7 @@ internal class ControlWithExpressionStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
                 ControlWithExpressionStmtNode.returnKeyword)
 

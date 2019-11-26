@@ -10,7 +10,7 @@ internal class LexemParserTest {
         val list1 = "abc"
         val list2 = "xyz"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkAnyChar(list1)
 
         Assertions.assertNotNull(check)
@@ -23,7 +23,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkAnyChar("a")
 
         Assertions.assertNull(check)
@@ -36,7 +36,7 @@ internal class LexemParserTest {
         val list1 = "abc"
         val list2 = "xyz"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readAnyChar(list1)
 
         Assertions.assertNotNull(check)
@@ -55,7 +55,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readAnyChar("a")
 
         Assertions.assertNull(check)
@@ -68,7 +68,7 @@ internal class LexemParserTest {
         val list1 = "xyz"
         val list2 = "abc"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkNegativeAnyChar(list1)
 
         Assertions.assertNotNull(check)
@@ -81,7 +81,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkNegativeAnyChar("a")
 
         Assertions.assertNull(check)
@@ -94,7 +94,7 @@ internal class LexemParserTest {
         val list1 = "xyz"
         val list2 = "abc"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readNegativeAnyChar(list1)
 
         Assertions.assertNotNull(check)
@@ -113,7 +113,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readNegativeAnyChar("a")
 
         Assertions.assertNull(check)
@@ -126,7 +126,7 @@ internal class LexemParserTest {
         val set1 = listOf('a'..'d', 'e'..'g')
         val set2 = listOf('p'..'t', 'x'..'z')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -139,7 +139,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkAnyChar(listOf('a'..'a'))
 
         Assertions.assertNull(check)
@@ -152,7 +152,7 @@ internal class LexemParserTest {
         val set1 = listOf('a'..'d', 'e'..'g')
         val set2 = listOf('p'..'t', 'x'..'z')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -171,7 +171,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readAnyChar(listOf('a'..'a'))
 
         Assertions.assertNull(check)
@@ -184,7 +184,7 @@ internal class LexemParserTest {
         val set1 = listOf('p'..'t', 'x'..'z')
         val set2 = listOf('a'..'d', 'e'..'g')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkNegativeAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -197,7 +197,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkNegativeAnyChar(listOf('a'..'a'))
 
         Assertions.assertNull(check)
@@ -210,7 +210,7 @@ internal class LexemParserTest {
         val set1 = listOf('p'..'t', 'x'..'z')
         val set2 = listOf('a'..'d', 'e'..'g')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readNegativeAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -229,7 +229,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readNegativeAnyChar(listOf('a'..'a'))
 
         Assertions.assertNull(check)
@@ -242,7 +242,7 @@ internal class LexemParserTest {
         val set1 = setOf('a', 'd', 'e')
         val set2 = setOf('x', 'y', 'z')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -255,7 +255,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkAnyChar(setOf('a'))
 
         Assertions.assertNull(check)
@@ -268,7 +268,7 @@ internal class LexemParserTest {
         val set1 = setOf('a', 'b', 'c')
         val set2 = setOf('x', 'y', 'z')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -287,7 +287,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readAnyChar(setOf('a'))
 
         Assertions.assertNull(check)
@@ -300,7 +300,7 @@ internal class LexemParserTest {
         val set1 = setOf('x', 'y', 'z')
         val set2 = setOf('a', 'd', 'e')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkNegativeAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -313,7 +313,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkNegativeAnyChar(setOf('a'))
 
         Assertions.assertNull(check)
@@ -326,7 +326,7 @@ internal class LexemParserTest {
         val set1 = setOf('x', 'y', 'z')
         val set2 = setOf('a', 'b', 'c')
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readNegativeAnyChar(set1)
 
         Assertions.assertNotNull(check)
@@ -345,7 +345,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readNegativeAnyChar(setOf('a'))
 
         Assertions.assertNull(check)
@@ -358,7 +358,7 @@ internal class LexemParserTest {
         val text1 = "abc"
         val text2 = "cba"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkText(text1)
 
         Assertions.assertTrue(check)
@@ -370,7 +370,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkText("a")
 
         Assertions.assertFalse(check)
@@ -383,7 +383,7 @@ internal class LexemParserTest {
         val text1 = "abc"
         val text2 = "cba"
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readText(text1)
 
         Assertions.assertTrue(check)
@@ -400,7 +400,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(text1.length * 2, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readText("a")
 
         Assertions.assertFalse(check)
@@ -414,7 +414,7 @@ internal class LexemParserTest {
         val text1 = listOf("x", "yasu", okText, "alfa")
         val text2 = listOf("xxx", "999", "alfa")
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkAnyText(text1.asSequence())
 
         Assertions.assertEquals(okText, check)
@@ -426,7 +426,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkAnyText(text1.asSequence())
 
         Assertions.assertNull(check)
@@ -440,7 +440,7 @@ internal class LexemParserTest {
         val text1 = listOf("x", "yasu", okText, "alfa")
         val text2 = listOf("xxx", "999", "alfa")
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.checkNegativeAnyText(text1.asSequence())
 
         Assertions.assertFalse(check)
@@ -452,7 +452,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(0, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.checkNegativeAnyText(text1.asSequence())
 
         Assertions.assertTrue(check)
@@ -467,7 +467,7 @@ internal class LexemParserTest {
         val text1 = listOf(okText2, "999", "alfa")
         val text2 = listOf("x", "yasu", okText, "alfa")
 
-        var parser = LexemParser(CustomStringReader.from(text))
+        var parser = LexemParser(IOStringReader.from(text))
         var check = parser.readAnyText(text1.asSequence())
 
         Assertions.assertNull(check)
@@ -484,7 +484,7 @@ internal class LexemParserTest {
         Assertions.assertEquals(okText.length + okText2.length, parser.reader.currentPosition())
 
         // EOF case
-        parser = LexemParser(CustomStringReader.from(""))
+        parser = LexemParser(IOStringReader.from(""))
         check = parser.readAnyText(text1.asSequence())
 
         Assertions.assertNull(check)

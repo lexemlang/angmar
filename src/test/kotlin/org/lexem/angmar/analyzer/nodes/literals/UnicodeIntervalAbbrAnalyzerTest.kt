@@ -12,7 +12,8 @@ internal class UnicodeIntervalAbbrAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalAbbrNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        val result =
+                analyzer.memory.getLastFromStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
         Assertions.assertEquals(2L, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(2, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals('a'.toInt(), result.primitive.rangeAtOrNull(0)?.from,
@@ -24,6 +25,9 @@ internal class UnicodeIntervalAbbrAnalyzerTest {
         Assertions.assertEquals('x'.toInt(), result.primitive.rangeAtOrNull(1)?.to,
                 "The range[1].to property is incorrect")
 
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -34,8 +38,9 @@ internal class UnicodeIntervalAbbrAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalAbbrNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
-        Assertions.assertEquals(Int.MAX_VALUE - 1L, result.primitive.pointCount, "The pointCount property is incorrect")
+        val result =
+                analyzer.memory.getLastFromStack() as? LxmInterval ?: throw Error("The result must be a LxmInterval")
+        Assertions.assertEquals(0x10FFFF - 1, result.primitive.pointCount, "The pointCount property is incorrect")
         Assertions.assertEquals(3, result.primitive.rangeCount, "The rangeCount property is incorrect")
         Assertions.assertEquals(0, result.primitive.rangeAtOrNull(0)?.from, "The range[0].from property is incorrect")
         Assertions.assertEquals('a'.toInt() - 1, result.primitive.rangeAtOrNull(0)?.to,
@@ -46,8 +51,11 @@ internal class UnicodeIntervalAbbrAnalyzerTest {
                 "The range[1].to property is incorrect")
         Assertions.assertEquals('x'.toInt() + 1, result.primitive.rangeAtOrNull(2)?.from,
                 "The range[2].from property is incorrect")
-        Assertions.assertEquals(Int.MAX_VALUE, result.primitive.rangeAtOrNull(2)?.to,
+        Assertions.assertEquals(0x10FFFF, result.primitive.rangeAtOrNull(2)?.to,
                 "The range[2].to property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

@@ -10,7 +10,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
 /**
- * The lexem value of the Map type.
+ * The Lexem value of the Map type.
  */
 internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     private var isConstant = false
@@ -183,23 +183,19 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     override val isImmutable: Boolean
         get() = isConstant
 
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmMap(this)
-    }
+    override fun clone() = LxmMap(this)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in this.properties) {
             for (j in i.value) {
                 val key = j.key
                 if (key is LxmReference) {
-                    key.decreaseReferenceCount(memory)
+                    key.decreaseReferences(memory)
                 }
 
                 val value = j.value
                 if (value is LxmReference) {
-                    value.decreaseReferenceCount(memory)
+                    value.decreaseReferences(memory)
                 }
             }
         }
@@ -208,17 +204,10 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
-        for (i in this.properties) {
-            for (j in i.value) {
-                val key = j.key
-                if (key is LxmReference) {
-                    key.getCell(memory).spatialGarbageCollect(memory)
-                }
-
-                val value = j.value
-                if (value is LxmReference) {
-                    value.getCell(memory).spatialGarbageCollect(memory)
-                }
+        for ((_, list) in this.properties) {
+            for (property in list) {
+                property.key.spatialGarbageCollect(memory)
+                property.value.spatialGarbageCollect(memory)
             }
         }
     }

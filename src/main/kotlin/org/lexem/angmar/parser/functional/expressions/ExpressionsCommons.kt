@@ -4,6 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.descriptive.expressions.macros.*
 import org.lexem.angmar.parser.functional.expressions.macros.*
 import org.lexem.angmar.parser.literals.*
 
@@ -25,8 +26,8 @@ internal object ExpressionsCommons {
      * Parses a macro.
      */
     fun parseMacro(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            MacroCheckProps.parse(parser, parent, parentSignal) ?: MacroBacktrack.parse(parser, parent, parentSignal)
-            ?: MacroExpressionNode.parse(parser, parent, parentSignal)
+            MacroCheckPropsNode.parse(parser, parent, parentSignal) ?: MacroBacktrackNode.parse(parser, parent,
+                    parentSignal) ?: MacroExpressionNode.parse(parser, parent, parentSignal)
 
     /**
      * Parses any literal.
@@ -45,7 +46,6 @@ internal object ExpressionsCommons {
      */
     fun parseLeftExpression(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
             AccessExpressionNode.parse(parser, parent, parentSignal)
-
 
     /**
      * Reads a valid operator.

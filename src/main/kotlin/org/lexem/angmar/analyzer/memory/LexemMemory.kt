@@ -1,5 +1,6 @@
 package org.lexem.angmar.analyzer.memory
 
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
@@ -14,19 +15,67 @@ internal class LexemMemory {
     // METHODS ----------------------------------------------------------------
 
     /**
-     * Pushes a new primitive into the stack.
+     * Adds a new primitive into the stack.
      */
-    fun pushStack(primitive: LexemPrimitive) = lastNode.pushStack(primitive)
+    fun addToStack(name: String, primitive: LexemPrimitive) = lastNode.addToStack(name, primitive, this)
 
     /**
-     * Pushes a new primitive into the stack ignoring the reference count.
+     * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
      */
-    fun pushStackIgnoringReferenceCount(primitive: LexemPrimitive) = lastNode.pushStackIgnoringReferenceCount(primitive)
+    fun addToStackAsLast(primitive: LexemPrimitive) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
 
     /**
-     * Pops the last value of the stack.
+     * Gets the specified primitive from the stack.
      */
-    fun popStack() = lastNode.popStack()
+    fun getFromStack(name: String) = lastNode.getFromStack(name)
+
+    /**
+     * Gets the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
+     */
+    fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
+
+    /**
+     * Removes the specified primitive from the stack.
+     */
+    fun removeFromStack(name: String) = lastNode.removeFromStack(name, this)
+
+    /**
+     * Removes the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
+     */
+    fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
+
+    /**
+     * Renames the specified stack cell by another name.
+     */
+    fun renameStackCell(oldName: String, newName: String) {
+        if (oldName == newName) {
+            return
+        }
+
+        val currentCell = getFromStack(oldName)
+        addToStack(newName, currentCell)
+        removeFromStack(oldName)
+    }
+
+    /**
+     * Renames the '[AnalyzerCommons.Identifiers.Last]' stack cell by another name.
+     */
+    fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
+
+    /**
+     * Renames the specified cell to '[AnalyzerCommons.Identifiers.Last]'.
+     */
+    fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
+
+    /**
+     * Replace the specified stack cell by another primitive.
+     */
+    fun replaceStackCell(name: String, newValue: LexemPrimitive) = lastNode.replaceStackCell(name, newValue, this)
+
+    /**
+     * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
+     */
+    fun replaceLastStackCell(newValue: LexemPrimitive) = replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
 
     /**
      * Gets a value from the memory.
@@ -63,12 +112,12 @@ internal class LexemMemory {
     fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
         // Increases the new reference.
         if (newValue is LxmReference) {
-            lastNode.getCell(newValue.position).increaseReferenceCount()
+            lastNode.getCell(newValue.position).increaseReferences()
         }
 
         // Removes the previous reference.
         if (oldValue is LxmReference) {
-            lastNode.getCell(oldValue.position).decreaseReferenceCount(this)
+            lastNode.getCell(oldValue.position).decreaseReferences(this)
         }
     }
 
@@ -83,7 +132,6 @@ internal class LexemMemory {
         }
 
         lastNode = node
-        freezeCopy()
     }
 
     /**
@@ -101,7 +149,7 @@ internal class LexemMemory {
     fun rollbackCopy() {
         // Prevents the deletion if it is the root node.
         if (lastNode.previousNode == null) {
-            throw  AngmarAnalyzerException(AngmarAnalyzerExceptionType.FirstBigNodeRollback,
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FirstBigNodeRollback,
                     "The memory cannot rollback the first BigNode") {}
         }
 
@@ -128,20 +176,16 @@ internal class LexemMemory {
     }
 
     /**
+     * Collapses all the big nodes from the current one to the specified.
+     */
+    fun collapseTo(bigNode: BigNode) {
+        lastNode.collapseTo(bigNode)
+        lastNode = bigNode
+        spatialGarbageCollect()
+    }
+
+    /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect() {
-        val stdLibCell = LxmReference.StdLibContext.getCell(this)
-        stdLibCell.spatialGarbageCollect(this)
-
-        for (i in 0 until lastNode.actualHeapSize) {
-            val cell = lastNode.getCell(i)
-
-            if (!cell.isNotGarbage && !cell.isFreed) {
-                lastNode.freeAsGarbage(this, cell.position)
-            } else {
-                cell.clearGarbageFlag(this)
-            }
-        }
-    }
+    fun spatialGarbageCollect() = lastNode.spatialGarbageCollect(this)
 }

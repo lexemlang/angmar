@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -89,7 +90,7 @@ internal class PropertyStyleObjectBlockNodeTest {
     fun `parse correct prop-style object block with only positives`(identifiers: String, positives: Int, negatives: Int,
             setElements: Int) {
         val text = "${PropertyStyleObjectBlockNode.startToken}$identifiers${PropertyStyleObjectBlockNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -117,9 +118,9 @@ internal class PropertyStyleObjectBlockNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect prop-style object block with no endToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.PropertyStyleObjectBlockWithoutEndToken) {
             val text = "${PropertyStyleObjectBlockNode.startToken} ${CommonsTest.testDynamicIdentifier}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -127,7 +128,7 @@ internal class PropertyStyleObjectBlockNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = PropertyStyleObjectBlockNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

@@ -24,7 +24,7 @@ internal object FunctionAnalyzer {
                 val fn = LxmFunction(analyzer.memory, node, ctxRef)
                 val fnRef = analyzer.memory.add(fn)
 
-                analyzer.memory.pushStack(fnRef)
+                analyzer.memory.addToStackAsLast(fnRef)
             }
             else -> {
                 return AnalyzerNodesCommons.functionExecutionController(analyzer, signal, node.parameterList,

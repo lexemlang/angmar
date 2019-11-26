@@ -25,20 +25,26 @@ internal class SelectiveCaseStmtAnalyzerTest {
         // Prepare stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
+
+        // Remove Last and SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -55,20 +61,26 @@ internal class SelectiveCaseStmtAnalyzerTest {
         // Prepare stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
+
+        // Remove Last and SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -85,20 +97,26 @@ internal class SelectiveCaseStmtAnalyzerTest {
         // Prepare stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
         Assertions.assertEquals(10, variable.primitive, "The primitive property is incorrect")
+
+        // Remove Last and SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -116,20 +134,26 @@ internal class SelectiveCaseStmtAnalyzerTest {
         // Prepare stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack()
+        val result = analyzer.memory.getLastFromStack()
 
         Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
         Assertions.assertEquals(10, variable.primitive, "The primitive property is incorrect")
+
+        // Remove Last and SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -145,13 +169,18 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagNameControl, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
+
+        // Remove SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -165,13 +194,18 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
+
+        // Remove SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -186,13 +220,18 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
+
+        // Remove SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -206,13 +245,18 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
         // Prepare stack.
-        analyzer.memory.pushStack(LxmInteger.Num10)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        Assertions.assertEquals(LxmInteger.Num10, analyzer.memory.popStack(), "The mainValue is not in the stack")
+        Assertions.assertEquals(LxmInteger.Num10,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
+                "The mainValue is not in the stack")
+
+        // Remove SelectiveCondition from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

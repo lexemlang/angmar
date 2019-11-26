@@ -16,7 +16,7 @@ import java.io.*
 /**
  * The main command of Angmar.
  */
-internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manages a lexem project.") {
+internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manages a Lexem project.") {
 
     private val debug by option(debugLongOption, help = "Allows the logger to print the debug level.").flag(
             default = false)
@@ -26,6 +26,10 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
 
     private val entryPoint by option(entryPointLongOption, help = "The entry point of the grammar.").default(
             Consts.defaultEntryPoint)
+
+    private val timeout by option(timeoutLongOption,
+            help = "The timeout for the analyzer.").convert { it.toLong() }.default(
+            Consts.Analyzer.defaultTimeoutInMilliseconds)
 
     private val output by option(outputShortOption, outputLongOption,
             help = "Where to save the output of the analyzer.").file()
@@ -48,7 +52,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         }
 
         // Parse the grammar.
-        val grammarReader = CustomStringReader.from(grammarSource)
+        val grammarReader = IOStringReader.from(grammarSource)
         val parser = LexemParser(grammarReader, forwardBuffer)
 
         conditionalDebugLog(debug) {
@@ -75,7 +79,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
 
         // Analyze each of the texts with the parsed grammar.
         val analyzer = LexemAnalyzer(grammarRootNode!!)
-        val results = mutableListOf<Pair<File, List<LexemMatch>>>()
+        val results = mutableListOf<Pair<File, LexemMatch?>>()
 
         conditionalDebugLog(debug) {
             "Executing the analysis:"
@@ -90,8 +94,16 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                 }
 
                 time = TimeUtils.measureTimeSeconds {
-                    val textReader = CustomStringReader.from(i.value)
-                    val result = analyzer.process(textReader, entryPoint)
+                    val textReader = IOStringReader.from(i.value)
+
+                    analyzer.setEntryPoint(entryPoint)
+
+                    val result = if (analyzer.start(textReader, timeout)) {
+                        null
+                    } else {
+                        analyzer.getResult()
+                    }
+
                     results.add(Pair(i.value, result))
                 }
 
@@ -122,13 +134,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                 }
 
                 time = TimeUtils.measureTimeSeconds {
-                    val list = JsonArray()
-
-                    for (match in fileAndResults.second) {
-                        list.add(match.toTree())
-                    }
-
-                    printer.add(fileAndResults.first.canonicalPath, list)
+                    printer.add(fileAndResults.first.canonicalPath, fileAndResults.second?.toTree())
                 }
 
                 conditionalDebugLog(debug) {
@@ -157,6 +163,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         const val forwardBufferShortOption = "-dfb"
         const val forwardBufferLongOption = "--disable-forward-buffer"
         const val entryPointLongOption = "--entry-point"
+        const val timeoutLongOption = "--timeout"
         const val outputShortOption = "-o"
         const val outputLongOption = "--output"
 

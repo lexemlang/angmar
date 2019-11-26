@@ -4,10 +4,12 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
+import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.utils.*
 import java.util.stream.*
 import kotlin.streams.*
@@ -17,45 +19,46 @@ internal class ConditionalLoopStmtNodeTest {
 
     companion object {
         const val testExpression =
-                "${ConditionalLoopStmtNode.whileKeyword} ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                "${ConditionalLoopStmtNode.whileKeyword} ${ExpressionsCommonsTest.testExpression} ${BlockStmtNodeTest.testExpression}"
 
         @JvmStatic
         private fun provideCorrectConditionalStmt(): Stream<Arguments> {
             val sequence = sequence {
-                for (isUntil in 0..1) {
-                    val keyword = if (isUntil == 0) {
+                for (isUntil in listOf(false, true)) {
+                    val keyword = if (!isUntil) {
                         ConditionalLoopStmtNode.whileKeyword
                     } else {
                         ConditionalLoopStmtNode.untilKeyword
                     }
 
-                    for (hasClauses in 0..1) {
-                        for (hasIndex in 0..1) {
+                    for (hasClauses in listOf(false, true)) {
+                        for (hasIndex in listOf(false, true)) {
                             var text =
-                                    "$keyword ${ExpressionsCommonsTest.testExpression} ${GlobalCommonsTest.testBlock}"
+                                    "$keyword ${ExpressionsCommonsTest.testExpression} ${BlockStmtNodeTest.testExpression}"
 
-                            if (hasIndex == 1) {
+                            if (hasIndex) {
                                 text = "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression} $text"
                             }
 
-                            if (hasClauses == 1) {
+                            if (hasClauses) {
                                 text += " ${LoopClausesStmtNodeTest.testExpression}"
                             }
 
-                            yield(Arguments.of(text, isUntil == 1, hasClauses == 1, hasIndex == 1))
+                            yield(Arguments.of(text, isUntil, hasClauses, hasIndex))
 
                             // Without whitespaces
-                            text = "$keyword ${ExpressionsCommonsTest.testExpression}${GlobalCommonsTest.testBlock}"
+                            text =
+                                    "$keyword ${ExpressionsCommonsTest.testExpression}${BlockStmtNodeTest.testExpression}"
 
-                            if (hasIndex == 1) {
+                            if (hasIndex) {
                                 text = "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression} $text"
                             }
 
-                            if (hasClauses == 1) {
+                            if (hasClauses) {
                                 text += LoopClausesStmtNodeTest.testExpression
                             }
 
-                            yield(Arguments.of(text, isUntil == 1, hasClauses == 1, hasIndex == 1))
+                            yield(Arguments.of(text, isUntil, hasClauses, hasIndex))
                         }
                     }
                 }
@@ -74,7 +77,7 @@ internal class ConditionalLoopStmtNodeTest {
             Assertions.assertNull(node.index, "The index property must be null")
             Assertions.assertNull(node.lastClauses, "The lastClauses property must be null")
             ExpressionsCommonsTest.checkTestExpression(node.condition)
-            GlobalCommonsTest.checkTestBlock(node.thenBlock)
+            BlockStmtNodeTest.checkTestExpression(node.thenBlock)
         }
     }
 
@@ -84,7 +87,7 @@ internal class ConditionalLoopStmtNodeTest {
     @MethodSource("provideCorrectConditionalStmt")
     fun `parse correct conditional loop statement`(text: String, isUntil: Boolean, hasClauses: Boolean,
             hasIndex: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ConditionalLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -107,7 +110,7 @@ internal class ConditionalLoopStmtNodeTest {
         }
 
         ExpressionsCommonsTest.checkTestExpression(res.condition)
-        GlobalCommonsTest.checkTestBlock(res.thenBlock)
+        BlockStmtNodeTest.checkTestExpression(res.thenBlock)
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
@@ -115,9 +118,9 @@ internal class ConditionalLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect conditional loop statement without condition`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ConditionalLoopStatementWithoutCondition) {
             val text = ConditionalLoopStmtNode.whileKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ConditionalLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -125,9 +128,9 @@ internal class ConditionalLoopStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect conditional loop statement without thenBlock`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ConditionalLoopStatementWithoutBlock) {
             val text = "${ConditionalLoopStmtNode.whileKeyword} ${ExpressionsCommonsTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             ConditionalLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -135,7 +138,7 @@ internal class ConditionalLoopStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression}"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ConditionalLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

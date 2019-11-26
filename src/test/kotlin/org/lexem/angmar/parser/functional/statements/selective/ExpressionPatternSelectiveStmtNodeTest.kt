@@ -19,14 +19,14 @@ internal class ExpressionPatternSelectiveStmtNodeTest {
         @JvmStatic
         private fun provideCorrectExpressionPatterns(): Stream<Arguments> {
             val sequence = sequence {
-                for (hasConditional in 0..1) {
+                for (hasConditional in listOf(false, true)) {
                     var text = ExpressionsCommonsTest.testExpression
 
-                    if (hasConditional == 1) {
+                    if (hasConditional) {
                         text += " ${ConditionalPatternSelectiveStmtNodeTest.testExpression}"
                     }
 
-                    yield(Arguments.of(text, hasConditional == 1))
+                    yield(Arguments.of(text, hasConditional))
                 }
             }
 
@@ -50,7 +50,7 @@ internal class ExpressionPatternSelectiveStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectExpressionPatterns")
     fun `parse correct expression pattern`(text: String, hasConditional: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -71,7 +71,7 @@ internal class ExpressionPatternSelectiveStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = ExpressionPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

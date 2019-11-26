@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -17,7 +18,7 @@ internal class FunctionParameterAnalyzerTest {
 
         // Prepare stack.
         val parameters = LxmParameters()
-        analyzer.memory.pushStack(parameters)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Parameters, parameters)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -31,7 +32,11 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, parameterName),
                 "The result is incorrect")
 
-        Assertions.assertEquals(parameters, analyzer.memory.popStack(), "The parameters is not saved again")
+        Assertions.assertEquals(parameters, analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters),
+                "The parameters is not saved again")
+
+        // Remove Parameters from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Parameters)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(parameterName))
     }
@@ -45,7 +50,7 @@ internal class FunctionParameterAnalyzerTest {
 
         // Prepare stack.
         val parameters = LxmParameters()
-        analyzer.memory.pushStack(parameters)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Parameters, parameters)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -59,7 +64,11 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(value, context.getPropertyValue(analyzer.memory, parameterName),
                 "The result is incorrect")
 
-        Assertions.assertEquals(parameters, analyzer.memory.popStack(), "The parameters is not saved again")
+        Assertions.assertEquals(parameters, analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters),
+                "The parameters is not saved again")
+
+        // Remove Parameters from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Parameters)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(parameterName))
     }
@@ -67,7 +76,7 @@ internal class FunctionParameterAnalyzerTest {
     @Test
     @Incorrect
     fun `test incorrect identifier`() {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val text = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = FunctionParameterNode.Companion::parse)
 

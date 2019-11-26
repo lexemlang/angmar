@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -20,8 +21,8 @@ internal class UnicodeIntervalSubIntervalNodeTest {
         @JvmStatic
         private fun provideSubIntervals(): Stream<Arguments> {
             val sequence = sequence {
-                for (exp in 0..1) {
-                    val expression = if (exp == 0) {
+                for (exp in listOf(false, true)) {
+                    val expression = if (!exp) {
                         UnicodeIntervalElementNodeTest.testExpression
                     } else {
                         testExpression
@@ -32,11 +33,11 @@ internal class UnicodeIntervalSubIntervalNodeTest {
 
                         yield(Arguments.of(
                                 "${UnicodeIntervalSubIntervalNode.startToken}$list${UnicodeIntervalSubIntervalNode.endToken}",
-                                IntervalSubIntervalNode.Operator.Add, false, i, exp == 1))
+                                IntervalSubIntervalNode.Operator.Add, false, i, exp))
 
                         for (op in IntervalSubIntervalNode.Operator.values()) {
-                            for (reversed in 0..1) {
-                                val reverseText = if (reversed == 0) {
+                            for (reversed in listOf(false, true)) {
+                                val reverseText = if (!reversed) {
                                     ""
                                 } else {
                                     UnicodeIntervalSubIntervalNode.reversedToken
@@ -44,7 +45,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
 
                                 yield(Arguments.of(
                                         "${UnicodeIntervalSubIntervalNode.startToken}${op.operator}$reverseText$list${UnicodeIntervalSubIntervalNode.endToken}",
-                                        op, reversed == 1, i, exp == 1))
+                                        op, reversed, i, exp))
                             }
                         }
                     }
@@ -58,7 +59,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
 
         fun checkTestExpression(node: ParserNode) {
             Assertions.assertTrue(node is UnicodeIntervalSubIntervalNode,
-                    "The node is not an UnicodeIntervalSubIntervalNode")
+                    "The node is not a unicodeIntervalSubIntervalNode")
             node as UnicodeIntervalSubIntervalNode
 
             Assertions.assertEquals(IntervalSubIntervalNode.Operator.Add, node.operator,
@@ -76,7 +77,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
     @MethodSource("provideSubIntervals")
     fun `parse correct unicode sub interval element`(text: String, operator: IntervalSubIntervalNode.Operator,
             reversed: Boolean, numElements: Int, areElementsOfSubIntervals: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -100,9 +101,9 @@ internal class UnicodeIntervalSubIntervalNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect unicode sub interval element without right element`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.UnicodeIntervalSubIntervalWithoutEndToken) {
             val text = "${UnicodeIntervalSubIntervalNode.startToken}a"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -110,7 +111,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

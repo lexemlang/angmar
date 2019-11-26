@@ -12,7 +12,11 @@ internal class NilAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = NilNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmNil, analyzer.memory.popStack(), "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(),
+                "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

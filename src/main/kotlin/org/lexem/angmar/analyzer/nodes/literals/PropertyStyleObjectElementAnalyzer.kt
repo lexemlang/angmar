@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -25,7 +26,7 @@ internal object PropertyStyleObjectElementAnalyzer {
                 return analyzer.nextNode(node.key)
             }
             signalEndKey -> {
-                val key = analyzer.memory.popStack()
+                val key = analyzer.memory.getLastFromStack()
 
                 if (key !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -43,18 +44,22 @@ internal object PropertyStyleObjectElementAnalyzer {
                     }
                 }
 
-                analyzer.memory.pushStack(key)
+                // Move last to key.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
+
                 return analyzer.nextNode(node.value)
             }
             signalEndValue -> {
-                val value = analyzer.memory.popStack()
-                val key = analyzer.memory.popStack() as LxmString
-                val objRef = analyzer.memory.popStack()
-                val obj = objRef.dereference(analyzer.memory) as LxmObject
+                val value = analyzer.memory.getLastFromStack()
+                val key = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
+                val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmObject
 
                 obj.setProperty(analyzer.memory, key.primitive, value)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(objRef)
+                // Remove the key and value from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -22,18 +23,23 @@ internal object FunctionCallNamedArgumentAnalyzer {
                 return analyzer.nextNode(node.identifier)
             }
             signalEndIdentifier -> {
+                // Move Last to Key in stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Key)
+
                 return analyzer.nextNode(node.expression)
             }
             signalEndExpression -> {
                 // Get the arguments
-                val value = analyzer.memory.popStack()
-                val identifier = analyzer.memory.popStack() as LxmString
-                val arguments = analyzer.memory.popStack()
-                val argumentsDeref = arguments.dereference(analyzer.memory) as LxmArguments
+                val value = analyzer.memory.getLastFromStack()
+                val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
-                argumentsDeref.addNamedArgument(analyzer.memory, identifier.primitive, value)
+                arguments.addNamedArgument(analyzer.memory, identifier.primitive, value)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(arguments)
+                // Remove Last and Key from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
+                analyzer.memory.removeLastFromStack()
             }
         }
 

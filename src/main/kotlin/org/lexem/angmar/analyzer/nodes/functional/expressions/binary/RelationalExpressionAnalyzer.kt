@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions.binary
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
@@ -22,6 +23,9 @@ internal object RelationalExpressionAnalyzer {
                 return analyzer.nextNode(node.expressions[0])
             }
             signalEndFirstExpression -> {
+                // Move Last to Left in the stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                 return analyzer.nextNode(node.expressions[1])
             }
             in signalEndFirstExpression + 1 until signalEndFirstExpression + node.expressions.size -> {
@@ -34,11 +38,13 @@ internal object RelationalExpressionAnalyzer {
 
                 // Evaluate the next operand.
                 if (position < node.expressions.size) {
+                    // Move Last to Left in the stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                     return analyzer.nextNode(node.expressions[position])
                 } else {
                     // Replace the last operand by a true value into the stack.
-                    analyzer.memory.popStack()
-                    analyzer.memory.pushStack(LxmLogic.True)
+                    analyzer.memory.replaceLastStackCell(LxmLogic.True)
                 }
             }
         }
@@ -54,8 +60,9 @@ internal object RelationalExpressionAnalyzer {
         val operator = node.operators[position - (signalEndFirstExpression + 1)]
 
         // Get operand values.
-        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
-        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
+        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+        val left = AnalyzerNodesCommons.resolveSetter(analyzer.memory,
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left))
 
         // Get operand function.
         val isOk = when (operator) {
@@ -73,13 +80,15 @@ internal object RelationalExpressionAnalyzer {
             }(left, right)
         }
 
+        // Remove Left from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
+
         // If fails adds a false to the stack and returns.
         if (!isOk) {
-            analyzer.memory.pushStack(LxmLogic.False)
+            analyzer.memory.replaceLastStackCell(LxmLogic.False)
             return true
         }
 
-        analyzer.memory.pushStack(right)
         return false
     }
 }

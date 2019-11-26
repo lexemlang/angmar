@@ -38,7 +38,7 @@ internal class CommentSingleLineNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectInlineCommentsAllEOLs")
     fun `parse correct single-line comments`(comment: String) {
-        val parser = LexemParser(CustomStringReader.from(comment))
+        val parser = LexemParser(IOStringReader.from(comment))
         val res = CommentSingleLineNode.parse(parser)
 
         Assertions.assertTrue(res, "A correct single-line comment has not been read")
@@ -49,7 +49,7 @@ internal class CommentSingleLineNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectInlineComments")
     fun `parse correct eof`(comment: String) {
-        val parser = LexemParser(CustomStringReader.from(comment))
+        val parser = LexemParser(IOStringReader.from(comment))
         val res = CommentSingleLineNode.parse(parser)
 
         Assertions.assertTrue(res, "A correct single-line comment has not been read")
@@ -61,7 +61,7 @@ internal class CommentSingleLineNodeTest {
     @MethodSource("provideCorrectInlineComments")
     fun `parse correct windows eol`(comment: String) {
         val text = "$comment${WhitespaceNode.windowsEndOfLine}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = CommentSingleLineNode.parse(parser)
 
         Assertions.assertTrue(res, "A correct single-line comment has not been read")
@@ -71,7 +71,7 @@ internal class CommentSingleLineNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = CommentSingleLineNode.parse(parser)
 
         Assertions.assertFalse(res, "The input has incorrectly parsed anything")

@@ -21,13 +21,10 @@ internal object RightExpressionAnalyzer {
             }
             signalEndExpression -> {
                 // Check is not a setter.
-                var value = analyzer.memory.popStack()
-
+                val value = analyzer.memory.getLastFromStack()
                 if (value is LexemSetter) {
-                    value = value.resolve(analyzer.memory)
+                    analyzer.memory.replaceLastStackCell(value.getPrimitive(analyzer.memory))
                 }
-
-                analyzer.memory.pushStackIgnoringReferenceCount(value)
             }
         }
 

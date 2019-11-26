@@ -37,9 +37,9 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("positionalArguments", TreeLikePrintable.listToTest(positionalArguments))
-        result.add("namedArguments", TreeLikePrintable.listToTest(namedArguments))
-        result.add("spreadArguments", TreeLikePrintable.listToTest(spreadArguments))
+        result.add("positionalArguments", SerializationUtils.listToTest(positionalArguments))
+        result.add("namedArguments", SerializationUtils.listToTest(namedArguments))
+        result.add("spreadArguments", SerializationUtils.listToTest(spreadArguments))
         result.add("propertiesExpression", propertiesExpression?.toTree())
 
         return result

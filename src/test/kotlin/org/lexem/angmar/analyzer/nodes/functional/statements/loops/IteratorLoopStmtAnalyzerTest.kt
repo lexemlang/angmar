@@ -5,7 +5,6 @@ import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -219,47 +218,6 @@ internal class IteratorLoopStmtAnalyzerTest {
         Assertions.assertEquals("d", varNameKeyResult.primitive, "The primitive property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName, varNameIndex, varNameKey))
-    }
-
-    @Test
-    fun `test destroy is called`() {
-        val varName = "variable"
-        val containerName = "container"
-        val conditionName = "condition"
-        val iteratorElement = listOf(1, 2, 3, 4)
-        val initialValue = 0
-        val finalValue = iteratorElement.reduce { acc, i -> acc + i }
-        val body =
-                "${BlockStmtNode.startToken} $varName ${AdditiveExpressionNode.additionOperator}${AssignOperatorNode.assignOperator} $containerName ${BlockStmtNode.endToken}"
-        val text =
-                "${IteratorLoopStmtNode.keyword} $containerName ${IteratorLoopStmtNode.relationKeyword} $conditionName $body"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IteratorLoopStmtNode.Companion::parse)
-
-        // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val list = LxmList()
-        val listRef = analyzer.memory.add(list)
-        listRef.increaseReferenceCount(analyzer.memory)
-        for (i in iteratorElement) {
-            list.addCell(analyzer.memory, LxmInteger.from(i))
-        }
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, conditionName, listRef)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
-
-        Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
-
-        // Decrease the reference count.
-        listRef.decreaseReferenceCount(analyzer.memory)
-
-        val listCell = analyzer.memory.lastNode.getCell(listRef.position)
-
-        Assertions.assertTrue(listCell.isFreed, "The object has not been freed")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName, conditionName))
     }
 
     @Test

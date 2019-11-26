@@ -34,7 +34,7 @@ internal class BitlistNode private constructor(parser: LexemParser, parent: Pars
         val result = super.toTree()
 
         result.addProperty("radix", radix.toLong())
-        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.add("elements", SerializationUtils.listToTest(elements))
 
         return result
     }

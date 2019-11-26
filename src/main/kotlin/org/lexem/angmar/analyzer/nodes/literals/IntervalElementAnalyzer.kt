@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
@@ -26,7 +27,7 @@ internal object IntervalElementAnalyzer {
             }
             signalEndLeft -> {
                 // Check value.
-                val left = analyzer.memory.popStack()
+                val left = analyzer.memory.getLastFromStack()
 
                 if (left !is LxmInteger) {
                     val msg = if (node.right != null) {
@@ -50,19 +51,22 @@ internal object IntervalElementAnalyzer {
                 }
 
                 if (node.right != null) {
-                    analyzer.memory.pushStack(left)
+                    // Move Last to Left in the stack.
+                    analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Left)
+
                     return analyzer.nextNode(node.right)
                 }
 
                 // Add the value to the interval.
-                val itv = analyzer.memory.popStack() as LxmInterval
+                val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
                 val resInterval = itv.primitive.plus(left.primitive)
 
-                analyzer.memory.pushStack(LxmInterval.from(resInterval))
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))
+                analyzer.memory.removeLastFromStack()
             }
             signalEndRight -> {
                 // Check value.
-                val right = analyzer.memory.popStack()
+                val right = analyzer.memory.getLastFromStack()
 
                 if (right !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -81,14 +85,17 @@ internal object IntervalElementAnalyzer {
                 }
 
                 // Add the value to the interval.
-                val left = analyzer.memory.popStack() as LxmInteger
-                val itv = analyzer.memory.popStack() as LxmInterval
+                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmInteger
+                val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
 
                 try {
                     val range = IntegerRange.new(left.primitive, right.primitive)
                     val resInterval = itv.primitive.plus(range)
 
-                    analyzer.memory.pushStack(LxmInterval.from(resInterval))
+                    analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator,
+                            LxmInterval.from(resInterval))
+                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
+                    analyzer.memory.removeLastFromStack()
                 } catch (e: AngmarException) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
                             "The left value must be lower or equal than the right value. Actual left: $left, actual right: $right") {

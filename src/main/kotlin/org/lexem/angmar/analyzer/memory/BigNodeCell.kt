@@ -28,6 +28,11 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
      * Sets a value to the cell.
      */
     fun setValue(value: LexemReferenced) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot access to a freed memory segment") {}
+        }
+
         this.value = value
     }
 
@@ -69,6 +74,11 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
      * Frees the cell clearing all its fields but the reference which points to the next free cell.
      */
     fun freeCell(memory: LexemMemory, nextFreeCell: Int) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot access to a freed memory segment") {}
+        }
+
         if (referenceCount > 0) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed,
                     "Cannot free a referenced memory cell") {}
@@ -97,14 +107,24 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
     /**
      * Increases the reference.
      */
-    fun increaseReferenceCount(count: Int = 1) {
+    fun increaseReferences(count: Int = 1) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot access to a freed memory segment") {}
+        }
+
         referenceCount += count
     }
 
     /**
      * Decreases the reference count freeing the cell if it reaches 0.
      */
-    fun decreaseReferenceCount(memory: LexemMemory, count: Int = 1) {
+    fun decreaseReferences(memory: LexemMemory, count: Int = 1) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot access to a freed memory segment") {}
+        }
+
         referenceCount -= count
 
         if (referenceCount < 0) {
@@ -166,8 +186,26 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
             }
 
             instance.position = position
-            instance.setValue(value)
+            instance.value = value
             instance.referenceCount = 0
+
+            return instance
+        }
+
+        /**
+         * Clones the specified [BigNodeCell]. USED ONLY IN COLLAPSE DUE TO IT DOES NOT HANDLE POINTERS.
+         */
+        fun newFrom(cellToClone: BigNodeCell): BigNodeCell {
+            val instance = if (instances.size > 0) {
+                instances.pop()!!
+            } else {
+                BigNodeCell(cellToClone.position, cellToClone.value)
+            }
+
+            instance.isNotGarbage = cellToClone.isNotGarbage
+            instance.position = cellToClone.position
+            instance.referenceCount = cellToClone.referenceCount
+            instance.value = cellToClone.value
 
             return instance
         }

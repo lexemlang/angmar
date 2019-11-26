@@ -9,7 +9,7 @@ import org.lexem.angmar.parser.literals.*
 import java.util.*
 
 /**
- * The lexem values of the BitList type.
+ * The Lexem values of the BitList type.
  */
 internal class LxmBitList(val size: Int, val primitive: BitSet) : LexemPrimitive {
 

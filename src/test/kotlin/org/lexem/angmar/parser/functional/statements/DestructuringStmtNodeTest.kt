@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -24,10 +25,10 @@ internal class DestructuringStmtNodeTest {
                 for (i in 0..2) {
                     val list = List(i) { DestructuringElementStmtNodeTest.testExpression }
 
-                    for (hasAlias in 0..1) {
-                        for (hasSpread in 0..1) {
-                            for (hasTrailingComma in 0..1) {
-                                val currentList = if (hasSpread == 1) {
+                    for (hasAlias in listOf(false, true)) {
+                        for (hasSpread in listOf(false, true)) {
+                            for (hasTrailingComma in listOf(false, true)) {
+                                val currentList = if (hasSpread) {
                                     list + DestructuringSpreadStmtNodeTest.testExpression
                                 } else {
                                     list
@@ -36,35 +37,35 @@ internal class DestructuringStmtNodeTest {
                                 var text = currentList.joinToString(DestructuringStmtNode.elementSeparator)
                                 text = "${DestructuringStmtNode.startToken}$text"
 
-                                if (hasAlias == 1) {
+                                if (hasAlias) {
                                     text =
                                             "${IdentifierNodeTest.testExpression}${DestructuringStmtNode.elementSeparator}$text"
                                 }
 
-                                if (hasTrailingComma == 1) {
+                                if (hasTrailingComma) {
                                     text += DestructuringStmtNode.elementSeparator
                                 }
 
                                 text += DestructuringStmtNode.endToken
 
-                                yield(Arguments.of(text, hasAlias == 1, i, hasSpread == 1))
+                                yield(Arguments.of(text, hasAlias, i, hasSpread))
 
                                 // With whitespace
                                 text = currentList.joinToString(" ${DestructuringStmtNode.elementSeparator} ")
                                 text = "${DestructuringStmtNode.startToken} $text"
 
-                                if (hasAlias == 1) {
+                                if (hasAlias) {
                                     text =
                                             "${IdentifierNodeTest.testExpression} ${DestructuringStmtNode.elementSeparator} $text"
                                 }
 
-                                if (hasTrailingComma == 1) {
+                                if (hasTrailingComma) {
                                     text += " ${DestructuringStmtNode.elementSeparator}"
                                 }
 
                                 text += " ${DestructuringStmtNode.endToken}"
 
-                                yield(Arguments.of(text, hasAlias == 1, i, hasSpread == 1))
+                                yield(Arguments.of(text, hasAlias, i, hasSpread))
                             }
                         }
                     }
@@ -94,7 +95,7 @@ internal class DestructuringStmtNodeTest {
     @MethodSource("provideCorrectDestructuringStmt")
     fun `parse correct destructuring spread statement`(text: String, hasAlias: Boolean, numElements: Int,
             hasSpread: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -126,9 +127,9 @@ internal class DestructuringStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect destructuring statement without endToken`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.DestructuringStatementWithoutEndToken) {
             val text = "${DestructuringStmtNode.startToken}${DestructuringElementStmtNodeTest.testExpression}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             DestructuringStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -136,7 +137,7 @@ internal class DestructuringStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", IdentifierNodeTest.testExpression])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

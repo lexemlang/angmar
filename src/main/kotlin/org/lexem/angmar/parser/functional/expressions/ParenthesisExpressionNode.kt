@@ -86,7 +86,6 @@ internal class ParenthesisExpressionNode private constructor(parser: LexemParser
                         message = "Try adding the close parenthesis '$endToken' here"
                     }
                 }
-
             }
 
             return parser.finalizeNode(result, initCursor)

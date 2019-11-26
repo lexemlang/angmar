@@ -28,7 +28,10 @@ internal object ObjectSimplificationAnalyzer {
             }
             // Create the function and add it to the object.
             signalEndIdentifier -> {
-                val identifier = analyzer.memory.popStack()
+                val identifier = analyzer.memory.getLastFromStack()
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -46,15 +49,13 @@ internal object ObjectSimplificationAnalyzer {
                     }
                 }
 
-                val objRef = analyzer.memory.popStack()
-                val obj = objRef.dereference(analyzer.memory) as LxmObject
+                val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                        analyzer.memory) as LxmObject
                 val ctxRef = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
                 val fn = LxmFunction(analyzer.memory, node, ctxRef)
                 val fnRef = analyzer.memory.add(fn)
 
                 obj.setProperty(analyzer.memory, identifier.primitive, fnRef, isConstant = node.isConstant)
-
-                analyzer.memory.pushStackIgnoringReferenceCount(objRef)
             }
             else -> {
                 return AnalyzerNodesCommons.functionExecutionController(analyzer, signal, node.parameterList,

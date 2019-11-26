@@ -12,8 +12,11 @@ internal class UnescapedStringAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnescapedStringNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.popStack() as? LxmString ?: throw Error("The result must be a LxmString")
+        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
         Assertions.assertEquals("43", result.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

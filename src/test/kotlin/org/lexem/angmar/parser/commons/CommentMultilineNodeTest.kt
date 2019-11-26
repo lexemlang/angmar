@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.utils.*
 import java.util.stream.*
@@ -44,7 +45,7 @@ internal class CommentMultilineNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectMultilineComments")
     fun `parse correct multiline comments`(comment: String) {
-        val parser = LexemParser(CustomStringReader.from(comment))
+        val parser = LexemParser(IOStringReader.from(comment))
         val res = CommentMultilineNode.parse(parser)
 
         Assertions.assertTrue(res, "A correct multiline comment has not been read")
@@ -53,28 +54,30 @@ internal class CommentMultilineNodeTest {
     }
 
     @Test
+    @Incorrect
     fun `parse unclosed multiline comments`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.MultilineCommentWithoutEndToken) {
             val text = "${CommentMultilineNode.MultilineStartToken} this comment \n is not closed"
-            CommentMultilineNode.parse(LexemParser(CustomStringReader.from(text)))
+            CommentMultilineNode.parse(LexemParser(IOStringReader.from(text)))
         }
     }
 
     @Test
+    @Incorrect
     fun `parse closed multiline comments but with an incorrect number of additional tokens`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.MultilineCommentWithoutEndToken) {
             val text =
                     "${CommentMultilineNode.MultilineStartToken}${CommentMultilineNode.MultilineAdditionalToken.repeat(
                             3)} this comment \n is closed with an incorrect number of ${CommentMultilineNode.MultilineAdditionalToken} ${CommentMultilineNode.MultilineAdditionalToken.repeat(
                             2)}${CommentMultilineNode.MultilineEndToken}"
-            CommentMultilineNode.parse(LexemParser(CustomStringReader.from(text)))
+            CommentMultilineNode.parse(LexemParser(IOStringReader.from(text)))
         }
     }
 
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = CommentMultilineNode.parse(parser)
 
         Assertions.assertFalse(res, "The input has incorrectly parsed anything")

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -31,26 +32,26 @@ internal class FunctionCallNodeTest {
                             val spreadArguments =
                                     List(spreadCount) { "${FunctionCallNode.spreadOperator}${ExpressionsCommonsTest.testExpression}" }
 
-                            for (properties in 0..1) {
+                            for (properties in listOf(false, true)) {
                                 val arguments = positionalArguments + namedArguments + spreadArguments
                                 var text = arguments.joinToString(" ${FunctionCallNode.argumentSeparator} ")
                                 text = "${FunctionCallNode.startToken} $text ${FunctionCallNode.endToken}"
 
-                                if (properties == 1) {
+                                if (properties) {
                                     text += FunctionCallExpressionPropertiesNodeTest.testExpression
                                 }
 
-                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties == 1))
+                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties))
 
 
                                 text = arguments.joinToString(FunctionCallNode.argumentSeparator)
                                 text = "${FunctionCallNode.startToken}$text${FunctionCallNode.endToken}"
 
-                                if (properties == 1) {
+                                if (properties) {
                                     text += FunctionCallExpressionPropertiesNodeTest.testExpression
                                 }
 
-                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties == 1))
+                                yield(Arguments.of(text, positionalCount, namedCount, spreadCount, properties))
                             }
                         }
                     }
@@ -82,7 +83,7 @@ internal class FunctionCallNodeTest {
     @MethodSource("provideCorrectFunctionCalls")
     fun `parse correct function call`(text: String, positionalCount: Int, namedCount: Int, spreadCount: Int,
             hasExpressionProperties: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -118,9 +119,9 @@ internal class FunctionCallNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect function call without expression after spread element`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator) {
             val text = "${FunctionCallNode.startToken}${FunctionCallNode.spreadOperator}${FunctionCallNode.endToken}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -128,9 +129,9 @@ internal class FunctionCallNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect function call without close parenthesis`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.FunctionCallWithoutEndToken) {
             val text = FunctionCallNode.startToken
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -138,7 +139,7 @@ internal class FunctionCallNodeTest {
     @ParameterizedTest
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

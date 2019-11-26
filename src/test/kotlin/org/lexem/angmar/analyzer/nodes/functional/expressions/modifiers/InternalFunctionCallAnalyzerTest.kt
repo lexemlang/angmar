@@ -5,59 +5,52 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.utils.*
 
 internal class InternalFunctionCallAnalyzerTest {
     @Test
     fun `test finalizing`() {
-        val analyzer = TestUtils.createAnalyzerFrom("") { _, _, _ ->
-            InternalFunctionCallNode
-        }
+        val functionName = "fn"
+        val grammar = "$functionName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
+        val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = AccessExpressionNode.Companion::parse)
 
-        // Prepare stack
+        // Prepare context.
         var executed = false
         val function = LxmInternalFunction { _, _, _ ->
             executed = true
 
             // Always return a value
-            analyzer.memory.pushStack(LxmNil)
+            analyzer.memory.addToStackAsLast(LxmNil)
             return@LxmInternalFunction true
         }
 
-        analyzer.memory.pushStack(LxmCodePoint(ParserNode.Companion.EmptyParserNode, 0))
-        val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
-        val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
-        analyzer.memory.pushStack(function)
-
-        // Prepare call.
-        val context = LxmContext()
-        val contextRef = analyzer.memory.add(context)
-        AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory, contextRef)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, functionName, function)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertTrue(executed, "The function has not been executed")
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The returned value must be nil")
 
-        Assertions.assertEquals(LxmNil, analyzer.memory.popStack(), "The returned value must be nil")
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(functionName))
     }
 
     @Test
     fun `test not immediately finalizing`() {
-        val analyzer = TestUtils.createAnalyzerFrom("") { _, _, _ ->
-            InternalFunctionCallNode
-        }
+        val functionName = "fn"
+        val grammar = "$functionName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
+        val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = AccessExpressionNode.Companion::parse)
 
-        // Prepare stack
+        // Prepare context.
         var executed = -1
         val function = LxmInternalFunction { analyzer, _, signal ->
             when (signal) {
-                AnalyzerNodesCommons.signalStart -> {
+                AnalyzerNodesCommons.signalCallFunction -> {
                     executed = signal
 
                     // Prepare stack to call toString over an integer.
@@ -69,8 +62,9 @@ internal class InternalFunctionCallAnalyzerTest {
                     val arguments = LxmArguments(analyzer.memory)
                     arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
                     val argumentsRef = analyzer.memory.add(arguments)
-                    argumentsRef.increaseReferenceCount(analyzer.memory)
-                    AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode, 1)
+
+                    AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
+                            LxmCodePoint(InternalFunctionCallNode, 1))
 
                     return@LxmInternalFunction false
                 }
@@ -82,24 +76,20 @@ internal class InternalFunctionCallAnalyzerTest {
             return@LxmInternalFunction true
         }
 
-        analyzer.memory.pushStack(LxmCodePoint(ParserNode.Companion.EmptyParserNode, 0))
-        val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
-        val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
-        analyzer.memory.pushStack(function)
-
-        // Prepare call.
-        AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory,
-                AnalyzerCommons.getCurrentContextReference(analyzer.memory))
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, functionName, function)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(1, executed, "The function has not been correctly executed")
 
-        val value = analyzer.memory.popStack() as? LxmString ?: throw Error("The stack value must be a LxmString")
+        val value =
+                analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The stack value must be a LxmString")
         Assertions.assertEquals("10", value.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(functionName))
     }
 }

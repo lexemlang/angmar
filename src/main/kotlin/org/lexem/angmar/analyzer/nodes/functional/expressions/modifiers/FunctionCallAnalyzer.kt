@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.data.referenced.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
@@ -24,9 +23,12 @@ internal object FunctionCallAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
+                // Move Last to Function in the stack.
+                analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.Function)
+
                 // Create arguments
                 val arguments = LxmArguments(analyzer.memory)
-                analyzer.memory.pushStack(analyzer.memory.add(arguments))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, analyzer.memory.add(arguments))
 
                 // Call next element
                 if (node.positionalArguments.isNotEmpty()) {
@@ -51,13 +53,14 @@ internal object FunctionCallAnalyzer {
             in signalEndFirstArgument until signalEndFirstArgument + node.positionalArguments.size -> {
                 val position = (signal - signalEndFirstArgument) + 1
 
-                val value = analyzer.memory.popStack()
-                val arguments = analyzer.memory.popStack()
-                val argumentsDeref = arguments.dereference(analyzer.memory) as LxmArguments
+                val value = analyzer.memory.getLastFromStack()
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
-                argumentsDeref.addPositionalArgument(analyzer.memory, value)
+                arguments.addPositionalArgument(analyzer.memory, value)
 
-                analyzer.memory.pushStackIgnoringReferenceCount(arguments)
+                // Remove value from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 // Call next element
                 if (position < node.positionalArguments.size) {
@@ -102,24 +105,23 @@ internal object FunctionCallAnalyzer {
                 val position =
                         (signal - signalEndFirstArgument - node.positionalArguments.size - node.namedArguments.size) + 1
 
-                val value = analyzer.memory.popStack()
-                val valueDeref = value.dereference(analyzer.memory)
-                val arguments = analyzer.memory.popStack()
-                val argumentsDeref = arguments.dereference(analyzer.memory) as LxmArguments
+                val value = analyzer.memory.getLastFromStack().dereference(analyzer.memory)
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
-                when (valueDeref) {
+                when (value) {
                     is LxmList -> {
-                        val allCells = valueDeref.getAllCells()
+                        val allCells = value.getAllCells()
 
                         for (i in allCells) {
-                            argumentsDeref.addPositionalArgument(analyzer.memory, i)
+                            arguments.addPositionalArgument(analyzer.memory, i)
                         }
                     }
                     is LxmObject -> {
-                        val allProps = valueDeref.getAllIterableProperties()
+                        val allProps = value.getAllIterableProperties()
 
                         for (i in allProps) {
-                            argumentsDeref.addNamedArgument(analyzer.memory, i.key, i.value.value)
+                            arguments.addNamedArgument(analyzer.memory, i.key, i.value.value)
                         }
                     }
                     else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -138,10 +140,8 @@ internal object FunctionCallAnalyzer {
                     }
                 }
 
-                analyzer.memory.pushStackIgnoringReferenceCount(arguments)
-
-                // Decrease the reference count of the value.
-                (value as LxmReference).decreaseReferenceCount(analyzer.memory)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 // Call next element
                 if (position < node.spreadArguments.size) {
@@ -164,33 +164,34 @@ internal object FunctionCallAnalyzer {
     }
 
     private fun callFunction(analyzer: LexemAnalyzer, node: FunctionCallNode) {
-        val arguments = analyzer.memory.popStack() as LxmReference
-        val argumentsDeref = arguments.dereference(analyzer.memory) as LxmArguments
-        val function = analyzer.memory.popStack()
+        val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as LxmReference
+        val arguments = argumentsRef.dereference(analyzer.memory) as LxmArguments
+        var functionRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
 
-        when (function) {
+        when (functionRef) {
             is LxmPropertySetter -> {
-                argumentsDeref.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, function.obj)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.obj)
             }
             is LxmIndexerSetter -> {
-                argumentsDeref.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, function.element)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.element)
             }
             else -> {
-                argumentsDeref.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
             }
         }
 
-        val functionDeref = function.dereference(analyzer.memory) as? ExecutableValue ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.IncompatibleType,
-                "The value is not callable, i.e. a function or expression. Current: $function") {
-            val fullText = node.parser.reader.readAllText()
-            addSourceCode(fullText, node.parser.reader.getSource()) {
-                title = Consts.Logger.codeTitle
-                highlightSection(node.from.position(), node.to.position() - 1)
-                message = "Cannot perform the invocation of a non-callable element"
-            }
-        }
+        functionRef = AnalyzerNodesCommons.resolveSetter(analyzer.memory, functionRef)
 
-        AnalyzerNodesCommons.callFunction(analyzer, functionDeref, arguments, node.parent!!, node.parentSignal)
+        // Move Arguments and Function to Auxiliary from the stack.
+        analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Arguments, AnalyzerCommons.Identifiers.Auxiliary)
+        analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Function, AnalyzerCommons.Identifiers.Auxiliary)
+
+        // Call the function.
+        AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, node,
+                LxmCodePoint(node.parent!!, node.parentSignal))
+
+        // Remove Auxiliary two times from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Auxiliary)
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Auxiliary)
     }
 }

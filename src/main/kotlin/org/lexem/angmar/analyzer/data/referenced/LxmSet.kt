@@ -10,7 +10,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
 /**
- * The lexem value of the Set type.
+ * The Lexem value of the Set type.
  */
 internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
     private var isConstant = false
@@ -172,7 +172,7 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
             for (j in i.value) {
                 val reference = j.value
                 if (reference is LxmReference) {
-                    reference.decreaseReferenceCount(memory)
+                    reference.decreaseReferences(memory)
                 }
             }
         }
@@ -181,12 +181,9 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
-        for (i in this.values) {
-            for (j in i.value) {
-                val value = j.value
-                if (value is LxmReference) {
-                    value.getCell(memory).spatialGarbageCollect(memory)
-                }
+        for ((_, list) in this.values) {
+            for (property in list) {
+                property.value.spatialGarbageCollect(memory)
             }
         }
     }

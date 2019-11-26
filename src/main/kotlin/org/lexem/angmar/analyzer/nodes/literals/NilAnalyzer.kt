@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.literals.*
  */
 internal object NilAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: NilNode) {
-        analyzer.memory.pushStack(LxmNil)
+        analyzer.memory.addToStackAsLast(LxmNil)
 
         return analyzer.nextNode(node.parent, node.parentSignal)
     }

@@ -7,6 +7,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -24,11 +25,13 @@ internal class ObjectSimplificationAnalyzerTest {
         // Prepare stack.
         val obj = LxmObject()
         val objRef = analyzer.memory.add(obj)
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         val objDeref =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
@@ -36,8 +39,8 @@ internal class ObjectSimplificationAnalyzerTest {
 
         Assertions.assertFalse(property.isConstant, "The isConstant property is incorrect")
 
-        // Decrease the reference count of the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -52,11 +55,13 @@ internal class ObjectSimplificationAnalyzerTest {
         // Prepare stack.
         val obj = LxmObject()
         val objRef = analyzer.memory.add(obj)
-        analyzer.memory.pushStack(objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
+                        "The result must be a LxmReference")
         val objDeref =
                 resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
@@ -64,8 +69,8 @@ internal class ObjectSimplificationAnalyzerTest {
 
         Assertions.assertTrue(property.isConstant, "The isConstant property is incorrect")
 
-        // Decrease the reference count of the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Accumulator and Last from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -99,7 +104,7 @@ internal class ObjectSimplificationAnalyzerTest {
         Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
                 "The $varName is incorrect")
 
-        // Remove the function cyclic reference.
+        // Remove the dangling references.
         analyzer.memory.spatialGarbageCollect()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -110,7 +115,7 @@ internal class ObjectSimplificationAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val objVarName = "obj"
             val text = let {
@@ -126,7 +131,6 @@ internal class ObjectSimplificationAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 
@@ -135,7 +139,7 @@ internal class ObjectSimplificationAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals with tag and without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val fnName = "fn"
             val tagName = "tag"
             val objVarName = "obj"
@@ -153,12 +157,11 @@ internal class ObjectSimplificationAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 
     @Test
-    fun `test return control signals`() {
+    fun `test return control signal`() {
         val keyword = ControlWithExpressionStmtNode.returnKeyword
         val varName = "test"
         val fnName = "fn"

@@ -30,7 +30,7 @@ internal class UnicodeIntervalAbbrNode private constructor(parser: LexemParser, 
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("elements", TreeLikePrintable.listToTest(elements))
+        result.add("elements", SerializationUtils.listToTest(elements))
         result.addProperty("reversed", reversed)
 
         return result

@@ -6,7 +6,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
 /**
- * The lexem value of a destructuring.
+ * The Lexem value of a destructuring.
  */
 internal class LxmDestructuring : LexemPrimitive {
     var alias: String? = null
@@ -84,8 +84,8 @@ internal class LxmDestructuring : LexemPrimitive {
             to.setProperty(memory, spread!!.alias, spreadObjectRef, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
-            spreadObjectRef.increaseReferenceCount(memory)
-            spreadObjectRef.decreaseReferenceCount(memory)
+            spreadObjectRef.increaseReferences(memory)
+            spreadObjectRef.decreaseReferences(memory)
         }
 
         return setVars
@@ -124,8 +124,8 @@ internal class LxmDestructuring : LexemPrimitive {
             to.setProperty(memory, spread!!.alias, spreadListRef, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
-            spreadListRef.increaseReferenceCount(memory)
-            spreadListRef.decreaseReferenceCount(memory)
+            spreadListRef.increaseReferences(memory)
+            spreadListRef.decreaseReferences(memory)
         }
 
         return setVars

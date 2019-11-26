@@ -13,7 +13,7 @@ internal object EscapeAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: EscapeNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                val prevValue = analyzer.memory.popStack() as LxmString
+                val prevValue = analyzer.memory.getLastFromStack() as LxmString
 
                 val char = when (node.value) {
                     "t" -> "\t"
@@ -22,7 +22,7 @@ internal object EscapeAnalyzer {
                     else -> node.value
                 }
 
-                analyzer.memory.pushStack(LxmString.from(prevValue.primitive + char))
+                analyzer.memory.replaceLastStackCell(LxmString.from(prevValue.primitive + char))
             }
         }
 

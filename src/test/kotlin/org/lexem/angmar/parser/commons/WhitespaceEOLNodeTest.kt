@@ -68,7 +68,7 @@ internal class WhitespaceEOLNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsUntilEOL")
     fun `parse correct whitespace until eol`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceEOLNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -79,7 +79,7 @@ internal class WhitespaceEOLNodeTest {
     @ParameterizedTest
     @MethodSource("provideEOL")
     fun `parse no whitespace until eol`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceEOLNode.parse(parser)
 
         Assertions.assertTrue(res, "The parser must capture something")
@@ -90,7 +90,7 @@ internal class WhitespaceEOLNodeTest {
     @ParameterizedTest
     @MethodSource("provideWsNoEOL")
     fun `parse incorrect whitespace until eol`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = WhitespaceEOLNode.parse(parser)
 
         Assertions.assertFalse(res, "The parser must not capture anything")

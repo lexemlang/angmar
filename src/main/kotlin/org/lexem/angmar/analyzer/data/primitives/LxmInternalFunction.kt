@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 /**
- * The lexem value of the InternalFunction type.
+ * The Lexem value of the InternalFunction type.
  */
 internal class LxmInternalFunction(
         val function: (analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) -> Boolean) : LexemPrimitive,

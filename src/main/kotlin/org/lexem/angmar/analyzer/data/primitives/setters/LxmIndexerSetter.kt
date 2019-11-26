@@ -24,31 +24,22 @@ internal class LxmIndexerSetter : LexemSetter {
         this.index = index
         this.node = node
 
-        increaseReferenceCount(memory)
-    }
-
-    // METHODS ----------------------------------------------------------------
-
-    /**
-     * Frees the references to the components of the setter.
-     */
-    private fun freeReferences(memory: LexemMemory) {
         if (element is LxmReference) {
-            element.decreaseReferenceCount(memory)
+            element.increaseReferences(memory)
         }
 
         if (index is LxmReference) {
-            index.decreaseReferenceCount(memory)
+            index.increaseReferences(memory)
         }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun resolve(memory: LexemMemory): LexemPrimitive {
+    override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
         val element = element.dereference(memory)
         val index = index
 
-        val res: LexemPrimitive = when (element) {
+        return when (element) {
             is LxmString -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -210,12 +201,9 @@ internal class LxmIndexerSetter : LexemSetter {
                 }
             }
         }
-
-        freeReferences(memory)
-        return res
     }
 
-    override fun set(memory: LexemMemory, value: LexemPrimitive) {
+    override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
         val element = element.dereference(memory)
         val index = index
 
@@ -296,18 +284,21 @@ internal class LxmIndexerSetter : LexemSetter {
                 }
             }
         }
-
-        freeReferences(memory)
     }
 
-    override fun increaseReferenceCount(memory: LexemMemory) {
-        if (element is LxmReference) {
-            element.increaseReferenceCount(memory)
-        }
+    override fun increaseReferences(memory: LexemMemory) {
+        element.increaseReferences(memory)
+        index.increaseReferences(memory)
+    }
 
-        if (index is LxmReference) {
-            index.increaseReferenceCount(memory)
-        }
+    override fun decreaseReferences(memory: LexemMemory) {
+        element.decreaseReferences(memory)
+        index.decreaseReferences(memory)
+    }
+
+    override fun spatialGarbageCollect(memory: LexemMemory) {
+        element.spatialGarbageCollect(memory)
+        index.spatialGarbageCollect(memory)
     }
 
     override fun toString() = "LxmSetter(element: $element, index: $index)"

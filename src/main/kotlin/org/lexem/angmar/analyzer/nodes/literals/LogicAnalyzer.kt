@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.literals.*
  */
 internal object LogicAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LogicNode) {
-        analyzer.memory.pushStack(LxmLogic.from(node.value))
+        analyzer.memory.addToStackAsLast(LxmLogic.from(node.value))
 
         return analyzer.nextNode(node.parent, node.parentSignal)
     }

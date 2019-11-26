@@ -14,7 +14,11 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmNil, analyzer.memory.popStack(), "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(),
+                "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -25,9 +29,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(1, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -39,8 +46,11 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.False, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -51,9 +61,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(6, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -64,9 +77,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(1, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -78,8 +94,11 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -90,9 +109,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(6, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -103,9 +125,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(6, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -117,8 +142,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.True, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
@@ -129,9 +158,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(7, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -142,9 +174,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(7, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -155,9 +190,12 @@ internal class ConditionalExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val stackValue =
-                analyzer.memory.popStack() as? LxmInteger ?: throw Error("The value of the stack must be a LxmInteger")
+        val stackValue = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error(
+                "The value of the stack must be a LxmInteger")
         Assertions.assertEquals(7, stackValue.primitive, "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

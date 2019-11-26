@@ -43,7 +43,7 @@ internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent
         // METHODS ------------------------------------------------------------
 
         /**
-         * Parses an Unicode escape.
+         * Parses a unicode escape.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeEscapeNode? {
             parser.fromBuffer(parser.reader.currentPosition(), UnicodeEscapeNode::class.java)?.let {

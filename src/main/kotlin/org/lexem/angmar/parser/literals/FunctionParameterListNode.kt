@@ -45,7 +45,7 @@ internal class FunctionParameterListNode private constructor(parser: LexemParser
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("parameters", TreeLikePrintable.listToTest(parameters))
+        result.add("parameters", SerializationUtils.listToTest(parameters))
         result.add("positionalSpread", positionalSpread?.toTree())
         result.add("namedSpread", namedSpread?.toTree())
 

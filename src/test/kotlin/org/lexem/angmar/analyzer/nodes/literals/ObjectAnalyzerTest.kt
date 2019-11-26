@@ -21,7 +21,8 @@ internal class ObjectAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val properties = obj.getAllIterableProperties()
 
@@ -34,8 +35,8 @@ internal class ObjectAnalyzerTest {
 
         Assertions.assertFalse(obj.isImmutable, "The isImmutable property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -47,7 +48,8 @@ internal class ObjectAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val properties = obj.getAllIterableProperties()
 
@@ -60,8 +62,8 @@ internal class ObjectAnalyzerTest {
 
         Assertions.assertTrue(obj.isImmutable, "The isImmutable property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -73,15 +75,16 @@ internal class ObjectAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val properties = obj.getAllIterableProperties()
 
         Assertions.assertEquals(0, properties.size, "The number of properties is incorrect")
         Assertions.assertFalse(obj.isImmutable, "The isImmutable property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -93,15 +96,16 @@ internal class ObjectAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val resultRef = analyzer.memory.popStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
+        val resultRef =
+                analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
         val properties = obj.getAllIterableProperties()
 
         Assertions.assertEquals(0, properties.size, "The number of properties is incorrect")
         Assertions.assertTrue(obj.isImmutable, "The isImmutable property is incorrect")
 
-        // Remove the result.
-        resultRef.decreaseReferenceCount(analyzer.memory)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

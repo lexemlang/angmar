@@ -13,8 +13,11 @@ internal class PrefixExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
-        Assertions.assertEquals(LxmLogic.False, analyzer.memory.popStack(),
+        Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(),
                 "The value inserted in the stack is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

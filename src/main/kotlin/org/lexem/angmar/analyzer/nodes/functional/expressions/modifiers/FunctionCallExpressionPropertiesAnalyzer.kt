@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -22,18 +21,14 @@ internal object FunctionCallExpressionPropertiesAnalyzer {
                 return analyzer.nextNode(node.value)
             }
             signalEndValue -> {
-                val value = analyzer.memory.popStack()
-                val arguments = analyzer.memory.popStack()
-                val argumentsDeref = arguments.dereference(analyzer.memory) as LxmArguments
+                val value = analyzer.memory.getLastFromStack()
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
-                argumentsDeref.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsProperties, value)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsProperties, value)
 
-                // Decrease the reference count of the value.
-                if (value is LxmReference) {
-                    value.decreaseReferenceCount(analyzer.memory)
-                }
-
-                analyzer.memory.pushStackIgnoringReferenceCount(arguments)
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
             }
         }
 

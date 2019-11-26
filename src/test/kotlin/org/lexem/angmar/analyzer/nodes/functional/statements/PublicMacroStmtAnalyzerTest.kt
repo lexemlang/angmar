@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.parser.descriptive.statements.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -146,5 +147,59 @@ internal class PublicMacroStmtAnalyzerTest {
         Assertions.assertEquals(valueInt, variable.value, "The value property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(elementAlias, AnalyzerCommons.Identifiers.Exports))
+    }
+
+    @Test
+    fun `test expression`() {
+        val expName = "expr"
+        val text =
+                "${PublicMacroStmtNode.macroName} ${ExpressionStmtNode.keyword} $expName ${BlockStmtNode.startToken}${BlockStmtNode.endToken}"
+        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PublicMacroStmtNode.Companion::parse)
+
+        // Prepare context
+        val obj = LxmObject()
+        val objRef = analyzer.memory.add(obj)
+        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+
+        TestUtils.processAndCheckEmpty(analyzer)
+
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports)!!
+        val function =
+                exports.getPropertyDescriptor(analyzer.memory, expName) ?: throw Error("The function has not been set")
+
+        Assertions.assertFalse(function.isConstant, "The isConstant property is incorrect")
+        Assertions.assertTrue(function.value.dereference(analyzer.memory) is LxmFunction,
+                "The value property is incorrect")
+
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(expName, AnalyzerCommons.Identifiers.Exports))
+    }
+
+    @Test
+    fun `test filter`() {
+        val filterName = "filter"
+        val text =
+                "${PublicMacroStmtNode.macroName} ${ExpressionStmtNode.keyword} $filterName ${BlockStmtNode.startToken}${BlockStmtNode.endToken}"
+        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PublicMacroStmtNode.Companion::parse)
+
+        // Prepare context
+        val obj = LxmObject()
+        val objRef = analyzer.memory.add(obj)
+        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+
+        TestUtils.processAndCheckEmpty(analyzer)
+
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports)!!
+        val function = exports.getPropertyDescriptor(analyzer.memory, filterName) ?: throw Error(
+                "The function has not been set")
+
+        Assertions.assertFalse(function.isConstant, "The isConstant property is incorrect")
+        Assertions.assertTrue(function.value.dereference(analyzer.memory) is LxmFunction,
+                "The value property is incorrect")
+
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(filterName, AnalyzerCommons.Identifiers.Exports))
     }
 }

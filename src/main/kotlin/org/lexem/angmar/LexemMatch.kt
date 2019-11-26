@@ -1,16 +1,18 @@
 package org.lexem.angmar
 
 import com.google.gson.*
+import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.io.printer.*
 
 /**
  * The resulting nodes of a Lexem analysis.
  */
-class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : ITreeLikePrintable {
+class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : JsonSerializable {
     val text = analyzer.text
-    val from = node.from
-    val to = node.to!!
+    val from = node.getFrom(analyzer.memory).primitive
+    val to = node.getTo(analyzer.memory)!!.primitive
     val children = node.getChildrenAsList(analyzer.memory).map { position ->
         LexemMatch(analyzer, position.dereference(analyzer.memory) as LxmNode)
     }
@@ -20,7 +22,15 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : 
     /**
      * Gets the textual content of the node.
      */
-    fun getContent() = text.substring(from, to)
+    fun getContent(): Any {
+        val result = AnalyzerCommons.substringReader(text, from, to)
+        return if (result is LxmString) {
+            result.primitive
+        } else {
+            result as LxmBitList
+            result.primitive
+        }
+    }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -29,8 +39,8 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : 
 
         result.addProperty("from", from.position().toString())
         result.addProperty("to", to.position().toString())
-        result.addProperty("content", getContent())
-        result.add("children", TreeLikePrintable.listToTest(children))
+        result.addProperty("content", getContent().toString())
+        result.add("children", SerializationUtils.listToTest(children))
 
         return result
     }

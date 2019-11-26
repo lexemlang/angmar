@@ -110,7 +110,7 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = GlobalCommons.parseBlock(parser, result, ConditionalStmtAnalyzer.signalEndThenBlock)
+            result.thenBlock = BlockStmtNode.parse(parser, result, ConditionalStmtAnalyzer.signalEndThenBlock)
                     ?: throw AngmarParserException(AngmarParserExceptionType.ConditionalStatementWithoutThenBlock,
                             "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
                         val fullText = parser.reader.readAllText()
@@ -140,9 +140,8 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
                 WhitespaceNode.parse(parser)
 
                 result.elseBlock =
-                        parse(parser, result, ConditionalStmtAnalyzer.signalEndElseBlock) ?: GlobalCommons.parseBlock(
-                                parser, result, ConditionalStmtAnalyzer.signalEndElseBlock)
-                                ?: throw AngmarParserException(
+                        parse(parser, result, ConditionalStmtAnalyzer.signalEndElseBlock) ?: BlockStmtNode.parse(parser,
+                                result, ConditionalStmtAnalyzer.signalEndElseBlock) ?: throw AngmarParserException(
                                 AngmarParserExceptionType.ConditionalStatementWithoutElseBlock,
                                 "A block was expected after the conditional keyword '$elseKeyword' to act as the code to be executed if the condition does not match.") {
                             val fullText = parser.reader.readAllText()

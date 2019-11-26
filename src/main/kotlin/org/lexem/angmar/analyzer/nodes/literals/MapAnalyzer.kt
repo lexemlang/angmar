@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.literals
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.literals.*
@@ -20,7 +21,7 @@ internal object MapAnalyzer {
                 // Add the new map.
                 val map = LxmMap(null)
                 val mapRef = analyzer.memory.add(map)
-                analyzer.memory.pushStack(mapRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])
@@ -29,6 +30,9 @@ internal object MapAnalyzer {
                 if (node.isConstant) {
                     map.makeConstant()
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -39,13 +43,14 @@ internal object MapAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    val mapRef = analyzer.memory.popStack()
-                    val map = mapRef.dereference(analyzer.memory) as LxmMap
+                    val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
+                            analyzer.memory) as LxmMap
 
                     map.makeConstant()
-
-                    analyzer.memory.pushStackIgnoringReferenceCount(mapRef)
                 }
+
+                // Move accumulator to last.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

@@ -26,4 +26,11 @@ internal object LiteralCommons {
      */
     fun parseAnyInterval(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
             UnicodeIntervalNode.parse(parser, parent, parentSignal) ?: IntervalNode.parse(parser, parent, parentSignal)
+
+    /**
+     * Parses any interval literal and the unicode interval without prefix.
+     */
+    fun parseAnyIntervalForLexem(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
+            UnicodeIntervalAbbrNode.parse(parser, parent, parentSignal) ?: UnicodeIntervalNode.parse(parser, parent,
+                    parentSignal) ?: IntervalNode.parse(parser, parent, parentSignal)
 }

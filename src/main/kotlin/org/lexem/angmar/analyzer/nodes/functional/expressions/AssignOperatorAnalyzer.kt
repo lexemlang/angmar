@@ -42,12 +42,9 @@ internal object AssignOperatorAnalyzer {
      */
     private fun operate(analyzer: LexemAnalyzer, node: AssignOperatorNode) {
         // Get operand values.
-        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
-        val left = analyzer.memory.popStack() as LexemSetter
-        val leftFinal = left.resolve(analyzer.memory)
-
-        left.increaseReferenceCount(analyzer.memory) // Used to allow to use left again.
-        analyzer.memory.pushStack(left)
+        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+        val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LexemSetter
+        val leftFinal = left.getPrimitive(analyzer.memory)
 
         // Get operand function.
         val operatorFunctionName = when (node.operator) {
@@ -66,9 +63,7 @@ internal object AssignOperatorAnalyzer {
             LogicalExpressionNode.xorOperator -> AnalyzerCommons.Operators.LogicalXor
             ConditionalExpressionNode.andOperator -> {
                 if (!RelationalFunctions.isTruthy(leftFinal)) {
-                    analyzer.memory.pushStack(leftFinal)
-                } else {
-                    analyzer.memory.pushStack(right)
+                    analyzer.memory.replaceLastStackCell(leftFinal)
                 }
 
                 assignFinalValue(analyzer)
@@ -76,9 +71,7 @@ internal object AssignOperatorAnalyzer {
             }
             ConditionalExpressionNode.orOperator -> {
                 if (RelationalFunctions.isTruthy(leftFinal)) {
-                    analyzer.memory.pushStack(leftFinal)
-                } else {
-                    analyzer.memory.pushStack(right)
+                    analyzer.memory.replaceLastStackCell(leftFinal)
                 }
 
                 assignFinalValue(analyzer)
@@ -88,18 +81,16 @@ internal object AssignOperatorAnalyzer {
                 if (RelationalFunctions.isTruthy(leftFinal)) {
                     if (RelationalFunctions.isTruthy(right)) {
                         // true ^^ true
-                        analyzer.memory.pushStack(LxmNil)
+                        analyzer.memory.replaceLastStackCell(LxmNil)
                     } else {
                         // true ^^ false
-                        analyzer.memory.pushStack(leftFinal)
+                        analyzer.memory.replaceLastStackCell(leftFinal)
                     }
-                } else if (RelationalFunctions.isTruthy(right)) {
-                    // false ^^ true
-                    analyzer.memory.pushStack(right)
-                } else {
+                } else if (!RelationalFunctions.isTruthy(right)) {
                     // false ^^ false
-                    analyzer.memory.pushStack(LxmNil)
+                    analyzer.memory.replaceLastStackCell(LxmNil)
                 }
+                // else false ^^ true
 
                 assignFinalValue(analyzer)
                 return analyzer.nextNode(node.parent, node.parentSignal)
@@ -107,24 +98,29 @@ internal object AssignOperatorAnalyzer {
             else -> throw AngmarUnreachableException()
         }
 
-        val operatorFunction = BinaryAnalyzerCommons.getOperatorFunction(analyzer, leftFinal, node.parent!!,
+        val operatorFunctionRef = BinaryAnalyzerCommons.getOperatorFunction(analyzer, leftFinal, node.parent!!,
                 (node.parent as AssignExpressionNode).left, node.operator, operatorFunctionName)
 
         // Create argument values.
         val arguments = BinaryAnalyzerCommons.createArguments(analyzer, leftFinal, right)
 
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunction, arguments, node, signalEndOperator)
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
+                LxmCodePoint(node, signalEndOperator))
     }
 
     /**
      * Assigns the final value.
      */
     private fun assignFinalValue(analyzer: LexemAnalyzer) {
-        val right = analyzer.memory.popStack()
-        val left = analyzer.memory.popStack() as LexemSetter
+        val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+        val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LexemSetter
 
-        left.set(analyzer.memory, right)
+        left.setPrimitive(analyzer.memory, right)
 
-        analyzer.memory.pushStack(right)
+        // Remove Left from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
     }
 }

@@ -7,7 +7,6 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.parser.functional.expressions.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 import org.lexem.angmar.utils.*
@@ -91,31 +90,19 @@ internal class BlockStmtAnalyzerTest {
     @Test
     fun `test return control signals`() {
         val keyword = ControlWithExpressionStmtNode.returnKeyword
-        val varName = "test"
-        val fnName = "fn"
         val value = LxmInteger.Num1
         val text = let {
-            val callFn = "$fnName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
-            val body = "${BlockStmtNode.startToken} $keyword $value ${BlockStmtNode.endToken}"
-            val fn = "${FunctionStmtNode.keyword} $fnName $body"
-            "${BlockStmtNode.startToken} $fn \n $varName ${AssignOperatorNode.assignOperator} $callFn ${BlockStmtNode.endToken}"
+            val control = "$keyword $value"
+            "${BlockStmtNode.startToken} $control ${BlockStmtNode.endToken}"
         }
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
-        // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
+        TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
+            TestUtils.processAndCheckEmpty(analyzer)
+        }
 
-        TestUtils.processAndCheckEmpty(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
-                "The $varName is incorrect")
-
-        // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName, fnName))
     }
 
     @ParameterizedTest
@@ -123,19 +110,17 @@ internal class BlockStmtAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
-            val fnName = "fn"
-            val text = let {
-                val callFn = "$fnName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
-                val body = "${BlockStmtNode.startToken} $keyword ${BlockStmtNode.endToken}"
-                val fn = "${FunctionStmtNode.keyword} $fnName $body"
-                "${BlockStmtNode.startToken} $fn \n $callFn ${BlockStmtNode.endToken}"
-            }
-            val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
-
-            TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
+        val text = let {
+            val control = keyword
+            "${BlockStmtNode.startToken} $control ${BlockStmtNode.endToken}"
         }
+        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
+
+        TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
+            TestUtils.processAndCheckEmpty(analyzer)
+        }
+
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @ParameterizedTest
@@ -143,20 +128,17 @@ internal class BlockStmtAnalyzerTest {
     @ValueSource(
             strings = [ControlWithoutExpressionStmtNode.exitKeyword, ControlWithoutExpressionStmtNode.nextKeyword, ControlWithoutExpressionStmtNode.redoKeyword, ControlWithoutExpressionStmtNode.restartKeyword])
     fun `test control signals with tag and without expression`(keyword: String) {
-        TestUtils.assertAnalyzerException {
-            val fnName = "fn"
-            val tagName = "tag"
-            val text = let {
-                val callFn = "$fnName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
-                val body =
-                        "${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName $keyword${BlockStmtNode.tagPrefix}$tagName ${BlockStmtNode.endToken}"
-                val fn = "${FunctionStmtNode.keyword} $fnName $body"
-                "${BlockStmtNode.startToken} $fn \n $callFn ${BlockStmtNode.endToken}"
-            }
-            val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
-
-            TestUtils.processAndCheckEmpty(analyzer)
-            TestUtils.checkEmptyStackAndContext(analyzer)
+        val tagName = "tag"
+        val text = let {
+            val control = "$keyword${BlockStmtNode.tagPrefix}$tagName"
+            "${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName $control ${BlockStmtNode.endToken}"
         }
+        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
+
+        TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
+            TestUtils.processAndCheckEmpty(analyzer)
+        }
+
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenContextTag))
     }
 }

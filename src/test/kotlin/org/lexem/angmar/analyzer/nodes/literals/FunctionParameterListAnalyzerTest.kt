@@ -27,7 +27,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -41,9 +41,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(param1Id, param2Id, AnalyzerCommons.Identifiers.This))
     }
@@ -61,7 +58,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -77,9 +74,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(positionalSpreadId, AnalyzerCommons.Identifiers.This))
     }
@@ -97,7 +91,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -113,9 +107,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(namedSpreadId, AnalyzerCommons.Identifiers.This))
     }
@@ -136,7 +127,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -156,9 +147,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, positionalSpreadId, AnalyzerCommons.Identifiers.This))
@@ -180,7 +168,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -202,9 +190,6 @@ internal class FunctionParameterListAnalyzerTest {
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
-
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, namedSpreadId, AnalyzerCommons.Identifiers.This))
     }
@@ -224,7 +209,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -247,9 +232,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(positionalSpreadId, namedSpreadId, AnalyzerCommons.Identifiers.This))
@@ -272,7 +254,7 @@ internal class FunctionParameterListAnalyzerTest {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
 
         val argumentsRef = analyzer.memory.add(arguments)
-        analyzer.memory.pushStack(argumentsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argumentsRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -299,9 +281,6 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
-
-        // Decrease reference count of the arguments.
-        argumentsRef.decreaseReferenceCount(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, positionalSpreadId, namedSpreadId, AnalyzerCommons.Identifiers.This))

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -57,7 +58,7 @@ internal class DestructuringElementStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectDestructuringElementStmt")
     fun `parse correct destructuring element statement`(text: String, hasOriginal: Boolean, isConstant: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -81,9 +82,10 @@ internal class DestructuringElementStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect destructuring element statement with original but without alias`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(
+                AngmarParserExceptionType.DestructuringElementStatementWithoutIdentifierAfterAliasToken) {
             val text = "${IdentifierNodeTest.testExpression} ${DestructuringElementStmtNode.aliasToken}"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -91,7 +93,7 @@ internal class DestructuringElementStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

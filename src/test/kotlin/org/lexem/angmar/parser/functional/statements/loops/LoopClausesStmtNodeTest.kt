@@ -4,8 +4,10 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.utils.*
 import java.util.stream.*
 import kotlin.streams.*
@@ -14,42 +16,42 @@ internal class LoopClausesStmtNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testExpression = "${LoopClausesStmtNode.lastKeyword} ${GlobalCommonsTest.testBlock}"
+        const val testExpression = "${LoopClausesStmtNode.lastKeyword} ${BlockStmtNodeTest.testExpression}"
 
         @JvmStatic
         private fun provideCorrectLoopClauses(): Stream<Arguments> {
             val sequence = sequence {
-                for (hasElse in 0..1) {
-                    for (hasLast in 0..1) {
+                for (hasElse in listOf(false, true)) {
+                    for (hasLast in listOf(false, true)) {
                         // Avoid none of them
-                        if (hasElse == 0 && hasLast == 0) {
+                        if (!hasElse && !hasLast) {
                             continue
                         }
 
                         val list = mutableListOf<String>()
 
-                        if (hasLast == 1) {
-                            list += "${LoopClausesStmtNode.lastKeyword} ${GlobalCommonsTest.testBlock}"
+                        if (hasLast) {
+                            list += "${LoopClausesStmtNode.lastKeyword} ${BlockStmtNodeTest.testExpression}"
                         }
 
-                        if (hasElse == 1) {
-                            list += "${LoopClausesStmtNode.elseKeyword} ${GlobalCommonsTest.testBlock}"
+                        if (hasElse) {
+                            list += "${LoopClausesStmtNode.elseKeyword} ${BlockStmtNodeTest.testExpression}"
                         }
 
-                        yield(Arguments.of(list.joinToString(" "), hasLast == 1, hasElse == 1))
+                        yield(Arguments.of(list.joinToString(" "), hasLast, hasElse))
 
                         // Without whitespaces
                         list.clear()
 
-                        if (hasLast == 1) {
-                            list += "${LoopClausesStmtNode.lastKeyword}${GlobalCommonsTest.testBlock}"
+                        if (hasLast) {
+                            list += "${LoopClausesStmtNode.lastKeyword}${BlockStmtNodeTest.testExpression}"
                         }
 
-                        if (hasElse == 1) {
-                            list += "${LoopClausesStmtNode.elseKeyword}${GlobalCommonsTest.testBlock}"
+                        if (hasElse) {
+                            list += "${LoopClausesStmtNode.elseKeyword}${BlockStmtNodeTest.testExpression}"
                         }
 
-                        yield(Arguments.of(list.joinToString(""), hasLast == 1, hasElse == 1))
+                        yield(Arguments.of(list.joinToString(""), hasLast, hasElse))
                     }
                 }
             }
@@ -64,7 +66,7 @@ internal class LoopClausesStmtNodeTest {
             node as LoopClausesStmtNode
 
             Assertions.assertNotNull(node.lastBlock, "The lastBlock property cannot be null")
-            GlobalCommonsTest.checkTestBlock(node.lastBlock!!)
+            BlockStmtNodeTest.checkTestExpression(node.lastBlock!!)
             Assertions.assertNull(node.elseBlock, "The elseBlock property must be null")
         }
     }
@@ -74,7 +76,7 @@ internal class LoopClausesStmtNodeTest {
     @ParameterizedTest
     @MethodSource("provideCorrectLoopClauses")
     fun `parse correct loop clauses`(text: String, hasLast: Boolean, hasElse: Boolean) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -82,14 +84,14 @@ internal class LoopClausesStmtNodeTest {
 
         if (hasLast) {
             Assertions.assertNotNull(res.lastBlock, "The lastBlock property cannot be null")
-            GlobalCommonsTest.checkTestBlock(res.lastBlock!!)
+            BlockStmtNodeTest.checkTestExpression(res.lastBlock!!)
         } else {
             Assertions.assertNull(res.lastBlock, "The lastBlock property must be null")
         }
 
         if (hasElse) {
             Assertions.assertNotNull(res.elseBlock, "The elseBlock property cannot be null")
-            GlobalCommonsTest.checkTestBlock(res.elseBlock!!)
+            BlockStmtNodeTest.checkTestExpression(res.elseBlock!!)
         } else {
             Assertions.assertNull(res.elseBlock, "The elseBlock property must be null")
         }
@@ -100,9 +102,9 @@ internal class LoopClausesStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect loop clauses with last but without block`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.LastLoopClauseWithoutBlock) {
             val text = LoopClausesStmtNode.lastKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -110,9 +112,9 @@ internal class LoopClausesStmtNodeTest {
     @Test
     @Incorrect
     fun `parse incorrect loop clauses with else but without block`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.ElseLoopClauseWithoutBlock) {
             val text = LoopClausesStmtNode.elseKeyword
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -120,7 +122,7 @@ internal class LoopClausesStmtNodeTest {
     @ParameterizedTest
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

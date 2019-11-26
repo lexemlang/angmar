@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
@@ -32,7 +33,10 @@ internal object PrefixOperatorAnalyzer {
      */
     private fun operate(analyzer: LexemAnalyzer, signal: Int, node: PrefixOperatorNode) {
         // Get operand values.
-        val thisValue = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.popStack())
+        val thisValue = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         // Get operand function.
         val operatorFunctionName = when (node.operator) {
@@ -43,7 +47,7 @@ internal object PrefixOperatorAnalyzer {
             else -> throw AngmarUnreachableException()
         }
 
-        val operatorFunction =
+        val operatorFunctionRef =
                 BinaryAnalyzerCommons.getOperatorFunction(analyzer, thisValue, node.parent!!, node, node.operator,
                         operatorFunctionName)
 
@@ -51,8 +55,8 @@ internal object PrefixOperatorAnalyzer {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, thisValue)
         val argumentsRef = analyzer.memory.add(arguments)
-        argumentsRef.increaseReferenceCount(analyzer.memory)
 
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunction, argumentsRef, node, signalEndOperator)
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, argumentsRef, node,
+                LxmCodePoint(node, signalEndOperator))
     }
 }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -35,7 +36,7 @@ internal class UnescapedStringNodeTest {
     fun `parse simple correct strings`(textContent: String) {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -55,7 +56,7 @@ internal class UnescapedStringNodeTest {
                 "this is a test ${UnescapedStringNode.startToken}$additionalDelimiter ${UnescapedStringNode.endToken}$additionalDelimiter"
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter$additionalDelimiter"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -76,7 +77,7 @@ internal class UnescapedStringNodeTest {
                 textContent.filter { it.toString() == UnescapedStringNode.startToken || it.toString() == UnescapedStringNode.endToken || it.toString() == additionalDelimiter }.length)
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -92,10 +93,10 @@ internal class UnescapedStringNodeTest {
 
     @Test
     fun `parse unclosed string`() {
-        TestUtils.assertParserException {
+        TestUtils.assertParserException(AngmarParserExceptionType.UnescapedStringWithoutEndQuote) {
             val text =
                     "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken} this is a test"
-            val parser = LexemParser(CustomStringReader.from(text))
+            val parser = LexemParser(IOStringReader.from(text))
             UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
         }
     }
@@ -105,7 +106,7 @@ internal class UnescapedStringNodeTest {
     fun `parse incorrect complex strings`(textContent: String) {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -126,7 +127,7 @@ internal class UnescapedStringNodeTest {
     @ValueSource(
             strings = ["", "3", UnescapedStringNode.macroName, "${UnescapedStringNode.macroName}$additionalDelimiter"])
     fun `not parse the node`(text: String) {
-        val parser = LexemParser(CustomStringReader.from(text))
+        val parser = LexemParser(IOStringReader.from(text))
         val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
