@@ -1,9 +1,16 @@
 package org.lexem.angmar.analyzer.stdlib
 
+import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.*
+import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.globals.*
 import org.lexem.angmar.analyzer.stdlib.prototypes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 /**
  * The common functions of the Lexem's standard library.
@@ -17,7 +24,8 @@ internal object StdlibCommons {
                     StringType.TypeName, IntervalType.TypeName, BitListType.TypeName, ListType.TypeName,
                     SetType.TypeName, ObjectType.TypeName, MapType.TypeName, FunctionType.TypeName,
                     ExpressionType.TypeName, FilterType.TypeName, NodeType.TypeName, AnalyzerGlobalObject.ObjectName,
-                    MathGlobalObject.ObjectName, ImportGlobalFunction.FunctionName, GlobalsGlobalObject.ObjectName)
+                    MathGlobalObject.ObjectName, ImportGlobalFunction.FunctionName, GlobalsGlobalObject.ObjectName,
+                    DebugGlobalObject.ObjectName)
 
     // METHODS ----------------------------------------------------------------
 
@@ -51,5 +59,21 @@ internal object StdlibCommons {
         MathGlobalObject.initObject(memory)
         ImportGlobalFunction.initFunction(memory)
         GlobalsGlobalObject.initObject(memory)
+        DebugGlobalObject.initObject(memory)
+    }
+
+    /**
+     * Calls the toString method of a value.
+     */
+    fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int) {
+        val prototype = value.getPrototype(analyzer.memory)
+        val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
+
+        val arguments = LxmArguments(analyzer.memory)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
+        val argumentsRef = analyzer.memory.add(arguments)
+
+        AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
+                LxmCodePoint(InternalFunctionCallNode, returnSignal))
     }
 }

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 
 /**
- * Built-in Math global object.
+ * Built-in global object.
  */
 internal object GlobalsGlobalObject {
     const val ObjectName = "Globals"

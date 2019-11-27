@@ -11,6 +11,7 @@ enum class AngmarAnalyzerExceptionType {
     UndefinedIndexer,
     AssignToConstant,
     UnhandledControlStatementSignal,
+    CustomError,
 
     // IMPORTS ----------------------------------------------------------------
 

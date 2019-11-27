@@ -21,6 +21,7 @@ internal object FunctionType {
         val reference = memory.add(type)
         AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
 
+        // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
     }
 }

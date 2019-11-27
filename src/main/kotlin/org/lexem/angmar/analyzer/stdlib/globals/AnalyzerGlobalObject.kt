@@ -22,6 +22,7 @@ internal object AnalyzerGlobalObject {
         val reference = memory.add(objectValue)
         AnalyzerCommons.getCurrentContext(memory).setProperty(memory, ObjectName, reference, isConstant = true)
 
+        // Properties
         objectValue.setProperty(memory, RootNode, LxmNil)
     }
 }

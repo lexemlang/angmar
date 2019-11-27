@@ -30,7 +30,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     internal var initialCursor: IReaderCursor = text.saveCursor()
 
     var status = Status.Ended
-        private set
+        internal set
     var entryPoint: String = Consts.defaultEntryPoint
         private set
 
@@ -105,7 +105,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             loop@ while (true) {
                 // Check timeout.
                 val time = OffsetDateTime.now()
-                if (time >= timeout) {
+                if (time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false
                 }
@@ -140,6 +140,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             }
         } catch (e: AngmarAnalyzerException) {
             // TODO print the stack traces
+            // TODO clear the state.
             throw e
         }
 

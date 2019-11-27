@@ -15,7 +15,25 @@ This is the plan to work towards a v1 release. This is a "living document" and w
 ## TODO
 
 - Stdlib
-  - All methods
+  - Globals
+    - Math
+  - Prototypes
+    - Any
+    - BitList
+    - Expression
+    - Filter
+    - Float
+    - Function
+    - Integer
+    - Interval
+    - List
+    - Logic
+    - Map
+    - Nil
+    - Node
+    - Object
+    - Set
+    - String
 
 - Test for Unicode
 - E2E tests
