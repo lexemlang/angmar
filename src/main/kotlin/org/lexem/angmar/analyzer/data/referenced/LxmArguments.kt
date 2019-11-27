@@ -93,9 +93,9 @@ internal class LxmArguments : LxmObject {
      * Maps all positional and named arguments into a map. Used for internal functions.
      */
     fun mapArguments(memory: LexemMemory, parameterNames: List<String>,
-            spreadPositionalParameter: MutableList<LexemMemoryValue>? = null,
-            spreadNamedParameter: MutableMap<String, LexemMemoryValue>? = null): Map<String, LexemMemoryValue> {
-        val result = mutableMapOf<String, LexemMemoryValue>()
+            spreadPositionalParameter: MutableList<LexemPrimitive>? = null,
+            spreadNamedParameter: MutableMap<String, LexemPrimitive>? = null): Map<String, LexemPrimitive> {
+        val result = mutableMapOf<String, LexemPrimitive>()
         val positionalArguments = getPositionalList(memory).getAllCells()
         val namedArguments = getNamedObject(memory).getAllIterableProperties()
 
@@ -107,15 +107,15 @@ internal class LxmArguments : LxmObject {
                 continue
             }
 
-            result[parameter.value] = value.dereference(memory)
+            result[parameter.value] = value
         }
 
         // Add positional arguments to spread parameter.
-        spreadPositionalParameter?.addAll(positionalArguments.drop(parameterNames.size).map { it.dereference(memory) })
+        spreadPositionalParameter?.addAll(positionalArguments.drop(parameterNames.size))
 
         // Map named arguments.
         for (argument in namedArguments) {
-            val value = argument.value.value.dereference(memory)
+            val value = argument.value.value
             if (result.containsKey(argument.key)) {
                 result[argument.key] = value
             } else {
@@ -128,7 +128,7 @@ internal class LxmArguments : LxmObject {
         val thisArgument = namedArguments[AnalyzerCommons.Identifiers.This] ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
                 "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
-        result[AnalyzerCommons.Identifiers.This] = thisArgument.value.dereference(memory)
+        result[AnalyzerCommons.Identifiers.This] = thisArgument.value
 
         return result
     }
