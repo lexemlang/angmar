@@ -212,8 +212,10 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
         }
     }
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, MapType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, MapType.TypeName) as LxmReference
+    }
 
     override fun toString() = StringBuilder().apply {
         append(MapNode.macroName)

@@ -220,8 +220,10 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
         }
     }
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, ListType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, ListType.TypeName) as LxmReference
+    }
 
     override fun toString() = StringBuilder().apply {
         if (isConstant) {

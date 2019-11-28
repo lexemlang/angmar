@@ -40,7 +40,7 @@ internal class ObjectTypeTest {
 
         Assertions.assertEquals(0, obj.getAllIterableProperties().size, "The size of the result is incorrect")
 
-        val prototype = obj.getPrototype(analyzer.memory)
+        val prototype = obj.getPrototypeAsObject(analyzer.memory)
         Assertions.assertEquals(value, prototype.getPropertyDescriptor(analyzer.memory, propName)!!.value,
                 "The prototype is incorrect")
 

@@ -20,8 +20,10 @@ internal class LxmFilter : LxmFunction {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, ExpressionType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, FilterType.TypeName) as LxmReference
+    }
 
     override fun toString() = "[Filter] ${node.parser.reader.getSource()}::$name"
 }

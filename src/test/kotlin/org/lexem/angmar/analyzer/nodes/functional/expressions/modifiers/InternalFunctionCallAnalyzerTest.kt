@@ -55,7 +55,7 @@ internal class InternalFunctionCallAnalyzerTest {
 
                     // Prepare stack to call toString over an integer.
                     val value = LxmInteger.Num10
-                    val prototype = value.getPrototype(analyzer.memory)
+                    val prototype = value.getPrototypeAsObject(analyzer.memory)
                     val function = prototype.getDereferencedProperty<LxmInternalFunction>(analyzer.memory,
                             AnalyzerCommons.Identifiers.ToString)!!
 

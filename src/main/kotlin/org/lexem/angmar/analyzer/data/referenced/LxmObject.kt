@@ -44,7 +44,7 @@ internal open class LxmObject : LexemReferenced {
         val property = getOwnPropertyDescriptor(memory, identifier)
 
         if (property == null) {
-            val prototype = getPrototype(memory)
+            val prototype = getPrototypeAsObject(memory)
 
             // Avoid infinite loops.
             if (prototype == this) {
@@ -74,7 +74,7 @@ internal open class LxmObject : LexemReferenced {
         val property = getOwnPropertyDescriptor(memory, identifier)
 
         if (property == null) {
-            val prototype = getPrototype(memory)
+            val prototype = getPrototypeAsObject(memory)
 
             // Avoid infinite loops.
             if (prototype == this) {
@@ -158,7 +158,7 @@ internal open class LxmObject : LexemReferenced {
 
         // Check the current object and the prototype.
         val currentProperty = getOwnPropertyDescriptor(memory, identifier)
-        val prototype = getPrototype(memory)
+        val prototype = getPrototypeAsObject(memory)
         val prototypeProperty = prototype.getPropertyValue(memory, identifier)
 
         // Set in prototype.
@@ -324,14 +324,12 @@ internal open class LxmObject : LexemReferenced {
         prototypeReference?.spatialGarbageCollect(memory)
     }
 
-    override fun getType(memory: LexemMemory): LxmObject =
-            AnalyzerCommons.getStdLibContextElement(memory, ObjectType.TypeName)
-
-    override fun getPrototype(memory: LexemMemory) = if (prototypeReference != null) {
-        prototypeReference.dereference(memory) as LxmObject
-    } else {
-        super.getPrototype(memory)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, ObjectType.TypeName) as LxmReference
     }
+
+    override fun getPrototype(memory: LexemMemory) = prototypeReference ?: super.getPrototype(memory)
 
     override fun toString() = StringBuilder().apply {
         if (isConstant) {

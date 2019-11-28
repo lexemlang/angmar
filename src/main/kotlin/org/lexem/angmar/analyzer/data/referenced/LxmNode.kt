@@ -266,8 +266,10 @@ internal class LxmNode : LxmObject {
 
     override fun clone() = LxmNode(this)
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, NodeType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, NodeType.TypeName) as LxmReference
+    }
 
     override fun toString() = "[NODE] $name = ${super.toString()}"
 }

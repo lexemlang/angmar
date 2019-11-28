@@ -541,7 +541,7 @@ internal class LxmObjectTest {
         val obj = LxmObject()
         val type = obj.getType(memory)
         val context = AnalyzerCommons.getCurrentContext(memory)
-        val objectType = context.getDereferencedProperty<LxmObject>(memory, ObjectType.TypeName)!!
+        val objectType = context.getPropertyValue(memory, ObjectType.TypeName)!!
         Assertions.assertEquals(objectType, type, "The type is incorrect")
     }
 
@@ -555,13 +555,13 @@ internal class LxmObjectTest {
 
         val obj1 = LxmObject(prototype1Ref, memory)
         val result1 = obj1.getPrototype(memory)
-        Assertions.assertEquals(prototype1, result1, "The result is incorrect")
+        Assertions.assertEquals(prototype1Ref, result1, "The result is incorrect")
 
         val obj2 = LxmObject()
         val result2 = obj2.getPrototype(memory)
         val context = AnalyzerCommons.getCurrentContext(memory)
         val objectType = context.getDereferencedProperty<LxmObject>(memory, ObjectType.TypeName)!!
-        val prototype = objectType.getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Prototype)!!
+        val prototype = objectType.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype)!!
         Assertions.assertEquals(prototype, result2, "The result is incorrect")
     }
 

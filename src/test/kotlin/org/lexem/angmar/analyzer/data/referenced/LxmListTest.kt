@@ -5,6 +5,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -269,8 +270,8 @@ internal class LxmListTest {
         val list = LxmList()
         val type = list.getType(memory)
         val context = AnalyzerCommons.getCurrentContext(memory)
-        val listType = context.getDereferencedProperty<LxmObject>(memory, ListType.TypeName)!!
-        Assertions.assertEquals(listType, type, "The type is incorrect")
+        val listType = context.getPropertyValue(memory, ListType.TypeName)!!
+        Assertions.assertTrue(RelationalFunctions.identityEquals(type, listType), "The type is incorrect")
     }
 
     @Test
@@ -282,8 +283,8 @@ internal class LxmListTest {
         val result = list.getPrototype(memory)
         val context = AnalyzerCommons.getCurrentContext(memory)
         val listType = context.getDereferencedProperty<LxmObject>(memory, ListType.TypeName)!!
-        val prototype = listType.getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Prototype)!!
-        Assertions.assertEquals(prototype, result, "The result is incorrect")
+        val prototype = listType.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype)!!
+        Assertions.assertTrue(RelationalFunctions.identityEquals(prototype, result), "The result is incorrect")
     }
 
     @Test

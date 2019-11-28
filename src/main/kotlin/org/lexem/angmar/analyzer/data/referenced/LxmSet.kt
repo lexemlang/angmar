@@ -188,8 +188,10 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
         }
     }
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, SetType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, SetType.TypeName) as LxmReference
+    }
 
     override fun toString() = StringBuilder().apply {
         append(SetNode.macroName)

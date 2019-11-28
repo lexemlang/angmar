@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 
@@ -13,8 +12,10 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, IntegerType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, IntegerType.TypeName) as LxmReference
+    }
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 

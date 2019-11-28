@@ -42,8 +42,10 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
         contextReference.spatialGarbageCollect(memory)
     }
 
-    override fun getType(memory: LexemMemory) =
-            AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, FunctionType.TypeName)
+    override fun getType(memory: LexemMemory): LxmReference {
+        val context = AnalyzerCommons.getCurrentContext(memory)
+        return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
+    }
 
     override fun toString() = "[Function] ${node.parser.reader.getSource()}::$name - Context: $contextReference"
 }
