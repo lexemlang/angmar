@@ -49,6 +49,8 @@ internal class DebugGlobalObjectTest {
             }
 
             TestUtils.processAndCheckEmpty(analyzer)
+
+            TestUtils.checkEmptyStackAndContext(analyzer)
         }
 
         Assertions.assertTrue(errOut.isEmpty(), "The error output must be empty")
@@ -70,6 +72,8 @@ internal class DebugGlobalObjectTest {
             }
 
             TestUtils.processAndCheckEmpty(analyzer)
+
+            TestUtils.checkEmptyStackAndContext(analyzer)
         }
 
         Assertions.assertTrue(errOut.isEmpty(), "The error output must be empty")
@@ -91,6 +95,8 @@ internal class DebugGlobalObjectTest {
             }
 
             TestUtils.processAndCheckEmpty(analyzer)
+
+            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 
@@ -109,6 +115,8 @@ internal class DebugGlobalObjectTest {
             }
 
             TestUtils.processAndCheckEmpty(analyzer)
+
+            TestUtils.checkEmptyStackAndContext(analyzer)
         }
     }
 }
