@@ -12,6 +12,7 @@ enum class AngmarAnalyzerExceptionType {
     AssignToConstant,
     UnhandledControlStatementSignal,
     CustomError,
+    ToStringMethodNotReturningString,
 
     // IMPORTS ----------------------------------------------------------------
 

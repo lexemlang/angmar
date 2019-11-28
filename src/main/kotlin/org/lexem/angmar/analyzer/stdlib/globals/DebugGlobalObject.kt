@@ -84,13 +84,18 @@ internal object DebugGlobalObject {
             }
             else -> {
                 val tag = parsedArguments[LogArgs[1]] as? LxmString
-                val result = analyzer.memory.getLastFromStack()
+                val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
 
                 Logger("$result") {
                     if (tag != null) {
                         addNote(Consts.Logger.errorIdTitle, tag.primitive)
                     }
                 }.logAsInfo()
+
+                // Always return a value.
+                analyzer.memory.replaceLastStackCell(LxmNil)
 
                 return true
             }
@@ -112,7 +117,9 @@ internal object DebugGlobalObject {
                 return false
             }
             else -> {
-                val result = analyzer.memory.getLastFromStack()
+                val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
 
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CustomError, "$result") {}
             }

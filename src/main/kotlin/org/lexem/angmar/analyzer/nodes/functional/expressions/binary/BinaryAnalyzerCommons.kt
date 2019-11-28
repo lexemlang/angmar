@@ -9,6 +9,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 
 /**
@@ -83,7 +84,7 @@ internal object BinaryAnalyzerCommons {
 
         if (thisValue !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
-                    "The $functionName method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a $thisTypeName") {}
+                    "The '<$thisTypeName value>${AccessExplicitMemberNode.accessToken}$functionName' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a $thisTypeName") {}
         }
 
         val result = processFunction(analyzer, thisValue)
@@ -105,12 +106,12 @@ internal object BinaryAnalyzerCommons {
 
         if (left !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
-                    "The $functionName method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a $leftTypeName") {}
+                    "The '<$leftTypeName value>${AccessExplicitMemberNode.accessToken}$functionName' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a $leftTypeName") {}
         }
 
         val result = processFunction(analyzer, left, right) ?: let {
             var message =
-                    "The $functionName method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a "
+                    "The '<$leftTypeName value>${AccessExplicitMemberNode.accessToken}$functionName' method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a "
 
             if (typeNamesForRightOperand.size == 1) {
                 message += typeNamesForRightOperand.last()

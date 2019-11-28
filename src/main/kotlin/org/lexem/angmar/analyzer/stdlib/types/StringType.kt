@@ -73,7 +73,9 @@ internal object StringType {
 
                 // Combine the result.
                 val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
-                val currentString = analyzer.memory.getLastFromStack() as LxmString
+                val currentString = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
                 val result = LxmString.from(accumulator.primitive + currentString.primitive)
 
                 if (position < spreadArguments.size) {
@@ -136,7 +138,9 @@ internal object StringType {
 
                 // Combine the result.
                 val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
-                val currentString = analyzer.memory.getLastFromStack() as LxmString
+                val currentString = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
                 val result = LxmString.from(if (position == 1) {
                     currentString.primitive
                 } else {
