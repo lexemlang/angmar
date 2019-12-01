@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
@@ -25,7 +24,7 @@ internal class LxmListTest {
 
     @Test
     fun `test add and get cell`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.addCell(memory, LxmInteger.Num0)
 
@@ -43,7 +42,7 @@ internal class LxmListTest {
 
     @Test
     fun `test add cell ignoring constant`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val list = LxmList()
         list.makeConstant(memory)
 
@@ -55,7 +54,7 @@ internal class LxmListTest {
 
     @Test
     fun `test insert cell`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.insertCell(memory, 0, LxmInteger.Num0, LxmInteger.Num10)
 
@@ -76,7 +75,7 @@ internal class LxmListTest {
 
     @Test
     fun `test insert cell ignoring constant`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.insertCell(memory, 0, LxmInteger.Num0, LxmInteger.Num10)
 
@@ -98,7 +97,7 @@ internal class LxmListTest {
 
     @Test
     fun `test set cell`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.addCell(memory, LxmInteger.Num0)
 
@@ -120,7 +119,7 @@ internal class LxmListTest {
 
     @Test
     fun `test remove cell`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.addCell(memory, LxmInteger.Num0)
 
@@ -142,7 +141,7 @@ internal class LxmListTest {
 
     @Test
     fun `test remove cell checking references`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val list = LxmList()
         val obj = LxmObject()
         val objRef = memory.add(obj)
@@ -157,7 +156,7 @@ internal class LxmListTest {
 
     @Test
     fun `test remove many cells`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val list = LxmList()
         val obj = LxmObject()
         val objRef = memory.add(obj)
@@ -177,7 +176,7 @@ internal class LxmListTest {
 
     @Test
     fun `test remove cell ignoring constant`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val list = LxmList()
         list.addCell(memory, LxmInteger.Num0)
         list.makeConstant(memory)
@@ -189,7 +188,7 @@ internal class LxmListTest {
 
     @Test
     fun `test get all cells`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val old = LxmList()
         old.addCell(memory, LxmInteger.Num0)
 
@@ -209,7 +208,7 @@ internal class LxmListTest {
 
     @Test
     fun `test make constant`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
         val list = LxmList()
 
         Assertions.assertFalse(list.isImmutable, "The isImmutable property is incorrect")
@@ -221,7 +220,7 @@ internal class LxmListTest {
 
     @Test
     fun `test clone`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val old = LxmList()
         val cloned = old.clone()
@@ -238,7 +237,7 @@ internal class LxmListTest {
 
     @Test
     fun `test memory dealloc`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val list = LxmList()
         val listRef = memory.add(list)
@@ -291,7 +290,7 @@ internal class LxmListTest {
     @Incorrect
     fun `add a cell of a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
-            val memory = LexemMemory()
+            val memory = TestUtils.generateTestMemory()
             val list = LxmList()
             list.makeConstant(memory)
             list.addCell(memory, LxmLogic.True)
@@ -302,7 +301,7 @@ internal class LxmListTest {
     @Incorrect
     fun `set a cell of a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
-            val memory = LexemMemory()
+            val memory = TestUtils.generateTestMemory()
             val list = LxmList()
             list.addCell(memory, LxmLogic.True)
             list.makeConstant(memory)
@@ -314,7 +313,7 @@ internal class LxmListTest {
     @Incorrect
     fun `set an out-of-bounds cell`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds) {
-            val memory = LexemMemory()
+            val memory = TestUtils.generateTestMemory()
             val list = LxmList()
             list.setCell(memory, 0, LxmLogic.False)
         }
@@ -324,7 +323,7 @@ internal class LxmListTest {
     @Incorrect
     fun `remove a cell of a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
-            val memory = LexemMemory()
+            val memory = TestUtils.generateTestMemory()
             val list = LxmList()
             list.addCell(memory, LxmLogic.True)
             list.makeConstant(memory)
@@ -336,7 +335,7 @@ internal class LxmListTest {
     @Incorrect
     fun `remove an out-of-bounds cell`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds) {
-            val memory = LexemMemory()
+            val memory = TestUtils.generateTestMemory()
             val list = LxmList()
             list.removeCell(memory, 0)
         }

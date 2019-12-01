@@ -30,9 +30,10 @@ internal class BigNodeCellTest {
     fun `test new`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val cell = BigNodeCell.new(0, LxmObject.Empty)
+        val empty = LxmObject()
+        val cell = BigNodeCell.new(0, empty)
 
-        checkCell(cell, 0, LxmObject.Empty)
+        checkCell(cell, 0, empty)
 
         // Destroys the cell
         cell.destroy()
@@ -59,9 +60,10 @@ internal class BigNodeCellTest {
     fun `test set simple`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+        val empty = LxmObject()
+        val cell0 = bigNode.alloc(memory, empty)
 
-        checkCell(cell0, 0, LxmObject.Empty)
+        checkCell(cell0, 0, empty)
 
         cell0.setValue(LxmList.Empty)
 
@@ -86,6 +88,7 @@ internal class BigNodeCellTest {
     fun `test shift`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
+        val empty = LxmObject()
 
         val cell0Value = LxmList()
         val cell0 = bigNode.alloc(memory, cell0Value)
@@ -106,8 +109,9 @@ internal class BigNodeCellTest {
     fun `test realloc`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
+        val empty = LxmObject()
 
-        val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+        val cell0 = bigNode.alloc(memory, empty)
 
         val obj = LxmObject()
         obj.setProperty(memory, "test", LxmReference(cell0.position))
@@ -115,7 +119,7 @@ internal class BigNodeCellTest {
         val cell1 = bigNode.alloc(memory, obj)
         cell1.increaseReferences()
 
-        checkCell(cell0, 0, LxmObject.Empty, referenceCount = 1)
+        checkCell(cell0, 0, empty, referenceCount = 1)
         checkCell(cell1, 1, obj, referenceCount = 1)
 
         // Realloc
@@ -129,27 +133,29 @@ internal class BigNodeCellTest {
     fun `test free with value`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        bigNode.alloc(memory, LxmObject.Empty)
+        val empty = LxmObject()
+        bigNode.alloc(memory, empty)
         val cell1 = bigNode.alloc(memory, LxmList.Empty)
 
         checkCell(cell1, 1, LxmList.Empty)
 
         // Free
-        cell1.freeCell(memory, 5)
+        cell1.freeCell(memory)
 
-        checkCell(cell1, 1, BigNodeCell.EmptyCell, referenceCount = 5, isFreed = true)
+        checkCell(cell1, 1, BigNodeCell.EmptyCell, referenceCount = bigNode.actualHeapSize, isFreed = true)
     }
 
     @Test
     fun `test destroy`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val cell = bigNode.alloc(memory, LxmObject.Empty)
+        val empty = LxmObject()
+        val cell = bigNode.alloc(memory, empty)
 
         // Add reference to increase the count.
         cell.increaseReferences()
 
-        checkCell(cell, 0, LxmObject.Empty, referenceCount = 1)
+        checkCell(cell, 0, empty, referenceCount = 1)
 
         // Destroys the cell
         cell.destroy()
@@ -162,13 +168,14 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
             // Free
             cell0.decreaseReferences(memory)
 
-            cell0.setValue(LxmObject.Empty)
+            cell0.setValue(empty)
         }
     }
 
@@ -178,13 +185,14 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
             // Free
             cell0.decreaseReferences(memory)
 
-            cell0.freeCell(memory, 0)
+            cell0.freeCell(memory)
         }
     }
 
@@ -194,7 +202,8 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
             // Free
@@ -210,7 +219,8 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
             // Free
@@ -226,11 +236,12 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
             // Free
-            cell0.freeCell(memory, 5)
+            cell0.freeCell(memory)
         }
     }
 
@@ -240,7 +251,8 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferenceCountUnderflow) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val cell0 = bigNode.alloc(memory, LxmObject.Empty)
+            val empty = LxmObject()
+            val cell0 = bigNode.alloc(memory, empty)
             cell0.decreaseReferences(memory)
         }
     }

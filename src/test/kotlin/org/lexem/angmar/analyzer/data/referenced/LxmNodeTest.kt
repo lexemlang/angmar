@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.utils.*
 
 internal class LxmNodeTest {
     @Test
@@ -17,7 +18,7 @@ internal class LxmNodeTest {
         val readerChild = IOStringReader.from(text2)
 
         // Prepare the node tree.
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
         val parentLeftBound = 0
         val parentRightBound = text2.length
         readerChild.setPosition(parentLeftBound)

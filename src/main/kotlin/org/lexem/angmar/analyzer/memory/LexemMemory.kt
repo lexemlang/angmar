@@ -9,6 +9,9 @@ import org.lexem.angmar.errors.*
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory {
+    var isInGarbageCollectionMode = false
+        private set
+
     var lastNode = BigNode(null)
         private set
 
@@ -187,5 +190,9 @@ internal class LexemMemory {
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect() = lastNode.spatialGarbageCollect(this)
+    fun spatialGarbageCollect() {
+        isInGarbageCollectionMode = true
+        lastNode.spatialGarbageCollect(this)
+        isInGarbageCollectionMode = false
+    }
 }

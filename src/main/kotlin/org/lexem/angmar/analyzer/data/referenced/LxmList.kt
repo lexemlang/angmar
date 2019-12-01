@@ -192,8 +192,10 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      * Replaces the value of a cell.
      */
     private fun replaceCell(memory: LexemMemory, index: Int, newValue: LexemPrimitive) {
-        memory.replacePrimitives(cellList[index] ?: LxmNil, newValue)
+        // Keep this to replace the elements before possibly remove the references.
+        val oldValue = cellList[index] ?: LxmNil
         cellList[index] = newValue
+        memory.replacePrimitives(oldValue, newValue)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

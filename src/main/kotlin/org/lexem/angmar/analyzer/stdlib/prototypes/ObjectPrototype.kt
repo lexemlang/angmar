@@ -11,8 +11,9 @@ internal object ObjectPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+    fun initPrototype(memory: LexemMemory, anyPrototypeReference: LxmReference): LxmReference {
+        val prototype = LxmObject(anyPrototypeReference, memory)
+
         return memory.add(prototype)
     }
 }

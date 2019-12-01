@@ -20,7 +20,7 @@ internal object AnyPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+        val prototype = LxmAnyPrototype()
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmInternalFunction(::logicalNot),
                 isConstant = true)
 

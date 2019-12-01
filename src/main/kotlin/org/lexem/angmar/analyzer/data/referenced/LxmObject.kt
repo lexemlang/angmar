@@ -19,16 +19,23 @@ internal open class LxmObject : LexemReferenced {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor() {
-        oldObject = null
-        prototypeReference = null
-    }
-
     constructor(oldObject: LxmObject) {
         this.oldObject = oldObject
         prototypeReference = oldObject.prototypeReference
+        isConstant = oldObject.isConstant
     }
 
+    /**
+     * Creates an object without explicit prototype.
+     */
+    constructor() {
+        oldObject = null
+        this.prototypeReference = null
+    }
+
+    /**
+     * Creates an object with explicit prototype.
+     */
     constructor(prototypeReference: LxmReference, memory: LexemMemory) {
         oldObject = null
         this.prototypeReference = prototypeReference
@@ -44,13 +51,12 @@ internal open class LxmObject : LexemReferenced {
         val property = getOwnPropertyDescriptor(memory, identifier)
 
         if (property == null) {
-            val prototype = getPrototypeAsObject(memory)
-
             // Avoid infinite loops.
-            if (prototype == this) {
+            if (this is LxmAnyPrototype) {
                 return null
             }
 
+            val prototype = getPrototypeAsObject(memory)
             return prototype.getPropertyValue(memory, identifier)
         }
 
@@ -74,13 +80,12 @@ internal open class LxmObject : LexemReferenced {
         val property = getOwnPropertyDescriptor(memory, identifier)
 
         if (property == null) {
-            val prototype = getPrototypeAsObject(memory)
-
             // Avoid infinite loops.
-            if (prototype == this) {
+            if (this is LxmAnyPrototype) {
                 return null
             }
 
+            val prototype = getPrototypeAsObject(memory)
             return prototype.getPropertyDescriptor(memory, identifier)
         }
 
@@ -114,8 +119,8 @@ internal open class LxmObject : LexemReferenced {
             // No property.
             currentProperty == null && lastProperty == null -> {
                 val property = LxmObjectProperty(isConstant, isIterable, false)
-                property.replaceValue(memory, value)
                 properties[identifier] = property
+                property.replaceValue(memory, value)
             }
 
             // Current property.
@@ -139,8 +144,8 @@ internal open class LxmObject : LexemReferenced {
                 }
 
                 val property = lastProperty.clone(isConstant = isConstant, isIterable = isIterable, isRemoved = false)
-                property.replaceValue(memory, value)
                 properties[identifier] = property
+                property.replaceValue(memory, value)
             }
         }
     }
@@ -154,6 +159,11 @@ internal open class LxmObject : LexemReferenced {
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
+        }
+
+        // Avoid infinite loops.
+        if (this is LxmAnyPrototype) {
+            return setProperty(memory, identifier, value, isConstant)
         }
 
         // Check the current object and the prototype.
@@ -383,8 +393,10 @@ internal open class LxmObject : LexemReferenced {
          * Replaces the value handling the memory references.
          */
         fun replaceValue(memory: LexemMemory, newValue: LexemPrimitive) {
-            memory.replacePrimitives(value, newValue)
+            // Keep this to replace the elements before possibly remove the references.
+            val oldValue = value
             value = newValue
+            memory.replacePrimitives(oldValue, newValue)
         }
 
         override fun toString() = StringBuilder().apply {
@@ -404,13 +416,5 @@ internal open class LxmObject : LexemReferenced {
                 append(value)
             }
         }.toString()
-    }
-
-    companion object {
-        val Empty = LxmObject()
-
-        init {
-            Empty.isConstant = true
-        }
     }
 }

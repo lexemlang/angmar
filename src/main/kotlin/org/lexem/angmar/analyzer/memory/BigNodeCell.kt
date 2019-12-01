@@ -73,28 +73,27 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
     /**
      * Frees the cell clearing all its fields but the reference which points to the next free cell.
      */
-    fun freeCell(memory: LexemMemory, nextFreeCell: Int) {
+    fun freeCell(memory: LexemMemory) {
         if (isFreed) {
+            // Avoid to throw errors when in garbage collection mode.
+            if (memory.isInGarbageCollectionMode) {
+                return
+            }
+
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "Cannot access to a freed memory segment") {}
         }
 
-        if (referenceCount > 0) {
+        if (referenceCount > 0 && !memory.isInGarbageCollectionMode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed,
                     "Cannot free a referenced memory cell") {}
         }
 
-        freeCellAsGarbage(memory, nextFreeCell)
-    }
-
-    /**
-     * Frees the cell clearing all its fields but the reference which points to the next free cell.
-     */
-    fun freeCellAsGarbage(memory: LexemMemory, nextFreeCell: Int) {
         isNotGarbage = false
-        referenceCount = nextFreeCell
+        val value = value
+        this.value = EmptyCell
         value.memoryDealloc(memory)
-        setValue(EmptyCell)
+        referenceCount = memory.lastNode.lastFreePosition
     }
 
     /**
@@ -121,6 +120,11 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
      */
     fun decreaseReferences(memory: LexemMemory, count: Int = 1) {
         if (isFreed) {
+            // Avoid to free cells during garbage collector.
+            if (memory.isInGarbageCollectionMode) {
+                return
+            }
+
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "Cannot access to a freed memory segment") {}
         }

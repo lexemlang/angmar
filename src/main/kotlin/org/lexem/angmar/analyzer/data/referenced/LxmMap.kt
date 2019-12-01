@@ -55,11 +55,10 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
             // No property
             currentProperty == null && lastProperty == null -> {
                 val property = LxmMapProperty(isRemoved = false)
-                property.replaceKey(memory, key)
-                property.replaceValue(memory, value)
-
                 properties.putIfAbsent(keyHash, mutableListOf())
                 properties[keyHash]!!.add(property)
+                property.replaceKey(memory, key)
+                property.replaceValue(memory, value)
             }
 
             // Current property
@@ -117,9 +116,9 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
             lastProperty != null -> {
                 // Set property to remove.
                 val property = lastProperty.clone(memory, isRemoved = true)
-                property.replaceValue(memory, LxmNil)
                 properties.putIfAbsent(keyHash, mutableListOf())
                 properties[keyHash]!!.add(property)
+                property.replaceValue(memory, LxmNil)
             }
         }
     }
@@ -266,16 +265,20 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
          * Replaces the key handling the memory references.
          */
         fun replaceKey(memory: LexemMemory, newKey: LexemPrimitive) {
-            memory.replacePrimitives(key, newKey)
-            this.key = newKey
+            // Keep this to replace the elements before possibly remove the references.
+            val oldKey = key
+            key = newKey
+            memory.replacePrimitives(oldKey, newKey)
         }
 
         /**
          * Replaces the value handling the memory references.
          */
         fun replaceValue(memory: LexemMemory, newValue: LexemPrimitive) {
-            memory.replacePrimitives(value, newValue)
-            this.value = newValue
+            // Keep this to replace the elements before possibly remove the references.
+            val oldValue = value
+            value = newValue
+            memory.replacePrimitives(oldValue, newValue)
         }
     }
 

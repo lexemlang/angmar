@@ -13,7 +13,6 @@ internal class LxmArguments : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor()
     constructor(oldArguments: LxmArguments) : super(oldArguments)
 
     constructor(memory: LexemMemory) {
@@ -199,14 +198,6 @@ internal class LxmArguments : LxmObject {
                 AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
                 "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
         context.setProperty(memory, AnalyzerCommons.Identifiers.This, thisArgument.value)
-    }
-
-    override fun memoryDealloc(memory: LexemMemory) {
-        val positional = getPropertyValue(memory, AnalyzerCommons.Identifiers.ArgumentsPositional) as LxmReference
-        val named = getPropertyValue(memory, AnalyzerCommons.Identifiers.ArgumentsNamed) as LxmReference
-
-        positional.decreaseReferences(memory)
-        named.decreaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

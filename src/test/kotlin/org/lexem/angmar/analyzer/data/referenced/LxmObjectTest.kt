@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -26,7 +25,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test constructors with prototype`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val old = LxmObject()
         val oldRef = memory.add(old)
@@ -48,7 +47,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test get property`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -69,7 +68,7 @@ internal class LxmObjectTest {
     @Test
     fun `test get removed property`() {
         val propName = "test"
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val old = LxmObject()
         old.setProperty(memory, propName, LxmLogic.True)
@@ -94,7 +93,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test get property descriptor`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -116,7 +115,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test get dereferenced property`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val other = LxmObject()
         val otherRef = memory.add(other)
@@ -174,7 +173,7 @@ internal class LxmObjectTest {
     fun `test set property updating references`() {
         val prop1Name = "test1"
         val prop2Name = "test2"
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val obj1 = LxmObject()
         val obj1Ref = memory.add(obj1)
@@ -330,7 +329,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test contains own property`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -349,7 +348,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test contains own removed property`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -366,7 +365,7 @@ internal class LxmObjectTest {
     @Test
     fun `test remove property from current`() {
         val propName = "property"
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject()
         obj.setProperty(memory, propName, LxmLogic.True)
@@ -379,7 +378,7 @@ internal class LxmObjectTest {
     @Test
     fun `test remove property existing in old`() {
         val propName = "property"
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -407,7 +406,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test make constant`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject()
         Assertions.assertFalse(obj.isImmutable, "The isImmutable property is incorrect")
@@ -419,7 +418,7 @@ internal class LxmObjectTest {
     @Test
     fun `test make property constant`() {
         val propName = "test"
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject()
         obj.setProperty(memory, propName, LxmLogic.True)
@@ -443,7 +442,7 @@ internal class LxmObjectTest {
         val oldPropsCount = 1
         val protoPropsCount = 3
         val newPropsCount = 6
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject()
         val prototypeRef = memory.add(prototype)
@@ -478,7 +477,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test clone`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val old = LxmObject()
         val cloned = old.clone()
@@ -495,7 +494,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test memory dealloc`() {
-        val memory = LexemMemory()
+        val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject()
         val objRef = memory.add(obj)
@@ -648,10 +647,5 @@ internal class LxmObjectTest {
             obj.makeConstant(analyzer.memory)
             obj.makePropertyConstant(analyzer.memory, "test")
         }
-    }
-
-    @Test
-    fun `check the empty object is constant`() {
-        Assertions.assertTrue(LxmObject.Empty.isImmutable, "The LxmObject.Empty must be constant")
     }
 }

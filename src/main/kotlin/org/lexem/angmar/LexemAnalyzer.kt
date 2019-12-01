@@ -39,7 +39,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         val stdLibContextReference = memory.add(stdLibContext)
         stdLibContextReference.increaseReferences(memory)
 
-        if (stdLibContextReference.position != 0) {
+        if (stdLibContextReference.position != LxmReference.StdLibContext.position) {
             // This must never happen.
             throw AngmarUnreachableException()
         }

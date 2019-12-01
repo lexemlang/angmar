@@ -36,10 +36,9 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
             // No property
             currentProperty == null && lastProperty == null -> {
                 val property = LxmSetProperty(isRemoved = false)
-                property.replaceValue(memory, value)
-
                 values.putIfAbsent(valueHash, mutableListOf())
                 values[valueHash]!!.add(property)
+                property.replaceValue(memory, value)
             }
 
             // Current property
@@ -96,9 +95,9 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
             lastProperty != null -> {
                 // Set property to remove.
                 val property = lastProperty.clone(memory, isRemoved = true)
-                property.replaceValue(memory, LxmNil)
                 values.putIfAbsent(valueHash, mutableListOf())
                 values[valueHash]!!.add(property)
+                property.replaceValue(memory, LxmNil)
             }
         }
     }
@@ -240,8 +239,10 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
          * Replaces the value handling the memory references.
          */
         fun replaceValue(memory: LexemMemory, newValue: LexemPrimitive) {
-            memory.replacePrimitives(value, newValue)
-            this.value = newValue
+            // Keep this to replace the elements before possibly remove the references.
+            val oldValue = value
+            value = newValue
+            memory.replacePrimitives(oldValue, newValue)
         }
     }
 

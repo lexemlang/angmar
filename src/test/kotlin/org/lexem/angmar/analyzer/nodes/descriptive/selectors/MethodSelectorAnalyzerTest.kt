@@ -131,7 +131,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParentRef!!.decreaseReferences(analyzer.memory)
+            lxmParentRef!!.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+                    AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -191,7 +192,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParentRef!!.decreaseReferences(analyzer.memory)
+            lxmParentRef!!.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+                    AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -291,7 +293,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParentRef!!.decreaseReferences(analyzer.memory)
+            lxmParentRef!!.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+                    AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -545,7 +548,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParentRef!!.decreaseReferences(analyzer.memory)
+            lxmParentRef!!.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+                    AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -772,7 +776,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParentRef!!.decreaseReferences(analyzer.memory)
+            lxmParentRef!!.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+                    AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)

@@ -288,19 +288,11 @@ internal class BigNode constructor(val previousNode: BigNode?) {
      */
     fun free(memory: LexemMemory, position: Int) {
         val cell = getCell(position)
-        cell.freeCell(memory, lastFreePosition)
-        lastFreePosition = cell.position
-        actualUsedCellCount -= 1
-    }
-
-    /**
-     * Frees a memory cell to reuse it in the future.
-     */
-    fun freeAsGarbage(memory: LexemMemory, position: Int) {
-        val cell = getCell(position)
-        cell.freeCellAsGarbage(memory, lastFreePosition)
-        lastFreePosition = cell.position
-        actualUsedCellCount -= 1
+        if (!cell.isFreed) {
+            cell.freeCell(memory)
+            lastFreePosition = cell.position
+            actualUsedCellCount -= 1
+        }
     }
 
     /**
@@ -415,8 +407,8 @@ internal class BigNode constructor(val previousNode: BigNode?) {
         for (i in 0 until actualHeapSize) {
             val cell = getCell(i)
 
-            if (!cell.isNotGarbage && !cell.isFreed) {
-                freeAsGarbage(memory, cell.position)
+            if (!cell.isNotGarbage) {
+                free(memory, i)
             } else {
                 cell.clearGarbageFlag(memory)
             }

@@ -33,7 +33,8 @@ internal object StdlibCommons {
      * Initializes the built-in types.
      */
     fun initTypesAndPrototypes(memory: LexemMemory) {
-        AnyType.initType(memory, AnyPrototype.initPrototype(memory))
+        val anyPrototypeReference = AnyPrototype.initPrototype(memory)
+        AnyType.initType(memory, anyPrototypeReference)
         NilType.initType(memory, NilPrototype.initPrototype(memory))
         LogicType.initType(memory, LogicPrototype.initPrototype(memory))
         IntegerType.initType(memory, IntegerPrototype.initPrototype(memory))
@@ -43,7 +44,7 @@ internal object StdlibCommons {
         BitListType.initType(memory, BitListPrototype.initPrototype(memory))
         ListType.initType(memory, ListPrototype.initPrototype(memory))
         SetType.initType(memory, SetPrototype.initPrototype(memory))
-        ObjectType.initType(memory, ObjectPrototype.initPrototype(memory))
+        ObjectType.initType(memory, ObjectPrototype.initPrototype(memory, anyPrototypeReference))
         MapType.initType(memory, MapPrototype.initPrototype(memory))
         FunctionType.initType(memory, FunctionPrototype.initPrototype(memory))
         ExpressionType.initType(memory, ExpressionPrototype.initPrototype(memory))

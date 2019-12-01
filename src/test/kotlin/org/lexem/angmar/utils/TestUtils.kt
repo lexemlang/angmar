@@ -146,6 +146,11 @@ object TestUtils {
     internal fun generateTestMemory() = LexemMemory().apply { freezeCopy() }
 
     /**
+     * Creates a correct [LexemMemory] from an analyzer.
+     */
+    internal fun generateTestMemoryFromAnalyzer() = LexemAnalyzer(ParserNode.Companion.EmptyParserNode).memory
+
+    /**
      * Creates an analyzer from the specified parameter.
      */
     internal fun createAnalyzerFrom(grammarText: String, isDescriptiveCode: Boolean = false,
@@ -276,8 +281,7 @@ object TestUtils {
         Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 
         // Remove the stdlib context.
-        val stdLibCell = memory.lastNode.getCell(LxmReference.StdLibContext.position)
-        stdLibCell.decreaseReferences(memory, 1)
+        LxmReference.StdLibContext.decreaseReferences(memory)
 
         // Check whether the memory is empty.
         Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,
