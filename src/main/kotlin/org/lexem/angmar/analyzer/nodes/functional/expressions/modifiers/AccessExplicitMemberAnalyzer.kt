@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -27,8 +26,8 @@ internal object AccessExplicitMemberAnalyzer {
             }
             signalEndIdentifier -> {
                 val identifier = analyzer.memory.getLastFromStack() as LxmString
-                val element = (analyzer.memory.getFromStack(
-                        AnalyzerCommons.Identifiers.Accumulator) as LexemSetter).getPrimitive(analyzer.memory)
+                val element = AnalyzerNodesCommons.resolveSetter(analyzer.memory,
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator))
 
                 analyzer.memory.replaceLastStackCell(
                         LxmPropertySetter(element, identifier.primitive, node, analyzer.memory))
