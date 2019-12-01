@@ -8,7 +8,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -74,33 +73,20 @@ internal class AnyPrototypeTest {
             2 -> "${FunctionNode.keyword}${BlockStmtNode.startToken}${BlockStmtNode.endToken}"
             else -> "${ObjectNode.startToken}${ObjectNode.endToken}"
         }
-        val varName = "test"
         val fnCall =
                 "${ParenthesisExpressionNode.startToken}$valueTxt${ParenthesisExpressionNode.endToken}${AccessExplicitMemberNode.accessToken}${AnalyzerCommons.Identifiers.ToString}"
         val fnArgs = ""
-        val grammar =
-                "$varName ${AssignOperatorNode.assignOperator} $fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+        val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            result as? LxmString ?: throw Error("The result must be a LxmString")
+            val expected = when (option) {
+                2 -> "[Function ?? at ??:3:2]"
+                3 -> LxmString.ObjectToString.primitive
+                else -> valueTxt
+            }
+            Assertions.assertEquals(expected, result.primitive, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val result = context.getPropertyValue(analyzer.memory, varName) as? LxmString ?: throw Error(
-                "The result must be a LxmString")
-        val expected = when (option) {
-            2 -> "[Function ?? at ??:1:26]"
-            3 -> LxmString.ObjectToString.primitive
-            else -> valueTxt
-        }
-        Assertions.assertEquals(expected, result.primitive, "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @ParameterizedTest
@@ -112,7 +98,6 @@ internal class AnyPrototypeTest {
             2 -> "${FunctionNode.keyword}${BlockStmtNode.startToken}${BlockStmtNode.endToken}"
             else -> "${ObjectNode.startToken}${ObjectNode.endToken}"
         }
-        val varName = "test"
         val fnCall =
                 "${ParenthesisExpressionNode.startToken}$valueTxt${ParenthesisExpressionNode.endToken}${AccessExplicitMemberNode.accessToken}${AnyPrototype.Is}"
         val fnArgs = if (isOk) {
@@ -125,23 +110,11 @@ internal class AnyPrototypeTest {
         } else {
             StringType.TypeName
         }
-        val grammar =
-                "$varName ${AssignOperatorNode.assignOperator} $fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+        val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        Assertions.assertEquals(LxmLogic.from(isOk), context.getPropertyValue(analyzer.memory, varName),
-                "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @ParameterizedTest
@@ -153,7 +126,6 @@ internal class AnyPrototypeTest {
             2 -> "${FunctionNode.keyword}${BlockStmtNode.startToken}${BlockStmtNode.endToken}"
             else -> "${ObjectNode.startToken}${ObjectNode.endToken}"
         }
-        val varName = "test"
         val fnCall =
                 "${ParenthesisExpressionNode.startToken}$valueTxt${ParenthesisExpressionNode.endToken}${AccessExplicitMemberNode.accessToken}${AnyPrototype.IsAny}"
         val fnArgs = if (isOk) {
@@ -162,48 +134,23 @@ internal class AnyPrototypeTest {
         } else {
             StringType.TypeName
         }
-        val grammar =
-                "$varName ${AssignOperatorNode.assignOperator} $fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+        val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        Assertions.assertEquals(LxmLogic.from(isOk), context.getPropertyValue(analyzer.memory, varName),
-                "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @Test
     fun `test isAny - empty`() {
         val valueTxt = LxmNil.toString()
-        val varName = "test"
         val fnCall =
                 "${ParenthesisExpressionNode.startToken}$valueTxt${ParenthesisExpressionNode.endToken}${AccessExplicitMemberNode.accessToken}${AnyPrototype.IsAny}"
-        val grammar =
-                "$varName ${AssignOperatorNode.assignOperator} $fnCall${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+        val grammar = "$fnCall${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        Assertions.assertEquals(LxmLogic.False, context.getPropertyValue(analyzer.memory, varName),
-                "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @ParameterizedTest
@@ -219,24 +166,11 @@ internal class AnyPrototypeTest {
             else -> option.toString()
         }
         val isTrue = !RelationalFunctions.isTruthy(option ?: LxmLogic.True)
-        val varName = "test"
-        val fnCall = "${PrefixOperatorNode.notOperator}$optionTxt"
-        val grammar = "$varName ${AssignOperatorNode.assignOperator} $fnCall"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+        val grammar = "${PrefixOperatorNode.notOperator}$optionTxt"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.from(isTrue), result, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        Assertions.assertEquals(LxmLogic.from(isTrue), context.getPropertyValue(analyzer.memory, varName),
-                "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @ParameterizedTest
@@ -249,30 +183,18 @@ internal class AnyPrototypeTest {
             else -> "${ObjectNode.startToken}${ObjectNode.endToken}"
         }
         val suffix = "avvc"
-        val varName = "test"
         val grammar =
-                "$varName ${AssignOperatorNode.assignOperator} $valueTxt ${AdditiveExpressionNode.additionOperator} ${StringNode.startToken}$suffix${StringNode.endToken}"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
+                "$valueTxt ${AdditiveExpressionNode.additionOperator} ${StringNode.startToken}$suffix${StringNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
+            result as? LxmString ?: throw Error("The result must be a LxmString")
+            val expected = when (option) {
+                0 -> LxmNil.toString()
+                1 -> LxmLogic.True.toString()
+                2 -> "[Function ?? at ??:3:2]"
+                else -> LxmString.ObjectToString.primitive
+            }
+            Assertions.assertEquals(expected + suffix, result.primitive, "The result is incorrect")
         }
-
-        // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, varName, LxmNil)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val result = context.getPropertyValue(analyzer.memory, varName) as? LxmString ?: throw Error(
-                "The result must be a LxmString")
-        val expected = when (option) {
-            0 -> LxmNil.toString()
-            1 -> LxmLogic.True.toString()
-            2 -> "[Function ?? at ??:1:22]"
-            else -> LxmString.ObjectToString.primitive
-        }
-        Assertions.assertEquals(expected + suffix, result.primitive, "The result is incorrect")
-
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 }

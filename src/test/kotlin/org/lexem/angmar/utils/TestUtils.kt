@@ -12,6 +12,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.expressions.*
 import java.io.*
 import java.nio.file.*
 
@@ -286,5 +287,31 @@ object TestUtils {
         // Check whether the memory is empty.
         Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,
                 "The memory must be completely cleared. Remaining cells with values: ${memory.lastNode.actualUsedCellCount}")
+    }
+
+    /**
+     * Checks that the stack is empty and the context is the standard one.
+     */
+    internal fun e2eTestExecutingExpression(functionCall: String, preFunctionCall: String = "",
+            postFunctionCall: String = "", checkFunction: (LexemAnalyzer, LexemPrimitive?) -> Unit) {
+        val varName = "test"
+        val grammar =
+                "$preFunctionCall \n $varName ${AssignOperatorNode.assignOperator} $functionCall \n $postFunctionCall"
+        val analyzer = createAnalyzerFrom(grammar) { parser, _, _ ->
+            LexemFileNode.parse(parser)
+        }
+
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, varName, LxmNil)
+
+        processAndCheckEmpty(analyzer)
+
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val result = context.getPropertyValue(analyzer.memory, varName)
+
+        checkFunction(analyzer, result)
+
+        checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 }
