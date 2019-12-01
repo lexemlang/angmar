@@ -6,7 +6,7 @@ This is the plan to work towards a v1 release. This is a "living document" and w
 
 - Make all stdlib methods
 - Re-do the grammar
-- Do Univer (2-days)
+- Do Univer
 - Do Parser for (E)BNF and a transpiler to Lexem 
 - Do Parser for simple ANTLR and a transpiler to Lexem
 - Transpile main grammars to Lexem
@@ -26,7 +26,6 @@ This is the plan to work towards a v1 release. This is a "living document" and w
     - Integer
     - Interval
     - List
-    - Logic
     - Map
     - Nil
     - Node
