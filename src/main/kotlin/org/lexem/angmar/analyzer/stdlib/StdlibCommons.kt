@@ -67,7 +67,7 @@ internal object StdlibCommons {
      * Calls the toString method of a value.
      */
     fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int) {
-        val prototype = value.getPrototypeAsObject(analyzer.memory)
+        val prototype = value.dereference(analyzer.memory).getPrototypeAsObject(analyzer.memory)
         val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
 
         val arguments = LxmArguments(analyzer.memory)
