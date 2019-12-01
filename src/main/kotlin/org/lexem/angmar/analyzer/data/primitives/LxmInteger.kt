@@ -19,6 +19,8 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.from(primitive.toString())
+
     override fun toString() = primitive.toString()
 
     // STATIC -----------------------------------------------------------------

@@ -341,6 +341,8 @@ internal open class LxmObject : LexemReferenced {
 
     override fun getPrototype(memory: LexemMemory) = prototypeReference ?: super.getPrototype(memory)
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.ObjectToString
+
     override fun toString() = StringBuilder().apply {
         if (isConstant) {
             append(ObjectNode.constantToken)

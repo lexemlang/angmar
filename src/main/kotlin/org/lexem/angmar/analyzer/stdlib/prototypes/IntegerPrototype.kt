@@ -17,11 +17,11 @@ internal object IntegerPrototype {
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
+
+        // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
                 LxmInternalFunction(::affirmation), true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmInternalFunction(::negation),
-                isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmInternalFunction(::toString),
                 isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmInternalFunction(::add), isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmInternalFunction(::sub), isConstant = true)
@@ -37,6 +37,8 @@ internal object IntegerPrototype {
         return memory.add(prototype)
     }
 
+    // OPERATORS --------------------------------------------------------------
+
     /**
      * Performs an affirmation.
      */
@@ -48,7 +50,7 @@ internal object IntegerPrototype {
             }
 
     /**
-     * Performs an negation.
+     * Performs a negation.
      */
     private fun negation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
@@ -205,14 +207,5 @@ internal object IntegerPrototype {
                     }
                     else -> null
                 }
-            }
-
-    /**
-     * Returns the textual representation of the 'this' value.
-     */
-    private fun toString(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Identifiers.ToString,
-                    IntegerType.TypeName) { _: LexemAnalyzer, thisValue: LxmInteger ->
-                LxmString.from(thisValue.primitive.toString())
             }
 }

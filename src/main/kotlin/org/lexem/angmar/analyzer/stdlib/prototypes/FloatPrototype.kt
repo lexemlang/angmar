@@ -17,16 +17,17 @@ internal object FloatPrototype {
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
+
+        // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
                 LxmInternalFunction(::affirmation), isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmInternalFunction(::negation),
                 isConstant = true)
 
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmInternalFunction(::toString),
-                isConstant = true)
-
         return memory.add(prototype)
     }
+
+    // OPERATORS --------------------------------------------------------------
 
     /**
      * Performs an affirmation.
@@ -39,21 +40,12 @@ internal object FloatPrototype {
             }
 
     /**
-     * Performs an negation.
+     * Performs a negation.
      */
     private fun negation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
                     AnalyzerCommons.Operators.ArithmeticNegation,
                     FloatType.TypeName) { _: LexemAnalyzer, thisValue: LxmFloat ->
                 LxmFloat.from(-thisValue.primitive)
-            }
-
-    /**
-     * Returns the textual representation of the 'this' value.
-     */
-    private fun toString(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Identifiers.ToString,
-                    FloatType.TypeName) { _: LexemAnalyzer, thisValue: LxmFloat ->
-                LxmString.from(thisValue.primitive.toString())
             }
 }

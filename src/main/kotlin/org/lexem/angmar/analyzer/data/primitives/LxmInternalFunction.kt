@@ -29,6 +29,8 @@ internal class LxmInternalFunction(
 
     override fun getHashCode(memory: LexemMemory) = function.hashCode()
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.InternalFunctionToString
+
     override fun toString() = "[Internal Function]"
 
     // STATIC -----------------------------------------------------------------

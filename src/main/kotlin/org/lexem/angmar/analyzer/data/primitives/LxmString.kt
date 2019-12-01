@@ -19,6 +19,8 @@ internal class LxmString private constructor(val primitive: String) : LexemPrimi
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 
+    override fun toLexemString(memory: LexemMemory) = this
+
     override fun toString() = primitive
 
     // STATIC -----------------------------------------------------------------
@@ -28,6 +30,11 @@ internal class LxmString private constructor(val primitive: String) : LexemPrimi
         val Nil = LxmString("nil")
         val True = LxmString("true")
         val False = LxmString("false")
+        val InternalFunctionToString = LxmString("[Function <Built-in>]")
+        val ObjectToString = LxmString("[Object]")
+        val SetToString = LxmString("[Set]")
+        val MapToString = LxmString("[Map]")
+        val ListToString = LxmString("[List]")
 
         /**
          * Returns the [LxmString] equivalent of a string value.

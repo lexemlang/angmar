@@ -216,6 +216,8 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
         return context.getPropertyValue(memory, MapType.TypeName) as LxmReference
     }
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.MapToString
+
     override fun toString() = StringBuilder().apply {
         append(MapNode.macroName)
 

@@ -4,6 +4,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.parser.literals.*
 
 /**
  * The Lexem values of the Logic type.
@@ -19,7 +20,17 @@ internal class LxmLogic private constructor(val primitive: Boolean) : LexemPrimi
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 
-    override fun toString() = primitive.toString()
+    override fun toLexemString(memory: LexemMemory) = if (primitive) {
+        LxmString.True
+    } else {
+        LxmString.False
+    }
+
+    override fun toString() = if (primitive) {
+        LogicNode.trueLiteral
+    } else {
+        LogicNode.falseLiteral
+    }
 
     // STATIC -----------------------------------------------------------------
 

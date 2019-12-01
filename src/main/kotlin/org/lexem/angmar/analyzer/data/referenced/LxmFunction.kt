@@ -47,5 +47,17 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
         return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
     }
 
+    override fun toLexemString(memory: LexemMemory): LxmString {
+        var source = node.parser.reader.getSource()
+        val from = node.from.lineColumn()
+
+        if (source.isBlank()) {
+            source = "??"
+        }
+
+        val name = "[Function $name at $source:${from.first}:${from.second}]"
+        return LxmString.from(name)
+    }
+
     override fun toString() = "[Function] ${node.parser.reader.getSource()}::$name - Context: $contextReference"
 }

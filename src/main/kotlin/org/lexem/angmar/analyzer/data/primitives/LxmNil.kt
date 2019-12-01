@@ -19,5 +19,7 @@ internal object LxmNil : LexemPrimitive {
 
     override fun getHashCode(memory: LexemMemory) = null.hashCode()
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.Nil
+
     override fun toString() = "nil"
 }

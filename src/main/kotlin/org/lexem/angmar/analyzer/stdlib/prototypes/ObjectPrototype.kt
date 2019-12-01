@@ -13,7 +13,6 @@ internal object ObjectPrototype {
      */
     fun initPrototype(memory: LexemMemory, anyPrototypeReference: LxmReference): LxmReference {
         val prototype = LxmObject(anyPrototypeReference, memory)
-
         return memory.add(prototype)
     }
 }

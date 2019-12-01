@@ -227,6 +227,8 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
         return context.getPropertyValue(memory, ListType.TypeName) as LxmReference
     }
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.ListToString
+
     override fun toString() = StringBuilder().apply {
         if (isConstant) {
             append(ListNode.constantToken)

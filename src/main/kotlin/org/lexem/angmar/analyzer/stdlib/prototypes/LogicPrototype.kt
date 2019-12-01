@@ -17,6 +17,8 @@ internal object LogicPrototype {
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
+
+        // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmInternalFunction(::logicalNot),
                 isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmInternalFunction(::logicalAnd),
@@ -25,11 +27,11 @@ internal object LogicPrototype {
                 isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmInternalFunction(::logicalXor),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmInternalFunction(::toString),
-                isConstant = true)
 
         return memory.add(prototype)
     }
+
+    // OPERATORS --------------------------------------------------------------
 
     /**
      * Performs a logical NOT of the 'this' value.
@@ -95,19 +97,6 @@ internal object LogicPrototype {
                         LxmLogic.from(leftValue.xor(rightValue))
                     }
                     else -> null
-                }
-            }
-
-    /**
-     * Returns the textual representation of the 'this' value.
-     */
-    private fun toString(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Identifiers.ToString,
-                    LogicType.TypeName) { _: LexemAnalyzer, thisValue: LxmLogic ->
-                if (thisValue.primitive) {
-                    LxmString.True
-                } else {
-                    LxmString.False
                 }
             }
 }

@@ -25,5 +25,17 @@ internal class LxmExpression : LxmFunction {
         return context.getPropertyValue(memory, ExpressionType.TypeName) as LxmReference
     }
 
+    override fun toLexemString(memory: LexemMemory): LxmString {
+        var source = node.parser.reader.getSource()
+        val from = node.from.lineColumn()
+
+        if (source.isBlank()) {
+            source = "??"
+        }
+
+        val name = "[Expression $name at $source:${from.first}:${from.second}]"
+        return LxmString.from(name)
+    }
+
     override fun toString() = "[Expression] ${node.parser.reader.getSource()}::$name"
 }

@@ -6,7 +6,6 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -21,9 +20,6 @@ internal object StringPrototype {
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
         prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmInternalFunction(::add), isConstant = true)
-
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmInternalFunction(::toString),
-                isConstant = true)
 
         return memory.add(prototype)
     }
@@ -91,13 +87,4 @@ internal object StringPrototype {
 
         return true
     }
-
-    /**
-     * Performs a string concatenation.
-     */
-    private fun toString(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Identifiers.ToString,
-                    StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                thisValue
-            }
 }

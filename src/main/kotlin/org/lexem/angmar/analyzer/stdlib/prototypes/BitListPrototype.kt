@@ -20,9 +20,10 @@ internal object BitListPrototype {
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
+
+        // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.BitwiseNegation, LxmInternalFunction(::bitwiseNegation),
                 isConstant = true)
-
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmInternalFunction(::logicalAnd),
                 isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmInternalFunction(::logicalOr),
@@ -37,11 +38,11 @@ internal object BitListPrototype {
                 isConstant = true)
         prototype.setProperty(memory, AnalyzerCommons.Operators.RightRotate, LxmInternalFunction(::rightRotate),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmInternalFunction(::toString),
-                isConstant = true)
 
         return memory.add(prototype)
     }
+
+    // OPERATORS --------------------------------------------------------------
 
     /**
      * Performs a logical NOT of the 'this' value.
@@ -261,14 +262,5 @@ internal object BitListPrototype {
                     }
                     else -> null
                 }
-            }
-
-    /**
-     * Returns the textual representation of the 'this' value.
-     */
-    private fun toString(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Identifiers.ToString,
-                    BitListType.TypeName) { _: LexemAnalyzer, thisValue: LxmLogic ->
-                LxmString.from(thisValue.toString())
             }
 }

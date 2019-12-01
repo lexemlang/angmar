@@ -192,6 +192,8 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
         return context.getPropertyValue(memory, SetType.TypeName) as LxmReference
     }
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.SetToString
+
     override fun toString() = StringBuilder().apply {
         append(SetNode.macroName)
 

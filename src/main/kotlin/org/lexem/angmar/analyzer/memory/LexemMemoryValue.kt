@@ -4,6 +4,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.errors.*
 
 /**
  * The common part of every value in lexem.
@@ -41,4 +42,9 @@ internal interface LexemMemoryValue {
     } else {
         getPrototypeAsObject(memory)
     }
+
+    /**
+     * Returns the textual implementation of the value in Lexem.
+     */
+    fun toLexemString(memory: LexemMemory): LxmString = throw AngmarUnreachableException()
 }

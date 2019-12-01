@@ -21,6 +21,8 @@ internal class LxmBitList(val size: Int, val primitive: BitSet) : LexemPrimitive
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 
+    override fun toLexemString(memory: LexemMemory) = LxmString.from(toString())
+
     override fun toString(): String {
         val result = StringBuilder()
         when {
