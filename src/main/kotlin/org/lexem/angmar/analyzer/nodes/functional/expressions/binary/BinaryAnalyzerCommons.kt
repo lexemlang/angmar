@@ -77,10 +77,11 @@ internal object BinaryAnalyzerCommons {
      */
     inline fun <reified T : LexemMemoryValue> executeUnitaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, thisTypeName: String,
-            processFunction: (LexemAnalyzer, T) -> LexemMemoryValue): Boolean {
+            processFunction: (LexemAnalyzer, T) -> LexemPrimitive): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
+        val thisValueRef = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
+        val thisValue = thisValueRef.dereference(analyzer.memory)
 
         if (thisValue !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -89,7 +90,7 @@ internal object BinaryAnalyzerCommons {
 
         val result = processFunction(analyzer, thisValue)
 
-        analyzer.memory.addToStackAsLast(analyzer.memory.valueToPrimitive(result))
+        analyzer.memory.addToStackAsLast(result)
         return true
     }
 
@@ -98,7 +99,7 @@ internal object BinaryAnalyzerCommons {
      */
     inline fun <reified T : LexemMemoryValue> executeBinaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, leftTypeName: String, typeNamesForRightOperand: List<String>,
-            processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemMemoryValue?): Boolean {
+            processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemPrimitive?): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         val left = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
@@ -123,7 +124,7 @@ internal object BinaryAnalyzerCommons {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError, message) {}
         }
 
-        analyzer.memory.addToStackAsLast(analyzer.memory.valueToPrimitive(result))
+        analyzer.memory.addToStackAsLast(result)
         return true
     }
 }
