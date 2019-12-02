@@ -136,7 +136,6 @@ internal object RelationalFunctions {
         is LxmInteger -> right is LxmInteger && left.primitive == right.primitive
         is LxmFloat -> right is LxmFloat && left.primitive == right.primitive
         is LxmString -> right is LxmString && left.primitive == right.primitive
-        is LxmInternalFunction -> right is LxmInternalFunction && left.function == right.function
         is LxmReference -> right is LxmReference && left.position == right.position
         else -> false
     }

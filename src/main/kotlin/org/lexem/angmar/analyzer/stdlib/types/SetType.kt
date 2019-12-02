@@ -34,16 +34,18 @@ internal object SetType {
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, LxmInternalFunction(::newFromFunction), isConstant = true)
-        type.setProperty(memory, Join, LxmInternalFunction(::joinFunction), isConstant = true)
+        type.setProperty(memory, NewFrom, memory.add(LxmFunction(::newFromFunction)), isConstant = true)
+        type.setProperty(memory, Join, memory.add(LxmFunction(::joinFunction)), isConstant = true)
     }
 
     /**
      * Creates a new set with the specified values.
      */
-    private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
+                spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -63,9 +65,11 @@ internal object SetType {
     /**
      * Creates a new set with the values of all the specified sets.
      */
-    private fun joinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun joinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
+                spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

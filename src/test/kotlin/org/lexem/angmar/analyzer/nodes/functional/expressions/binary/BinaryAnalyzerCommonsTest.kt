@@ -27,7 +27,7 @@ internal class BinaryAnalyzerCommonsTest {
         val directFunction = getCurrentContext(analyzer.memory).getDereferencedProperty<LxmObject>(analyzer.memory,
                 LogicType.TypeName)
                 ?.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Prototype)
-                ?.getDereferencedProperty<LxmInternalFunction>(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
+                ?.getPropertyValue(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
         Assertions.assertEquals(directFunction, function, "The function is incorrect")
     }
 

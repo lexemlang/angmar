@@ -20,8 +20,9 @@ internal object MacroBacktrackAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.arguments != null) {
                     // Add the function.
-                    val fn = LxmInternalFunction(this::executeBacktrackingWithArguments)
-                    analyzer.memory.addToStackAsLast(fn)
+                    val fn = LxmFunction(this::executeBacktrackingWithArguments)
+                    val fnRef = analyzer.memory.add(fn)
+                    analyzer.memory.addToStackAsLast(fnRef)
 
                     return analyzer.nextNode(node.arguments)
                 }
@@ -38,9 +39,10 @@ internal object MacroBacktrackAnalyzer {
         analyzer.initBacktracking()
     }
 
-    private fun executeBacktrackingWithArguments(analyzer: LexemAnalyzer, arguments: LxmArguments,
-            signal: Int): Boolean {
-        analyzer.backtrackingData = arguments.mapToBacktrackingData(analyzer.memory)
+    private fun executeBacktrackingWithArguments(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
+            function: LxmFunction, signal: Int): Boolean {
+        analyzer.backtrackingData =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapToBacktrackingData(analyzer.memory)
         analyzer.initBacktracking()
 
         return true

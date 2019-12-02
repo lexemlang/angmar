@@ -54,15 +54,18 @@ internal object FloatType {
         type.setProperty(memory, MaxValue, LxmFloat.from(Float.MAX_VALUE), isConstant = true)
 
         // Methods
-        type.setProperty(memory, Parse, LxmInternalFunction(::parseFunction), isConstant = true)
-        type.setProperty(memory, EpsilonEquals, LxmInternalFunction(::epsilonEqualsFunction), isConstant = true)
+        type.setProperty(memory, Parse, memory.add(LxmFunction(::parseFunction)), isConstant = true)
+        type.setProperty(memory, EpsilonEquals, memory.add(LxmFunction(::epsilonEqualsFunction)), isConstant = true)
     }
 
     /**
      * Parses a float in a given radix.
      */
-    private fun parseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, ParseArgs)
+    private fun parseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
+        val parsedArguments =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
+                        ParseArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -107,8 +110,11 @@ internal object FloatType {
     /**
      * Compares the equality of two float values ignoring distances lower or equal than the Epsilon between them.
      */
-    private fun epsilonEqualsFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, EpsilonEqualsArgs)
+    private fun epsilonEqualsFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
+        val parsedArguments =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
+                        EpsilonEqualsArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

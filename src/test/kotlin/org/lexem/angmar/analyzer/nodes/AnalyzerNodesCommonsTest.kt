@@ -21,11 +21,12 @@ internal class AnalyzerNodesCommonsTest {
         val arguments = LxmArguments(analyzer.memory)
         val argumentReference = analyzer.memory.add(arguments)
 
-        val function = LxmInternalFunction { _, _, _ -> true }
+        val function = LxmFunction { _, _, _, _ -> true }
+        val functionRef = analyzer.memory.add(function)
 
         val returnSignal = 45
-        AnalyzerNodesCommons.callFunction(analyzer, function, argumentReference, ParserNode.Companion.EmptyParserNode,
-                LxmCodePoint(ParserNode.Companion.EmptyParserNode, returnSignal))
+        AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentReference,
+                ParserNode.Companion.EmptyParserNode, LxmCodePoint(ParserNode.Companion.EmptyParserNode, returnSignal))
 
         // Assert status of the analyzer.
         val stackFunction = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
@@ -34,7 +35,7 @@ internal class AnalyzerNodesCommonsTest {
         val stackReturnPosition =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as LxmCodePoint
 
-        Assertions.assertEquals(function, stackFunction, "The stackFunction is incorrect")
+        Assertions.assertEquals(functionRef, stackFunction, "The stackFunction is incorrect")
         Assertions.assertEquals(arguments, stackArguments, "The stackArguments is incorrect")
         Assertions.assertEquals(ParserNode.Companion.EmptyParserNode, stackReturnPosition.node,
                 "The stackReturnPosition.node is incorrect")

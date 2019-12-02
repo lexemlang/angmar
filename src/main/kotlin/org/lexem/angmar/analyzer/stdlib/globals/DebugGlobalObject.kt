@@ -39,15 +39,16 @@ internal object DebugGlobalObject {
         AnalyzerCommons.getCurrentContext(memory).setProperty(memory, ObjectName, reference, isConstant = true)
 
         // Methods
-        objectValue.setProperty(memory, Pause, LxmInternalFunction(::pauseFunction), isConstant = true)
-        objectValue.setProperty(memory, Log, LxmInternalFunction(::logFunction), isConstant = true)
-        objectValue.setProperty(memory, Throw, LxmInternalFunction(::throwFunction), isConstant = true)
+        objectValue.setProperty(memory, Pause, memory.add(LxmFunction(::pauseFunction)), isConstant = true)
+        objectValue.setProperty(memory, Log, memory.add(LxmFunction(::logFunction)), isConstant = true)
+        objectValue.setProperty(memory, Throw, memory.add(LxmFunction(::throwFunction)), isConstant = true)
     }
 
     /**
      * Pauses the analyzer.
      */
-    private fun pauseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun pauseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 analyzer.nextNode(InternalFunctionCallNode, signal + 1)
@@ -64,8 +65,10 @@ internal object DebugGlobalObject {
     /**
      * Logs a custom message to the console.
      */
-    private fun logFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, LogArgs)
+    private fun logFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
+        val parsedArguments =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, LogArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -105,10 +108,13 @@ internal object DebugGlobalObject {
     /**
      * Throws a custom error.
      */
-    private fun throwFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun throwFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val parsedArguments = arguments.mapArguments(analyzer.memory, ThrowArgs)
+                val parsedArguments =
+                        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
+                                ThrowArgs)
 
                 // Calls toString.
                 val message = parsedArguments[ThrowArgs[0]]!!

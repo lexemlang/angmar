@@ -20,18 +20,18 @@ internal object IntegerPrototype {
 
         // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
-                LxmInternalFunction(::affirmation), true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmInternalFunction(::negation),
+                memory.add(LxmFunction(::affirmation)), true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, memory.add(LxmFunction(::negation)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmInternalFunction(::add), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmInternalFunction(::sub), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication, LxmInternalFunction(::multiplication),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(::add)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, memory.add(LxmFunction(::sub)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication,
+                memory.add(LxmFunction(::multiplication)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, memory.add(LxmFunction(::division)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, LxmInternalFunction(::division),
-                isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision, LxmInternalFunction(::integerDivision),
-                isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, LxmInternalFunction(::reminder),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision,
+                memory.add(LxmFunction(::integerDivision)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, memory.add(LxmFunction(::reminder)),
                 isConstant = true)
 
         return memory.add(prototype)
@@ -42,8 +42,9 @@ internal object IntegerPrototype {
     /**
      * Performs an affirmation.
      */
-    private fun affirmation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+    private fun affirmation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
                     AnalyzerCommons.Operators.ArithmeticAffirmation,
                     IntegerType.TypeName) { _: LexemAnalyzer, thisValue: LxmInteger ->
                 thisValue
@@ -52,8 +53,9 @@ internal object IntegerPrototype {
     /**
      * Performs a negation.
      */
-    private fun negation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+    private fun negation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
                     AnalyzerCommons.Operators.ArithmeticNegation,
                     IntegerType.TypeName) { _: LexemAnalyzer, thisValue: LxmInteger ->
                 LxmInteger.from(-thisValue.primitive)
@@ -62,9 +64,9 @@ internal object IntegerPrototype {
     /**
      * Performs the addition of two values.
      */
-    private fun add(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Add,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.Add, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -92,9 +94,9 @@ internal object IntegerPrototype {
     /**
      * Performs the subtraction of two values.
      */
-    private fun sub(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Sub,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun sub(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.Sub, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -116,9 +118,10 @@ internal object IntegerPrototype {
     /**
      * Performs the multiplication of two values.
      */
-    private fun multiplication(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Multiplication,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun multiplication(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.Multiplication, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -140,9 +143,10 @@ internal object IntegerPrototype {
     /**
      * Performs the division of two values.
      */
-    private fun division(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Division,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun division(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.Division, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -164,9 +168,10 @@ internal object IntegerPrototype {
     /**
      * Performs the integer division of two values.
      */
-    private fun integerDivision(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.IntegerDivision,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun integerDivision(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.IntegerDivision, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -188,9 +193,10 @@ internal object IntegerPrototype {
     /**
      * Performs the reminder of two values.
      */
-    private fun reminder(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Reminder,
-                    IntegerType.TypeName, listOf(IntegerType.TypeName,
+    private fun reminder(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.Reminder, IntegerType.TypeName, listOf(IntegerType.TypeName,
                     FloatType.TypeName)) { _: LexemAnalyzer, left: LxmInteger, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {

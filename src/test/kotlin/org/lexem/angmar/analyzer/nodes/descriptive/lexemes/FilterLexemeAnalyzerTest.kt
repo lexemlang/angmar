@@ -196,7 +196,7 @@ internal class FilterLexemeAnalyzerTest {
         val lxmNodeRef = analyzer.memory.add(lxmNode)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
         var executed = false
-        val internalFunction = LxmInternalFunction { analyzer, _, _ ->
+        val function = LxmFunction { analyzer, _, _, _ ->
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
             val nodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)!!
             val node = nodeRef.dereference(analyzer.memory) as LxmNode
@@ -209,7 +209,8 @@ internal class FilterLexemeAnalyzerTest {
 
             true
         }
-        context.setProperty(analyzer.memory, funName, internalFunction)
+        val functionRef = analyzer.memory.add(function)
+        context.setProperty(analyzer.memory, funName, functionRef)
 
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
@@ -267,7 +268,7 @@ internal class FilterLexemeAnalyzerTest {
             val lxmNode = LxmNode("rootNode", analyzer.text.saveCursor(), null, analyzer.memory)
             val lxmNodeRef = analyzer.memory.add(lxmNode)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
-            val internalFunction = LxmInternalFunction { analyzer, _, _ ->
+            val function = LxmFunction { analyzer, _, _, _ ->
                 val node = AnalyzerCommons.getCurrentContextElement<LxmNode>(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenNode2Filter)
 
@@ -277,7 +278,8 @@ internal class FilterLexemeAnalyzerTest {
 
                 true
             }
-            context.setProperty(analyzer.memory, funName, internalFunction)
+            val functionRef = analyzer.memory.add(function)
+            context.setProperty(analyzer.memory, funName, functionRef)
 
             // Prepare the node to filter.
             val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)

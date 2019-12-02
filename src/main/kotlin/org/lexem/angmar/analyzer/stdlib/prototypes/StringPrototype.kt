@@ -19,7 +19,7 @@ internal object StringPrototype {
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
         val prototype = LxmObject()
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmInternalFunction(::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(::add)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -27,10 +27,13 @@ internal object StringPrototype {
     /**
      * Performs the addition of two values.
      */
-    private fun add(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         when (signal) {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
-                val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
+                val parserArguments =
+                        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
+                                AnalyzerCommons.Operators.ParameterList)
 
                 val left = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
                 val right = parserArguments[AnalyzerCommons.Operators.RightParameterName]

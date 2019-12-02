@@ -60,7 +60,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         val lxmNodeRef = analyzer.memory.add(lxmNode)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
         var executed = false
-        val internalFunction = LxmInternalFunction { analyzer, _, _ ->
+        val function = LxmFunction { analyzer, _, _, _ ->
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
             val nodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)!!
             val node = nodeRef.dereference(analyzer.memory) as LxmNode
@@ -73,7 +73,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
             true
         }
-        context.setProperty(analyzer.memory, funName, internalFunction)
+        val functionRef = analyzer.memory.add(function)
+        context.setProperty(analyzer.memory, funName, functionRef)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -107,7 +108,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val internalFunction = LxmInternalFunction { analyzer, _, _ ->
+            val function = LxmFunction { analyzer, _, _, _ ->
                 val node = AnalyzerCommons.getCurrentContextElement<LxmNode>(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenNode2Filter)
 
@@ -117,7 +118,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
                 true
             }
-            context.setProperty(analyzer.memory, funName, internalFunction)
+            val functionRef = analyzer.memory.add(function)
+            context.setProperty(analyzer.memory, funName, functionRef)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

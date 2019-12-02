@@ -29,11 +29,13 @@ internal class AccessLexemAnalyzerTest {
                 isDescriptiveCode = true)
 
         // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, functionName, LxmInternalFunction { analyzer, _, _ ->
+        val function = LxmFunction { analyzer, _, _, _ ->
             analyzer.memory.addToStackAsLast(LxmInteger.from(returnValue))
-            return@LxmInternalFunction true
-        })
+            return@LxmFunction true
+        }
+        val functionRef = analyzer.memory.add(function)
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, functionName, functionRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

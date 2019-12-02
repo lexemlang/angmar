@@ -38,16 +38,18 @@ internal object ListType {
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, New, LxmInternalFunction(::newFunction), isConstant = true)
-        type.setProperty(memory, NewFrom, LxmInternalFunction(::newFromFunction), isConstant = true)
-        type.setProperty(memory, Concat, LxmInternalFunction(::concatFunction), isConstant = true)
+        type.setProperty(memory, New, memory.add(LxmFunction(::newFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, memory.add(LxmFunction(::newFromFunction)), isConstant = true)
+        type.setProperty(memory, Concat, memory.add(LxmFunction(::concatFunction)), isConstant = true)
     }
 
     /**
      * Creates a new list with an initial size filled with the specified value.
      */
-    private fun newFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, NewArgs)
+    private fun newFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
+        val parsedArguments =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, NewArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -80,9 +82,11 @@ internal object ListType {
     /**
      * Creates a new list with the specified values.
      */
-    private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
+                spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -102,9 +106,11 @@ internal object ListType {
     /**
      * Creates a new list with the values of all the specified lists.
      */
-    private fun concatFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int): Boolean {
+    private fun concatFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
+                spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

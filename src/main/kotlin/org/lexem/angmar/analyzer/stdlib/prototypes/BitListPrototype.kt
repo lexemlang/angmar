@@ -22,21 +22,21 @@ internal object BitListPrototype {
         val prototype = LxmObject()
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.BitwiseNegation, LxmInternalFunction(::bitwiseNegation),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.BitwiseNegation,
+                memory.add(LxmFunction(::bitwiseNegation)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, memory.add(LxmFunction(::logicalAnd)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmInternalFunction(::logicalAnd),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, memory.add(LxmFunction(::logicalOr)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmInternalFunction(::logicalOr),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, memory.add(LxmFunction(::logicalXor)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmInternalFunction(::logicalXor),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftShift, memory.add(LxmFunction(::leftShift)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftShift, LxmInternalFunction(::leftShift),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.RightShift, memory.add(LxmFunction(::rightShift)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.RightShift, LxmInternalFunction(::rightShift),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftRotate, memory.add(LxmFunction(::leftRotate)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftRotate, LxmInternalFunction(::leftRotate),
-                isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.RightRotate, LxmInternalFunction(::rightRotate),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.RightRotate, memory.add(LxmFunction(::rightRotate)),
                 isConstant = true)
 
         return memory.add(prototype)
@@ -47,8 +47,10 @@ internal object BitListPrototype {
     /**
      * Performs a logical NOT of the 'this' value.
      */
-    private fun bitwiseNegation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Operators.BitwiseNegation,
+    private fun bitwiseNegation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.BitwiseNegation,
                     BitListType.TypeName) { _: LexemAnalyzer, thisValue: LxmBitList ->
                 val result = thisValue.primitive.clone() as BitSet
                 result.flip(0, thisValue.size)
@@ -59,9 +61,10 @@ internal object BitListPrototype {
     /**
      * Performs a logical AND.
      */
-    private fun logicalAnd(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalAnd,
-                    BitListType.TypeName, listOf(BitListType.TypeName,
+    private fun logicalAnd(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.LogicalAnd, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmLogic -> {
@@ -85,9 +88,10 @@ internal object BitListPrototype {
     /**
      * Performs a logical OR.
      */
-    private fun logicalOr(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalOr,
-                    BitListType.TypeName, listOf(BitListType.TypeName,
+    private fun logicalOr(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.LogicalOr, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmLogic -> {
@@ -111,9 +115,10 @@ internal object BitListPrototype {
     /**
      * Performs a logical XOR.
      */
-    private fun logicalXor(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalXor,
-                    BitListType.TypeName, listOf(BitListType.TypeName,
+    private fun logicalXor(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.LogicalXor, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmLogic -> {
@@ -137,9 +142,10 @@ internal object BitListPrototype {
     /**
      * Performs a left shift.
      */
-    private fun leftShift(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LeftShift,
-                    BitListType.TypeName,
+    private fun leftShift(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.LeftShift, BitListType.TypeName,
                     listOf(IntegerType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -167,9 +173,10 @@ internal object BitListPrototype {
     /**
      * Performs a right shift.
      */
-    private fun rightShift(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.RightShift,
-                    BitListType.TypeName,
+    private fun rightShift(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.RightShift, BitListType.TypeName,
                     listOf(IntegerType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -193,9 +200,10 @@ internal object BitListPrototype {
     /**
      * Performs a left rotate.
      */
-    private fun leftRotate(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LeftRotate,
-                    BitListType.TypeName,
+    private fun leftRotate(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.LeftRotate, BitListType.TypeName,
                     listOf(IntegerType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {
@@ -230,9 +238,10 @@ internal object BitListPrototype {
     /**
      * Performs a right rotate.
      */
-    private fun rightRotate(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.RightRotate,
-                    BitListType.TypeName,
+    private fun rightRotate(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    AnalyzerCommons.Operators.RightRotate, BitListType.TypeName,
                     listOf(IntegerType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
                     is LxmInteger -> {

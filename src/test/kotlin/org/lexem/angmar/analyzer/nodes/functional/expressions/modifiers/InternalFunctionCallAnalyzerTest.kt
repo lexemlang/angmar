@@ -18,16 +18,17 @@ internal class InternalFunctionCallAnalyzerTest {
 
         // Prepare context.
         var executed = false
-        val function = LxmInternalFunction { _, _, _ ->
+        val function = LxmFunction { _, _, _, _ ->
             executed = true
 
             // Always return a value
             analyzer.memory.addToStackAsLast(LxmNil)
-            return@LxmInternalFunction true
+            return@LxmFunction true
         }
+        val functionRef = analyzer.memory.add(function)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, functionName, function)
+        context.setProperty(analyzer.memory, functionName, functionRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -48,7 +49,7 @@ internal class InternalFunctionCallAnalyzerTest {
 
         // Prepare context.
         var executed = -1
-        val function = LxmInternalFunction { analyzer, _, signal ->
+        val function = LxmFunction { analyzer, _, _, signal ->
             when (signal) {
                 AnalyzerNodesCommons.signalCallFunction -> {
                     executed = signal
@@ -56,28 +57,29 @@ internal class InternalFunctionCallAnalyzerTest {
                     // Prepare stack to call toString over an integer.
                     val value = LxmInteger.Num10
                     val prototype = value.getPrototypeAsObject(analyzer.memory)
-                    val function = prototype.getDereferencedProperty<LxmInternalFunction>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.ToString)!!
+                    val functionRef =
+                            prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
 
                     val arguments = LxmArguments(analyzer.memory)
                     arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
                     val argumentsRef = analyzer.memory.add(arguments)
 
-                    AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
+                    AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, InternalFunctionCallNode,
                             LxmCodePoint(InternalFunctionCallNode, 1))
 
-                    return@LxmInternalFunction false
+                    return@LxmFunction false
                 }
                 else -> {
                     executed = signal
                 }
             }
 
-            return@LxmInternalFunction true
+            return@LxmFunction true
         }
+        val functionRef = analyzer.memory.add(function)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        context.setProperty(analyzer.memory, functionName, function)
+        context.setProperty(analyzer.memory, functionName, functionRef)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

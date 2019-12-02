@@ -293,7 +293,8 @@ object TestUtils {
      * Checks that the stack is empty and the context is the standard one.
      */
     internal fun e2eTestExecutingExpression(functionCall: String, preFunctionCall: String = "",
-            postFunctionCall: String = "", checkFunction: (LexemAnalyzer, LexemPrimitive?) -> Unit) {
+            postFunctionCall: String = "", initialVars: Map<String, LexemPrimitive> = emptyMap(),
+            checkFunction: (LexemAnalyzer, LexemPrimitive?) -> Unit) {
         val varName = "test"
         val grammar =
                 "$preFunctionCall \n $varName ${AssignOperatorNode.assignOperator} $functionCall \n $postFunctionCall"
@@ -305,6 +306,10 @@ object TestUtils {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmNil)
 
+        for ((name, value) in initialVars) {
+            context.setProperty(analyzer.memory, name, value)
+        }
+
         processAndCheckEmpty(analyzer)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -312,6 +317,9 @@ object TestUtils {
 
         checkFunction(analyzer, result)
 
-        checkEmptyStackAndContext(analyzer, listOf(varName))
+        // Remove the function cyclic reference.
+        analyzer.memory.spatialGarbageCollect()
+
+        checkEmptyStackAndContext(analyzer, listOf(varName) + initialVars.keys)
     }
 }

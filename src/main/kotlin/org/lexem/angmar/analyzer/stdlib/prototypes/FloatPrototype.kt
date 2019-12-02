@@ -20,8 +20,8 @@ internal object FloatPrototype {
 
         // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
-                LxmInternalFunction(::affirmation), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmInternalFunction(::negation),
+                memory.add(LxmFunction(::affirmation)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, memory.add(LxmFunction(::negation)),
                 isConstant = true)
 
         return memory.add(prototype)
@@ -32,8 +32,9 @@ internal object FloatPrototype {
     /**
      * Performs an affirmation.
      */
-    private fun affirmation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+    private fun affirmation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
                     AnalyzerCommons.Operators.ArithmeticAffirmation,
                     FloatType.TypeName) { _: LexemAnalyzer, thisValue: LxmFloat ->
                 thisValue
@@ -42,8 +43,9 @@ internal object FloatPrototype {
     /**
      * Performs a negation.
      */
-    private fun negation(analyzer: LexemAnalyzer, arguments: LxmArguments, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+    private fun negation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
                     AnalyzerCommons.Operators.ArithmeticNegation,
                     FloatType.TypeName) { _: LexemAnalyzer, thisValue: LxmFloat ->
                 LxmFloat.from(-thisValue.primitive)
