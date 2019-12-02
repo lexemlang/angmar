@@ -5,6 +5,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
@@ -433,7 +434,7 @@ internal class LexemMemoryTest {
         memory.remove(ref5)
 
         // Collapse
-        memory.collapseTo(oldBigNode)
+        memory.collapseTo(oldBigNode, forceGarbageCollection = true)
 
         // The spatial garbage collector removes those elements that are not
         // referenced.
@@ -446,7 +447,55 @@ internal class LexemMemoryTest {
     }
 
     @Test
-    fun `test spatial garbage collector`() {
+    fun `test spatial garbage collector - forced`() {
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
+        val initialSize = memory.lastNode.actualHeapSize
+
+        val object1 = LxmObject()
+        val object2 = LxmObject()
+        val object3 = LxmObject()
+        val object4 = LxmObject()
+        val object5 = LxmObject()
+        val object6 = LxmObject()
+
+        // Previous big node.
+        val reference1 = memory.add(object1)
+        val reference2 = memory.add(object2)
+        val reference3 = memory.add(object3)
+        val reference4 = memory.add(object4)
+
+        object1.setProperty(memory, "a", reference2)
+        object2.setProperty(memory, "a", reference1)
+        memory.remove(reference3)
+        object4.setProperty(memory, "b", reference1)
+        object4.setProperty(memory, "c", reference2)
+
+        memory.freezeCopy()
+
+        // New big node.
+        val reference5 = memory.add(object5)
+        val reference6 = memory.add(object6)
+        object5.setProperty(memory, "d", reference5)
+
+        val object1_2 = reference1.dereferenceAs<LxmObject>(memory)!!
+        object1_2.setProperty(memory, "e", reference6)
+
+        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
+                "The actualUsedCellCount property is incorrect")
+
+        memory.spatialGarbageCollect(forced = true)
+
+        Assertions.assertEquals(initialSize, memory.lastNode.actualUsedCellCount,
+                "The actualUsedCellCount property is incorrect")
+        Assertions.assertTrue(memory.lastNode.getCell(reference1.position).isFreed, "The cell[0] property is incorrect")
+        Assertions.assertTrue(memory.lastNode.getCell(reference2.position).isFreed, "The cell[1] property is incorrect")
+        Assertions.assertTrue(memory.lastNode.getCell(reference3.position).isFreed, "The cell[2] property is incorrect")
+        Assertions.assertTrue(memory.lastNode.getCell(reference4.position).isFreed, "The cell[3] property is incorrect")
+        Assertions.assertTrue(memory.lastNode.getCell(reference5.position).isFreed, "The cell[4] property is incorrect")
+    }
+
+    @Test
+    fun `test spatial garbage collector - not forced - not calling`() {
         val memory = TestUtils.generateTestMemoryFromAnalyzer()
         val initialSize = memory.lastNode.actualHeapSize
 
@@ -484,13 +533,46 @@ internal class LexemMemoryTest {
 
         memory.spatialGarbageCollect()
 
-        Assertions.assertEquals(initialSize, memory.lastNode.actualUsedCellCount,
+        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(reference1.position).isFreed, "The cell[0] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(reference2.position).isFreed, "The cell[1] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(reference3.position).isFreed, "The cell[2] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(reference4.position).isFreed, "The cell[3] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(reference5.position).isFreed, "The cell[4] property is incorrect")
+        Assertions.assertFalse(memory.lastNode.getCell(reference1.position).isFreed,
+                "The cell[0] property is incorrect")
+        Assertions.assertFalse(memory.lastNode.getCell(reference2.position).isFreed,
+                "The cell[1] property is incorrect")
+        Assertions.assertFalse(memory.lastNode.getCell(reference3.position).isFreed,
+                "The cell[2] property is incorrect")
+        Assertions.assertFalse(memory.lastNode.getCell(reference4.position).isFreed,
+                "The cell[3] property is incorrect")
+        Assertions.assertFalse(memory.lastNode.getCell(reference5.position).isFreed,
+                "The cell[4] property is incorrect")
+    }
+
+    @Test
+    fun `test spatial garbage collector - not forced - calling`() {
+        val memory = TestUtils.generateTestMemory()
+        val initialGarbageThreshold = memory.lastNode.garbageThreshold
+        var prev = LxmObject()
+        memory.add(prev)
+
+        val limit = (memory.lastNode.garbageThreshold * 0.9).toInt()
+        for (i in 0 until limit) {
+            val obj = LxmObject()
+            val ref = memory.add(obj)
+            prev.setProperty(memory, "next", ref)
+            prev = obj
+        }
+
+        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
+                "The actualUsedCellCount property is incorrect")
+        Assertions.assertEquals(initialGarbageThreshold, memory.lastNode.garbageThreshold,
+                "The garbageThreshold property is incorrect")
+
+        memory.spatialGarbageCollect()
+
+        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
+                "The actualUsedCellCount property is incorrect")
+        Assertions.assertEquals((initialGarbageThreshold * Consts.Memory.garbageThresholdIncrement).toInt(),
+                memory.lastNode.garbageThreshold, "The garbageThreshold property is incorrect")
     }
 
     @Test
@@ -535,7 +617,7 @@ internal class LexemMemoryTest {
         memory.removeLastFromStack()
 
 
-        memory.spatialGarbageCollect()
+        memory.spatialGarbageCollect(forced = true)
 
 
         Assertions.assertEquals(3 + initialSize, memory.lastNode.actualUsedCellCount,

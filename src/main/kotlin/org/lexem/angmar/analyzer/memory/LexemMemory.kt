@@ -181,18 +181,18 @@ internal class LexemMemory {
     /**
      * Collapses all the big nodes from the current one to the specified.
      */
-    fun collapseTo(bigNode: BigNode) {
+    fun collapseTo(bigNode: BigNode, forceGarbageCollection: Boolean = false) {
         lastNode.collapseTo(bigNode)
         lastNode = bigNode
-        spatialGarbageCollect()
+        spatialGarbageCollect(forceGarbageCollection)
     }
 
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect() {
+    fun spatialGarbageCollect(forced: Boolean = false) {
         isInGarbageCollectionMode = true
-        lastNode.spatialGarbageCollect(this)
+        lastNode.spatialGarbageCollect(this, forced)
         isInGarbageCollectionMode = false
     }
 }

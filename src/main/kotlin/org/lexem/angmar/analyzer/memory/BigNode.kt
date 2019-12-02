@@ -2,12 +2,15 @@ package org.lexem.angmar.analyzer.memory
 
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 
 /**
  * A big node that represents an differential view of the memory.
  */
 internal class BigNode constructor(val previousNode: BigNode?) {
+    var garbageThreshold = 500
+        private set
     private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
     private val heap = mutableMapOf<Int, BigNodeCell>()
 
@@ -56,6 +59,11 @@ internal class BigNode constructor(val previousNode: BigNode?) {
      */
     var lastFreePosition: Int = previousNode?.lastFreePosition ?: actualHeapSize
         private set
+
+    /**
+     * Gets the free space percentage.
+     */
+    val freeSpacePercentage get() = 100 - (actualUsedCellCount * 100.0 / maxOf(actualHeapSize, garbageThreshold))
 
     // METHODS ----------------------------------------------------------------
 
@@ -265,6 +273,11 @@ internal class BigNode constructor(val previousNode: BigNode?) {
     fun alloc(memory: LexemMemory, value: LexemReferenced): BigNodeCell {
         // No free cell.
         if (lastFreePosition == actualHeapSize) {
+            // Execute the garbage collector to free space.
+            if (actualHeapSize == garbageThreshold) {
+                memory.spatialGarbageCollect()
+            }
+
             val cell = BigNodeCell.new(lastFreePosition, value)
             heap[lastFreePosition] = cell
             lastFreePosition += 1
@@ -390,7 +403,12 @@ internal class BigNode constructor(val previousNode: BigNode?) {
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect(memory: LexemMemory) {
+    fun spatialGarbageCollect(memory: LexemMemory, forced: Boolean = false) {
+        // Avoid to execute the garbage collector when there are enough free space.
+        if (!forced && freeSpacePercentage >= Consts.Memory.minimumFreeSpace) {
+            return
+        }
+
         // Track from the main context.
         val stdLibCell = LxmReference.StdLibContext.getCell(memory)
         stdLibCell.spatialGarbageCollect(memory)
@@ -412,6 +430,11 @@ internal class BigNode constructor(val previousNode: BigNode?) {
             } else {
                 cell.clearGarbageFlag(memory)
             }
+        }
+
+        // Update the threshold only under the minimum quantity of free space.
+        if (freeSpacePercentage < Consts.Memory.minimumFreeSpace) {
+            garbageThreshold = (garbageThreshold * Consts.Memory.garbageThresholdIncrement).toInt()
         }
     }
 }

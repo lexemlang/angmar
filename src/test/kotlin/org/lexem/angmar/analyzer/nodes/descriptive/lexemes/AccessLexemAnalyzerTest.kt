@@ -46,7 +46,7 @@ internal class AccessLexemAnalyzerTest {
         Assertions.assertEquals(returnValue, result.primitive, "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, functionName))
     }
@@ -78,7 +78,7 @@ internal class AccessLexemAnalyzerTest {
         Assertions.assertEquals(returnValue, result.primitive, "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
@@ -126,7 +126,7 @@ internal class AccessLexemAnalyzerTest {
                 "The lexem has not consumed the characters")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         removeNode(analyzer)
 
@@ -182,7 +182,7 @@ internal class AccessLexemAnalyzerTest {
                 "The parent child[0] is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         // Remove the circular references of the nodes.
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
@@ -252,7 +252,7 @@ internal class AccessLexemAnalyzerTest {
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         removeNode(analyzer)
 
@@ -283,7 +283,7 @@ internal class AccessLexemAnalyzerTest {
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
@@ -318,7 +318,7 @@ internal class AccessLexemAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has consumed some characters")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
@@ -361,7 +361,7 @@ internal class AccessLexemAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has consumed some characters")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         // Remove the circular references of the nodes.
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
@@ -392,7 +392,7 @@ internal class AccessLexemAnalyzerTest {
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
@@ -419,7 +419,7 @@ internal class AccessLexemAnalyzerTest {
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
@@ -461,7 +461,7 @@ internal class AccessLexemAnalyzerTest {
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         // Remove the circular references of the nodes.
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
@@ -543,7 +543,7 @@ internal class AccessLexemAnalyzerTest {
                 "The parent child[0] is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         // Remove the circular references of the nodes.
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,

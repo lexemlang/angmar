@@ -31,7 +31,7 @@ internal class FunctionAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -63,7 +63,7 @@ internal class FunctionAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -97,7 +97,7 @@ internal class FunctionAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -173,7 +173,7 @@ internal class FunctionAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }

@@ -105,7 +105,7 @@ internal class ObjectSimplificationAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the dangling references.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
@@ -190,7 +190,7 @@ internal class ObjectSimplificationAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
