@@ -62,6 +62,7 @@ internal object AnalyzerCommons {
         const val Parameters = "params"
         const val ReturnCodePoint = "retCodePoint"
         const val Control = "ctrl"
+        const val HiddenFunction = "${HiddenPrefix}fn"
 
         // Expression calls
         const val LastNode = "lastNode"
