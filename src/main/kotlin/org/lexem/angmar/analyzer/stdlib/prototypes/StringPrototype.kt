@@ -40,12 +40,12 @@ internal object StringPrototype {
 
                 if (left !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
-                            "The add method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${StringType.TypeName}") {}
+                            "The ${AnalyzerCommons.Operators.Add} method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${StringType.TypeName}") {}
                 }
 
                 if (right == null) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "The add method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' not to be undefined") {}
+                            "The ${AnalyzerCommons.Operators.Add} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' not to be undefined") {}
                 }
 
                 // Push the left operator again to call the toString over the right one.
@@ -55,11 +55,11 @@ internal object StringPrototype {
                 val functionRef = rightPrototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)
                 val function = functionRef?.dereference(analyzer.memory) ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.UndefinedObjectProperty,
-                        "The add method requires to call the ${AnalyzerCommons.Identifiers.ToString} method over the '${AnalyzerCommons.Operators.RightParameterName}' operand but it is undefined. Current: $rightPrototype") {}
+                        "The ${AnalyzerCommons.Operators.Add} method requires to call the ${AnalyzerCommons.Identifiers.ToString} method over the '${AnalyzerCommons.Operators.RightParameterName}' operand but it is undefined. Current: $rightPrototype") {}
 
                 function as? ExecutableValue ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.IncompatibleType,
-                        "The add method requires to call the ${AnalyzerCommons.Identifiers.ToString} method over the '${AnalyzerCommons.Operators.RightParameterName}' operand but it is not callable i.e. a function or expression. Current: $rightPrototype") {}
+                        "The ${AnalyzerCommons.Operators.Add} method requires to call the ${AnalyzerCommons.Identifiers.ToString} method over the '${AnalyzerCommons.Operators.RightParameterName}' operand but it is not callable i.e. a function or expression. Current: $rightPrototype") {}
 
                 val callArgs = LxmArguments(analyzer.memory)
                 val rightRef = analyzer.memory.valueToPrimitive(right)

@@ -30,4 +30,10 @@ internal object Consts {
     object Analyzer {
         const val defaultTimeoutInMilliseconds = 20000L // 20 seconds
     }
+
+    object Float {
+        const val exponentialDefaultPrecision = 5
+        const val exponentialDefaultFixed = 5
+        const val maxStepsDuringToString = 7
+    }
 }
