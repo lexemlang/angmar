@@ -20,7 +20,6 @@ This is the plan to work towards a v1 release. This is a "living document" and w
   - Prototypes
     - BitList
     - Float
-    - Integer
     - Interval
     - List
     - Map

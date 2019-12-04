@@ -10,6 +10,13 @@ import org.lexem.angmar.analyzer.stdlib.types.*
  */
 internal class LxmInteger private constructor(val primitive: Int) : LexemPrimitive {
 
+    // METHODS ----------------------------------------------------------------
+
+    /**
+     * Returns the number in the specified radix.
+     */
+    fun toLexemString(memory: LexemMemory, radix: Int) = LxmString.from(primitive.toString(radix))
+
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
@@ -19,7 +26,7 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
 
     override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
 
-    override fun toLexemString(memory: LexemMemory) = LxmString.from(primitive.toString())
+    override fun toLexemString(memory: LexemMemory) = toLexemString(memory, 10)
 
     override fun toString() = primitive.toString()
 

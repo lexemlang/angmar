@@ -77,10 +77,10 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         const val hexadecimalExponentSeparator = "pP"
         const val exponentPositiveSign = "+"
         const val exponentNegativeSign = "-"
-        val binaryDigits = listOf('0'..'1')
-        val octalDigits = listOf('0'..'7')
-        val decimalDigits = listOf('0'..'9')
-        val hexadecimalDigits = listOf('0'..'9', 'A'..'F', 'a'..'f')
+        val binaryDigits = "01"
+        val octalDigits = "01234567"
+        val decimalDigits = "0123456789"
+        val hexadecimalDigits = "0123456789abcdefABCDEF"
 
         // METHODS ------------------------------------------------------------
 
@@ -347,7 +347,7 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
             return result
         }
 
-        private fun readInteger(parser: LexemParser, digits: List<CharRange>): String? {
+        private fun readInteger(parser: LexemParser, digits: String): String? {
             val initCursor = parser.reader.saveCursor()
             val sb = StringBuilder()
 
