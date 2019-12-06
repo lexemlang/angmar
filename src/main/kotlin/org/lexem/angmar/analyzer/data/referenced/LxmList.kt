@@ -117,7 +117,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
             cellList.remove(i)
         }
 
-        actualListSize -= count
+        actualListSize -= realCount
     }
 
     /**
