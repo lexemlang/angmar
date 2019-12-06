@@ -31,8 +31,8 @@ internal class LxmListTest {
         val new = LxmList(old)
         new.addCell(memory, LxmLogic.True, LxmFloat.Num0)
 
-        Assertions.assertEquals(1, old.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(3, new.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(1, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(3, new.actualListSize, "The listSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertNull(old.getCell(memory, 1), "The cell[1] is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, new.getCell(memory, 0), "The cell[0] is incorrect")
@@ -48,7 +48,7 @@ internal class LxmListTest {
 
         list.addCell(memory, LxmInteger.Num10, ignoreConstant = true)
 
-        Assertions.assertEquals(1, list.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(1, list.actualListSize, "The listSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, list.getCell(memory, 0), "The cell[0] is incorrect")
     }
 
@@ -62,8 +62,8 @@ internal class LxmListTest {
         new.insertCell(memory, 1, LxmInteger.Num1, LxmInteger.Num2)
         new.getAllCells()
 
-        Assertions.assertEquals(2, old.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(4, new.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(2, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(4, new.actualListSize, "The listSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, old.getCell(memory, 1), "The cell[1] is incorrect")
         Assertions.assertNull(old.getCell(memory, 2), "The cell[2] is incorrect")
@@ -84,8 +84,8 @@ internal class LxmListTest {
         new.insertCell(memory, 1, LxmInteger.Num1, LxmInteger.Num2, ignoreConstant = true)
         new.getAllCells()
 
-        Assertions.assertEquals(2, old.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(4, new.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(2, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(4, new.actualListSize, "The listSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, old.getCell(memory, 1), "The cell[1] is incorrect")
         Assertions.assertNull(old.getCell(memory, 2), "The cell[2] is incorrect")
@@ -107,8 +107,8 @@ internal class LxmListTest {
         new.setCell(memory, 0, LxmInteger.Num10)
         new.setCell(memory, 1, LxmInteger.Num_1)
 
-        Assertions.assertEquals(1, old.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(2, new.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(1, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(2, new.actualListSize, "The listSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertNull(old.getCell(memory, 1), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, new.getCell(memory, 0), "The cell[0] is incorrect")
@@ -129,10 +129,10 @@ internal class LxmListTest {
         new.removeCell(memory, 1)
         new.removeCell(memory, 0)
 
-        Assertions.assertEquals(1, old.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(1, old.currentListSize, "The currentListSize is incorrect")
-        Assertions.assertEquals(0, new.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(0, new.currentListSize, "The currentListSize is incorrect")
+        Assertions.assertEquals(1, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(1, old.listSize, "The currentListSize is incorrect")
+        Assertions.assertEquals(0, new.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(0, new.listSize, "The currentListSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertNull(old.getCell(memory, 1), "The cell[0] is incorrect")
 
@@ -149,8 +149,8 @@ internal class LxmListTest {
 
         list.removeCell(memory, 0)
 
-        Assertions.assertEquals(0, list.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(0, list.currentListSize, "The currentListSize is incorrect")
+        Assertions.assertEquals(0, list.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(0, list.listSize, "The currentListSize is incorrect")
         Assertions.assertTrue(objRef.getCell(memory).isFreed, "The object cell has not been freed")
     }
 
@@ -167,8 +167,8 @@ internal class LxmListTest {
 
         list.removeCell(memory, 1, 2)
 
-        Assertions.assertEquals(2, list.listSize, "The listSize is incorrect")
-        Assertions.assertEquals(2, list.currentListSize, "The currentListSize is incorrect")
+        Assertions.assertEquals(2, list.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(2, list.listSize, "The currentListSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, list.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num2, list.getCell(memory, 1), "The cell[1] is incorrect")
         Assertions.assertTrue(objRef.getCell(memory).isFreed, "The object cell has not been freed")
@@ -183,7 +183,7 @@ internal class LxmListTest {
 
         list.removeCell(memory, 0, ignoreConstant = true)
 
-        Assertions.assertEquals(0, list.listSize, "The listSize is incorrect")
+        Assertions.assertEquals(0, list.actualListSize, "The listSize is incorrect")
     }
 
     @Test
@@ -252,12 +252,12 @@ internal class LxmListTest {
         new.addCell(memory, LxmLogic.True)
         new.addCell(memory, listRef)
 
-        Assertions.assertEquals(4, new.listSize, "The listSize property is incorrect")
+        Assertions.assertEquals(4, new.actualListSize, "The listSize property is incorrect")
         Assertions.assertEquals(3, listCell.referenceCount, "The referenceCount property is incorrect")
 
         new.memoryDealloc(memory)
 
-        Assertions.assertEquals(0, new.listSize, "The listSize property is incorrect")
+        Assertions.assertEquals(0, new.actualListSize, "The listSize property is incorrect")
         Assertions.assertEquals(1, listCell.referenceCount, "The referenceCount property is incorrect")
     }
 

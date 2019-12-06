@@ -565,7 +565,7 @@ internal class AccessLexemAnalyzerTest {
         val lxmNode = lxmNodeRef.dereference(analyzer.memory) as LxmNode
         val children = lxmNode.getChildren(analyzer.memory)
 
-        for (i in children.listSize - 1 downTo 0) {
+        for (i in children.actualListSize - 1 downTo 0) {
             children.removeCell(analyzer.memory, i, ignoreConstant = true)
         }
     }

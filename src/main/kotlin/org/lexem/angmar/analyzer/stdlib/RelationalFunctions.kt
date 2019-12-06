@@ -30,7 +30,7 @@ internal object RelationalFunctions {
                                 return@let false
                             }
 
-                            if (leftDeref.listSize != rightDeref.listSize) {
+                            if (leftDeref.actualListSize != rightDeref.actualListSize) {
                                 return@let false
                             }
 

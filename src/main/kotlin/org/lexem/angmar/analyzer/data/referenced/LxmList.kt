@@ -13,10 +13,10 @@ import org.lexem.angmar.parser.literals.*
  */
 internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     private var isConstant = false
-    var listSize: Int = oldList?.listSize ?: 0
+    var actualListSize: Int = oldList?.actualListSize ?: 0
         private set
     private var cellList = mutableMapOf<Int, LexemPrimitive>()
-    val currentListSize get() = cellList.size
+    val listSize get() = cellList.size
 
     /**
      * Gets the value of a cell.
@@ -39,7 +39,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
                     "The list is constant therefore cannot be modified") {}
         }
 
-        if (index >= listSize) {
+        if (index >= actualListSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
@@ -72,8 +72,8 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
         }
 
         for (value in values) {
-            replaceCell(memory, listSize, value)
-            listSize += 1
+            replaceCell(memory, actualListSize, value)
+            actualListSize += 1
         }
     }
 
@@ -87,19 +87,19 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
                     "The list is constant therefore cannot be modified") {}
         }
 
-        if (index >= listSize) {
+        if (index >= actualListSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
 
-        val realCount = if (index + count > listSize) {
-            listSize - index
+        val realCount = if (index + count > actualListSize) {
+            actualListSize - index
         } else {
             count
         }
 
         // Move to the start.
-        for (i in index + realCount until listSize) {
+        for (i in index + realCount until actualListSize) {
             val oldIndex = i - count
             val oldValue = getCellRecursively(memory, oldIndex)!!
             val newValue = getCellRecursively(memory, i)!!
@@ -110,14 +110,14 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
         }
 
         // Remove last count values.
-        for (i in listSize - realCount until listSize) {
+        for (i in actualListSize - realCount until actualListSize) {
             val value = getCellRecursively(memory, i)!!
             memory.replacePrimitives(value, LxmNil)
 
             cellList.remove(i)
         }
 
-        listSize -= count
+        actualListSize -= count
     }
 
     /**
@@ -130,19 +130,19 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
                     "The list is constant therefore cannot be modified") {}
         }
 
-        if (index > listSize) {
+        if (index > actualListSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
 
-        if (index == listSize) {
+        if (index == actualListSize) {
             addCell(memory, *values, ignoreConstant = ignoreConstant)
             return
         }
 
         // Move the cells to create space.
         val count = values.size
-        for (i in listSize - 1 downTo index) {
+        for (i in actualListSize - 1 downTo index) {
             val value = getCellRecursively(memory, i)!!
             cellList[i + count] = value
         }
@@ -153,7 +153,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
             cellList[index + i] = value
         }
 
-        listSize += values.size
+        actualListSize += values.size
     }
 
     /**
@@ -173,11 +173,11 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      * Gets all cells of the list in order.
      */
     fun getAllCells(): List<LexemPrimitive> {
-        val result = LinkedHashMap<Int, LexemPrimitive>(listSize)
+        val result = LinkedHashMap<Int, LexemPrimitive>(actualListSize)
 
         var currentList: LxmList? = this
         while (currentList != null) {
-            currentList.cellList.filter { it.key < listSize }.forEach { (key, value) ->
+            currentList.cellList.filter { it.key < actualListSize }.forEach { (key, value) ->
                 if (key !in result) {
                     result[key] = value
                 }
@@ -185,7 +185,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
             currentList = currentList.oldList
         }
 
-        return List(listSize) { result[it]!! }
+        return List(actualListSize) { result[it]!! }
     }
 
     /**
@@ -213,7 +213,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
         }
 
         cellList.clear()
-        listSize = 0
+        actualListSize = 0
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {

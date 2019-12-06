@@ -396,7 +396,7 @@ internal class GroupLexemAnalyzerTest {
         val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
         val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmList
 
-        Assertions.assertEquals(1, list.listSize, "The result is incorrect")
+        Assertions.assertEquals(1, list.actualListSize, "The result is incorrect")
         Assertions.assertEquals(childNodeRef.position, (list.getCell(analyzer.memory, 0) as LxmReference).position,
                 "The result[0] is incorrect")
         Assertions.assertEquals(0, newPosition.primitive, "The new position is incorrect")
@@ -424,7 +424,7 @@ internal class GroupLexemAnalyzerTest {
         val lxmNode = lxmNodeRef.dereference(analyzer.memory) as LxmNode
         val children = lxmNode.getChildren(analyzer.memory)
 
-        for (i in children.listSize - 1 downTo 0) {
+        for (i in children.actualListSize - 1 downTo 0) {
             children.removeCell(analyzer.memory, i, ignoreConstant = true)
         }
     }

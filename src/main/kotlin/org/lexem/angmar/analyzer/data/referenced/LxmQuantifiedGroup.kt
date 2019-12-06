@@ -136,7 +136,7 @@ internal class LxmQuantifiedGroup : LxmObject {
             return false
         }
 
-        val listSize = getUnionList(memory).listSize
+        val listSize = getUnionList(memory).actualListSize
         val finished = getFinishedCount(memory)
 
         return listSize == finished.primitive

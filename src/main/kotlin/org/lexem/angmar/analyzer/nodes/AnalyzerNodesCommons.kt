@@ -399,7 +399,7 @@ internal object AnalyzerNodesCommons {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Children) ?: LxmNil)
             if (!children) {
                 val childList = lxmNode.getChildren(analyzer.memory)
-                childList.removeCell(analyzer.memory, childList.listSize)
+                childList.removeCell(analyzer.memory, childList.actualListSize)
             }
 
             var returnValue: LexemPrimitive = lxmNodeRef

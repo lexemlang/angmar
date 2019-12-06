@@ -22,7 +22,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().withIndex()) {
                 Assertions.assertEquals(value, v, "The result[$i] is incorrect")
@@ -41,7 +41,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().withIndex()) {
                 Assertions.assertEquals(value, v, "The result[$i] is incorrect")
@@ -58,7 +58,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(fnCallArguments.size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {
                 val (res, expected) = v
@@ -76,7 +76,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(fnCallArguments.size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {
                 val (res, expected) = v
@@ -98,7 +98,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(list1.size + list2.size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(list1.size + list2.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(list1 + list2).withIndex()) {
                 val (res, expected) = v
@@ -116,7 +116,7 @@ internal class ListTypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
-            Assertions.assertEquals(fnCallArguments.size, list.listSize, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {
                 val (res, expected) = v

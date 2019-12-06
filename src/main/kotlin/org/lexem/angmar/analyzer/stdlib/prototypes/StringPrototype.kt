@@ -43,7 +43,7 @@ internal object StringPrototype {
     // Method arguments
 
     val IndexOfArgs = listOf("substring")
-    val LastIndexOfArgs = listOf("substring")
+    val LastIndexOfArgs = IndexOfArgs
     val PadStartArgs = listOf("length", "padString")
     val PadEndArgs = PadStartArgs
     val RepeatArgs = listOf("count", "separator")
@@ -61,7 +61,6 @@ internal object StringPrototype {
 
         // Methods
         prototype.setProperty(memory, Length, memory.add(LxmFunction(::lengthFunction)), isConstant = true)
-
         prototype.setProperty(memory, CharsAt, memory.add(LxmFunction(::charsAtFunction)), isConstant = true)
         prototype.setProperty(memory, UnicodePointsAt, memory.add(LxmFunction(::unicodePointsAtFunction)),
                 isConstant = true)
@@ -70,7 +69,6 @@ internal object StringPrototype {
                 isConstant = true)
         prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(::containsAnyFunction)), isConstant = true)
         prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(::containsAllFunction)), isConstant = true)
-
         prototype.setProperty(memory, IndexOf, memory.add(LxmFunction(::indexOfFunction)), isConstant = true)
         prototype.setProperty(memory, LastIndexOf, memory.add(LxmFunction(::lastIndexOfFunction)), isConstant = true)
         prototype.setProperty(memory, PadStart, memory.add(LxmFunction(::padStartFunction)), isConstant = true)

@@ -16,7 +16,7 @@ internal class LxmListIterator : LexemIterator {
     constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
         val list = value.dereferenceAs<LxmList>(memory)!!
         setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
-        this.size = list.listSize.toLong()
+        this.size = list.actualListSize.toLong()
     }
 
     private constructor(oldIterator: LxmListIterator) : super(oldIterator) {
