@@ -29,7 +29,7 @@ internal class LxmNode : LxmObject {
         }
 
         setProperty(memory, AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
-        setProperty(memory, AnalyzerCommons.Identifiers.From, LxmReaderCursor(from), isConstant = true)
+        setFrom(memory, from)
 
         init(memory)
     }
@@ -103,18 +103,33 @@ internal class LxmNode : LxmObject {
      * Gets the initial position of the content of the node.
      */
     fun getFrom(memory: LexemMemory) =
-            getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.From)!!
+            getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.HiddenFrom)!!
+
+    /**
+     * Sets the value of the from property.
+     */
+    fun setFrom(memory: LexemMemory, cursor: IReaderCursor) {
+        setProperty(memory, AnalyzerCommons.Identifiers.From, LxmInteger.from(cursor.position()), isConstant = true,
+                ignoringConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.HiddenFrom, LxmReaderCursor(cursor), isConstant = true,
+                ignoringConstant = true)
+    }
 
     /**
      * Gets the final position of the content of the node.
      */
-    fun getTo(memory: LexemMemory) = getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.To)
+    fun getTo(memory: LexemMemory) =
+            getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.HiddenTo)
 
     /**
      * Sets the value of the to property.
      */
-    fun setTo(memory: LexemMemory, cursor: IReaderCursor) =
-            setProperty(memory, AnalyzerCommons.Identifiers.To, LxmReaderCursor(cursor))
+    fun setTo(memory: LexemMemory, cursor: IReaderCursor) {
+        setProperty(memory, AnalyzerCommons.Identifiers.To, LxmInteger.from(cursor.position()), isConstant = true,
+                ignoringConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.HiddenTo, LxmReaderCursor(cursor), isConstant = true,
+                ignoringConstant = true)
+    }
 
     /**
      * Applies the default properties for expressions.
@@ -174,8 +189,7 @@ internal class LxmNode : LxmObject {
         var prevCursor = getFrom(memory).primitive
 
         // Update from.
-        setProperty(memory, AnalyzerCommons.Identifiers.From, LxmReaderCursor(offset), isConstant = true,
-                ignoringConstant = true)
+        setFrom(memory, offset)
         offset.restore()
 
         // Update children.
@@ -205,8 +219,7 @@ internal class LxmNode : LxmObject {
         var prevCursor = getFrom(memory).primitive
 
         // Update from.
-        setProperty(memory, AnalyzerCommons.Identifiers.From, LxmReaderCursor(reader.saveCursor()), isConstant = true,
-                ignoringConstant = true)
+        setFrom(memory, reader.saveCursor())
 
         // Update children.
         for (child in getChildrenAsList(memory)) {

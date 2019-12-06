@@ -44,7 +44,9 @@ internal object AnalyzerCommons {
         const val Properties = "properties"
         const val Name = "name"
         const val From = "from"
+        const val HiddenFrom = "${HiddenPrefix}from"
         const val To = "to"
+        const val HiddenTo = "${HiddenPrefix}to"
 
         // Selector
         const val DefaultPropertyName = "it"
