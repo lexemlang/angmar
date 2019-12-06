@@ -247,12 +247,4 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
             memory.replacePrimitives(oldValue, newValue)
         }
     }
-
-    companion object {
-        val Empty = LxmSet(null)
-
-        init {
-            Empty.isConstant = true
-        }
-    }
 }

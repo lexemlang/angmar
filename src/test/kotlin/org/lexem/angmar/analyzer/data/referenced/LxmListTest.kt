@@ -340,9 +340,4 @@ internal class LxmListTest {
             list.removeCell(memory, 0)
         }
     }
-
-    @Test
-    fun `check the empty list is constant`() {
-        Assertions.assertTrue(LxmList.Empty.isImmutable, "The LxmList.Empty must be constant")
-    }
 }

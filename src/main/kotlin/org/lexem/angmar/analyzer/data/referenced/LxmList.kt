@@ -246,14 +246,4 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
             append(" and ${list.size - 4} more")
         }
     }.toString()
-
-    // STATIC -----------------------------------------------------------------
-
-    companion object {
-        val Empty = LxmList()
-
-        init {
-            Empty.isConstant = true
-        }
-    }
 }

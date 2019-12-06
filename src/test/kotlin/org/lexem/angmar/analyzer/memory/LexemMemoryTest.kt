@@ -191,17 +191,18 @@ internal class LexemMemoryTest {
     @Test
     fun `test get and set`() {
         val memory = TestUtils.generateTestMemory()
-        val empty = LxmObject()
+        val emptyObject = LxmObject()
+        val emptyList = LxmList()
 
         // Add a value to use the 0 index.
-        memory.add(empty)
+        memory.add(emptyObject)
 
         // Get empty
-        Assertions.assertEquals(empty, memory.get(LxmReference(0)), "The value of the memory is incorrect")
+        Assertions.assertEquals(emptyObject, memory.get(LxmReference(0)), "The value of the memory is incorrect")
 
         // Set - get
-        memory.set(LxmReference(0), LxmList.Empty)
-        Assertions.assertEquals(LxmList.Empty, memory.get(LxmReference(0)), "The value of the memory is incorrect")
+        memory.set(LxmReference(0), emptyList)
+        Assertions.assertEquals(emptyList, memory.get(LxmReference(0)), "The value of the memory is incorrect")
     }
 
     @Test
@@ -270,6 +271,7 @@ internal class LexemMemoryTest {
     fun `test clear`() {
         val memory = TestUtils.generateTestMemory()
         val obj = LxmObject()
+        val emptyList = LxmList()
 
         for (i in 0..size) {
             val reference = memory.add(obj)
@@ -280,7 +282,7 @@ internal class LexemMemoryTest {
 
         memory.clear()
 
-        val reference = memory.add(LxmList.Empty)
+        val reference = memory.add(emptyList)
         Assertions.assertEquals(0, reference.position, "The memory is not empty")
     }
 
@@ -288,6 +290,7 @@ internal class LexemMemoryTest {
     fun `test clear recursively`() {
         val memory = TestUtils.generateTestMemory()
         val obj = LxmObject()
+        val emptyList = LxmList()
 
         for (i in 0..size) {
             val reference = memory.add(obj)
@@ -307,13 +310,14 @@ internal class LexemMemoryTest {
 
         memory.clear()
 
-        val reference = memory.add(LxmList.Empty)
+        val reference = memory.add(emptyList)
         Assertions.assertEquals(0, reference.position, "The memory is not empty")
     }
 
     @Test
     fun `test freezeCopy and rollbackCopy`() {
         val memory = TestUtils.generateTestMemory()
+        val emptyList = LxmList()
         val object1 = LxmObject()
         val object2 = LxmObject()
         val reference1 = memory.add(object1)
@@ -329,7 +333,7 @@ internal class LexemMemoryTest {
 
         Assertions.assertEquals(object1, memory.get(reference1), "The value of the memory is incorrect")
 
-        val reference = memory.add(LxmList.Empty)
+        val reference = memory.add(emptyList)
         Assertions.assertEquals(reference2.position, reference.position, "The memory has not rollback correctly")
     }
 
@@ -346,6 +350,7 @@ internal class LexemMemoryTest {
     @Test
     fun `test freezeCopy and restoreCopy`() {
         val memory = TestUtils.generateTestMemory()
+        val emptyList = LxmList()
         val object1 = LxmObject()
         val object2 = LxmObject()
         val object3 = LxmObject()
@@ -367,7 +372,7 @@ internal class LexemMemoryTest {
 
         Assertions.assertEquals(object1, memory.get(reference1), "The value of the memory is incorrect")
 
-        val reference = memory.add(LxmList.Empty)
+        val reference = memory.add(emptyList)
         Assertions.assertEquals(reference2.position, reference.position, "The memory has not rollback correctly")
     }
 

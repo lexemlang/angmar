@@ -127,9 +127,10 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
          * Returns the [LxmFloat] equivalent of the specified float value.
          */
         fun from(value: Float) = when (value) {
-            -1.0f -> Num_1
-            0.0f -> Num0
-            1.0f -> Num1
+            Num_1.primitive -> Num_1
+            Num0.primitive -> Num0
+            Num0_5.primitive -> Num0_5
+            Num1.primitive -> Num1
             else -> LxmFloat(value)
         }
     }

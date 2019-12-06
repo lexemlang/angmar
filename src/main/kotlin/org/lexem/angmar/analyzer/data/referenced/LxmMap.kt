@@ -283,12 +283,4 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
             memory.replacePrimitives(oldValue, newValue)
         }
     }
-
-    companion object {
-        val Empty = LxmMap(null)
-
-        init {
-            Empty.isConstant = true
-        }
-    }
 }

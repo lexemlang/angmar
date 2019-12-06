@@ -35,8 +35,7 @@ internal class LxmPropertySetter : LexemSetter {
         val obj = objDeref.getObjectOrPrototype(memory)
 
         return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.IncompatibleType,
-                "Undefined property called \"$property\" in object. Actual value: $obj") {
+                AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called \"$property\" in object.") {
             val fullText = node.parser.reader.readAllText()
             addSourceCode(fullText, node.parser.reader.getSource()) {
                 title = Consts.Logger.hintTitle
@@ -51,7 +50,7 @@ internal class LxmPropertySetter : LexemSetter {
 
         if (obj !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                    "Property accesses are only allowed on objects. Actual value: $obj") {
+                    "Property accesses are only allowed on objects.") {
                 val fullText = node.parser.reader.readAllText()
                 addSourceCode(fullText, node.parser.reader.getSource()) {
                     title = Consts.Logger.hintTitle

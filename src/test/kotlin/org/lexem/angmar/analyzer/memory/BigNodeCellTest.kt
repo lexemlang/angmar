@@ -30,53 +30,57 @@ internal class BigNodeCellTest {
     fun `test new`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
-        val cell = BigNodeCell.new(0, empty)
+        val emptyObject = LxmObject()
+        val emptyList = LxmList()
+        val cell = BigNodeCell.new(0, emptyObject)
 
-        checkCell(cell, 0, empty)
+        checkCell(cell, 0, emptyObject)
 
         // Destroys the cell
         cell.destroy()
         checkCell(cell, -1, BigNodeCell.EmptyCell, isFreed = true)
 
         // Check whether the new cell is the same as before to check the reuse of them.
-        val newCell = BigNodeCell.new(56, LxmList.Empty)
+        val newCell = BigNodeCell.new(56, emptyList)
 
         Assertions.assertEquals(cell, newCell, "The cells are not equals")
-        checkCell(newCell, 56, LxmList.Empty)
-        checkCell(cell, 56, LxmList.Empty)
+        checkCell(newCell, 56, emptyList)
+        checkCell(cell, 56, emptyList)
     }
 
     @Test
     fun `test get`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val cell = BigNodeCell.new(0, LxmList.Empty)
+        val emptyList = LxmList()
+        val cell = BigNodeCell.new(0, emptyList)
 
-        checkCell(cell, 0, LxmList.Empty)
+        checkCell(cell, 0, emptyList)
     }
 
     @Test
     fun `test set simple`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
-        val cell0 = bigNode.alloc(memory, empty)
+        val emptyObject = LxmObject()
+        val emptyList = LxmList()
+        val cell0 = bigNode.alloc(memory, emptyObject)
 
-        checkCell(cell0, 0, empty)
+        checkCell(cell0, 0, emptyObject)
 
-        cell0.setValue(LxmList.Empty)
+        cell0.setValue(emptyList)
 
-        checkCell(cell0, 0, LxmList.Empty)
+        checkCell(cell0, 0, emptyList)
     }
 
     @Test
     fun `test set and free by reference count`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val cell0 = bigNode.alloc(memory, LxmList.Empty)
+        val emptyList = LxmList()
+        val cell0 = bigNode.alloc(memory, emptyList)
 
-        checkCell(cell0, 0, LxmList.Empty)
+        checkCell(cell0, 0, emptyList)
 
         // Reduce the reference count.
         cell0.increaseReferences()
@@ -109,9 +113,10 @@ internal class BigNodeCellTest {
     fun `test realloc`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
+        val emptyObject = LxmObject()
+        val emptyList = LxmList()
 
-        val cell0 = bigNode.alloc(memory, empty)
+        val cell0 = bigNode.alloc(memory, emptyObject)
 
         val obj = LxmObject()
         obj.setProperty(memory, "test", LxmReference(cell0.position))
@@ -119,25 +124,26 @@ internal class BigNodeCellTest {
         val cell1 = bigNode.alloc(memory, obj)
         cell1.increaseReferences()
 
-        checkCell(cell0, 0, empty, referenceCount = 1)
+        checkCell(cell0, 0, emptyObject, referenceCount = 1)
         checkCell(cell1, 1, obj, referenceCount = 1)
 
         // Realloc
-        cell1.reallocCell(memory, LxmList.Empty)
+        cell1.reallocCell(memory, emptyList)
 
         checkCell(cell0, 0, BigNodeCell.EmptyCell, referenceCount = 2, isFreed = true) // 2 = lastFreeCell
-        checkCell(cell1, 1, LxmList.Empty)
+        checkCell(cell1, 1, emptyList)
     }
 
     @Test
     fun `test free with value`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
-        bigNode.alloc(memory, empty)
-        val cell1 = bigNode.alloc(memory, LxmList.Empty)
+        val emptyObject = LxmObject()
+        val emptyList = LxmList()
+        bigNode.alloc(memory, emptyObject)
+        val cell1 = bigNode.alloc(memory, emptyList)
 
-        checkCell(cell1, 1, LxmList.Empty)
+        checkCell(cell1, 1, emptyList)
 
         // Free
         cell1.freeCell(memory)
