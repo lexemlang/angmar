@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.stdlib.prototypes
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
+import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.errors.*
@@ -49,6 +50,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test charsAt - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -90,6 +92,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test unicodePointsAt - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -126,6 +129,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test endsWithAny - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -162,6 +166,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test startsWithAny - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -198,6 +203,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test containsAny - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -234,6 +240,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test containsAll - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -274,6 +281,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test indexOf - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -314,6 +322,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test lastIndexOf - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -367,6 +376,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test padStart - incorrect type - length`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -382,6 +392,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test padStart - incorrect type - padString`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -435,6 +446,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test padEnd - incorrect type - length`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -450,6 +462,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test padEnd - incorrect type - padString`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -503,6 +516,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test repeat - incorrect type - count`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -518,6 +532,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test repeat - incorrect type - separator`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -575,6 +590,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test replace - incorrect type - original`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -590,6 +606,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test replace - incorrect type - replace`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -606,6 +623,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test replace - incorrect type - insensible`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -660,6 +678,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test slice - incorrect type - from`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -675,6 +694,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test slice - incorrect type - count`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
@@ -721,6 +741,7 @@ internal class StringPrototypeTest {
     }
 
     @Test
+    @Incorrect
     fun `test split - incorrect type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val value = "test"
