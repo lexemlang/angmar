@@ -252,7 +252,6 @@ internal class AssignOperatorAnalyzerTest {
         val left = BitSet()
         left[1] = true
         val right = 1
-        val resultSize = leftSize - 1
         val resultValue = BitSet()
         resultValue[0] = true
         val text = "$varName ${ShiftExpressionNode.leftShiftOperator}${AssignOperatorNode.assignOperator} $right"
@@ -265,14 +264,14 @@ internal class AssignOperatorAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
-        Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(leftSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val property = context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName) ?: throw Error(
                 "The property must be a LxmBitList")
 
-        Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(leftSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
@@ -288,7 +287,6 @@ internal class AssignOperatorAnalyzerTest {
         val left = BitSet()
         left[1] = true
         val right = 1
-        val resultSize = leftSize + 1
         val resultValue = BitSet()
         resultValue[2] = true
         val text = "$varName ${ShiftExpressionNode.rightShiftOperator}${AssignOperatorNode.assignOperator} $right"
@@ -301,14 +299,14 @@ internal class AssignOperatorAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error("The result must be a LxmBitList")
-        Assertions.assertEquals(resultSize, result.size, "The size of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(leftSize, result.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val property = context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName) ?: throw Error(
                 "The property must be a LxmBitList")
 
-        Assertions.assertEquals(resultSize, property.size, "The size of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(leftSize, property.size, "The size of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.

@@ -11,14 +11,15 @@ internal class ShiftExpressionAnalyzerTest {
     @Test
     fun `test left shift`() {
         val text =
-                "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.leftShiftOperator} 3"
+                "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.leftShiftOperator} 2"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
-        Assertions.assertEquals(1, stackValue.size, "The size property of the value inserted in the stack is incorrect")
+        resultValue.set(0)
+        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
@@ -30,16 +31,15 @@ internal class ShiftExpressionAnalyzerTest {
     @Test
     fun `test right shift`() {
         val text =
-                "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.rightShiftOperator} 3"
+                "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.rightShiftOperator} 2"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
-        resultValue[4] = true
-        resultValue[5] = true
-        Assertions.assertEquals(7, stackValue.size, "The size property of the value inserted in the stack is incorrect")
+        resultValue.set(3)
+        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
         Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.

@@ -158,13 +158,13 @@ internal object BitListPrototype {
                             return@executeBinaryOperator LxmBitList.Empty
                         }
 
-                        val result = BitSet(left.size - right.primitive)
+                        val result = BitSet(left.size)
 
                         for (i in right.primitive until left.size) {
                             result[i - right.primitive] = left.primitive[i]
                         }
 
-                        LxmBitList(left.size - right.primitive, result)
+                        LxmBitList(left.size, result)
                     }
                     else -> null
                 }
@@ -185,13 +185,13 @@ internal object BitListPrototype {
                                     "The ${AnalyzerCommons.Operators.RightShift} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a positive ${IntegerType.TypeName}") {}
                         }
 
-                        val result = BitSet(left.size + right.primitive)
+                        val result = BitSet(left.size)
 
-                        for (i in 0 until left.size) {
+                        for (i in 0 until left.size - right.primitive) {
                             result[right.primitive + i] = left.primitive[i]
                         }
 
-                        LxmBitList(left.size + right.primitive, result)
+                        LxmBitList(left.size, result)
                     }
                     else -> null
                 }
