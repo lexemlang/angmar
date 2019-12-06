@@ -64,6 +64,20 @@ internal object StdlibCommons {
     }
 
     /**
+     * Calls a method with a list of positional arguments.
+     */
+    fun callMethod(analyzer: LexemAnalyzer, function: LexemPrimitive, positionalArguments: List<LexemPrimitive>,
+            returnSignal: Int) {
+        val arguments = LxmArguments(analyzer.memory)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
+        positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
+        val argumentsRef = analyzer.memory.add(arguments)
+
+        AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
+                LxmCodePoint(InternalFunctionCallNode, returnSignal))
+    }
+
+    /**
      * Calls the toString method of a value.
      */
     fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int) {
