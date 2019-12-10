@@ -67,20 +67,22 @@ internal object StdlibCommons {
      * Calls a method with a list of positional arguments.
      */
     fun callMethod(analyzer: LexemAnalyzer, function: LexemPrimitive, positionalArguments: List<LexemPrimitive>,
-            returnSignal: Int) {
+            returnSignal: Int, functionName: String) {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
         positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
         val argumentsRef = analyzer.memory.add(arguments)
 
         AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal))
+                LxmCodePoint(InternalFunctionCallNode, returnSignal,
+                        callerNode = (function.dereference(analyzer.memory) as LxmFunction).node,
+                        callerContextName = "<Native function '$functionName'>"))
     }
 
     /**
      * Calls the toString method of a value.
      */
-    fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int) {
+    fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int, functionName: String) {
         val prototype = value.dereference(analyzer.memory).getPrototypeAsObject(analyzer.memory)
         val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
 
@@ -89,6 +91,8 @@ internal object StdlibCommons {
         val argumentsRef = analyzer.memory.add(arguments)
 
         AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal))
+                LxmCodePoint(InternalFunctionCallNode, returnSignal,
+                        callerNode = (function.dereference(analyzer.memory) as LxmFunction).node,
+                        callerContextName = "<Native function '$functionName'>"))
     }
 }

@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.*
  * The Lexem value of a position in code to rollback.
  */
 internal class LxmRollbackCodePoint(node: ParserNode, signal: Int, val readerCursor: IReaderCursor) :
-        LxmCodePoint(node, signal) {
+        LxmCodePoint(node, signal, node, "") {
 
     // METHODS ----------------------------------------------------------------
 

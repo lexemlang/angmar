@@ -107,8 +107,9 @@ internal object AssignOperatorAnalyzer {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
+        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
         return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
-                LxmCodePoint(node, signalEndOperator))
+                LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
 
     /**

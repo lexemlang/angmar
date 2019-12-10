@@ -53,6 +53,8 @@ internal class AccessExpressionLexemeAnalyzerTest {
         list.addCell(analyzer.memory, LxmInteger.from(left))
         val listRef = analyzer.memory.add(list)
         context.setProperty(analyzer.memory, varName, listRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -62,6 +64,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

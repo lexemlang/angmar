@@ -56,7 +56,8 @@ internal object PrefixOperatorAnalyzer {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, thisValue)
         val argumentsRef = analyzer.memory.add(arguments)
 
+        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
         return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, argumentsRef, node,
-                LxmCodePoint(node, signalEndOperator))
+                LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
 }

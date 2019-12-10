@@ -12,6 +12,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import java.time.*
 
 
@@ -139,8 +140,28 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
                 }
             }
         } catch (e: AngmarAnalyzerException) {
-            // TODO print the stack traces
-            // TODO clear the state.
+            // TODO Print the stack traces
+            val callHierarchy = AnalyzerCommons.getCallHierarchy(memory)
+
+            if (callHierarchy.isNotEmpty()) {
+                e.logger.setStack {
+                    for (i in callHierarchy) {
+                        if (i.callerNode is InternalFunctionCallNode) {
+                            addStackTrace("<native code>") {
+                                methodName = i.callerContextName
+                            }
+                        } else {
+                            val (line, column) = i.callerNode.from.lineColumn()
+                            addStackTrace(i.callerNode.parser.reader.getSource(), line, column) {
+                                methodName = i.callerContextName
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Clear the state.
+            //            freeResources()
             throw e
         }
 
@@ -174,6 +195,21 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         val rootNode = getRootNode()
 
         return LexemMatch(this, rootNode)
+    }
+
+    /**
+     * Frees the resources of the analyzer.
+     */
+    fun freeResources() {
+        if (status == Status.Ready) {
+            return
+        }
+
+        // Init state
+        memory.clear()
+
+        // Set the status
+        status = Status.Ready
     }
 
     /**
@@ -302,6 +338,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      * Possible status of a [LexemAnalyzer].
      */
     enum class Status {
+        Ready,
         Paused,
         Ended
     }

@@ -55,6 +55,8 @@ internal class FunctionAnalyzerTest {
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -65,7 +67,8 @@ internal class FunctionAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -89,6 +92,8 @@ internal class FunctionAnalyzerTest {
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -99,7 +104,8 @@ internal class FunctionAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @ParameterizedTest
@@ -118,6 +124,11 @@ internal class FunctionAnalyzerTest {
                 "${BlockStmtNode.startToken} $assign \n $callFn ${BlockStmtNode.endToken}"
             }
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
+
+            // Prepare the context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -142,6 +153,11 @@ internal class FunctionAnalyzerTest {
             }
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
+            // Prepare the context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }
@@ -165,6 +181,8 @@ internal class FunctionAnalyzerTest {
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -175,6 +193,7 @@ internal class FunctionAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

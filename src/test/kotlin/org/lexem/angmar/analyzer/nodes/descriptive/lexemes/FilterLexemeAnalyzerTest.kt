@@ -211,6 +211,8 @@ internal class FilterLexemeAnalyzerTest {
         }
         val functionRef = analyzer.memory.add(function)
         context.setProperty(analyzer.memory, funName, functionRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
@@ -249,7 +251,8 @@ internal class FilterLexemeAnalyzerTest {
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(funName, AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(funName, AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -280,6 +283,8 @@ internal class FilterLexemeAnalyzerTest {
             }
             val functionRef = analyzer.memory.add(function)
             context.setProperty(analyzer.memory, funName, functionRef)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
 
             // Prepare the node to filter.
             val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)

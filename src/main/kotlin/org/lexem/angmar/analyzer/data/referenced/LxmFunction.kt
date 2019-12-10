@@ -13,7 +13,7 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
  * The Lexem value of the function type.
  */
 internal open class LxmFunction : LexemReferenced, ExecutableValue {
-    var name: String = "??"
+    var name: String = "<Anonymous function>"
     val node: ParserNode
     val contextReference: LxmReference?
     val internalFunction: ((LexemAnalyzer, LxmReference, LxmFunction, Int) -> Boolean)?

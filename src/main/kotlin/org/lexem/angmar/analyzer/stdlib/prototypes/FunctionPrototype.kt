@@ -76,7 +76,9 @@ internal object FunctionPrototype {
                 val fnValueRef = parsedArguments[AnalyzerCommons.Identifiers.HiddenFunction]!!
 
                 AnalyzerNodesCommons.callFunction(analyzer, fnValueRef, function.contextReference,
-                        InternalFunctionCallNode, LxmCodePoint(InternalFunctionCallNode, signalEnd))
+                        InternalFunctionCallNode,
+                        LxmCodePoint(InternalFunctionCallNode, signalEnd, callerNode = function.node,
+                                callerContextName = "<${FunctionType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Wrap"))
 
                 return false
             }

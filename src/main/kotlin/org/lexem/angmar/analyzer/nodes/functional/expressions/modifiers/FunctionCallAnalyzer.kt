@@ -187,8 +187,10 @@ internal object FunctionCallAnalyzer {
         analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Function, AnalyzerCommons.Identifiers.Auxiliary)
 
         // Call the function.
+        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
         AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, node,
-                LxmCodePoint(node.parent!!, node.parentSignal))
+                LxmCodePoint(node.parent!!, node.parentSignal, callerNode = node,
+                        callerContextName = contextName.primitive))
 
         // Remove Auxiliary two times from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Auxiliary)

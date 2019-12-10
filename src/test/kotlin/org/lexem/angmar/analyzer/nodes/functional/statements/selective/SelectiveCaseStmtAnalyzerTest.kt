@@ -26,6 +26,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -46,7 +48,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -62,6 +65,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -82,7 +87,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test

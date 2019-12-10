@@ -169,7 +169,7 @@ internal object ListPrototype {
 
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, Every)
 
                     return false
                 }
@@ -189,7 +189,7 @@ internal object ListPrototype {
                     if (position < thisValue.actualListSize) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
-                                signalEndFirstElement + position)
+                                signalEndFirstElement + position, Every)
 
                         return false
                     }
@@ -237,7 +237,7 @@ internal object ListPrototype {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listRef)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, Filter)
 
                     return false
                 }
@@ -261,7 +261,7 @@ internal object ListPrototype {
 
                 if (position < thisValue.actualListSize) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
-                            signalEndFirstElement + position)
+                            signalEndFirstElement + position, Filter)
 
                     return false
                 }
@@ -301,7 +301,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, ForEach)
 
                     return false
                 }
@@ -316,7 +316,7 @@ internal object ListPrototype {
 
                 if (position < thisValue.actualListSize) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
-                            signalEndFirstElement + position)
+                            signalEndFirstElement + position, ForEach)
 
                     return false
                 }
@@ -355,7 +355,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, Find)
 
                     return false
                 }
@@ -387,7 +387,7 @@ internal object ListPrototype {
                     if (position < thisValue.actualListSize) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
-                                signalEndFirstElement + position)
+                                signalEndFirstElement + position, Find)
 
                         return false
                     }
@@ -428,7 +428,7 @@ internal object ListPrototype {
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function,
                             listOf(thisValue.getCell(analyzer.memory, thisValue.actualListSize - 1)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, FindLast)
 
                     return false
                 }
@@ -462,7 +462,7 @@ internal object ListPrototype {
                     if (positionFromLast >= 0) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, positionFromLast)!!),
-                                signalEndFirstElement + position)
+                                signalEndFirstElement + position, FindLast)
 
                         return false
                     }
@@ -625,7 +625,7 @@ internal object ListPrototype {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listRef)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, Map)
 
                     return false
                 }
@@ -646,7 +646,7 @@ internal object ListPrototype {
 
                 if (position < thisValue.actualListSize) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
-                            signalEndFirstElement + position)
+                            signalEndFirstElement + position, Map)
 
                     return false
                 }
@@ -687,7 +687,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function,
-                            listOf(default, thisValue.getCell(analyzer.memory, 0)!!), signalEndFirstElement)
+                            listOf(default, thisValue.getCell(analyzer.memory, 0)!!), signalEndFirstElement, Reduce)
 
                     return false
                 }
@@ -703,7 +703,7 @@ internal object ListPrototype {
 
                     StdlibCommons.callMethod(analyzer, function,
                             listOf(result, thisValue.getCell(analyzer.memory, position)!!),
-                            signalEndFirstElement + position)
+                            signalEndFirstElement + position, Reduce)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -745,7 +745,7 @@ internal object ListPrototype {
 
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement)
+                            signalEndFirstElement, Any)
 
                     return false
                 }
@@ -765,7 +765,7 @@ internal object ListPrototype {
                     if (position < thisValue.actualListSize) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
-                                signalEndFirstElement + position)
+                                signalEndFirstElement + position, Any)
 
                         return false
                     }
@@ -897,7 +897,7 @@ internal object ListPrototype {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
 
                             StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, 0)!!,
-                                    signalEndFirstElement)
+                                    signalEndFirstElement, JoinToString)
 
                             return false
                         }
@@ -909,7 +909,7 @@ internal object ListPrototype {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
 
                             StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, 0)!!,
-                                    signalEndFirstElement)
+                                    signalEndFirstElement, JoinToString)
 
                             return false
                         }
@@ -939,7 +939,7 @@ internal object ListPrototype {
 
                 if (position < thisValue.actualListSize) {
                     StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, position)!!,
-                            signalEndFirstElement + position)
+                            signalEndFirstElement + position, JoinToString)
 
                     return false
                 }

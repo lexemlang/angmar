@@ -8,11 +8,13 @@ import org.lexem.angmar.parser.*
 /**
  * The Lexem value of a position in code.
  */
-internal open class LxmCodePoint(val node: ParserNode, val signal: Int) : LexemPrimitive {
+internal open class LxmCodePoint(val node: ParserNode, val signal: Int, val callerNode: ParserNode,
+        val callerContextName: String) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Code Point](signal: $signal, node: $node)"
+    override fun toString() =
+            "[Code Point](signal: $signal, node: $node, callerNode: $callerNode, callerContextName: $callerContextName)"
 }

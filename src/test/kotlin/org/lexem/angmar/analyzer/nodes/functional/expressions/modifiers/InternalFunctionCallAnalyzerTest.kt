@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.utils.*
@@ -29,6 +30,8 @@ internal class InternalFunctionCallAnalyzerTest {
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -38,7 +41,8 @@ internal class InternalFunctionCallAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(functionName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(functionName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -65,7 +69,7 @@ internal class InternalFunctionCallAnalyzerTest {
                     val argumentsRef = analyzer.memory.add(arguments)
 
                     AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, InternalFunctionCallNode,
-                            LxmCodePoint(InternalFunctionCallNode, 1))
+                            LxmCodePoint(InternalFunctionCallNode, 1, ParserNode.Companion.EmptyParserNode, ""))
 
                     return@LxmFunction false
                 }
@@ -80,6 +84,8 @@ internal class InternalFunctionCallAnalyzerTest {
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -92,6 +98,7 @@ internal class InternalFunctionCallAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(functionName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(functionName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

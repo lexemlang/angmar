@@ -772,7 +772,8 @@ internal object StringPrototype {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, right, AnalyzerNodesCommons.signalStart + 1)
+                StdlibCommons.callToString(analyzer, right, AnalyzerNodesCommons.signalStart + 1,
+                        AnalyzerCommons.Operators.Add)
 
                 return false
             }

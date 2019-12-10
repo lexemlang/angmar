@@ -20,6 +20,8 @@ internal class ExecutorLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -34,7 +36,8 @@ internal class ExecutorLexemAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test

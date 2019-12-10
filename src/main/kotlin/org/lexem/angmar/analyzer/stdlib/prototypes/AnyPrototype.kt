@@ -160,7 +160,8 @@ internal object AnyPrototype {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, left, AnalyzerNodesCommons.signalStart + 1)
+                StdlibCommons.callToString(analyzer, left, AnalyzerNodesCommons.signalStart + 1,
+                        AnalyzerCommons.Operators.Add)
 
                 return false
             }

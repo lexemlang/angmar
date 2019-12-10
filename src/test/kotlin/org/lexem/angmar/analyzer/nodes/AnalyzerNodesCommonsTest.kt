@@ -26,7 +26,9 @@ internal class AnalyzerNodesCommonsTest {
 
         val returnSignal = 45
         AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentReference,
-                ParserNode.Companion.EmptyParserNode, LxmCodePoint(ParserNode.Companion.EmptyParserNode, returnSignal))
+                ParserNode.Companion.EmptyParserNode,
+                LxmCodePoint(ParserNode.Companion.EmptyParserNode, returnSignal, ParserNode.Companion.EmptyParserNode,
+                        ""))
 
         // Assert status of the analyzer.
         val stackFunction = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)

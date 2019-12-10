@@ -197,12 +197,15 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @ParameterizedTest
@@ -220,12 +223,15 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @ParameterizedTest
@@ -242,11 +248,14 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

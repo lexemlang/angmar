@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
@@ -97,6 +98,12 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
             val text = "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+            // Create variable in context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }

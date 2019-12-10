@@ -74,6 +74,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -89,7 +91,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -105,6 +108,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -120,7 +125,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -136,6 +142,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -151,7 +159,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -167,6 +176,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -182,7 +193,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -197,6 +209,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -212,7 +226,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -227,6 +242,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -242,7 +259,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -260,6 +278,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmBitList(3, left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -277,7 +297,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -295,6 +316,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmBitList(3, left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -312,7 +335,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -331,6 +355,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmBitList(3, left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -348,7 +374,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -367,6 +394,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmBitList(3, left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -384,7 +413,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -400,6 +430,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -415,7 +447,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -431,6 +464,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -446,7 +481,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -462,6 +498,8 @@ internal class AssignOperatorAnalyzerTest {
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
         initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -477,7 +515,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -507,7 +546,8 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test

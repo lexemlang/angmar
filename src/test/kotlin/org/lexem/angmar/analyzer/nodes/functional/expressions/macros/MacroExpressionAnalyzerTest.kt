@@ -13,6 +13,12 @@ internal class MacroExpressionAnalyzerTest {
         val text = "5 ${MultiplicativeExpressionNode.multiplicationOperator}\n ${MacroExpressionNode.lineMacro}"
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = MultiplicativeExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
@@ -21,7 +27,7 @@ internal class MacroExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test

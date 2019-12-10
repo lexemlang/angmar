@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions
 
 import org.junit.jupiter.api.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -11,6 +12,12 @@ internal class PrefixExpressionAnalyzerTest {
     fun test() {
         val text = "${PrefixOperatorNode.notOperator}${LogicNode.trueLiteral}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = PrefixExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(),
@@ -19,6 +26,6 @@ internal class PrefixExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

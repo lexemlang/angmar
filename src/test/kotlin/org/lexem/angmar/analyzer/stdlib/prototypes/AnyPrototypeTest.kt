@@ -81,7 +81,7 @@ internal class AnyPrototypeTest {
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
             result as? LxmString ?: throw Error("The result must be a LxmString")
             val expected = when (option) {
-                2 -> "[Function ?? at ??:3:2]"
+                2 -> "[Function <Anonymous function> at ??:2:10]"
                 3 -> LxmString.ObjectToString.primitive
                 else -> valueTxt
             }
@@ -191,7 +191,7 @@ internal class AnyPrototypeTest {
             val expected = when (option) {
                 0 -> LxmNil.toString()
                 1 -> LxmLogic.True.toString()
-                2 -> "[Function ?? at ??:3:2]"
+                2 -> "[Function <Anonymous function> at ??:2:9]"
                 else -> LxmString.ObjectToString.primitive
             }
             Assertions.assertEquals(expected + suffix, result.primitive, "The result is incorrect")

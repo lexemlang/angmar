@@ -26,6 +26,12 @@ internal class MacroBacktrackAnalyzerTest {
         val text =
                 "${MacroBacktrackNode.macroName}${FunctionCallNode.startToken}$positional${FunctionCallNode.argumentSeparator}$namedKey${FunctionCallNamedArgumentNode.relationalToken}$namedValue${FunctionCallNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = MacroBacktrackNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer, status = LexemAnalyzer.ProcessStatus.Backward,
                 hasBacktrackingData = true, bigNodeCount = 0)
 
@@ -40,6 +46,6 @@ internal class MacroBacktrackAnalyzerTest {
         Assertions.assertEquals(LxmNil, backtrackingData.named[AnalyzerCommons.Identifiers.This],
                 "The named argument[${AnalyzerCommons.Identifiers.This}] is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

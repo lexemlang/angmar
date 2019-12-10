@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
@@ -136,6 +137,12 @@ internal class QuantifiedGroupModifierAnalyzerTest {
             val text = "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = QuantifiedGroupModifierNode.Companion::parse)
+
+            // Prepare the context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }

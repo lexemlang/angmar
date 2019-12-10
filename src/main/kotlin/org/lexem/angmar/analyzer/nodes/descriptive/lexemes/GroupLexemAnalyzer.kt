@@ -45,7 +45,7 @@ internal object GroupLexemAnalyzer {
 
                 // Generate an intermediate context that will be removed at the end.
                 val contextRef = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory, contextRef)
+                AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory, contextRef, "Group")
 
                 if (node.header != null) {
                     return analyzer.nextNode(node.header)

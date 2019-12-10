@@ -81,7 +81,7 @@ internal object DebugGlobalObject {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1)
+                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Log)
 
                 return false
             }
@@ -118,7 +118,7 @@ internal object DebugGlobalObject {
 
                 // Calls toString.
                 val message = parsedArguments[ThrowArgs[0]]!!
-                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1)
+                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Throw)
 
                 return false
             }

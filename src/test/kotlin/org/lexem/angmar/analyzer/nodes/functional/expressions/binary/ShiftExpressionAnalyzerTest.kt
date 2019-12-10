@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.nodes.functional.expressions.binary
 
 import org.junit.jupiter.api.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.literals.*
@@ -13,6 +14,12 @@ internal class ShiftExpressionAnalyzerTest {
         val text =
                 "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.leftShiftOperator} 2"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
@@ -25,7 +32,7 @@ internal class ShiftExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -33,6 +40,12 @@ internal class ShiftExpressionAnalyzerTest {
         val text =
                 "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.rightShiftOperator} 2"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
@@ -45,7 +58,7 @@ internal class ShiftExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -53,6 +66,12 @@ internal class ShiftExpressionAnalyzerTest {
         val text =
                 "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.leftRotationOperator} 3"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
@@ -66,7 +85,7 @@ internal class ShiftExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -74,6 +93,12 @@ internal class ShiftExpressionAnalyzerTest {
         val text =
                 "${BitlistNode.binaryPrefix}${BitlistNode.startToken}0110${BitlistNode.endToken} ${ShiftExpressionNode.rightRotationOperator} 3"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ShiftExpressionNode.Companion::parse)
+
+        // Prepare the context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val stackValue = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
@@ -87,6 +112,6 @@ internal class ShiftExpressionAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

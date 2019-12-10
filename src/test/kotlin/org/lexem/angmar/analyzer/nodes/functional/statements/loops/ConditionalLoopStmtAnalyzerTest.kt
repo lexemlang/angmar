@@ -26,6 +26,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -33,7 +35,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -49,6 +52,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -56,7 +61,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -94,6 +100,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -101,7 +109,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -116,6 +125,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -123,7 +134,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -139,6 +151,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -146,7 +160,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -184,6 +199,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -191,7 +208,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -281,6 +299,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -288,7 +308,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -310,6 +331,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -317,7 +340,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -329,12 +353,17 @@ internal class ConditionalLoopStmtAnalyzerTest {
                 "${ConditionalLoopStmtNode.whileKeyword} ${LogicNode.trueLiteral} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagNameBlock $thenBlock ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalLoopStmtNode.Companion::parse)
 
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.nextKeyword,
                 tagNameControl, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -353,6 +382,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -360,7 +391,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -380,6 +412,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -387,7 +421,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -399,12 +434,17 @@ internal class ConditionalLoopStmtAnalyzerTest {
                 "${ConditionalLoopStmtNode.whileKeyword} ${LogicNode.trueLiteral} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagNameBlock $thenBlock ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalLoopStmtNode.Companion::parse)
 
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.redoKeyword,
                 tagNameControl, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -423,6 +463,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -430,7 +472,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -450,6 +493,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -457,7 +502,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -469,12 +515,17 @@ internal class ConditionalLoopStmtAnalyzerTest {
                 "${ConditionalLoopStmtNode.whileKeyword} ${LogicNode.trueLiteral} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagNameBlock $thenBlock ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalLoopStmtNode.Companion::parse)
 
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.restartKeyword,
                 tagNameControl, null) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @ParameterizedTest
@@ -486,10 +537,15 @@ internal class ConditionalLoopStmtAnalyzerTest {
                 "${ConditionalLoopStmtNode.whileKeyword} ${LogicNode.trueLiteral} ${BlockStmtNode.startToken} $controlStmt ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalLoopStmtNode.Companion::parse)
 
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)
         }
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 }

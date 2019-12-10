@@ -84,7 +84,11 @@ internal class FunctionCallAnalyzerTest {
 
         val analyzer = TestUtils.createAnalyzerFrom(finalText, parserFunction = FunctionCallNode.Companion::parse)
 
-        // Prepare stack
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
         var executed = false
         val function = LxmFunction { _, argumentsReference, _, _ ->
             val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!
@@ -181,7 +185,7 @@ internal class FunctionCallAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test

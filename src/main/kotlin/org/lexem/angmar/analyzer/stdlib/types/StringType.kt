@@ -67,7 +67,7 @@ internal object StringType {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmString.Empty)
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam)
+                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam, Join)
 
                 return false
             }
@@ -78,7 +78,7 @@ internal object StringType {
                 val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
                 val currentString = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
-                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a $TypeName") {}
                 val result = LxmString.from(accumulator.primitive + currentString.primitive)
 
                 if (position < spreadArguments.size) {
@@ -88,7 +88,8 @@ internal object StringType {
                     analyzer.memory.removeLastFromStack()
 
                     // Calls toString.
-                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam)
+                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam,
+                            Join)
 
                     return false
                 }
@@ -133,7 +134,7 @@ internal object StringType {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmString.Empty)
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam)
+                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam, JoinBy)
 
                 return false
             }
@@ -145,7 +146,7 @@ internal object StringType {
                 val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
                 val currentString = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
-                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a $TypeName") {}
                 val result = LxmString.from(if (position == 1) {
                     currentString.primitive
                 } else {
@@ -159,7 +160,8 @@ internal object StringType {
                     analyzer.memory.removeLastFromStack()
 
                     // Calls toString.
-                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam)
+                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam,
+                            JoinBy)
 
                     return false
                 }

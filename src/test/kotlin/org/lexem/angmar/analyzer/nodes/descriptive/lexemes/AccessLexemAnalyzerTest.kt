@@ -36,6 +36,8 @@ internal class AccessLexemAnalyzerTest {
         val functionRef = analyzer.memory.add(function)
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -48,7 +50,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, functionName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, functionName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -68,6 +71,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
@@ -80,7 +85,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -103,6 +109,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -130,7 +138,8 @@ internal class AccessLexemAnalyzerTest {
 
         removeNode(analyzer)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -163,6 +172,8 @@ internal class AccessLexemAnalyzerTest {
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
         context.setProperty(analyzer.memory, node2ProcessVar, parentRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
@@ -190,7 +201,8 @@ internal class AccessLexemAnalyzerTest {
 
         removeNode(analyzer)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, node2ProcessVar))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -222,6 +234,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -256,7 +270,8 @@ internal class AccessLexemAnalyzerTest {
 
         removeNode(analyzer)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -276,6 +291,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, status = LexemAnalyzer.ProcessStatus.Backward, bigNodeCount = 0)
 
@@ -285,7 +302,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -308,6 +326,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -320,7 +340,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -351,6 +372,8 @@ internal class AccessLexemAnalyzerTest {
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
         context.setProperty(analyzer.memory, node2ProcessVar, parentRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, status = LexemAnalyzer.ProcessStatus.Backward, bigNodeCount = 0)
 
@@ -367,7 +390,8 @@ internal class AccessLexemAnalyzerTest {
         childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, node2ProcessVar))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -386,6 +410,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
         Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
@@ -394,7 +420,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -413,6 +440,8 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
         context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
         Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
@@ -421,7 +450,8 @@ internal class AccessLexemAnalyzerTest {
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect(forced = true)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -452,6 +482,8 @@ internal class AccessLexemAnalyzerTest {
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
         context.setProperty(analyzer.memory, node2ProcessVar, parentRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
@@ -469,7 +501,8 @@ internal class AccessLexemAnalyzerTest {
 
         removeNode(analyzer)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, node2ProcessVar))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -491,6 +524,8 @@ internal class AccessLexemAnalyzerTest {
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
             context.setProperty(analyzer.memory, variableName, LxmNil)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -524,6 +559,8 @@ internal class AccessLexemAnalyzerTest {
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
         context.setProperty(analyzer.memory, node2ProcessVar, parentRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
@@ -551,7 +588,8 @@ internal class AccessLexemAnalyzerTest {
 
         removeNode(analyzer)
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName, node2ProcessVar))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     // AUXILIARY METHODS ------------------------------------------------------

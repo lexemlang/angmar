@@ -80,6 +80,7 @@ internal object AnalyzerCommons {
 
         // Contexts
         const val HiddenCurrentContext = "${HiddenPrefix}ctx"
+        const val HiddenCurrentContextName = "${HiddenPrefix}ctxName"
         const val HiddenCallerContext = "${HiddenPrefix}callerCtx"
         const val HiddenContextTag = "${HiddenPrefix}ctxTag"
         const val HiddenLastResultNode = "${HiddenPrefix}lastResNode"
@@ -187,17 +188,28 @@ internal object AnalyzerCommons {
             getStdLibContext(memory).getDereferencedProperty<LxmContext>(memory, Identifiers.HiddenCurrentContext)!!
 
     /**
+     * Gets the name of the current context.
+     */
+    fun getCurrentContextName(memory: LexemMemory) =
+            getCurrentContext(memory).getDereferencedProperty<LxmString>(memory, Identifiers.HiddenCurrentContextName)!!
+
+    /**
      * Gets the actual call hierarchy.
      */
     fun getCallHierarchy(memory: LexemMemory): List<LxmCodePoint> {
         val list = mutableListOf<LxmCodePoint>()
 
-        try {
-            while (true) {
-                val lastCodePoint = memory.getFromStack(Identifiers.ReturnCodePoint) as LxmCodePoint
-                list.add(lastCodePoint)
+        while (true) {
+            val lastCodePoint = memory.getFromStack(Identifiers.ReturnCodePoint)
+            if (lastCodePoint == LxmNil) {
+                break
             }
-        } catch (e: AngmarAnalyzerException) {
+
+            lastCodePoint as LxmCodePoint
+            list.add(lastCodePoint)
+
+            // Remove ReturnCodePoint from the stack.
+            memory.removeFromStack(Identifiers.ReturnCodePoint)
         }
 
         list.reverse()
@@ -237,12 +249,13 @@ internal object AnalyzerCommons {
     /**
      * Creates a new function context and assigns it as the current context.
      */
-    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmReference) {
+    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmReference, contextName: String) {
         val stdLibContext = getStdLibContext(memory)
         val lastContextReference = getCurrentContextReference(memory)
         val newContext = LxmContext(higherContext, memory)
         val newContextReference = memory.add(newContext)
 
+        newContext.setProperty(memory, Identifiers.HiddenCurrentContextName, LxmString.from(contextName))
         newContext.setProperty(memory, Identifiers.HiddenCallerContext, lastContextReference, isConstant = true)
         stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContextReference)
     }
@@ -294,6 +307,7 @@ internal object AnalyzerCommons {
         newContext.setProperty(memory, Identifiers.HiddenCallerContext, lastContextReference)
         newContext.setProperty(memory, Identifiers.Exports, exportsRef, isConstant = true)
         newContext.setProperty(memory, Identifiers.HiddenFilePath, LxmString.from(source), isConstant = true)
+        newContext.setProperty(memory, Identifiers.HiddenCurrentContextName, LxmString.from("<Root of Lexem file>"))
         fileMap.setProperty(memory, source, exportsRef)
 
         stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContextReference)

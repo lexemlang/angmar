@@ -15,7 +15,6 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
  * Built-in import global function.
  */
 internal object ImportGlobalFunction {
-    const val EndOfImportSignal = AnalyzerNodesCommons.signalStart + 1
     const val FunctionName = "import"
     const val PathParam = "path"
 
@@ -35,6 +34,8 @@ internal object ImportGlobalFunction {
      */
     fun importFile(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
+        val signalEndOfImport = AnalyzerNodesCommons.signalStart + 1
+
         when (signal) {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
@@ -79,7 +80,8 @@ internal object ImportGlobalFunction {
 
                 // Add the elements to recover this call.
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.ReturnCodePoint,
-                        LxmCodePoint(InternalFunctionCallNode, EndOfImportSignal))
+                        LxmCodePoint(InternalFunctionCallNode, signalEndOfImport, callerNode = function.node,
+                                callerContextName = "<Native function '$FunctionName'>"))
 
                 return false
             }

@@ -59,8 +59,9 @@ internal object AnalyzerNodesCommons {
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Function, primitive)
 
         // Generate an intermediate context that will be removed at the end.
+        val contextName = (function as LxmFunction).name
         AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory,
-                function.parentContext ?: LxmReference.StdLibContext)
+                function.parentContext ?: LxmReference.StdLibContext, contextName)
 
         // Call the function
         analyzer.nextNode(function.parserNode, signalCallFunction)
