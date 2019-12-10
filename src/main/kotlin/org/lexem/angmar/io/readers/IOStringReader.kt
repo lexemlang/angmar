@@ -119,7 +119,11 @@ class IOStringReader internal constructor(private val sourceFile: String, privat
             var column = 1
             var lastWasCR = false
 
-            for (element in reader.text) {
+            for ((index, element) in reader.text.withIndex()) {
+                if (index >= position) {
+                    break
+                }
+
                 when (element) {
                     '\n' -> {
                         if (lastWasCR) {
