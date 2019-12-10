@@ -166,9 +166,6 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val list = LxmList()
-                val listRef = analyzer.memory.add(list)
-
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Every)
@@ -176,7 +173,7 @@ internal object ListPrototype {
                     return false
                 }
 
-                analyzer.memory.addToStackAsLast(listRef)
+                analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
             in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -742,9 +739,6 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val list = LxmList()
-                val listRef = analyzer.memory.add(list)
-
                 if (thisValue.listSize > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Any)
@@ -752,7 +746,7 @@ internal object ListPrototype {
                     return false
                 }
 
-                analyzer.memory.addToStackAsLast(listRef)
+                analyzer.memory.addToStackAsLast(LxmLogic.False)
             }
             in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1

@@ -116,6 +116,34 @@ internal class ListPrototypeTest {
     }
 
     @Test
+    fun `test every - empty`() {
+        val variable = "testVariable"
+
+        val value2Check = 0
+        val checkFunctionArg = "it"
+        val checkFunctionStatement =
+                "${ControlWithExpressionStmtNode.returnKeyword} $checkFunctionArg ${RelationalExpressionNode.greaterOrEqualThanOperator} $value2Check"
+        val checkFunction =
+                "${FunctionNode.keyword}${FunctionParameterListNode.startToken}$checkFunctionArg${FunctionParameterListNode.endToken}${BlockStmtNode.startToken}$checkFunctionStatement${BlockStmtNode.endToken}"
+
+        val preFunctionCall =
+                "$variable ${AssignOperatorNode.assignOperator} ${ListNode.startToken}${ListNode.endToken}"
+        val args = listOf(checkFunction).joinToString(FunctionCallNode.argumentSeparator)
+        val fnCall =
+                "$variable${AccessExplicitMemberNode.accessToken}${ListPrototype.Every}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
+                initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
+
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
+                    "The variable must contain a LxmList")
+            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+        }
+    }
+
+    @Test
     @Incorrect
     fun `test every - incorrect fn - type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
@@ -740,6 +768,34 @@ internal class ListPrototypeTest {
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
             }
+        }
+    }
+
+    @Test
+    fun `test any - empty`() {
+        val variable = "testVariable"
+
+        val value2Check = LxmLogic.True
+        val checkFunctionArg = "it"
+        val checkFunctionStatement =
+                "${ControlWithExpressionStmtNode.returnKeyword} $checkFunctionArg ${RelationalExpressionNode.identityOperator} $value2Check"
+        val checkFunction =
+                "${FunctionNode.keyword}${FunctionParameterListNode.startToken}$checkFunctionArg${FunctionParameterListNode.endToken}${BlockStmtNode.startToken}$checkFunctionStatement${BlockStmtNode.endToken}"
+
+        val preFunctionCall =
+                "$variable ${AssignOperatorNode.assignOperator} ${ListNode.startToken}${ListNode.endToken}"
+        val args = listOf(checkFunction).joinToString(FunctionCallNode.argumentSeparator)
+        val fnCall =
+                "$variable${AccessExplicitMemberNode.accessToken}${ListPrototype.Any}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
+                initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
+            Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
+
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
+                    "The variable must contain a LxmList")
+            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }
 
