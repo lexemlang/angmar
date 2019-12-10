@@ -46,6 +46,7 @@ internal object ListPrototype {
     const val Replace = "replace"
     const val Reverse = "reverse"
     const val Slice = "slice"
+    const val Clear = "clear"
 
     // Method arguments
 
@@ -104,6 +105,7 @@ internal object ListPrototype {
         prototype.setProperty(memory, Replace, memory.add(LxmFunction(::replaceFunction)), isConstant = true)
         prototype.setProperty(memory, Reverse, memory.add(LxmFunction(::reverseFunction)), isConstant = true)
         prototype.setProperty(memory, Slice, memory.add(LxmFunction(::sliceFunction)), isConstant = true)
+        prototype.setProperty(memory, Clear, memory.add(LxmFunction(::clearFunction)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -1374,4 +1376,18 @@ internal object ListPrototype {
 
         return true
     }
+
+    /**
+     * Removes all the elements of the list.
+     */
+    private fun clearFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
+                    Clear, ListType.TypeName) { _: LexemAnalyzer, thisValue: LxmList ->
+                for (i in thisValue.actualListSize - 1 downTo 0) {
+                    thisValue.removeCell(analyzer.memory, i)
+                }
+
+                LxmNil
+            }
 }

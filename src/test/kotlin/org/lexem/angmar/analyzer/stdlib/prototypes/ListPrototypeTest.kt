@@ -2488,4 +2488,26 @@ internal class ListPrototypeTest {
             }
         }
     }
+
+    @Test
+    fun `test clear`() {
+        val variable = "testVariable"
+        val list = listOf(LxmInteger.Num1, LxmFloat.Num0_5, LxmNil, LxmLogic.True, LxmInteger.Num10)
+        val listTxt = list.joinToString(ListNode.elementSeparator)
+
+        val preFunctionCall =
+                "$variable ${AssignOperatorNode.assignOperator} ${ListNode.startToken}$listTxt${ListNode.endToken}"
+        val fnCall =
+                "$variable${AccessExplicitMemberNode.accessToken}${ListPrototype.Clear}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
+                initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
+            Assertions.assertEquals(LxmNil, result, "The result is incorrect")
+
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
+                    "The variable must contain a LxmList")
+            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+        }
+    }
 }
