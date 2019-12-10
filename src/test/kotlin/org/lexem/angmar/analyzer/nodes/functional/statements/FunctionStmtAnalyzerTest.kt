@@ -81,7 +81,7 @@ internal class FunctionStmtAnalyzerTest {
         analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, fnName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -116,7 +116,7 @@ internal class FunctionStmtAnalyzerTest {
         analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, fnName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -147,7 +147,7 @@ internal class FunctionStmtAnalyzerTest {
         analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, fnName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -180,7 +180,7 @@ internal class FunctionStmtAnalyzerTest {
         analyzer.memory.spatialGarbageCollect(forced = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, fnName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @ParameterizedTest

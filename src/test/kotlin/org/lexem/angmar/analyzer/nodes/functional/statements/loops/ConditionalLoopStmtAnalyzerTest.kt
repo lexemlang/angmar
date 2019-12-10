@@ -278,7 +278,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
         context.setProperty(analyzer.memory, varName, LxmLogic.False)
 
         TestUtils.processAndCheckEmpty(analyzer)
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName, AnalyzerCommons.Identifiers.HiddenContextTag))
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @Test

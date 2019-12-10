@@ -546,8 +546,7 @@ internal class AssignOperatorAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
     }
 
     @Test

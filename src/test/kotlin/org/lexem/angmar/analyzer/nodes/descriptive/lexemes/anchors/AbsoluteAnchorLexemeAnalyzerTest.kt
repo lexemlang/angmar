@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.descriptive.lexemes.anchors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -26,7 +25,7 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @Test
@@ -47,7 +46,7 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @Test
@@ -69,7 +68,7 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @Test
@@ -90,6 +89,6 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 }

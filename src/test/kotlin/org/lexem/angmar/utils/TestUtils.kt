@@ -269,6 +269,10 @@ object TestUtils {
         }
 
         valuesToRemove?.forEach {
+            if (context.getPropertyValue(analyzer.memory, it) == null) {
+                throw Exception("The context does not contains the property called '$it'")
+            }
+
             context.removePropertyIgnoringConstants(memory, it)
         }
 

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
@@ -61,7 +60,7 @@ internal class AbsoluteElementAnchorLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @ParameterizedTest
@@ -94,7 +93,7 @@ internal class AbsoluteElementAnchorLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @ParameterizedTest
@@ -127,7 +126,7 @@ internal class AbsoluteElementAnchorLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
+        TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @Test
