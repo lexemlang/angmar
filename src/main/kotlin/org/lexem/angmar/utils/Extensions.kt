@@ -31,15 +31,16 @@ fun <T, R> T?.orDefault(default: R, thenValue: (T) -> R): R = if (this != null) 
 /**
  * Transforms a [String] to lowercase following the Unicode rules.
  */
-fun String.toUnicodeLowercase() = this.map { it.toUnicodeLowercase() }.joinToString("")
+fun String.toUnicodeLowercase() = (0 until Character.codePointCount(this, 0, this.length)).map {
+    var point = Character.codePointAt(this, it)
+    point = Character.toLowerCase(point)
+    Character.toChars(point).joinToString("")
+}.joinToString("")
 
 /**
  * Transforms a [Char] to lowercase following the Unicode rules.
  */
-fun Char.toUnicodeLowercase(): Char {
-    // TODO generalize toLowerCase with unicode
-    return this.toLowerCase()
-}
+fun Char.toUnicodeLowercase() = Character.toLowerCase(this)
 
 /**
  * Reverses the bits of the byte.
@@ -59,12 +60,13 @@ fun Byte.reverseBits(): Byte {
 /**
  * Transforms a [String] to lowercase following the Unicode rules.
  */
-fun String.toUnicodeUppercase() = this.map { it.toUnicodeUppercase() }.joinToString("")
+fun String.toUnicodeUppercase() = (0 until Character.codePointCount(this, 0, this.length)).map {
+    var point = Character.codePointAt(this, it)
+    point = Character.toUpperCase(point)
+    Character.toChars(point).joinToString("")
+}.joinToString("")
 
 /**
  * Transforms a [Char] to lowercase following the Unicode rules.
  */
-fun Char.toUnicodeUppercase(): Char {
-    // TODO generalize toLowerCase with unicode
-    return this.toLowerCase()
-}
+fun Char.toUnicodeUppercase() = Character.toUpperCase(this)
