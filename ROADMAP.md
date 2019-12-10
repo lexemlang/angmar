@@ -15,8 +15,6 @@ This is the plan to work towards a v1 release. This is a "living document" and w
 ## TODO
 
 - Stdlib
-  - Globals
-    - Math
   - Prototypes
     - Map
     - Object

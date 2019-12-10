@@ -133,5 +133,14 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
             Num1.primitive -> Num1
             else -> LxmFloat(value)
         }
+
+        /**
+         * Returns the [LxmFloat] equivalent of the specified float value or [LxmNil] if the value is NaN.
+         */
+        fun fromOrNil(value: Float) = if (value.isNaN()) {
+            LxmNil
+        } else {
+            from(value)
+        }
     }
 }
