@@ -8,7 +8,6 @@ This is the plan to work towards a v1 release. This is a "living document" and w
   - Prototypes
     - Map
     - Object
-    - Set
 
 - Test for Unicode
 - E2E tests

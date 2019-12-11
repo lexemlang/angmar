@@ -64,9 +64,9 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
     }
 
     /**
-     * Removes a property.
+     * Removes a value.
      */
-    fun removeProperty(memory: LexemMemory, value: LexemPrimitive) {
+    fun removeValue(memory: LexemMemory, value: LexemPrimitive) {
         // Prevent modifications if the object is constant.
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
@@ -129,6 +129,31 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
      */
     private fun getOwnPropertyDescriptor(value: LexemPrimitive, hash: Int): LxmSetProperty? =
             getOwnPropertyDescriptorInCurrent(value, hash) ?: oldSet?.getOwnPropertyDescriptor(value, hash)
+
+    /**
+     * Gets the size of the set.
+     */
+    fun getSize(): Int {
+        val result = mutableMapOf<Int, MutableList<LxmSetProperty>>()
+
+        var currentObject: LxmSet? = this
+        while (currentObject != null) {
+            for (propList in currentObject.values) {
+                val list = result[propList.key] ?: mutableListOf()
+                result.putIfAbsent(propList.key, list)
+
+                for (prop in propList.value) {
+                    if (list.find { RelationalFunctions.identityEquals(it.value, prop.value) } == null) {
+                        list.add(prop)
+                    }
+                }
+            }
+
+            currentObject = currentObject.oldSet
+        }
+
+        return result.map { it.value.size }.sum()
+    }
 
     /**
      * Gets all value of the set.

@@ -699,7 +699,6 @@ internal object ListPrototype {
                 val result = analyzer.memory.getLastFromStack()
 
                 if (position < thisValue.actualListSize) {
-
                     StdlibCommons.callMethod(analyzer, function,
                             listOf(result, thisValue.getCell(analyzer.memory, position)!!),
                             signalEndFirstElement + position, Reduce)
