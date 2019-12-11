@@ -59,14 +59,18 @@ internal class ListPrototypeTest {
         }
     }
 
-    @Test
-    fun `test isFrozen`() {
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `test isFrozen`(isOk: Boolean) {
         val list = listOf(LxmInteger.Num1, LxmFloat.Num0_5, LxmNil, LxmLogic.True, LxmInteger.Num10)
         val listTxt = list.joinToString(ListNode.elementSeparator)
-        val resultValue = LxmLogic.True
+        val resultValue = LxmLogic.from(isOk)
 
-        val valueTxt =
-                "${ParenthesisExpressionNode.startToken}${ListNode.constantToken}${ListNode.startToken}$listTxt${ListNode.endToken}${ParenthesisExpressionNode.endToken}"
+        val valueTxt = "${ParenthesisExpressionNode.startToken}${if (isOk) {
+            ListNode.constantToken
+        } else {
+            ""
+        }}${ListNode.startToken}$listTxt${ListNode.endToken}${ParenthesisExpressionNode.endToken}"
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ListPrototype.IsFrozen}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
