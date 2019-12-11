@@ -49,7 +49,6 @@ internal object ListPrototype {
     const val Clear = "clear"
 
     // Method arguments
-
     val EveryArgs = listOf("fn")
     val FilterArgs = EveryArgs
     val ForEachArgs = EveryArgs

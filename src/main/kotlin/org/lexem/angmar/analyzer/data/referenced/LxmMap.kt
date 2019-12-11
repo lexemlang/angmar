@@ -151,6 +151,30 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     private fun getOwnPropertyDescriptor(key: LexemPrimitive, hash: Int): LxmMapProperty? =
             getOwnPropertyDescriptorInCurrent(key, hash) ?: oldMap?.getOwnPropertyDescriptor(key, hash)
 
+    /**
+     * Gets the size of the map.
+     */
+    fun getSize(): Int {
+        val result = mutableMapOf<Int, MutableList<LxmMapProperty>>()
+
+        var currentObject: LxmMap? = this
+        while (currentObject != null) {
+            for (propList in currentObject.properties) {
+                val list = result[propList.key] ?: mutableListOf()
+                result.putIfAbsent(propList.key, list)
+
+                for (prop in propList.value) {
+                    if (list.find { RelationalFunctions.identityEquals(it.key, prop.key) } == null) {
+                        list.add(prop)
+                    }
+                }
+            }
+
+            currentObject = currentObject.oldMap
+        }
+
+        return result.map { it.value.size }.sum()
+    }
 
     /**
      * Gets all properties of the map.
