@@ -58,7 +58,7 @@ internal class SetPrototypeTest {
             Assertions.assertTrue(set.isImmutable, "The isImmutable property is incorrect")
         }
     }
-    
+
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
     fun `test isFrozen`(isOk: Boolean) {
@@ -887,6 +887,108 @@ internal class SetPrototypeTest {
             val set = context.getDereferencedProperty<LxmSet>(analyzer.memory, variable) ?: throw Error(
                     "The variable must contain a LxmSet")
             Assertions.assertEquals(0, set.getSize(), "The result is incorrect")
+        }
+    }
+
+    @Test
+    fun `test add`() {
+        val list1 = listOf(LxmInteger.Num1, LxmFloat.Num0_5)
+        val list2 = listOf(LxmFloat.Num0_5, LxmLogic.True)
+        val list1Txt = list1.joinToString(ListNode.elementSeparator)
+        val list2Txt = list2.joinToString(ListNode.elementSeparator)
+
+        val fnCall =
+                "${SetNode.macroName}${ListNode.startToken}$list1Txt${ListNode.endToken}${AdditiveExpressionNode.additionOperator}${SetNode.macroName}${ListNode.startToken}$list2Txt${ListNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be LxmSet")
+            Assertions.assertEquals(3, set.getSize(), "The size of the result is incorrect")
+
+            for (i in set.getAllValues().flatMap { it.value }) {
+                Assertions.assertTrue(i.value in list1 || i.value in list2, "The result is incorrect")
+            }
+        }
+    }
+
+    @Test
+    fun `test sub`() {
+        val list1 = listOf(LxmInteger.Num1, LxmFloat.Num0_5)
+        val list2 = listOf(LxmFloat.Num0_5, LxmLogic.True)
+        val list1Txt = list1.joinToString(ListNode.elementSeparator)
+        val list2Txt = list2.joinToString(ListNode.elementSeparator)
+
+        val fnCall =
+                "${SetNode.macroName}${ListNode.startToken}$list1Txt${ListNode.endToken}${AdditiveExpressionNode.subtractionOperator}${SetNode.macroName}${ListNode.startToken}$list2Txt${ListNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be LxmSet")
+            Assertions.assertEquals(1, set.getSize(), "The size of the result is incorrect")
+
+            for (i in set.getAllValues().flatMap { it.value }) {
+                Assertions.assertTrue(i.value in list1 && i.value !in list2, "The result is incorrect")
+            }
+        }
+    }
+
+    @Test
+    fun `test logicalAnd`() {
+        val list1 = listOf(LxmInteger.Num1, LxmFloat.Num0_5)
+        val list2 = listOf(LxmFloat.Num0_5, LxmLogic.True)
+        val list1Txt = list1.joinToString(ListNode.elementSeparator)
+        val list2Txt = list2.joinToString(ListNode.elementSeparator)
+
+        val fnCall =
+                "${SetNode.macroName}${ListNode.startToken}$list1Txt${ListNode.endToken}${LogicalExpressionNode.andOperator}${SetNode.macroName}${ListNode.startToken}$list2Txt${ListNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be LxmSet")
+            Assertions.assertEquals(1, set.getSize(), "The size of the result is incorrect")
+
+            for (i in set.getAllValues().flatMap { it.value }) {
+                Assertions.assertTrue(i.value in list1 && i.value in list2, "The result is incorrect")
+            }
+        }
+    }
+
+    @Test
+    fun `test logicalOr`() {
+        val list1 = listOf(LxmInteger.Num1, LxmFloat.Num0_5)
+        val list2 = listOf(LxmFloat.Num0_5, LxmLogic.True)
+        val list1Txt = list1.joinToString(ListNode.elementSeparator)
+        val list2Txt = list2.joinToString(ListNode.elementSeparator)
+
+        val fnCall =
+                "${SetNode.macroName}${ListNode.startToken}$list1Txt${ListNode.endToken}${LogicalExpressionNode.orOperator}${SetNode.macroName}${ListNode.startToken}$list2Txt${ListNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be LxmSet")
+            Assertions.assertEquals(3, set.getSize(), "The size of the result is incorrect")
+
+            for (i in set.getAllValues().flatMap { it.value }) {
+                Assertions.assertTrue(i.value in list1 || i.value in list2, "The result is incorrect")
+            }
+        }
+    }
+
+    @Test
+    fun `test logicalXor`() {
+        val list1 = listOf(LxmInteger.Num1, LxmFloat.Num0_5)
+        val list2 = listOf(LxmFloat.Num0_5, LxmLogic.True)
+        val list1Txt = list1.joinToString(ListNode.elementSeparator)
+        val list2Txt = list2.joinToString(ListNode.elementSeparator)
+
+        val fnCall =
+                "${SetNode.macroName}${ListNode.startToken}$list1Txt${ListNode.endToken}${LogicalExpressionNode.xorOperator}${SetNode.macroName}${ListNode.startToken}$list2Txt${ListNode.endToken}"
+
+        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be LxmSet")
+            Assertions.assertEquals(2, set.getSize(), "The size of the result is incorrect")
+
+            for (i in set.getAllValues().flatMap { it.value }) {
+                Assertions.assertTrue(
+                        (i.value in list1 && i.value !in list2) || (i.value !in list1 && i.value in list2),
+                        "The result is incorrect")
+            }
         }
     }
 }
