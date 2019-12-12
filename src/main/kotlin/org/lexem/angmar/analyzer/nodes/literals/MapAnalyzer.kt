@@ -28,7 +28,7 @@ internal object MapAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    map.makeConstant()
+                    map.makeConstant(analyzer.memory)
                 }
 
                 // Move accumulator to last.
@@ -46,7 +46,7 @@ internal object MapAnalyzer {
                     val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                             analyzer.memory) as LxmMap
 
-                    map.makeConstant()
+                    map.makeConstant(analyzer.memory)
                 }
 
                 // Move accumulator to last.

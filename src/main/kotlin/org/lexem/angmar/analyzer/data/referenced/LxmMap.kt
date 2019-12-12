@@ -126,7 +126,7 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     /**
      * Makes the map constant.
      */
-    fun makeConstant() {
+    fun makeConstant(memory: LexemMemory) {
         isConstant = true
     }
 
