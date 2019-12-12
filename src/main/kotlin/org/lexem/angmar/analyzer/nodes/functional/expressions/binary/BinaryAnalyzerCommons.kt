@@ -80,8 +80,7 @@ internal object BinaryAnalyzerCommons {
             processFunction: (LexemAnalyzer, T) -> LexemPrimitive): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
-        val thisValueRef = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
-        val thisValue = thisValueRef.dereference(analyzer.memory)
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
 
         if (thisValue !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -102,8 +101,9 @@ internal object BinaryAnalyzerCommons {
             processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemPrimitive?): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
-        val left = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
-        val right = parserArguments[AnalyzerCommons.Operators.RightParameterName] ?: LxmNil
+        val left = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val right =
+                parserArguments[AnalyzerCommons.Operators.RightParameterName]?.dereference(analyzer.memory) ?: LxmNil
 
         if (left !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
