@@ -6,15 +6,15 @@ import org.lexem.angmar.parser.*
 /**
  * Lexer and parser for the Lexem language.
  */
-internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: Boolean = true) {
+class LexemParser constructor(val reader: ITextReader, forwardBuffer: Boolean = true) {
     private val forwardBuffer = if (forwardBuffer) {
         ForwardBuffer()
     } else {
         null
     }
 
-    var isDescriptiveCode = false
-    var isFilterCode = false
+    internal var isDescriptiveCode = false
+    internal var isFilterCode = false
 
     // METHODS ----------------------------------------------------------------
 
@@ -22,7 +22,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any of the chars inside the specified [String].
      * This function does not consume any character.
      */
-    fun checkAnyChar(text: String): Char? {
+    internal fun checkAnyChar(text: String): Char? {
         val rChar = reader.currentChar() ?: return null
         if (text.contains(rChar)) {
             return rChar
@@ -34,7 +34,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any of the chars inside the specified [String].
      */
-    fun readAnyChar(text: String): Char? {
+    internal fun readAnyChar(text: String): Char? {
         val rChar = checkAnyChar(text) ?: return null
         reader.advance()
         return rChar
@@ -44,7 +44,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any char not inside the specified [String].
      * This function does not consume any character.
      */
-    fun checkNegativeAnyChar(text: String): Char? {
+    internal fun checkNegativeAnyChar(text: String): Char? {
         val rChar = reader.currentChar() ?: return null
         if (!text.contains(rChar)) {
             return rChar
@@ -56,7 +56,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any char not inside the specified [String].
      */
-    fun readNegativeAnyChar(text: String): Char? {
+    internal fun readNegativeAnyChar(text: String): Char? {
         val rChar = checkNegativeAnyChar(text) ?: return null
         reader.advance()
         return rChar
@@ -66,7 +66,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any of the chars inside the specified [Set].
      * This function does not consume any character.
      */
-    fun checkAnyChar(chars: Set<Char>): Char? {
+    internal fun checkAnyChar(chars: Set<Char>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null && rChar in chars) {
             return rChar
@@ -78,7 +78,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any of the chars inside the specified [Set].
      */
-    fun readAnyChar(chars: Set<Char>): Char? {
+    internal fun readAnyChar(chars: Set<Char>): Char? {
         val rChar = checkAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -88,7 +88,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any char not inside the specified [Set].
      * This function does not consume any character.
      */
-    fun checkNegativeAnyChar(chars: Set<Char>): Char? {
+    internal fun checkNegativeAnyChar(chars: Set<Char>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null && rChar !in chars) {
             return rChar
@@ -100,7 +100,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any char not inside the specified [Set].
      */
-    fun readNegativeAnyChar(chars: Set<Char>): Char? {
+    internal fun readNegativeAnyChar(chars: Set<Char>): Char? {
         val rChar = checkNegativeAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -110,7 +110,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any of the chars inside the specified [List] of [CharRange].
      * This function does not consume any character.
      */
-    fun checkAnyChar(chars: List<CharRange>): Char? {
+    internal fun checkAnyChar(chars: List<CharRange>): Char? {
         val rChar = reader.currentChar()
         if (rChar != null) {
             val result = chars.binarySearch {
@@ -132,7 +132,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any of the chars inside the specified [List] of [CharRange].
      */
-    fun readAnyChar(chars: List<CharRange>): Char? {
+    internal fun readAnyChar(chars: List<CharRange>): Char? {
         val rChar = checkAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -142,7 +142,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any char not inside the specified [List] of [CharRange].
      * This function does not consume any character.
      */
-    fun checkNegativeAnyChar(chars: List<CharRange>): Char? {
+    internal fun checkNegativeAnyChar(chars: List<CharRange>): Char? {
         if (!reader.isEnd() && checkAnyChar(chars) == null) {
             return reader.currentChar()
         }
@@ -152,7 +152,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads any char not inside the specified [List] of [CharRange].
      */
-    fun readNegativeAnyChar(chars: List<CharRange>): Char? {
+    internal fun readNegativeAnyChar(chars: List<CharRange>): Char? {
         val rChar = checkNegativeAnyChar(chars) ?: return null
         reader.advance()
         return rChar
@@ -162,7 +162,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads a specific text from the reader.
      * This function does not consume any character.
      */
-    fun checkText(text: String): Boolean {
+    internal fun checkText(text: String): Boolean {
         val initCursor = reader.saveCursor()
         val result = readText(text)
         initCursor.restore()
@@ -172,7 +172,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Reads a specific text from the reader.
      */
-    fun readText(text: String): Boolean {
+    internal fun readText(text: String): Boolean {
         val cursor = reader.saveCursor()
 
         for (ch in text) {
@@ -192,7 +192,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    fun checkAnyText(texts: Sequence<String>): String? {
+    internal fun checkAnyText(texts: Sequence<String>): String? {
         val initCursor = reader.saveCursor()
         val result = readAnyText(texts)
         initCursor.restore()
@@ -203,12 +203,12 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
      * Reads any of the specified texts.
      * This function does not consume any character.
      */
-    fun checkNegativeAnyText(texts: Sequence<String>) = checkAnyText(texts) == null
+    internal fun checkNegativeAnyText(texts: Sequence<String>) = checkAnyText(texts) == null
 
     /**
      * Reads any of the specified texts.
      */
-    fun readAnyText(texts: Sequence<String>): String? {
+    internal fun readAnyText(texts: Sequence<String>): String? {
         for (text in texts) {
             if (readText(text)) {
                 return text
@@ -221,7 +221,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Adds a node in the buffer.
      */
-    fun addInBuffer(node: ParserNode) = forwardBuffer?.add(node)
+    internal fun addInBuffer(node: ParserNode) = forwardBuffer?.add(node)
 
     /**
      * Gets a value from the buffer and executes an action.
@@ -233,14 +233,9 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     }
 
     /**
-     * Removes range of positions in the buffer.
-     */
-    fun removeTreeFromBuffer(node: ParserNode) = forwardBuffer?.remove(node.from.position(), node.to.position())
-
-    /**
      * Finalize a node, setting its bounds and adding it to the forward buffer.
      */
-    fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
+    internal fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
         finalizeNodeNoBuffer(node, initCursor)
         addInBuffer(node)
         return node
@@ -249,7 +244,7 @@ internal class LexemParser constructor(val reader: ITextReader, forwardBuffer: B
     /**
      * Finalize a node setting its bounds.
      */
-    fun <T : ParserNode> finalizeNodeNoBuffer(node: T, initCursor: ITextReaderCursor): T {
+    internal fun <T : ParserNode> finalizeNodeNoBuffer(node: T, initCursor: ITextReaderCursor): T {
         val finalCursor = reader.saveCursor()
 
         node.from = initCursor

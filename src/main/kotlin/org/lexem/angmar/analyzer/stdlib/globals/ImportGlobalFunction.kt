@@ -51,29 +51,47 @@ internal object ImportGlobalFunction {
                         AngmarAnalyzerExceptionType.BadArgumentError,
                         "The $FunctionName method requires the parameter called '$PathParam' be a ${StringType.TypeName}") {}
 
-                val reader =
-                        AnalyzerCommons.resolveRelativeUriToReader(analyzer, currentFilePath.primitive, path.primitive)
-
-                // Process only if it has not been previously processed.
-                let {
-                    val exports = findPathInMap(analyzer.memory, context, reader.getSource())
-                    if (exports != null) {
-                        analyzer.memory.addToStackAsLast(exports)
-                        return true
-                    }
-                }
 
                 // Parse and analyze the code.
-                val parser = LexemParser(reader)
+                val finalSource: String
+                val parser = if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
+                    val parserMap = AnalyzerCommons.getStdLibContextElement<LxmObject>(analyzer.memory,
+                            AnalyzerCommons.Identifiers.HiddenParserMap)
+
+                    val parser = parserMap.getDereferencedProperty<LxmParser>(analyzer.memory, path.primitive)
+                            ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
+                                    "The file '${path.primitive}' does not exist") {}
+
+                    finalSource = path.primitive
+
+                    parser.parser
+                } else {
+                    val reader = AnalyzerCommons.resolveRelativeUriToReader(analyzer, currentFilePath.primitive,
+                            path.primitive)
+
+                    // Process only if it has not been previously processed.
+                    let {
+                        val exports = findPathInMap(analyzer.memory, context, reader.getSource())
+                        if (exports != null) {
+                            analyzer.memory.addToStackAsLast(exports)
+                            return true
+                        }
+                    }
+
+                    finalSource = reader.getSource()
+
+                    LexemParser(reader)
+                }
+
                 try {
                     val grammarNode = LexemFileNode.parse(parser) ?: throw AngmarAnalyzerException(
                             AngmarAnalyzerExceptionType.FileIsNotLexem,
-                            "The file '${reader.getSource()}' is not a valid Lexem file") {}
+                            "The file '$finalSource' is not a valid Lexem file") {}
 
                     analyzer.nextNode(grammarNode)
                 } catch (e: AngmarParserException) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileIsNotLexem,
-                            "The file '${reader.getSource()}' is not a valid Lexem file") {
+                            "The file '$finalSource' is not a valid Lexem file") {
                         this.cause = e.logger
                     }
                 }

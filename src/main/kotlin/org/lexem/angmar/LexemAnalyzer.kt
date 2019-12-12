@@ -19,7 +19,8 @@ import java.time.*
 /**
  * Analyzer for the Lexem language.
  */
-class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNode) {
+class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNode,
+        parsers: Map<String, LexemParser>? = null) {
     var text: IReader = IOStringReader.from("")
         internal set
     internal var rootFilePath = ""
@@ -29,6 +30,11 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     internal var signal = 0
     internal var backtrackingData: LxmBacktrackingData? = null
     internal var initialCursor: IReaderCursor = text.saveCursor()
+    internal val importMode = if (parsers == null) {
+        ImportMode.Normal
+    } else {
+        ImportMode.AllIn
+    }
 
     var status = Status.Ended
         internal set
@@ -50,6 +56,17 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         val fileMap = LxmObject()
         val fileMapReference = memory.add(fileMap)
         stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, fileMapReference)
+
+        if (importMode == ImportMode.AllIn) {
+            val parserMap = LxmObject()
+            val parserMapReference = memory.add(parserMap)
+
+            for ((name, parser) in parsers!!) {
+                parserMap.setProperty(memory, name, LxmParser(parser))
+            }
+
+            stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMapReference)
+        }
 
         StdlibCommons.initTypesAndPrototypes(this.memory)
         StdlibCommons.initGlobals(this.memory)
@@ -343,21 +360,50 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         Ended
     }
 
+    /**
+     * The status of the analysis.
+     */
     internal enum class ProcessStatus {
         Forward,
         Backward
     }
 
+    /**
+     * The possible modes of import.
+     */
+    internal enum class ImportMode {
+        /**
+         * Imports everything.
+         */
+        Normal,
+
+        /**
+         * Imports only the stored [LexemParser]s.
+         */
+        AllIn
+    }
+
     companion object {
         /**
-         * Creates a new [LexemAnalyzer] from the specified input.
+         * Creates a new [LexemAnalyzer] parsing the specified input.
          * @param forwardBuffer Whether to activate a buffer to accelerate the parsing.
          */
-        fun parse(text: ITextReader, forwardBuffer: Boolean = true): LexemAnalyzer? {
+        fun createParsing(text: ITextReader, forwardBuffer: Boolean = true): LexemAnalyzer? {
             val parser = LexemParser(text, forwardBuffer)
             val parserNode = LexemFileNode.parse(parser) ?: return null
 
             return LexemAnalyzer(parserNode)
+        }
+
+        /**
+         * Creates a new [LexemAnalyzer] using a set of named [LexemParser]s. It is
+         */
+        fun createFrom(parsers: Map<String, LexemParser>, mainParserName: String): LexemAnalyzer? {
+            val mainParser =
+                    parsers[mainParserName] ?: throw AngmarException("Undefined parser called '$mainParserName'")
+            val parserNode = LexemFileNode.parse(mainParser) ?: return null
+
+            return LexemAnalyzer(parserNode, parsers)
         }
     }
 }

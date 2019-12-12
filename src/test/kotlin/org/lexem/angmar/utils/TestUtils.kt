@@ -282,6 +282,10 @@ object TestUtils {
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)
 
+        if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
+            context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenParserMap)
+        }
+
         // Check whether the context is empty.
         Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 

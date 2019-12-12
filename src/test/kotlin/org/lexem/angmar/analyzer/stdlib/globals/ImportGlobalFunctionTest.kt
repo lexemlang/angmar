@@ -1,6 +1,8 @@
 package org.lexem.angmar.analyzer.stdlib.globals
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.params.*
+import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
@@ -171,6 +173,36 @@ internal class ImportGlobalFunctionTest {
     }
 
     @Test
+    fun `import in allIn mode`() {
+        val varName = "test"
+        val fileName = "main"
+        val fileNameImported = "imported"
+        val text =
+                "import(${StringNode.startToken}$fileNameImported${StringNode.endToken}) \n $varName ${MultiplicativeExpressionNode.multiplicationOperator}${AssignOperatorNode.assignOperator} 2"
+        val textImported = "$varName ${AssignOperatorNode.assignOperator} 1"
+
+        val parserMain = LexemParser(IOStringReader.from(text))
+        val parserImported = LexemParser(IOStringReader.from(textImported))
+
+        val analyzer =
+                LexemAnalyzer.createFrom(mapOf(fileName to parserMain, fileNameImported to parserImported), fileName)
+                        ?: throw Error("The analyzer cannot be null")
+
+        // Prepare context.
+        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+
+        TestUtils.processAndCheckEmpty(analyzer)
+
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                "The result must be a LxmInteger")
+        Assertions.assertEquals(2, result.primitive, "The primitive property is incorrect")
+
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+    }
+
+    @Test
     @Incorrect
     fun `import without uri`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
@@ -245,6 +277,24 @@ internal class ImportGlobalFunctionTest {
 
             TestUtils.processAndCheckEmpty(analyzer)
             TestUtils.checkEmptyStackAndContext(analyzer)
+        }
+    }
+
+    @ParameterizedTest
+    @Incorrect
+    @ValueSource(
+            strings = ["a", "/x/y", "https://raw.githubusercontent.com/lexemlang/angmar/master/src/test/resources/remoteTestFile.lxm"])
+    fun `import an incorrect uri in allIn mode`(url: String) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist) {
+            val fileName = "main"
+            val text = "import(${StringNode.startToken}$url${StringNode.endToken})"
+
+            val parserMain = LexemParser(IOStringReader.from(text))
+
+            val analyzer = LexemAnalyzer.createFrom(mapOf(fileName to parserMain), fileName) ?: throw Error(
+                    "The analyzer cannot be null")
+
+            TestUtils.processAndCheckEmpty(analyzer)
         }
     }
 }

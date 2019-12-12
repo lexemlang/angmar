@@ -86,6 +86,7 @@ internal object AnalyzerCommons {
         const val HiddenLastResultNode = "${HiddenPrefix}lastResNode"
         const val HiddenFilePath = "${HiddenPrefix}filePath"
         const val HiddenFileMap = "${HiddenPrefix}fileMap"
+        const val HiddenParserMap = "${HiddenPrefix}parserMap"
         const val HiddenAnalyzerText = "${HiddenPrefix}analyzerText"
         const val HiddenNode2Filter = "${HiddenPrefix}node2Filter"
         const val HiddenRollbackCodePoint = "${HiddenPrefix}rollbackCodePoint"
