@@ -848,7 +848,7 @@ internal class SetPrototypeTest {
             val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
             Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
 
-            for (element in list) {
+            for (element in resList.getAllCells()) {
                 if (element !in list) {
                     throw Error("The result list is incorrect")
                 }
