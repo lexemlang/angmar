@@ -7,6 +7,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.descriptive.*
+import org.lexem.angmar.parser.functional.statements.*
 
 
 /**
@@ -65,7 +66,11 @@ internal object AnyLexemeAnalyzer {
                 return evaluateCondition(analyzer, node)
             }
             signalEndLexem -> {
-                val result = analyzer.memory.getLastFromStack()
+                val result = if (node.lexeme is BlockStmtNode) {
+                    LxmNil
+                } else {
+                    analyzer.memory.getLastFromStack()
+                }
 
                 // Add result to the list.
                 if (node.dataCapturing != null) {
@@ -74,8 +79,10 @@ internal object AnyLexemeAnalyzer {
                     list.addCell(analyzer.memory, result)
                 }
 
-                // Remove Last from the stack.
-                analyzer.memory.removeLastFromStack()
+                if (node.lexeme !is BlockStmtNode) {
+                    // Remove Last from the stack.
+                    analyzer.memory.removeLastFromStack()
+                }
 
                 if (node.quantifier != null) {
                     // Increase the index.

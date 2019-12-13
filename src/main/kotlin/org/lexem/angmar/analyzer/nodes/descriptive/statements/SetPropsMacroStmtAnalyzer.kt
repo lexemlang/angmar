@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.statements
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.descriptive.statements.*
@@ -30,6 +31,8 @@ internal object SetPropsMacroStmtAnalyzer {
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
+
+                analyzer.memory.addToStackAsLast(LxmNil)
             }
         }
 

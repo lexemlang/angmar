@@ -41,6 +41,11 @@ internal class SetPropsMacroStmtAnalyzerTest {
                 (props.getPropertyValue(analyzer.memory, withValueVar) as? LxmInteger)?.primitive,
                 "The $withValueVar property is incorrect")
 
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }
 }
