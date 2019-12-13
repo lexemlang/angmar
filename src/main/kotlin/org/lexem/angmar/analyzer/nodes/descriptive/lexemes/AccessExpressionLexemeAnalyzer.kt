@@ -46,6 +46,7 @@ internal object AccessExpressionLexemeAnalyzer {
                         val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
                         val arguments = LxmArguments(analyzer.memory)
                         val argumentsRef = analyzer.memory.add(arguments)
+                        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
 
                         // Remove Last from the stack.
                         analyzer.memory.removeLastFromStack()

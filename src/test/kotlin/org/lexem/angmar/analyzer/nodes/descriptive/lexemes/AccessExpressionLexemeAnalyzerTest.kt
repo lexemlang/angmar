@@ -39,7 +39,14 @@ internal class AccessExpressionLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
 
         // Create variable in context.
-        val function = LxmFunction { analyzer, _, _, _ ->
+        val function = LxmFunction { analyzer, argumentsReference, _, _ ->
+            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!
+            val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
+
+            val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+
+            Assertions.assertNotNull(thisValue, "The ${AnalyzerCommons.Identifiers.This} cannot be null")
+
             analyzer.memory.addToStackAsLast(LxmInteger.from(returnValue))
             return@LxmFunction true
         }
