@@ -10,7 +10,7 @@ import org.lexem.angmar.utils.*
 
 internal class AccessExpressionLexemeAnalyzerTest {
     @Test
-    fun `test with no modifiers`() {
+    fun `test with no modifiers - simple value`() {
         val varName = "test"
         val text = varName
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
@@ -29,6 +29,36 @@ internal class AccessExpressionLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
+    }
+
+    @Test
+    fun `test with no modifiers - implicit calling`() {
+        val functionName = "test"
+        val returnValue = 26
+        val text = functionName
+        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
+
+        // Create variable in context.
+        val function = LxmFunction { analyzer, _, _, _ ->
+            analyzer.memory.addToStackAsLast(LxmInteger.from(returnValue))
+            return@LxmFunction true
+        }
+        val functionRef = analyzer.memory.add(function)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
+        TestUtils.processAndCheckEmpty(analyzer)
+
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        Assertions.assertEquals(returnValue, result.primitive, "The primitive property is incorrect")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
+
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(functionName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
