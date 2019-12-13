@@ -25,14 +25,14 @@ internal class LexemAnalyzerTest {
                    errorThrown("This is a test")
                """.trimIndent()
         val textImported = """
-                   fun errorThrownImport2(message) {
+                   filter errorThrownImport2(message) {
                        (fun(message) {
                            Debug.throw("Error thrown with message: " + message)
                        })(message)
                    }
 
-                   pub! fun errorThrownImport1(message) {
-                       errorThrownImport2(message)
+                   pub! exp errorThrownImport1(message) {
+                       errorThrownImport2(message, node2Filter: node)
                    }
                """.trimIndent()
 
