@@ -6,6 +6,7 @@ package org.lexem.angmar.config
 internal object Consts {
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
+    const val debug = false
 
     object Commands {
         const val parser = "angmar"

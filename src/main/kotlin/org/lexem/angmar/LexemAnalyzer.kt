@@ -118,12 +118,15 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      */
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         val timeout = OffsetDateTime.now().plusNanos(timeoutInMilliseconds * 1000000)
-
+        var ticks = 0L
+        
         try {
             loop@ while (true) {
+                ticks += 1L
+
                 // Check timeout.
                 val time = OffsetDateTime.now()
-                if (time >= timeout || status == Status.Paused) {
+                if (!Consts.debug && time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false
                 }
@@ -157,7 +160,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
                 }
             }
         } catch (e: AngmarAnalyzerException) {
-            // TODO Print the stack traces
+            // Print the stack traces
             val callHierarchy = AnalyzerCommons.getCallHierarchy(memory)
 
             if (callHierarchy.isNotEmpty()) {
@@ -177,8 +180,10 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
                 }
             }
 
-            // Clear the state.
-            //            freeResources()
+            if (Consts.debug) {
+                throw Exception("Debug error at $ticks ticks", e)
+            }
+
             throw e
         }
 

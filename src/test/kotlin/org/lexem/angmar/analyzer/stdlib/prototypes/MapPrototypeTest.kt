@@ -390,8 +390,6 @@ internal class MapPrototypeTest {
         }
     }
 
-    // TODO
-
     @Test
     fun `test map`() {
         val variable = "testVariable"
