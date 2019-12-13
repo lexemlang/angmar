@@ -36,9 +36,8 @@ internal class UnicodeIntervalElementAnalyzerTest {
 
     @Test
     fun `test single expression`() {
-        val left = 'a'
-        val text =
-                "${EscapedExpressionNode.startToken}${StringNode.startToken}$left${StringNode.endToken}${EscapedExpressionNode.endToken}"
+        val left = 'a'.toInt()
+        val text = "${EscapedExpressionNode.startToken}$left${EscapedExpressionNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
 
         // Prepare stack.
@@ -50,8 +49,8 @@ internal class UnicodeIntervalElementAnalyzerTest {
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
                         "The result must be a LxmInterval")
         Assertions.assertEquals(1L, result.primitive.pointCount, "The pointCount property is incorrect")
-        Assertions.assertEquals(left.toInt(), result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(left.toInt(), result.primitive.lastPoint, "The lastPoint property is incorrect")
+        Assertions.assertEquals(left, result.primitive.firstPoint, "The firstPoint property is incorrect")
+        Assertions.assertEquals(left, result.primitive.lastPoint, "The lastPoint property is incorrect")
 
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
@@ -86,12 +85,10 @@ internal class UnicodeIntervalElementAnalyzerTest {
 
     @Test
     fun `test range expression`() {
-        val leftValue = 'a'
-        val rightValue = 'x'
-        val left =
-                "${EscapedExpressionNode.startToken}${StringNode.startToken}$leftValue${StringNode.endToken}${EscapedExpressionNode.endToken}"
-        val right =
-                "${EscapedExpressionNode.startToken}${StringNode.startToken}$rightValue${StringNode.endToken}${EscapedExpressionNode.endToken}"
+        val leftValue = 'a'.toInt()
+        val rightValue = 'x'.toInt()
+        val left = "${EscapedExpressionNode.startToken}$leftValue${EscapedExpressionNode.endToken}"
+        val right = "${EscapedExpressionNode.startToken}$rightValue${EscapedExpressionNode.endToken}"
         val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
 
@@ -105,8 +102,8 @@ internal class UnicodeIntervalElementAnalyzerTest {
                         "The result must be a LxmInterval")
         Assertions.assertEquals(rightValue - leftValue + 1L, result.primitive.pointCount,
                 "The pointCount property is incorrect")
-        Assertions.assertEquals(leftValue.toInt(), result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(rightValue.toInt(), result.primitive.lastPoint, "The lastPoint property is incorrect")
+        Assertions.assertEquals(leftValue, result.primitive.firstPoint, "The firstPoint property is incorrect")
+        Assertions.assertEquals(rightValue, result.primitive.lastPoint, "The lastPoint property is incorrect")
 
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
@@ -133,46 +130,10 @@ internal class UnicodeIntervalElementAnalyzerTest {
 
     @Test
     @Incorrect
-    fun `test incorrect empty left`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds) {
-            val left =
-                    "${EscapedExpressionNode.startToken}${StringNode.startToken}${StringNode.endToken}${EscapedExpressionNode.endToken}"
-            val right = 'g'
-            val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
-            val analyzer =
-                    TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
-
-            // Prepare stack.
-            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-            TestUtils.processAndCheckEmpty(analyzer)
-        }
-    }
-
-    @Test
-    @Incorrect
     fun `test incorrect right`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val left = 'g'
             val right = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
-            val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
-            val analyzer =
-                    TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
-
-            // Prepare stack.
-            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-            TestUtils.processAndCheckEmpty(analyzer)
-        }
-    }
-
-    @Test
-    @Incorrect
-    fun `test incorrect empty right`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds) {
-            val left = 'g'
-            val right =
-                    "${EscapedExpressionNode.startToken}${StringNode.startToken}${StringNode.endToken}${EscapedExpressionNode.endToken}"
             val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)

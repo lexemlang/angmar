@@ -28,46 +28,30 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 if (node.right != null) {
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.from("${node.leftChar}"))
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmInteger.from(node.leftChar.toInt()))
                     return analyzer.nextNode(node.right)
                 }
 
                 val right = if (node.rightChar == ' ') {
-                    node.leftChar
+                    node.leftChar.toInt()
                 } else {
-                    node.rightChar
+                    node.rightChar.toInt()
                 }
 
-                operate(analyzer, node.leftChar.toString(), right.toString(), node)
+                operate(analyzer, node.leftChar.toInt(), right, node)
             }
             signalEndLeft -> {
                 // Check value.
                 val left = analyzer.memory.getLastFromStack()
 
-                if (left !is LxmString) {
+                if (left !is LxmInteger) {
                     val msg = if (node.right != null) {
-                        "The returned value by the left expression must be a ${StringType.TypeName}. Actual value: $left"
+                        "The returned value by the left expression must be an ${IntegerType.TypeName}."
                     } else {
-                        "The returned value by the expression must be a ${StringType.TypeName}. Actual value: $left"
+                        "The returned value by the expression must be an ${IntegerType.TypeName}."
                     }
 
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType, msg) {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.left!!.from.position(), node.left!!.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
-
-                if (left.primitive.isEmpty()) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
-                            "The returned value by the right expression is an empty ${StringType.TypeName}. To be part of a range it must contain at least one character.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -89,7 +73,7 @@ internal object UnicodeIntervalElementAnalyzer {
                 val right = if (node.rightChar == ' ') {
                     left.primitive
                 } else {
-                    node.rightChar.toString()
+                    node.rightChar.toInt()
                 }
 
                 operate(analyzer, left.primitive, right, node)
@@ -101,25 +85,9 @@ internal object UnicodeIntervalElementAnalyzer {
                 // Check value.
                 val right = analyzer.memory.getLastFromStack()
 
-                if (right !is LxmString) {
+                if (right !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the right expression must be a ${StringType.TypeName}. Actual value: $right") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.right!!.from.position(), node.right!!.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
-
-                if (right.primitive.isEmpty()) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
-                            "The returned value by the right expression is an empty ${StringType.TypeName}. To be part of a range it must contain at least one character.") {
+                            "The returned value by the right expression must be an ${IntegerType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -134,7 +102,7 @@ internal object UnicodeIntervalElementAnalyzer {
                 }
 
                 // Add the value to the interval.
-                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmString
+                val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmInteger
 
                 operate(analyzer, left.primitive, right.primitive, node)
 
@@ -150,10 +118,10 @@ internal object UnicodeIntervalElementAnalyzer {
     /**
      * Creates a Unicode range with the first character of both strings as bounds.
      */
-    private fun operate(analyzer: LexemAnalyzer, left: String, right: String, node: UnicodeIntervalElementNode) {
+    private fun operate(analyzer: LexemAnalyzer, left: Int, right: Int, node: UnicodeIntervalElementNode) {
         try {
             val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
-            val range = IntegerRange.new(left.codePointAt(0), right.codePointAt(0))
+            val range = IntegerRange.new(left, right)
             val resInterval = itv.primitive.plus(range)
 
             analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))

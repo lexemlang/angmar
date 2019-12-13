@@ -11,13 +11,10 @@ internal class UnicodeEscapeAnalyzerTest {
         val text = "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}43${UnicodeEscapeNode.endBracket}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeEscapeNode.Companion::parse)
 
-        // Prepare stack
-        analyzer.memory.addToStackAsLast(LxmString.Empty)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("C", result.primitive, "The primitive property is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        Assertions.assertEquals(0x43, result.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -31,13 +28,10 @@ internal class UnicodeEscapeAnalyzerTest {
                 "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}20046${UnicodeEscapeNode.endBracket}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeEscapeNode.Companion::parse)
 
-        // Prepare stack
-        analyzer.memory.addToStackAsLast(LxmString.Empty)
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("\uD840\uDC46", result.primitive, "The primitive property is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        Assertions.assertEquals(0x20046, result.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

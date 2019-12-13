@@ -1,8 +1,10 @@
 package org.lexem.angmar.analyzer.nodes.commons
 
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.analyzer.nodes.literals.*
 import org.lexem.angmar.parser.commons.*
 
 
@@ -18,25 +20,37 @@ internal object QuotedIdentifierAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the first string.
-                analyzer.memory.addToStackAsLast(LxmString.from(node.texts[0]))
+                val accumulator = LxmString.from(node.texts[0])
 
                 if (node.escapes.isNotEmpty()) {
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, accumulator)
+
                     return analyzer.nextNode(node.escapes[0])
                 }
+
+                analyzer.memory.addToStackAsLast(accumulator)
             }
             in signalEndFirstEscape..signalEndFirstEscape + node.escapes.size -> {
-                val position = (signal - signalEndFirstEscape) + 1
+                val position = (signal - StringAnalyzer.signalEndFirstEscape) + 1
 
                 // Combine the strings.
-                val value = analyzer.memory.getLastFromStack() as LxmString
-                val result = value.primitive + node.texts[position]
+                val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
+                val escape = analyzer.memory.getLastFromStack() as LxmInteger
 
-                analyzer.memory.replaceLastStackCell(LxmString.from(result))
+                val concatenation = accumulator.primitive + Character.toChars(escape.primitive).joinToString(
+                        "") + node.texts[position]
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmString.from(concatenation))
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
 
                 // Evaluate the next operand.
                 if (position < node.escapes.size) {
                     return analyzer.nextNode(node.escapes[position])
                 }
+
+                // Move Accumulator to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
         }
 

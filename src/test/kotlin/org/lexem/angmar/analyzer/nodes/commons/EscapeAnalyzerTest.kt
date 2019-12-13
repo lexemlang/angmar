@@ -8,79 +8,37 @@ import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.utils.*
 
 internal class EscapeAnalyzerTest {
-    private val prefix = "-test-"
-
-    @Test
-    fun `test t`() {
-        val text = "${EscapeNode.startToken}t"
+    @ParameterizedTest
+    @ValueSource(chars = ['\t', '\n', '\r'])
+    fun `test escaped characters`(char: Char) {
+        val text = EscapeNode.startToken + when (char) {
+            '\t' -> "t"
+            '\n' -> "n"
+            else -> "r"
+        }
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = EscapeNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStackAsLast(LxmString.from(prefix))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("$prefix\t", result.primitive, "The primitive property is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        Assertions.assertEquals(char.toInt(), result.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
-
-    @Test
-    fun `test n`() {
-        val text = "${EscapeNode.startToken}n"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = EscapeNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStackAsLast(LxmString.from(prefix))
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("$prefix\n", result.primitive, "The primitive property is incorrect")
-
-        // Remove Last from the stack.
-        analyzer.memory.removeLastFromStack()
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
-    fun `test r`() {
-        val text = "${EscapeNode.startToken}r"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = EscapeNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStackAsLast(LxmString.from(prefix))
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("$prefix\r", result.primitive, "The primitive property is incorrect")
-
-        // Remove Last from the stack.
-        analyzer.memory.removeLastFromStack()
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
 
     @ParameterizedTest
-    @ValueSource(strings = [" ", "g", ",", "\n"])
-    fun `test same character`(char: String) {
+    @ValueSource(chars = [' ', 'g', ',', '\n'])
+    fun `test same character`(char: Char) {
         val text = "${EscapeNode.startToken}$char"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = EscapeNode.Companion::parse)
 
-        // Prepare stack.
-        analyzer.memory.addToStackAsLast(LxmString.from(prefix))
-
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-        Assertions.assertEquals("$prefix$char", result.primitive, "The primitive property is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        Assertions.assertEquals(char.toInt(), result.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

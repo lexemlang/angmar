@@ -13,16 +13,14 @@ internal object EscapeAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: EscapeNode) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                val prevValue = analyzer.memory.getLastFromStack() as LxmString
-
                 val char = when (node.value) {
-                    "t" -> "\t"
-                    "n" -> "\n"
-                    "r" -> "\r"
-                    else -> node.value
+                    "t" -> '\t'.toInt()
+                    "n" -> '\n'.toInt()
+                    "r" -> '\r'.toInt()
+                    else -> node.value[0].toInt()
                 }
 
-                analyzer.memory.replaceLastStackCell(LxmString.from(prevValue.primitive + char))
+                analyzer.memory.addToStackAsLast(LxmInteger.from(char))
             }
         }
 
