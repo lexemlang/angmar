@@ -33,7 +33,7 @@ internal class LexemePatternNodeTest {
 
                         for (hasPatternContent in listOf(false, true)) {
                             var text = if (hasPatternContent) {
-                                LexemPatternContentNodeTest.testExpression
+                                LexemePatternContentNodeTest.testExpression
                             } else {
                                 ""
                             }
@@ -55,7 +55,7 @@ internal class LexemePatternNodeTest {
 
                             // With whitespaces
                             text = if (hasPatternContent) {
-                                LexemPatternContentNodeTest.testExpression
+                                LexemePatternContentNodeTest.testExpression
                             } else {
                                 ""
                             }
@@ -128,7 +128,7 @@ internal class LexemePatternNodeTest {
 
         if (hasPatternContent) {
             Assertions.assertNotNull(res.patternContent, "The patternContent property cannot be null")
-            LexemPatternContentNodeTest.checkTestExpression(res.patternContent!!)
+            LexemePatternContentNodeTest.checkTestExpression(res.patternContent!!)
         } else {
             Assertions.assertNull(res.patternContent, "The patternContent property must be null")
         }

@@ -20,6 +20,7 @@ internal class AnyLexemeNodeTest {
 
     companion object {
         const val testExpression = TextLexemeNodeTest.testExpression
+        const val testFilterExpression = AdditionFilterLexemeNodeTest.testExpression
 
         @JvmStatic
         private fun provideMacros(): Stream<Arguments> {
@@ -88,6 +89,15 @@ internal class AnyLexemeNodeTest {
             Assertions.assertNull(node.dataCapturing, "The dataCapturing property must be null")
             Assertions.assertNull(node.quantifier, "The quantifier property must be null")
             TextLexemeNodeTest.checkTestExpression(node.lexeme)
+        }
+
+        fun checkTestFilterExpression(node: ParserNode) {
+            Assertions.assertNotNull(node, "The input has not been correctly parsed")
+            node as AnyLexemeNode
+
+            Assertions.assertNull(node.dataCapturing, "The dataCapturing property must be null")
+            Assertions.assertNull(node.quantifier, "The quantifier property must be null")
+            AdditionFilterLexemeNodeTest.checkTestExpression(node.lexeme)
         }
     }
 

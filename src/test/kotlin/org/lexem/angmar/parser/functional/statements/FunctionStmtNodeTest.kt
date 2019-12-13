@@ -23,18 +23,38 @@ internal class FunctionStmtNodeTest {
         @JvmStatic
         private fun provideCorrectFunctionStmt(): Stream<Arguments> {
             val sequence = sequence {
-                yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionParameterListNodeTest.testExpression} ${BlockStmtNodeTest.testExpression}",
-                        true))
-                yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}${FunctionParameterListNodeTest.testExpression}${BlockStmtNodeTest.testExpression}",
-                        true))
-                yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${BlockStmtNodeTest.testExpression}",
-                        false))
-                yield(Arguments.of(
-                        "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}${BlockStmtNodeTest.testExpression}",
-                        false))
+                for (hasArguments in listOf(false, true)) {
+                    for (isLambda in listOf(false, true)) {
+                        var text = "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
+
+                        if (hasArguments) {
+                            text += " ${FunctionParameterListNodeTest.testExpression}"
+                        }
+
+                        if (isLambda) {
+                            text += " ${LambdaStmtNodeTest.testExpression}"
+                        } else {
+                            text += " ${BlockStmtNodeTest.testExpression}"
+                        }
+
+                        yield(Arguments.of(text, hasArguments, isLambda))
+
+                        // Without whitespaces.
+                        text = "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
+
+                        if (hasArguments) {
+                            text += FunctionParameterListNodeTest.testExpression
+                        }
+
+                        if (isLambda) {
+                            text += LambdaStmtNodeTest.testExpression
+                        } else {
+                            text += BlockStmtNodeTest.testExpression
+                        }
+
+                        yield(Arguments.of(text, hasArguments, isLambda))
+                    }
+                }
             }
 
             return sequence.asStream()
@@ -58,7 +78,7 @@ internal class FunctionStmtNodeTest {
 
     @ParameterizedTest
     @MethodSource("provideCorrectFunctionStmt")
-    fun `parse correct function statement`(text: String, hasArguments: Boolean) {
+    fun `parse correct function statement`(text: String, hasArguments: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
@@ -66,13 +86,18 @@ internal class FunctionStmtNodeTest {
         res as FunctionStmtNode
 
         IdentifierNodeTest.checkTestExpression(res.name)
-        BlockStmtNodeTest.checkTestExpression(res.block)
 
         if (hasArguments) {
             Assertions.assertNotNull(res.parameterList, "The argumentList property cannot be null")
             FunctionParameterListNodeTest.checkTestExpression(res.parameterList!!)
         } else {
             Assertions.assertNull(res.parameterList, "The argumentList property must be null")
+        }
+
+        if (isLambda) {
+            LambdaStmtNodeTest.checkTestExpression(res.block)
+        } else {
+            BlockStmtNodeTest.checkTestExpression(res.block)
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

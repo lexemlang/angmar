@@ -103,9 +103,10 @@ internal class FilterStmtNode private constructor(parser: LexemParser, parent: P
             parser.isDescriptiveCode = true
             parser.isFilterCode = true
 
-            result.block = BlockStmtNode.parse(parser, result, FilterStmtAnalyzer.signalEndBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.FilterStatementWithoutBlock,
-                            "Filters require a block of code.") {
+            result.block =
+                    BlockStmtNode.parse(parser, result, FilterStmtAnalyzer.signalEndBlock) ?: LambdaStmtNode.parse(
+                            parser, result, FilterStmtAnalyzer.signalEndBlock) ?: throw AngmarParserException(
+                            AngmarParserExceptionType.FilterStatementWithoutBlock, "Filters require a block of code.") {
                         val fullText = parser.reader.readAllText()
                         addSourceCode(fullText, parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle

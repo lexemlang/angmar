@@ -17,7 +17,7 @@ internal class GroupLexemeNodeTest {
 
     companion object {
         const val testExpression =
-                "${GroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}${GroupLexemeNode.endToken}"
+                "${GroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${GroupLexemeNode.endToken}"
 
         @JvmStatic
         private fun provideNodes(): Stream<Arguments> {
@@ -25,7 +25,7 @@ internal class GroupLexemeNodeTest {
                 for (isNegated in listOf(false, true)) {
                     for (hasHeader in listOf(false, true)) {
                         for (patternCount in 1..3) {
-                            val list = List(patternCount) { LexemPatternContentNodeTest.testExpression }
+                            val list = List(patternCount) { LexemePatternContentNodeTest.testExpression }
                             var text = list.joinToString(GroupLexemeNode.patternToken)
 
                             if (hasHeader) {
@@ -75,7 +75,7 @@ internal class GroupLexemeNodeTest {
             Assertions.assertEquals(1, node.patterns.size, "The pattern count is incorrect")
 
             node.patterns.forEach {
-                LexemPatternContentNodeTest.checkTestExpression(it)
+                LexemePatternContentNodeTest.checkTestExpression(it)
             }
         }
     }
@@ -106,7 +106,7 @@ internal class GroupLexemeNodeTest {
         Assertions.assertEquals(patternCount, res.patterns.size, "The pattern count is incorrect")
 
         res.patterns.forEach {
-            LexemPatternContentNodeTest.checkTestExpression(it)
+            LexemePatternContentNodeTest.checkTestExpression(it)
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
@@ -117,7 +117,7 @@ internal class GroupLexemeNodeTest {
     fun `parse incorrect group without lexemes after pattern token`() {
         TestUtils.assertParserException(AngmarParserExceptionType.GroupWithoutLexemeAfterPatternToken) {
             val text =
-                    "${GroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}${GroupLexemeNode.patternToken}${GroupLexemeNode.endToken}"
+                    "${GroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${GroupLexemeNode.patternToken}${GroupLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
             GroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
@@ -139,7 +139,7 @@ internal class GroupLexemeNodeTest {
     @Incorrect
     fun `parse incorrect group without end token`() {
         TestUtils.assertParserException(AngmarParserExceptionType.GroupWithoutEndToken) {
-            val text = "${GroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}"
+            val text = "${GroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
             GroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)

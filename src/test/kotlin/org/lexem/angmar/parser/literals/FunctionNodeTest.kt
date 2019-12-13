@@ -9,6 +9,8 @@ import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.utils.*
+import java.util.stream.*
+import kotlin.streams.*
 
 internal class FunctionNodeTest {
     // PARAMETERS -------------------------------------------------------------
@@ -17,10 +19,44 @@ internal class FunctionNodeTest {
         const val testExpression = "${FunctionNode.keyword}${BlockStmtNodeTest.testExpression}"
 
         @JvmStatic
-        private fun provideCorrectLists() = ListNodeTest.provideCorrectLists()
+        private fun provideCorrectFunctionStmt(): Stream<Arguments> {
+            val sequence = sequence {
+                for (hasArguments in listOf(false, true)) {
+                    for (isLambda in listOf(false, true)) {
+                        var text = FunctionNode.keyword
 
-        @JvmStatic
-        private fun provideCorrectListsWithWS() = ListNodeTest.provideCorrectListsWithWS()
+                        if (hasArguments) {
+                            text += " ${FunctionParameterListNodeTest.testExpression}"
+                        }
+
+                        if (isLambda) {
+                            text += " ${LambdaStmtNodeTest.testExpression}"
+                        } else {
+                            text += " ${BlockStmtNodeTest.testExpression}"
+                        }
+
+                        yield(Arguments.of(text, hasArguments, isLambda))
+
+                        // Without whitespaces.
+                        text = FunctionNode.keyword
+
+                        if (hasArguments) {
+                            text += FunctionParameterListNodeTest.testExpression
+                        }
+
+                        if (isLambda) {
+                            text += LambdaStmtNodeTest.testExpression
+                        } else {
+                            text += BlockStmtNodeTest.testExpression
+                        }
+
+                        yield(Arguments.of(text, hasArguments, isLambda))
+                    }
+                }
+            }
+
+            return sequence.asStream()
+        }
 
         // AUX METHODS --------------------------------------------------------
 
@@ -37,34 +73,27 @@ internal class FunctionNodeTest {
     // TESTS ------------------------------------------------------------------
 
     @ParameterizedTest
-    @ValueSource(
-            strings = ["${FunctionNode.keyword}${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}  ${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}\n${BlockStmtNodeTest.testExpression}"])
-    fun `parse correct function node`(text: String) {
+    @MethodSource("provideCorrectFunctionStmt")
+    fun `parse correct function statement`(text: String, hasArguments: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionNode
 
-        Assertions.assertNull(res.parameterList, "The parameterList property must be null")
-        BlockStmtNodeTest.checkTestExpression(res.block)
+        if (hasArguments) {
+            Assertions.assertNotNull(res.parameterList, "The argumentList property cannot be null")
+            FunctionParameterListNodeTest.checkTestExpression(res.parameterList!!)
+        } else {
+            Assertions.assertNull(res.parameterList, "The argumentList property must be null")
+        }
 
-        Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
-    }
+        if (isLambda) {
+            LambdaStmtNodeTest.checkTestExpression(res.block)
+        } else {
+            BlockStmtNodeTest.checkTestExpression(res.block)
+        }
 
-    @ParameterizedTest
-    @ValueSource(
-            strings = ["${FunctionNode.keyword}${FunctionParameterListNodeTest.testExpression}${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword} ${FunctionParameterListNodeTest.testExpression} ${BlockStmtNodeTest.testExpression}", "${FunctionNode.keyword}\n ${FunctionParameterListNodeTest.testExpression} \n ${BlockStmtNodeTest.testExpression}"])
-    fun `parse correct function node with parameters`(text: String) {
-        val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
-
-        Assertions.assertNotNull(res, "The input has not been correctly parsed")
-        res as FunctionNode
-
-        Assertions.assertNotNull(res.parameterList, "The parameterList property cannot be null")
-        FunctionParameterListNodeTest.checkTestExpression(res.parameterList!!)
-        BlockStmtNodeTest.checkTestExpression(res.block)
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")
     }
 

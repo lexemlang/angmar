@@ -9,11 +9,12 @@ import org.lexem.angmar.parser.*
 import java.util.stream.*
 import kotlin.streams.*
 
-internal class LexemPatternContentNodeTest {
+internal class LexemePatternContentNodeTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
         const val testExpression = GlobalCommonsTest.testLexeme
+        const val testExpressionFilter = GlobalCommonsTest.testFilterLexeme
 
         @JvmStatic
         private fun provideNodes(): Stream<Arguments> {
@@ -38,6 +39,17 @@ internal class LexemPatternContentNodeTest {
 
             node.lexemes.forEach {
                 GlobalCommonsTest.checkTestLexeme(it)
+            }
+        }
+
+        fun checkTestExpressionFilter(node: ParserNode) {
+            Assertions.assertNotNull(node, "The input has not been correctly parsed")
+            node as LexemePatternContentNode
+
+            Assertions.assertEquals(1, node.lexemes.size, "The lexeme count is incorrect")
+
+            node.lexemes.forEach {
+                GlobalCommonsTest.checkTestFilterLexeme(it)
             }
         }
     }

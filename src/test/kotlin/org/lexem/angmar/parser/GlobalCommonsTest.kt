@@ -8,7 +8,6 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.descriptive.*
 import org.lexem.angmar.parser.descriptive.statements.*
-import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.statements.*
 import java.util.stream.*
 import kotlin.streams.*
@@ -17,8 +16,8 @@ internal class GlobalCommonsTest {
     // PARAMETERS -------------------------------------------------------------
 
     companion object {
-        const val testBlockStatement = ExpressionsCommonsTest.testExpression
         const val testLexeme = AnyLexemeNodeTest.testExpression
+        const val testFilterLexeme = AnyLexemeNodeTest.testFilterExpression
 
         @JvmStatic
         private fun provideBlocks(): Stream<Arguments> {
@@ -42,8 +41,8 @@ internal class GlobalCommonsTest {
 
         // AUX METHODS --------------------------------------------------------
 
-        fun checkTestBlockStatement(node: ParserNode) = ExpressionsCommonsTest.checkTestExpression(node)
         fun checkTestLexeme(node: ParserNode) = AnyLexemeNodeTest.checkTestExpression(node)
+        fun checkTestFilterLexeme(node: ParserNode) = AnyLexemeNodeTest.checkTestFilterExpression(node)
     }
 
     // TESTS ------------------------------------------------------------------

@@ -15,7 +15,7 @@ import org.lexem.angmar.parser.functional.statements.*
  */
 internal class FunctionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
         ParserNode(parser, parent, parentSignal) {
-    lateinit var block: BlockStmtNode
+    lateinit var block: ParserNode
     var parameterList: FunctionParameterListNode? = null
 
     override fun toString() = StringBuilder().apply {
@@ -74,7 +74,8 @@ internal class FunctionNode private constructor(parser: LexemParser, parent: Par
             val keepIsDescriptiveCode = parser.isDescriptiveCode
             parser.isDescriptiveCode = false
             result.block =
-                    BlockStmtNode.parse(parser, result, FunctionAnalyzer.signalEndBlock) ?: throw AngmarParserException(
+                    BlockStmtNode.parse(parser, result, FunctionAnalyzer.signalEndBlock) ?: LambdaStmtNode.parse(parser,
+                            result, FunctionAnalyzer.signalEndBlock) ?: throw AngmarParserException(
                             AngmarParserExceptionType.FunctionWithoutBlock,
                             "A block of code was expected after the '$keyword' keyword.") {
                         val fullText = parser.reader.readAllText()

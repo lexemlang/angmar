@@ -104,8 +104,10 @@ internal class ExpressionStmtNode private constructor(parser: LexemParser, paren
             parser.isDescriptiveCode = true
             parser.isFilterCode = false
 
-            result.block = BlockStmtNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.ExpressionStatementWithoutBlock,
+            result.block =
+                    BlockStmtNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndBlock) ?: LambdaStmtNode.parse(
+                            parser, result, ExpressionStmtAnalyzer.signalEndBlock) ?: throw AngmarParserException(
+                            AngmarParserExceptionType.ExpressionStatementWithoutBlock,
                             "Expressions require a block of code.") {
                         val fullText = parser.reader.readAllText()
                         addSourceCode(fullText, parser.reader.getSource()) {

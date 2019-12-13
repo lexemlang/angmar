@@ -26,34 +26,44 @@ internal class FilterStmtNodeTest {
             val sequence = sequence {
                 for (hasProperties in listOf(false, true)) {
                     for (hasParameters in listOf(false, true)) {
-                        var text = "${FilterStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
+                        for (isLambda in listOf(false, true)) {
+                            var text = "${FilterStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
 
-                        if (hasProperties) {
-                            text += PropertyStyleObjectBlockNodeTest.testExpression
+                            if (hasProperties) {
+                                text += PropertyStyleObjectBlockNodeTest.testExpression
+                            }
+
+                            if (hasParameters) {
+                                text += FunctionParameterListNodeTest.testExpression
+                            }
+
+                            if (isLambda) {
+                                text += LambdaStmtNodeTest.testFilterLexemExpression
+                            } else {
+                                text += BlockStmtNodeTest.testExpression
+                            }
+
+                            yield(Arguments.of(text, hasProperties, hasParameters, isLambda))
+
+                            // With whitespaces
+                            text = "${FilterStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
+
+                            if (hasProperties) {
+                                text += " ${PropertyStyleObjectBlockNodeTest.testExpression}"
+                            }
+
+                            if (hasParameters) {
+                                text += " ${FunctionParameterListNodeTest.testExpression}"
+                            }
+
+                            if (isLambda) {
+                                text += " ${LambdaStmtNodeTest.testFilterLexemExpression}"
+                            } else {
+                                text += " ${BlockStmtNodeTest.testExpression}"
+                            }
+
+                            yield(Arguments.of(text, hasProperties, hasParameters, isLambda))
                         }
-
-                        if (hasParameters) {
-                            text += FunctionParameterListNodeTest.testExpression
-                        }
-
-                        text += BlockStmtNodeTest.testExpression
-
-                        yield(Arguments.of(text, hasProperties, hasParameters))
-
-                        // With whitespaces
-                        text = "${FilterStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
-
-                        if (hasProperties) {
-                            text += " ${PropertyStyleObjectBlockNodeTest.testExpression}"
-                        }
-
-                        if (hasParameters) {
-                            text += " ${FunctionParameterListNodeTest.testExpression}"
-                        }
-
-                        text += " ${BlockStmtNodeTest.testExpression}"
-
-                        yield(Arguments.of(text, hasProperties, hasParameters))
                     }
                 }
             }
@@ -81,7 +91,7 @@ internal class FilterStmtNodeTest {
 
     @ParameterizedTest
     @MethodSource("provideNodes")
-    fun `parse correct nodes`(text: String, hasProperties: Boolean, hasParameters: Boolean) {
+    fun `parse correct nodes`(text: String, hasProperties: Boolean, hasParameters: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
         parser.isFilterCode = true
@@ -91,7 +101,6 @@ internal class FilterStmtNodeTest {
         res as FilterStmtNode
 
         IdentifierNodeTest.checkTestExpression(res.name)
-        BlockStmtNodeTest.checkTestExpression(res.block)
 
         if (hasProperties) {
             Assertions.assertNotNull(res.properties, "The properties property cannot be null")
@@ -105,6 +114,12 @@ internal class FilterStmtNodeTest {
             FunctionParameterListNodeTest.checkTestExpression(res.parameterList!!)
         } else {
             Assertions.assertNull(res.parameterList, "The parameterList property must be null")
+        }
+
+        if (isLambda) {
+            LambdaStmtNodeTest.checkTestFilterLexemExpression(res.block)
+        } else {
+            BlockStmtNodeTest.checkTestExpression(res.block)
         }
 
         Assertions.assertEquals(text.length, parser.reader.currentPosition(), "The parser did not advance the cursor")

@@ -17,7 +17,7 @@ internal class QuantifiedGroupLexemeNodeTest {
 
     companion object {
         const val testExpression =
-                "${QuantifiedGroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.patternToken}${QuantifiedGroupLexemeNode.endToken}"
+                "${QuantifiedGroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.patternToken}${QuantifiedGroupLexemeNode.endToken}"
 
         @JvmStatic
         private fun provideNodes(): Stream<Arguments> {
@@ -26,7 +26,7 @@ internal class QuantifiedGroupLexemeNodeTest {
                     for (hasMainModifier in listOf(false, true)) {
                         for (hasModifiers in listOf(false, true)) {
                             for (patternCount in 1..3) {
-                                val list = List(patternCount) { LexemPatternContentNodeTest.testExpression }
+                                val list = List(patternCount) { LexemePatternContentNodeTest.testExpression }
                                 var text = list.joinToString("") {
                                     if (hasModifiers) {
                                         "$it${QuantifiedGroupLexemeNode.patternToken}${QuantifierLexemeNodeTest.testExpression}"
@@ -94,7 +94,7 @@ internal class QuantifiedGroupLexemeNodeTest {
             Assertions.assertEquals(1, node.patterns.size, "The number of patterns is incorrect")
 
             node.patterns.forEach {
-                LexemPatternContentNodeTest.checkTestExpression(it)
+                LexemePatternContentNodeTest.checkTestExpression(it)
             }
 
             Assertions.assertEquals(1, node.modifiers.size, "The number of modifiers is incorrect")
@@ -132,7 +132,7 @@ internal class QuantifiedGroupLexemeNodeTest {
         Assertions.assertEquals(patternCount, res.patterns.size, "The number of patterns is incorrect")
 
         res.patterns.forEach {
-            LexemPatternContentNodeTest.checkTestExpression(it)
+            LexemePatternContentNodeTest.checkTestExpression(it)
         }
 
         Assertions.assertEquals(patternCount, res.modifiers.size, "The number of modifiers is incorrect")
@@ -152,7 +152,7 @@ internal class QuantifiedGroupLexemeNodeTest {
     fun `parse incorrect node without pattern token after token`() {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifiedGroupPatternWithoutLexemes) {
             val text =
-                    "${QuantifiedGroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.endToken}"
+                    "${QuantifiedGroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
             QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
@@ -164,7 +164,7 @@ internal class QuantifiedGroupLexemeNodeTest {
     fun `parse incorrect node without end token`() {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifiedGroupWithoutEndToken) {
             val text =
-                    "${QuantifiedGroupLexemeNode.startToken}${LexemPatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.patternToken}"
+                    "${QuantifiedGroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.patternToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
             QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)

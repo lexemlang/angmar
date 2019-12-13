@@ -129,6 +129,7 @@ enum class AngmarParserExceptionType {
     // FUNCTIONAL > STATEMENTS ------------------------------------------------
 
     BlockStatementWithoutEndToken,
+    LambdaStatementWithoutExpression,
     ConditionalStatementWithoutCondition,
     ConditionalStatementWithoutThenBlock,
     ConditionalStatementWithoutElseBlock,
