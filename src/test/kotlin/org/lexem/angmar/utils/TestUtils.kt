@@ -185,8 +185,8 @@ object TestUtils {
      */
     internal fun processAndCheckEmpty(analyzer: LexemAnalyzer, text: IReader = IOStringReader.from(""),
             status: LexemAnalyzer.ProcessStatus = LexemAnalyzer.ProcessStatus.Forward,
-            hasBacktrackingData: Boolean = false, bigNodeCount: Int = 1) {
-        val result = analyzer.start(text, timeoutInMilliseconds = 5 * 60 * 1000 /* 5 minutes */)
+            hasBacktrackingData: Boolean = false, bigNodeCount: Int = 1, entryPoint: String? = null) {
+        val result = analyzer.start(text, entryPoint, timeoutInMilliseconds = 5 * 60 * 1000 /* 5 minutes */)
 
         // Assert status of the analyzer.
         Assertions.assertEquals(status, analyzer.processStatus, "The status is incorrect")
@@ -277,7 +277,6 @@ object TestUtils {
         }
 
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenFileMap)
-        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.EntryPoint)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
         context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)

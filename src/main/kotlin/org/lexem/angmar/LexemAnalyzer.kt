@@ -38,8 +38,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
 
     var status = Status.Ended
         internal set
-    var entryPoint: String = Consts.defaultEntryPoint
-        private set
+    var entryPoint = Consts.defaultEntryPoint
+        internal set
 
     init {
         val stdLibContext = LxmContext()
@@ -77,7 +77,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Starts a new analysis.
      */
-    fun start(text: IReader, timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
+    fun start(text: IReader, entryPoint: String? = null,
+            timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         // Init state
         this.text = text
         memory.clear()
@@ -102,9 +103,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         // Set the main file path.
         rootFilePath = grammarRootNode.parser.reader.getSource()
 
-        // Set the entry point.
-        val context = AnalyzerCommons.getCurrentContext(memory)
-        context.setProperty(memory, AnalyzerCommons.Identifiers.EntryPoint, LxmString.from(entryPoint))
+        // Set the entry point. It will be added to the context in AnalyzerCommons.createAndAssignNewModuleContext.
+        this.entryPoint = entryPoint ?: Consts.defaultEntryPoint
 
         // Set the return code point.
         memory.addToStack(AnalyzerCommons.Identifiers.ReturnCodePoint, LxmNil)

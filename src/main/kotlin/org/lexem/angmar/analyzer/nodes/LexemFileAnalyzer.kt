@@ -20,7 +20,7 @@ internal object LexemFileAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate a new module context.
-                AnalyzerCommons.createAndAssignNewModuleContext(analyzer.memory, node.parser.reader.getSource())
+                AnalyzerCommons.createAndAssignNewModuleContext(analyzer, node.parser.reader.getSource())
 
                 if (node.statements.isNotEmpty()) {
                     return analyzer.nextNode(node.statements[0])

@@ -17,10 +17,6 @@ internal object Consts {
         const val errorIdTitle = "ERID"
     }
 
-    object Files {
-        const val outputFileJsonExtension = ".json"
-    }
-
     object Memory {
         const val minimumFreeSpace = 20.0
         const val garbageThresholdIncrement = 2.0
@@ -33,7 +29,6 @@ internal object Consts {
 
     object Float {
         const val exponentialDefaultPrecision = 5
-        const val exponentialDefaultFixed = 5
         const val maxStepsDuringToString = 7
     }
 }
