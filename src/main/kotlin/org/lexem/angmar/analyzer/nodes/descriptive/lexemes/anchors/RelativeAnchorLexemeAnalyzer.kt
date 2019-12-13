@@ -80,6 +80,8 @@ internal object RelativeAnchorLexemeAnalyzer {
                                 else -> throw AngmarUnreachableException()
                             }
 
+                            analyzer.memory.addToStackAsLast(LxmNil)
+
                             return analyzer.nextNode(node.parent, node.parentSignal)
                         }
 
@@ -104,6 +106,8 @@ internal object RelativeAnchorLexemeAnalyzer {
                         return analyzer.nextNode(node.elements.first())
                     }
                 }
+
+                analyzer.memory.addToStackAsLast(LxmNil)
             }
             in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -144,6 +148,8 @@ internal object RelativeAnchorLexemeAnalyzer {
                         return analyzer.initBacktracking()
                     }
                 }
+
+                analyzer.memory.addToStackAsLast(LxmNil)
             }
             signalBadEnd -> {
                 // Skip

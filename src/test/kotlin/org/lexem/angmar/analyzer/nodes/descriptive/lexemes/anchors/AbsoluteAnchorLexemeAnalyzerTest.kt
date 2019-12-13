@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
+import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.descriptive.lexemes.anchors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -23,7 +24,11 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -87,7 +92,11 @@ internal class AbsoluteAnchorLexemeAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

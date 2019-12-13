@@ -65,6 +65,8 @@ internal object AbsoluteAnchorLexemeAnalyzer {
                         return analyzer.initBacktracking()
                     }
                 }
+
+                analyzer.memory.addToStackAsLast(LxmNil)
             }
             signalBadEnd -> {
                 // Skip

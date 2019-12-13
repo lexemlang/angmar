@@ -93,6 +93,11 @@ internal class RelativeAnchorLexemeAnalyzerTest {
 
         if (isOk xor isNegated) {
             TestUtils.processAndCheckEmpty(analyzer, textReader)
+
+            Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
         } else {
             TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                     bigNodeCount = 0)
@@ -140,6 +145,11 @@ internal class RelativeAnchorLexemeAnalyzerTest {
 
         if (isOk xor isNegated) {
             TestUtils.processAndCheckEmpty(analyzer, textReader)
+
+            Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
         } else {
             TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                     bigNodeCount = 0)
@@ -189,6 +199,11 @@ internal class RelativeAnchorLexemeAnalyzerTest {
 
         if (isOk xor isNegated) {
             TestUtils.processAndCheckEmpty(analyzer, textReader)
+
+            Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+            // Remove Last from the stack.
+            analyzer.memory.removeLastFromStack()
         } else {
             TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                     bigNodeCount = 0)
@@ -219,7 +234,11 @@ internal class RelativeAnchorLexemeAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }
@@ -294,7 +313,11 @@ internal class RelativeAnchorLexemeAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
+        Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")
         Assertions.assertEquals(initialPosition, textReader.currentPosition(), "The anchor has moved the cursor")
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }
