@@ -62,7 +62,9 @@ internal class AngmarCommandTest {
             TestUtils.callAngmar(arrayOf(mainUrl.canonicalPath, textUrl.canonicalPath)) { stdOut, errOut ->
                 println(stdOut)
                 Assertions.assertTrue(errOut.isEmpty(), "The error output must be empty")
-                Assertions.assertEquals("{\"${textUrl.canonicalPath}\":null}", stdOut, "The output is incorrect")
+                Assertions.assertEquals(
+                        "{\"${textUrl.canonicalPath}\":{\"from\":\"0\",\"to\":\"0\",\"content\":\"\",\"properties\":{},\"children\":[]}}",
+                        stdOut, "The output is incorrect")
             }
         }
 
