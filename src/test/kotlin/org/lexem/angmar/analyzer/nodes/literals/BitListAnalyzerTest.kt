@@ -18,8 +18,10 @@ internal class BitListAnalyzerTest {
         val resultValue = BitSet()
         resultValue[1] = true
         resultValue[2] = true
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(4, stackValue.primitive.size,
+                "The size property of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(resultValue, stackValue.primitive.content,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -39,8 +41,10 @@ internal class BitListAnalyzerTest {
         resultValue[2] = true
         resultValue[4] = true
         resultValue[5] = true
-        Assertions.assertEquals(6, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(6, stackValue.primitive.size,
+                "The size property of the value inserted in the stack is incorrect")
+        Assertions.assertEquals(resultValue, stackValue.primitive.content,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -64,9 +68,10 @@ internal class BitListAnalyzerTest {
         resultValue[9] = true
         resultValue[10] = true
         resultValue[11] = true
-        Assertions.assertEquals(12, stackValue.size,
+        Assertions.assertEquals(12, stackValue.primitive.size,
                 "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(resultValue, stackValue.primitive.content,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

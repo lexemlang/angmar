@@ -6,6 +6,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.config.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 import java.util.*
@@ -34,9 +35,9 @@ internal object BitListElementAnalyzer {
 
                 val result = when (node.radix) {
                     16 -> {
-                        val result = LxmBitList(prev.size + number.length * 4, bitSet)
-                        for (i in 0 until prev.size) {
-                            result.primitive[i] = prev.primitive[i]
+                        val result = LxmBitList(BitList(prev.primitive.size + number.length * 4, bitSet))
+                        for (i in 0 until prev.primitive.size) {
+                            result.primitive.content[i] = prev.primitive[i]
                         }
 
                         var index = 0
@@ -48,19 +49,19 @@ internal object BitListElementAnalyzer {
                             }
 
                             if (code.and(8) != 0) {
-                                bitSet[index + prev.size] = true
+                                bitSet[index + prev.primitive.size] = true
                             }
 
                             if (code.and(4) != 0) {
-                                bitSet[index + prev.size + 1] = true
+                                bitSet[index + prev.primitive.size + 1] = true
                             }
 
                             if (code.and(2) != 0) {
-                                bitSet[index + prev.size + 2] = true
+                                bitSet[index + prev.primitive.size + 2] = true
                             }
 
                             if (code.and(1) != 0) {
-                                bitSet[index + prev.size + 3] = true
+                                bitSet[index + prev.primitive.size + 3] = true
                             }
 
                             index += 4
@@ -69,9 +70,9 @@ internal object BitListElementAnalyzer {
                         result
                     }
                     8 -> {
-                        val result = LxmBitList(prev.size + number.length * 3, bitSet)
-                        for (i in 0 until prev.size) {
-                            result.primitive[i] = prev.primitive[i]
+                        val result = LxmBitList(BitList(prev.primitive.size + number.length * 3, bitSet))
+                        for (i in 0 until prev.primitive.size) {
+                            result.primitive.content[i] = prev.primitive[i]
                         }
 
                         var index = 0
@@ -79,15 +80,15 @@ internal object BitListElementAnalyzer {
                             val code = c - '0'
 
                             if (code.and(4) != 0) {
-                                bitSet[index + prev.size] = true
+                                bitSet[index + prev.primitive.size] = true
                             }
 
                             if (code.and(2) != 0) {
-                                bitSet[index + prev.size + 1] = true
+                                bitSet[index + prev.primitive.size + 1] = true
                             }
 
                             if (code.and(1) != 0) {
-                                bitSet[index + prev.size + 2] = true
+                                bitSet[index + prev.primitive.size + 2] = true
                             }
 
                             index += 3
@@ -96,15 +97,15 @@ internal object BitListElementAnalyzer {
                         result
                     }
                     2 -> {
-                        val result = LxmBitList(prev.size + number.length, bitSet)
-                        for (i in 0 until prev.size) {
-                            result.primitive[i] = prev.primitive[i]
+                        val result = LxmBitList(BitList(prev.primitive.size + number.length, bitSet))
+                        for (i in 0 until prev.primitive.size) {
+                            result.primitive.content[i] = prev.primitive[i]
                         }
 
                         var index = 0
                         for (c in number) {
                             if (c == '1') {
-                                bitSet[index + prev.size] = true
+                                bitSet[index + prev.primitive.size] = true
                             }
 
                             index += 1
@@ -137,17 +138,17 @@ internal object BitListElementAnalyzer {
                 // Add both.
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmBitList
 
-                val resultBitSet = BitSet(left.size + right.size)
+                val resultBitSet = BitSet(left.primitive.size + right.primitive.size)
 
-                for (i in 0 until left.size) {
+                for (i in 0 until left.primitive.size) {
                     resultBitSet[i] = left.primitive[i]
                 }
 
-                for (i in 0 until right.size) {
-                    resultBitSet[i + left.size] = right.primitive[i]
+                for (i in 0 until right.primitive.size) {
+                    resultBitSet[i + left.primitive.size] = right.primitive[i]
                 }
 
-                val result = LxmBitList(left.size + right.size, resultBitSet)
+                val result = LxmBitList(BitList(left.primitive.size + right.primitive.size, resultBitSet))
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, result)
 
                 // Remove Last from the stack.

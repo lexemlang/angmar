@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions.binary
 import org.junit.jupiter.api.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -26,8 +27,8 @@ internal class ShiftExpressionAnalyzerTest {
                 "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue.set(0)
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(BitList(4, resultValue), stackValue.primitive,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -52,8 +53,8 @@ internal class ShiftExpressionAnalyzerTest {
                 "The value of the stack must be a LxmBitList")
         val resultValue = BitSet()
         resultValue.set(3)
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(BitList(4, resultValue), stackValue.primitive,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -79,8 +80,8 @@ internal class ShiftExpressionAnalyzerTest {
         val resultValue = BitSet()
         resultValue[2] = true
         resultValue[3] = true
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(BitList(4, resultValue), stackValue.primitive,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -106,8 +107,8 @@ internal class ShiftExpressionAnalyzerTest {
         val resultValue = BitSet()
         resultValue[0] = true
         resultValue[1] = true
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(BitList(4, resultValue), stackValue.primitive,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

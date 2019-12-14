@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions
 import org.junit.jupiter.api.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -90,8 +91,8 @@ internal class PrefixOperatorAnalyzerTest {
         val resultValue = BitSet()
         resultValue[0] = true
         resultValue[3] = true
-        Assertions.assertEquals(4, stackValue.size, "The size property of the value inserted in the stack is incorrect")
-        Assertions.assertEquals(resultValue, stackValue.primitive, "The value inserted in the stack is incorrect")
+        Assertions.assertEquals(BitList(4, resultValue), stackValue.primitive,
+                "The value inserted in the stack is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
@@ -425,7 +426,8 @@ internal object AnalyzerCommons {
             IOStringReader.from(primitive.primitive)
         }
         is LxmBitList -> {
-            IOBinaryReader("", primitive.primitive, primitive.size)
+            val bitList = primitive.primitive
+            IOBinaryReader("", bitList.content, bitList.size)
         }
         else -> {
             throw AngmarException("Angmar only accept textual or binary readers.")
@@ -441,7 +443,7 @@ internal object AnalyzerCommons {
         }
         is IBinaryReader -> {
             val size = to.position() - from.position()
-            LxmBitList(size, reader.subSet(from as IBinaryReaderCursor, to as IBinaryReaderCursor))
+            LxmBitList(BitList(size, reader.subSet(from as IBinaryReaderCursor, to as IBinaryReaderCursor)))
         }
         else -> {
             throw AngmarException("Angmar only accept textual or binary readers.")

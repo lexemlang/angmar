@@ -4,13 +4,12 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.parser.literals.*
-import java.util.*
+import org.lexem.angmar.data.*
 
 /**
  * The Lexem values of the BitList type.
  */
-internal class LxmBitList(val size: Int, val primitive: BitSet) : LexemPrimitive {
+internal class LxmBitList(val primitive: BitList) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -23,66 +22,11 @@ internal class LxmBitList(val size: Int, val primitive: BitSet) : LexemPrimitive
 
     override fun toLexemString(memory: LexemMemory) = LxmString.from(toString())
 
-    override fun toString(): String {
-        val result = StringBuilder()
-        when {
-            size % 4 == 0 -> {
-                result.append(BitlistNode.hexadecimalPrefix)
-                result.append(BitlistNode.startToken)
-
-                for (i in 0 until size step 4) {
-                    var digit = 0
-
-                    for (j in 0 until 4) {
-                        digit = digit.shl(1)
-
-                        if (primitive[i + j]) {
-                            digit += 1
-                        }
-                    }
-
-                    result.append(digit.toString(16))
-                }
-            }
-            size % 3 == 0 -> {
-                result.append(BitlistNode.octalPrefix)
-                result.append(BitlistNode.startToken)
-
-                for (i in 0 until size step 3) {
-                    var digit = 0
-
-                    for (j in 0 until 3) {
-                        digit = digit.shl(1)
-
-                        if (primitive[i + j]) {
-                            digit += 1
-                        }
-                    }
-
-                    result.append(digit.toString(8))
-                }
-            }
-            else -> {
-                result.append(BitlistNode.binaryPrefix)
-                result.append(BitlistNode.startToken)
-
-                for (i in 0 until size) {
-                    result.append(if (primitive[i]) {
-                        '1'
-                    } else {
-                        '0'
-                    })
-                }
-            }
-        }
-
-        result.append(BitlistNode.endToken)
-        return result.toString()
-    }
+    override fun toString() = primitive.toString()
 
     // STATIC -----------------------------------------------------------------
 
     companion object {
-        val Empty = LxmBitList(0, BitSet())
+        val Empty = LxmBitList(BitList.Empty)
     }
 }

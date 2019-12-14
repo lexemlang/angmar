@@ -102,12 +102,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 }
 
                 val primitive = if (index.primitive < 0) {
-                    element.size + index.primitive
+                    element.primitive.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.size) {
+                if (primitive < 0 || primitive >= element.primitive.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive. Actual value: $element") {
                         val fullText = node.parser.reader.readAllText()
@@ -123,7 +123,7 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                LxmLogic.from(element.primitive[primitive])
+                LxmLogic.from(element.primitive[primitive] ?: false)
             }
             is LxmList -> {
                 if (index !is LxmInteger) {

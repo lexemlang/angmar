@@ -30,8 +30,8 @@ internal class BinarySequenceLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The returned value must be a LxmBitList")
         val (size, content) = binaryReader.readAllContent()
-        Assertions.assertEquals(size, result.size, "The returned value is incorrect")
-        Assertions.assertEquals(content, result.primitive, "The returned value is incorrect")
+        Assertions.assertEquals(size, result.primitive.size, "The returned value is incorrect")
+        Assertions.assertEquals(content, result.primitive.content, "The returned value is incorrect")
         Assertions.assertEquals(size, analyzer.text.currentPosition(), "The lexem has not consumed the bits")
 
         // Remove Last from the stack.
@@ -61,8 +61,8 @@ internal class BinarySequenceLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The returned value must be a LxmBitList")
         val (size, content) = IOBinaryReader.from(binarySequence).readAllContent()
-        Assertions.assertEquals(size, result.size, "The returned value is incorrect")
-        Assertions.assertEquals(content, result.primitive, "The returned value is incorrect")
+        Assertions.assertEquals(size, result.primitive.size, "The returned value is incorrect")
+        Assertions.assertEquals(content, result.primitive.content, "The returned value is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has not consumed the bits")
 
         // Remove Last from the stack.
@@ -92,8 +92,8 @@ internal class BinarySequenceLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The returned value must be a LxmBitList")
         val (size, content) = binaryReader.readAllContent()
-        Assertions.assertEquals(size, result.size, "The returned value is incorrect")
-        Assertions.assertEquals(content, result.primitive, "The returned value is incorrect")
+        Assertions.assertEquals(size, result.primitive.size, "The returned value is incorrect")
+        Assertions.assertEquals(content, result.primitive.content, "The returned value is incorrect")
         Assertions.assertEquals(size, analyzer.text.currentPosition(), "The lexem has not consumed the bits")
 
         // Remove Last from the stack.
@@ -125,8 +125,8 @@ internal class BinarySequenceLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw Error(
                 "The returned value must be a LxmBitList")
         val (size, content) = IOBinaryReader.from(binarySequence).readAllContent()
-        Assertions.assertEquals(size, result.size, "The returned value is incorrect")
-        Assertions.assertEquals(content, result.primitive, "The returned value is incorrect")
+        Assertions.assertEquals(size, result.primitive.size, "The returned value is incorrect")
+        Assertions.assertEquals(content, result.primitive.content, "The returned value is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has not consumed the bits")
 
         // Remove Last from the stack.

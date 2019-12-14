@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.stdlib.prototypes
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
@@ -19,15 +20,14 @@ internal class BitListPrototypeTest {
             set(4)
             set(6)
         }
-        val value = LxmBitList(setLength, set)
+        val value = LxmBitList(BitList(setLength, set))
         val resultValue = set.clone() as BitSet
         resultValue.flip(0, 8)
         val fnCall = "${PrefixOperatorNode.bitwiseNegationOperator}$value"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -40,15 +40,14 @@ internal class BitListPrototypeTest {
             set(4)
             set(6)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmLogic.False
         val resultValue = BitSet()
         val fnCall = "$value1${LogicalExpressionNode.andOperator}$value2"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -66,16 +65,16 @@ internal class BitListPrototypeTest {
             set(1)
             set(3)
         }
-        val value1 = LxmBitList(setLength1, set1)
-        val value2 = LxmBitList(setLength2, set2)
+        val value1 = LxmBitList(BitList(setLength1, set1))
+        val value2 = LxmBitList(BitList(setLength2, set2))
         val resultValue = set1.clone() as BitSet
         resultValue.and(set2)
         val fnCall = "$value1${LogicalExpressionNode.andOperator}$value2"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(maxOf(setLength1, setLength2), result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(maxOf(setLength1, setLength2), resultValue), result.primitive,
+                    "The result is incorrect")
         }
     }
 
@@ -88,7 +87,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(6)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmLogic.True
         val resultValue = BitSet().apply {
             set(0, 8)
@@ -97,8 +96,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -116,16 +114,16 @@ internal class BitListPrototypeTest {
             set(0)
             set(1)
         }
-        val value1 = LxmBitList(setLength1, set1)
-        val value2 = LxmBitList(setLength2, set2)
+        val value1 = LxmBitList(BitList(setLength1, set1))
+        val value2 = LxmBitList(BitList(setLength2, set2))
         val resultValue = set1.clone() as BitSet
         resultValue.or(set2)
         val fnCall = "$value1${LogicalExpressionNode.orOperator}$value2"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(maxOf(setLength1, setLength2), result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(maxOf(setLength1, setLength2), resultValue), result.primitive,
+                    "The result is incorrect")
         }
     }
 
@@ -138,7 +136,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(6)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmLogic.True
         val resultValue = set.clone() as BitSet
         resultValue.flip(0, 8)
@@ -146,8 +144,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -165,16 +162,16 @@ internal class BitListPrototypeTest {
             set(0)
             set(1)
         }
-        val value1 = LxmBitList(setLength1, set1)
-        val value2 = LxmBitList(setLength2, set2)
+        val value1 = LxmBitList(BitList(setLength1, set1))
+        val value2 = LxmBitList(BitList(setLength2, set2))
         val resultValue = set1.clone() as BitSet
         resultValue.xor(set2)
         val fnCall = "$value1${LogicalExpressionNode.xorOperator}$value2"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(maxOf(setLength1, setLength2), result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(maxOf(setLength1, setLength2), resultValue), result.primitive,
+                    "The result is incorrect")
         }
     }
 
@@ -187,7 +184,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(5)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmInteger.Num2
         val resultValue = BitSet().apply {
             set(1)
@@ -198,8 +195,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -214,7 +210,7 @@ internal class BitListPrototypeTest {
                 set(4)
                 set(5)
             }
-            val value1 = LxmBitList(setLength, set)
+            val value1 = LxmBitList(BitList(setLength, set))
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.leftShiftOperator}$value2"
 
@@ -232,7 +228,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(5)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmInteger.Num2
         val resultValue = BitSet().apply {
             set(2)
@@ -242,8 +238,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -258,7 +253,7 @@ internal class BitListPrototypeTest {
                 set(4)
                 set(5)
             }
-            val value1 = LxmBitList(setLength, set)
+            val value1 = LxmBitList(BitList(setLength, set))
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.rightShiftOperator}$value2"
 
@@ -276,7 +271,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(5)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmInteger.Num2
         val resultValue = BitSet().apply {
             set(1)
@@ -288,8 +283,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -304,7 +298,7 @@ internal class BitListPrototypeTest {
                 set(4)
                 set(5)
             }
-            val value1 = LxmBitList(setLength, set)
+            val value1 = LxmBitList(BitList(setLength, set))
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.leftRotationOperator}$value2"
 
@@ -322,7 +316,7 @@ internal class BitListPrototypeTest {
             set(4)
             set(5)
         }
-        val value1 = LxmBitList(setLength, set)
+        val value1 = LxmBitList(BitList(setLength, set))
         val value2 = LxmInteger.Num2
         val resultValue = BitSet().apply {
             set(2)
@@ -334,8 +328,7 @@ internal class BitListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             result as? LxmBitList ?: throw Error("The result must be LxmBitList")
-            Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
-            Assertions.assertEquals(setLength, result.size, "The length of the result is incorrect")
+            Assertions.assertEquals(BitList(setLength, resultValue), result.primitive, "The result is incorrect")
         }
     }
 
@@ -350,7 +343,7 @@ internal class BitListPrototypeTest {
                 set(4)
                 set(5)
             }
-            val value1 = LxmBitList(setLength, set)
+            val value1 = LxmBitList(BitList(setLength, set))
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.rightRotationOperator}$value2"
 

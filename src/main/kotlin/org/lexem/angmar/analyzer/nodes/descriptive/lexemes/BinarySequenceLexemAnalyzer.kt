@@ -52,7 +52,7 @@ internal object BinarySequenceLexemAnalyzer {
                     analyzer.text.back()
                 }
 
-                for (bit in (0 until bitSetPrimitive.size).map { bitSet[it] }) {
+                for (bit in (0 until bitSetPrimitive.primitive.size).map { bitSet[it] }) {
                     val bitText = reader.currentBit()
 
                     if (bitText == null || bitText != bit) {

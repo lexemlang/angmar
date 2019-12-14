@@ -8,8 +8,6 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
-import java.util.*
-import kotlin.math.*
 
 /**
  * Built-in prototype of the BitList object.
@@ -52,10 +50,7 @@ internal object BitListPrototype {
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
                     AnalyzerCommons.Operators.BitwiseNegation,
                     BitListType.TypeName) { _: LexemAnalyzer, thisValue: LxmBitList ->
-                val result = thisValue.primitive.clone() as BitSet
-                result.flip(0, thisValue.size)
-
-                LxmBitList(thisValue.size, result)
+                LxmBitList(!thisValue.primitive)
             }
 
     /**
@@ -67,20 +62,8 @@ internal object BitListPrototype {
                     AnalyzerCommons.Operators.LogicalAnd, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmLogic -> {
-                        if (right.primitive) {
-                            left
-                        } else {
-                            val result = left.primitive.clone() as BitSet
-                            result.clear()
-                            LxmBitList(left.size, result)
-                        }
-                    }
-                    is LxmBitList -> {
-                        val result = left.primitive.clone() as BitSet
-                        result.and(right.primitive)
-                        LxmBitList(max(left.size, right.size), result)
-                    }
+                    is LxmLogic -> LxmBitList(left.primitive.and(right.primitive))
+                    is LxmBitList -> LxmBitList(left.primitive.and(right.primitive))
                     else -> null
                 }
             }
@@ -94,20 +77,8 @@ internal object BitListPrototype {
                     AnalyzerCommons.Operators.LogicalOr, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmLogic -> {
-                        if (right.primitive) {
-                            val result = left.primitive.clone() as BitSet
-                            result.set(0, left.size)
-                            LxmBitList(left.size, result)
-                        } else {
-                            left
-                        }
-                    }
-                    is LxmBitList -> {
-                        val result = left.primitive.clone() as BitSet
-                        result.or(right.primitive)
-                        LxmBitList(max(left.size, right.size), result)
-                    }
+                    is LxmLogic -> LxmBitList(left.primitive.or(right.primitive))
+                    is LxmBitList -> LxmBitList(left.primitive.or(right.primitive))
                     else -> null
                 }
             }
@@ -121,20 +92,8 @@ internal object BitListPrototype {
                     AnalyzerCommons.Operators.LogicalXor, BitListType.TypeName, listOf(BitListType.TypeName,
                     LogicType.TypeName)) { _: LexemAnalyzer, left: LxmBitList, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmLogic -> {
-                        if (right.primitive) {
-                            val result = left.primitive.clone() as BitSet
-                            result.flip(0, left.size)
-                            LxmBitList(left.size, result)
-                        } else {
-                            left
-                        }
-                    }
-                    is LxmBitList -> {
-                        val result = left.primitive.clone() as BitSet
-                        result.xor(right.primitive)
-                        LxmBitList(max(left.size, right.size), result)
-                    }
+                    is LxmLogic -> LxmBitList(left.primitive.xor(right.primitive))
+                    is LxmBitList -> LxmBitList(left.primitive.xor(right.primitive))
                     else -> null
                 }
             }
@@ -154,17 +113,7 @@ internal object BitListPrototype {
                                     "The ${AnalyzerCommons.Operators.LeftShift} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a positive ${IntegerType.TypeName}") {}
                         }
 
-                        if (left.size <= right.primitive) {
-                            return@executeBinaryOperator LxmBitList.Empty
-                        }
-
-                        val result = BitSet(left.size)
-
-                        for (i in right.primitive until left.size) {
-                            result[i - right.primitive] = left.primitive[i]
-                        }
-
-                        LxmBitList(left.size, result)
+                        LxmBitList(left.primitive.leftShift(right.primitive))
                     }
                     else -> null
                 }
@@ -185,13 +134,7 @@ internal object BitListPrototype {
                                     "The ${AnalyzerCommons.Operators.RightShift} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a positive ${IntegerType.TypeName}") {}
                         }
 
-                        val result = BitSet(left.size)
-
-                        for (i in 0 until left.size - right.primitive) {
-                            result[right.primitive + i] = left.primitive[i]
-                        }
-
-                        LxmBitList(left.size, result)
+                        LxmBitList(left.primitive.rightShift(right.primitive))
                     }
                     else -> null
                 }
@@ -212,24 +155,7 @@ internal object BitListPrototype {
                                     "The ${AnalyzerCommons.Operators.LeftRotate} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a positive ${IntegerType.TypeName}") {}
                         }
 
-                        val movement = right.primitive % left.size
-
-                        if (movement == 0) {
-                            return@executeBinaryOperator left
-                        }
-
-                        val result = BitSet(left.size)
-
-                        val end = left.size - movement
-                        for (i in 0 until end) {
-                            result[i] = left.primitive[i + movement]
-                        }
-
-                        for (i in end until left.size) {
-                            result[i] = left.primitive[i - end]
-                        }
-
-                        LxmBitList(left.size, result)
+                        LxmBitList(left.primitive.leftRotate(right.primitive))
                     }
                     else -> null
                 }
@@ -250,24 +176,7 @@ internal object BitListPrototype {
                                     "The ${AnalyzerCommons.Operators.RightRotate} method requires the parameter called '${AnalyzerCommons.Operators.RightParameterName}' be a positive ${IntegerType.TypeName}") {}
                         }
 
-                        val movement = right.primitive % left.size
-
-                        if (movement == 0) {
-                            return@executeBinaryOperator left
-                        }
-
-                        val result = BitSet(left.size)
-
-                        val start = left.size - movement
-                        for (i in start until left.size) {
-                            result[i - start] = left.primitive[i]
-                        }
-
-                        for (i in 0 until start) {
-                            result[i + movement] = left.primitive[i]
-                        }
-
-                        LxmBitList(left.size, result)
+                        LxmBitList(left.primitive.rightRotate(right.primitive))
                     }
                     else -> null
                 }
