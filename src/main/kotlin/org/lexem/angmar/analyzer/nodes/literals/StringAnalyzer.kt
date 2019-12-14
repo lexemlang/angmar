@@ -4,6 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.literals.*
 
 
@@ -32,12 +33,18 @@ internal object StringAnalyzer {
             in signalEndFirstEscape..signalEndFirstEscape + node.escapes.size -> {
                 val position = (signal - signalEndFirstEscape) + 1
 
-                // Combine the strings.
+                // Combine the strings depending on the type of escape.
                 val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
-                val escape = analyzer.memory.getLastFromStack() as LxmInteger
+                val concatenation = if (node.escapes[position - 1] is EscapedExpressionNode) {
+                    val escape = analyzer.memory.getLastFromStack() as LxmString
 
-                val concatenation = accumulator.primitive + Character.toChars(escape.primitive).joinToString(
-                        "") + node.texts[position]
+                    accumulator.primitive + escape.primitive + node.texts[position]
+                } else {
+                    val escape = analyzer.memory.getLastFromStack() as LxmInteger
+
+                    accumulator.primitive + Character.toChars(escape.primitive).joinToString("") + node.texts[position]
+                }
+                
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmString.from(concatenation))
 
                 // Remove Last from the stack.
