@@ -42,6 +42,12 @@ internal class FunctionParameterListAnalyzerTest {
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(param1Id, param2Id, AnalyzerCommons.Identifiers.This))
     }
 
@@ -75,6 +81,12 @@ internal class FunctionParameterListAnalyzerTest {
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(positionalSpreadId, AnalyzerCommons.Identifiers.This))
     }
 
@@ -107,6 +119,12 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
+
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(namedSpreadId, AnalyzerCommons.Identifiers.This))
     }
@@ -147,6 +165,12 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
+
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, positionalSpreadId, AnalyzerCommons.Identifiers.This))
@@ -190,6 +214,12 @@ internal class FunctionParameterListAnalyzerTest {
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, namedSpreadId, AnalyzerCommons.Identifiers.This))
     }
@@ -232,6 +262,12 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
+
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(positionalSpreadId, namedSpreadId, AnalyzerCommons.Identifiers.This))
@@ -281,6 +317,12 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
+
+        val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
+        Assertions.assertEquals(argumentsRef.position, finalArguments?.position, "The arguments are incorrect")
+
+        // Remove Arguments from the stack.
+        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(param1Id, param2Id, positionalSpreadId, namedSpreadId, AnalyzerCommons.Identifiers.This))

@@ -41,6 +41,9 @@ internal object OnBackBlockStmtAnalyzer {
                 return analyzer.nextNode(node.block)
             }
             signalEndParameters -> {
+                // Remove Arguments from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+
                 return analyzer.nextNode(node.block)
             }
             signalEndBlock -> {

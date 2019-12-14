@@ -101,6 +101,9 @@ internal object AnalyzerNodesCommons {
             }
             // Parse the arguments.
             signalEndParameterList -> {
+                // Remove Arguments from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+
                 return analyzer.nextNode(block)
             }
             // Finalize the calling.
@@ -261,6 +264,9 @@ internal object AnalyzerNodesCommons {
                 // Set the arguments.
                 arguments.mapArgumentsToContext(analyzer.memory, LxmParameters(), context)
 
+                // Move the properties of the arguments to the node.
+                descriptiveExecutionControllerMovePropertiesToNode(analyzer, node, arguments)
+
                 // Remove Arguments from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
@@ -291,6 +297,9 @@ internal object AnalyzerNodesCommons {
                         analyzer.memory) as LxmArguments
                 arguments.mapArgumentsToContext(analyzer.memory, LxmParameters(), context)
 
+                // Move the properties of the arguments to the node.
+                descriptiveExecutionControllerMovePropertiesToNode(analyzer, node, arguments)
+
                 // Remove Arguments from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
@@ -298,29 +307,14 @@ internal object AnalyzerNodesCommons {
             }
             // Parse the arguments.
             signalEndParameterList -> {
-                // Move the properties parameter to the node.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                val properties =
-                        context.getOwnPropertyDescriptor(analyzer.memory, AnalyzerCommons.Identifiers.Properties)
-                                ?.value?.dereference(analyzer.memory)
+                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
+                        analyzer.memory) as LxmArguments
 
-                if (properties != null) {
-                    if (properties !is LxmObject) {
-                        throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                                "The value of the '${AnalyzerCommons.Identifiers.Properties}' parameter inside an expression must always be of type ${ObjectType.TypeName}") {
-                            val fullText = node.parser.reader.readAllText()
-                            addSourceCode(fullText, node.parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(node.from.position(), node.to.position() - 1)
-                            }
-                        }
-                    }
+                // Move the properties of the arguments to the node.
+                descriptiveExecutionControllerMovePropertiesToNode(analyzer, node, arguments)
 
-                    val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
-                    for ((name, property) in properties.getAllIterableProperties()) {
-                        nodeProperties.setProperty(analyzer.memory, name, property.value)
-                    }
-                }
+                // Remove Arguments from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
 
                 return analyzer.nextNode(block)
             }
@@ -364,6 +358,9 @@ internal object AnalyzerNodesCommons {
         return analyzer.nextNode(node.parent, node.parentSignal)
     }
 
+    /**
+     * Process the final actions of the descriptive controller.
+     */
     private fun descriptiveExecutionControllerFinal(analyzer: LexemAnalyzer, node: ParserNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
 
@@ -516,6 +513,33 @@ internal object AnalyzerNodesCommons {
         }
 
         return analyzer.nextNode(lastCodePoint)
+    }
+
+    /**
+     * Moves the properties in the arguments to the node.
+     */
+    private fun descriptiveExecutionControllerMovePropertiesToNode(analyzer: LexemAnalyzer, node: ParserNode,
+            arguments: LxmArguments) {
+        val properties = arguments.getNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.Properties)
+                ?.dereference(analyzer.memory)
+
+        if (properties != null) {
+            if (properties !is LxmObject) {
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
+                        "The value of the '${AnalyzerCommons.Identifiers.Properties}' parameter inside an expression must always be of type ${ObjectType.TypeName}") {
+                    val fullText = node.parser.reader.readAllText()
+                    addSourceCode(fullText, node.parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(node.from.position(), node.to.position() - 1)
+                    }
+                }
+            }
+
+            val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+            for ((name, property) in properties.getAllIterableProperties()) {
+                nodeProperties.setProperty(analyzer.memory, name, property.value)
+            }
+        }
     }
 
     /**

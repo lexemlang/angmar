@@ -101,8 +101,7 @@ internal object FunctionParameterListAnalyzer {
             arguments.mapArgumentsToContext(analyzer.memory, parameters, context)
         }
 
-        // Remove Arguments and Parameters from the stack.
-        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Arguments)
+        // Remove Parameters from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Parameters)
     }
 }
