@@ -165,17 +165,27 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             val callHierarchy = AnalyzerCommons.getCallHierarchy(memory)
 
             if (callHierarchy.isNotEmpty()) {
-                e.logger.setStack {
-                    for (i in callHierarchy) {
-                        if (i.callerNode is InternalFunctionCallNode) {
-                            addStackTrace("<native code>") {
-                                methodName = i.callerContextName
+                e.logger.apply {
+                    setStack {
+                        for (i in callHierarchy) {
+                            if (i.callerNode is InternalFunctionCallNode) {
+                                addStackTrace("<native code>") {
+                                    methodName = i.callerContextName
+                                }
+                            } else {
+                                val (line, column) = i.callerNode.from.lineColumn()
+                                addStackTrace(i.callerNode.parser.reader.getSource(), line, column) {
+                                    methodName = i.callerContextName
+                                }
                             }
-                        } else {
-                            val (line, column) = i.callerNode.from.lineColumn()
-                            addStackTrace(i.callerNode.parser.reader.getSource(), line, column) {
-                                methodName = i.callerContextName
-                            }
+                        }
+                    }
+
+                    val txt = text
+                    if (txt is ITextReader) {
+                        addSourceCode(txt.readAllText(), txt.getSource()) {
+                            highlightCursorAt(txt.currentPosition())
+                            message = "Review at this point"
                         }
                     }
                 }

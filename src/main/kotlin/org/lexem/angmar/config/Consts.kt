@@ -17,7 +17,8 @@ internal object Consts {
     object Logger {
         const val codeTitle = "Code"
         const val hintTitle = "Hint"
-        const val errorIdTitle = "ERID"
+        const val tagTitle = "Tag"
+        const val errorIdTitle = "ERRID"
     }
 
     object Memory {
