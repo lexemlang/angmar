@@ -8,6 +8,7 @@ import com.google.gson.*
 import es.jtp.kterm.*
 import org.lexem.angmar.*
 import org.lexem.angmar.config.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
@@ -62,7 +63,11 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         var grammarRootNode: LexemFileNode? = null
 
         var time = TimeUtils.measureTimeSeconds {
-            grammarRootNode = LexemFileNode.parse(parser)
+            try {
+                grammarRootNode = LexemFileNode.parse(parser)
+            } catch (e: AngmarParserException) {
+                e.logMessage()
+            }
         }
 
         if (grammarRootNode == null) {
@@ -79,7 +84,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
 
         // Analyze each of the texts with the parsed grammar.
         val analyzer = LexemAnalyzer(grammarRootNode!!)
-        val results = mutableListOf<Pair<File, LexemMatch?>>()
+        val results = mutableListOf<Pair<File, JsonObject?>>()
 
         conditionalDebugLog(debug) {
             "Executing the analysis:"
@@ -103,13 +108,30 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                     } else {
                         timeout
                     }
-                    val result = if (analyzer.start(textReader, timeoutInMilliseconds = finalTimeout)) {
-                        analyzer.getResult()
-                    } else {
-                        null
-                    }
+                    try {
+                        val result = if (analyzer.start(textReader, timeoutInMilliseconds = finalTimeout)) {
+                            analyzer.getResult().toTree()
+                        } else {
+                            null
+                        }
 
-                    results.add(Pair(i.value, result))
+                        results.add(Pair(i.value, result))
+                    } catch (e: AngmarAnalyzerException) {
+                        if (e.type == AngmarAnalyzerExceptionType.CustomError) {
+                            e.logger.logAsWarn()
+
+                            val result = JsonObject()
+
+                            result.addProperty("isError", true)
+                            result.addProperty("type", "analyzer")
+                            result.addProperty("id", e.type.name)
+                            result.addProperty("message", e.logger.toString(LogLevel.Error))
+
+                            results.add(Pair(i.value, result))
+                        } else {
+                            throw e
+                        }
+                    }
                 }
 
                 conditionalDebugLog(debug) {
@@ -139,7 +161,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                 }
 
                 time = TimeUtils.measureTimeSeconds {
-                    printer.add(fileAndResults.first.canonicalPath, fileAndResults.second?.toTree())
+                    printer.add(fileAndResults.first.canonicalPath, fileAndResults.second)
                 }
 
                 conditionalDebugLog(debug) {
