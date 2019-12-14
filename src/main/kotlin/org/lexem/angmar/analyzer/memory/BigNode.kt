@@ -13,6 +13,8 @@ internal class BigNode constructor(val previousNode: BigNode?) {
         private set
     private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
     private val heap = mutableMapOf<Int, BigNodeCell>()
+    var garbageCollectorMark = false
+        private set
 
     /**
      * The number of levels in the current [BigNode]'s stack.
@@ -275,7 +277,7 @@ internal class BigNode constructor(val previousNode: BigNode?) {
         if (lastFreePosition == actualHeapSize) {
             // Execute the garbage collector to free space.
             if (actualHeapSize == garbageThreshold) {
-                memory.spatialGarbageCollect()
+                garbageCollectorMark = true
             }
 
             val cell = BigNodeCell.new(lastFreePosition, value)
@@ -436,5 +438,7 @@ internal class BigNode constructor(val previousNode: BigNode?) {
         if (freeSpacePercentage < Consts.Memory.minimumFreeSpace) {
             garbageThreshold = (garbageThreshold * Consts.Memory.garbageThresholdIncrement).toInt()
         }
+
+        garbageCollectorMark = false
     }
 }

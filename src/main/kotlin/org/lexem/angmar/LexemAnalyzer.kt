@@ -140,6 +140,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
                         }
 
                         nextNode!!.analyze(this, signal)
+
+                        // Execute the garbage collector if the memory has asked for.
+                        // Done here to prevent calling the garbage collector before
+                        // set all the references.
+                        if (memory.lastNode.garbageCollectorMark) {
+                            memory.spatialGarbageCollect()
+                        }
                     }
                     ProcessStatus.Backward -> {
                         memory.rollbackCopy()
