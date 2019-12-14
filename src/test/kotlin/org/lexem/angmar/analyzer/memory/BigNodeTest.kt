@@ -14,9 +14,10 @@ internal class BigNodeTest {
         // AUX METHODS --------------------------------------------------------
 
         // Checks the status of a BigNode.
-        private fun checkBigNode(bigNode: BigNode, prevNode: BigNode? = null, stackLevelSize: Int = 0,
-                actualStackLevelSize: Int = 0, stackSize: Int = 0, actualStackSize: Int = 0, heapSize: Int = 0,
-                actualHeapSize: Int = 0, actualUsedCellCount: Int? = null, lastFreePosition: Int? = null) {
+        private fun checkBigNode(bigNode: BigNode, prevNode: BigNode? = null, nextNode: BigNode? = null,
+                stackLevelSize: Int = 0, actualStackLevelSize: Int = 0, stackSize: Int = 0, actualStackSize: Int = 0,
+                heapSize: Int = 0, actualHeapSize: Int = 0, actualUsedCellCount: Int? = null,
+                lastFreePosition: Int? = null) {
             Assertions.assertEquals(stackSize, bigNode.stackSize, "The stackSize property is incorrect")
             Assertions.assertEquals(actualStackSize, bigNode.actualStackSize,
                     "The actualStackSize property is incorrect")
@@ -32,6 +33,7 @@ internal class BigNodeTest {
                     "The lastFreePosition property is incorrect")
 
             Assertions.assertEquals(prevNode, bigNode.previousNode, "The previousNode is incorrect")
+            Assertions.assertEquals(nextNode, bigNode.nextNode, "The nextNode is incorrect")
         }
     }
 
@@ -57,11 +59,15 @@ internal class BigNodeTest {
             cell.position
         }
 
-        val bigNode2 = BigNode(bigNode)
+        val bigNode2 = BigNode(bigNode, null)
+        bigNode.nextNode = bigNode2
         bigNode2.addToStack("last2", LxmNil, memory)
 
         checkBigNode(bigNode2, prevNode = bigNode, stackLevelSize = 1, actualStackLevelSize = 1, stackSize = 2,
                 actualStackSize = 2, lastFreePosition = lastFreePosition, actualHeapSize = 3, heapSize = 0,
+                actualUsedCellCount = 2)
+        checkBigNode(bigNode, nextNode = bigNode2, stackLevelSize = 1, actualStackLevelSize = 1, stackSize = 1,
+                actualStackSize = 1, lastFreePosition = lastFreePosition, actualHeapSize = 3, heapSize = 3,
                 actualUsedCellCount = 2)
     }
 
@@ -157,7 +163,8 @@ internal class BigNodeTest {
         checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 4, stackSize = 4)
 
         // Add new bigNode
-        val bigNodeNew = BigNode(bigNodeOld)
+        val bigNodeNew = BigNode(bigNodeOld, null)
+        bigNodeOld.nextNode = bigNodeNew
 
         // Get one
         var stackObj = bigNodeNew.getFromStack("a")
@@ -165,7 +172,8 @@ internal class BigNodeTest {
         Assertions.assertEquals(LxmInteger.Num2, stackObj, "The value of the stack is incorrect")
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 0,
                 actualStackSize = 4, stackSize = 0)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 4, stackSize = 4)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 2, stackLevelSize = 2,
+                actualStackSize = 4, stackSize = 4)
 
         // Remove one
         bigNodeNew.removeFromStack("a", memory)
@@ -174,14 +182,16 @@ internal class BigNodeTest {
         Assertions.assertEquals(LxmInteger.Num0, stackObj, "The value of the stack is incorrect")
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 1,
                 actualStackSize = 3, stackSize = 1)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 4, stackSize = 4)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 2, stackLevelSize = 2,
+                actualStackSize = 4, stackSize = 4)
 
         // Add some in new
         bigNodeNew.addToStack("b", LxmLogic.True, memory)
         bigNodeNew.addToStack("c", LxmLogic.False, memory)
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 3, stackLevelSize = 2,
                 actualStackSize = 5, stackSize = 3)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 4, stackSize = 4)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 2, stackLevelSize = 2,
+                actualStackSize = 4, stackSize = 4)
 
         // Remove all out of new
         bigNodeNew.removeFromStack("b", memory)
@@ -189,14 +199,15 @@ internal class BigNodeTest {
         bigNodeNew.removeFromStack("c", memory)
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 1, stackLevelSize = 0,
                 actualStackSize = 2, stackSize = 0)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 4, stackSize = 4)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 2, stackLevelSize = 2,
+                actualStackSize = 4, stackSize = 4)
 
         // Remove all out of old
         bigNodeOld.removeFromStack("a", memory)
         bigNodeOld.removeFromStack("a", memory)
         bigNodeOld.removeFromStack("b", memory)
         bigNodeOld.removeFromStack("b", memory)
-        checkBigNode(bigNodeOld)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew)
     }
 
     @Test
@@ -209,13 +220,15 @@ internal class BigNodeTest {
         checkBigNode(bigNodeOld, actualStackLevelSize = 1, stackLevelSize = 1, actualStackSize = 1, stackSize = 1)
 
         // Add new bigNode
-        val bigNodeNew = BigNode(bigNodeOld)
+        val bigNodeNew = BigNode(bigNodeOld, null)
+        bigNodeOld.nextNode = bigNodeNew
 
         // Add some in new
         bigNodeNew.addToStack("a", LxmLogic.True, memory)
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 1,
                 actualStackSize = 2, stackSize = 1)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 1, stackLevelSize = 1, actualStackSize = 1, stackSize = 1)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 1, stackLevelSize = 1,
+                actualStackSize = 1, stackSize = 1)
     }
 
     @Test
@@ -265,14 +278,16 @@ internal class BigNodeTest {
         Assertions.assertEquals(LxmInteger.Num1, b, "The b value is incorrect")
 
         // Add new bigNode
-        val bigNodeNew = BigNode(bigNodeOld)
+        val bigNodeNew = BigNode(bigNodeOld, null)
+        bigNodeOld.nextNode = bigNodeNew
 
         // Replace a and b
         bigNodeNew.replaceStackCell("a", LxmInteger.Num10, memory)
         bigNodeNew.replaceStackCell("b", LxmInteger.Num_1, memory)
         checkBigNode(bigNodeNew, prevNode = bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2,
                 actualStackSize = 3, stackSize = 3)
-        checkBigNode(bigNodeOld, actualStackLevelSize = 2, stackLevelSize = 2, actualStackSize = 3, stackSize = 3)
+        checkBigNode(bigNodeOld, nextNode = bigNodeNew, actualStackLevelSize = 2, stackLevelSize = 2,
+                actualStackSize = 3, stackSize = 3)
 
         a = bigNodeNew.getFromStack("a")
         b = bigNodeNew.getFromStack("b")
@@ -386,18 +401,19 @@ internal class BigNodeTest {
         checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
 
         // Add new bigNode
-        val newBigNode = BigNode(oldBigNode)
+        val newBigNode = BigNode(oldBigNode, null)
+        oldBigNode.nextNode = newBigNode
         val newObjects = List(size) { LxmList() }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, actualHeapSize = size)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Add cells
         for (i in newObjects.withIndex()) {
             newBigNode.alloc(memory, i.value)
 
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1 + size)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         // Get cells
@@ -405,16 +421,16 @@ internal class BigNodeTest {
             val cell = newBigNode.getCell(i.index)
 
             BigNodeCellTest.checkCell(cell, i.index, cell.value)
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size + i.index + 1, actualHeapSize = 2 * size)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         for (i in newObjects.withIndex()) {
             val cell = newBigNode.getCell(i.index + size)
 
             BigNodeCellTest.checkCell(cell, i.index + size, i.value)
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2 * size, actualHeapSize = 2 * size)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         // Set cells
@@ -422,8 +438,9 @@ internal class BigNodeTest {
         for (i in newObjects2.withIndex()) {
             newBigNode.setCell(i.index + size - 2, i.value)
 
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2 * size, actualHeapSize = 2 * size)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = minOf(size + i.index + 1, 2 * size - 2),
+                    actualHeapSize = 2 * size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
             val cell = newBigNode.getCell(i.index + size - 2)
 
@@ -435,7 +452,7 @@ internal class BigNodeTest {
             val cell = oldBigNode.getCell(i.index)
 
             BigNodeCellTest.checkCell(cell, i.index, i.value)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
     }
 
@@ -515,19 +532,19 @@ internal class BigNodeTest {
         val newObjects = List(size) { LxmList() }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, actualHeapSize = size)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Free two cells
         newBigNode.free(memory, size - 1)
         checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 1, actualHeapSize = size,
                 actualUsedCellCount = size - 1, lastFreePosition = size - 1)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         newBigNode.free(memory, size - 2)
 
         checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2, actualHeapSize = size,
                 actualUsedCellCount = size - 2, lastFreePosition = size - 2)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Add cells
         for (i in newObjects.withIndex().take(2)) {
@@ -535,14 +552,14 @@ internal class BigNodeTest {
 
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2, actualHeapSize = size,
                     actualUsedCellCount = size - 1 + i.index, lastFreePosition = i.index + 1 + size - 2)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         for (i in newObjects.withIndex().drop(2)) {
             newBigNode.alloc(memory, i.value)
 
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index - 1 + size)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         // Get cells
@@ -550,17 +567,16 @@ internal class BigNodeTest {
             val cell = newBigNode.getCell(i.index)
 
             BigNodeCellTest.checkCell(cell, i.index, cell.value)
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size + i.index + 1,
-                    actualHeapSize = 2 * size - 2)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size - 2)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         for (i in newObjects.withIndex()) {
             val cell = newBigNode.getCell(i.index + size - 2)
 
             BigNodeCellTest.checkCell(cell, i.index + size - 2, i.value)
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2 * size - 2, actualHeapSize = 2 * size - 2)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size - 2)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
 
         // Free all cells
@@ -570,14 +586,14 @@ internal class BigNodeTest {
 
         checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2 * size - 2, actualHeapSize = 2 * size - 2,
                 actualUsedCellCount = 0, lastFreePosition = 2 * size - 3)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Get all cells from old
         for (i in oldObjects.withIndex()) {
             val cell = oldBigNode.getCell(i.index)
 
             BigNodeCellTest.checkCell(cell, i.index, i.value)
-            checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
     }
 
@@ -632,7 +648,8 @@ internal class BigNodeTest {
         // Collapse
         bigNode.collapseTo(oldBigNode)
 
-        checkBigNode(oldBigNode, stackLevelSize = 2, actualStackLevelSize = 2, stackSize = 4, actualStackSize = 4)
+        checkBigNode(oldBigNode, nextNode = oldBigNode2, stackLevelSize = 2, actualStackLevelSize = 2, stackSize = 4,
+                actualStackSize = 4)
 
         Assertions.assertEquals(oldBigNode.getFromStack("a"), primitive2, "The stack['a'] is incorrect")
         Assertions.assertEquals(oldBigNode.getFromStack("b"), primitive3, "The stack['b'] is incorrect")
@@ -709,8 +726,9 @@ internal class BigNodeTest {
         Assertions.assertEquals(oldBigNode.getCell(cell5).value, BigNodeCell.EmptyCell, "The heap[5] is incorrect")
 
         // Check all nodes are correct and destroyed.
-        checkBigNode(oldBigNode, heapSize = 6, actualHeapSize = 6, actualUsedCellCount = 3, lastFreePosition = cell5)
-        checkBigNode(oldBigNode2, prevNode = oldBigNode)
+        checkBigNode(oldBigNode, nextNode = oldBigNode2, heapSize = 6, actualHeapSize = 6, actualUsedCellCount = 3,
+                lastFreePosition = cell5)
+        checkBigNode(oldBigNode2, prevNode = oldBigNode, nextNode = bigNode)
         checkBigNode(bigNode, prevNode = oldBigNode2)
     }
 
@@ -764,13 +782,14 @@ internal class BigNodeTest {
                 stackSize = 1, actualStackSize = 1)
 
         // Add new bigNode
-        val newBigNode = BigNode(oldBigNode)
+        val newBigNode = BigNode(oldBigNode, null)
+        oldBigNode.nextNode = newBigNode
         val newObjects = List(size) { LxmList() }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, stackLevelSize = 0, actualStackLevelSize = 1,
                 actualHeapSize = size, actualStackSize = 1)
-        checkBigNode(oldBigNode, heapSize = size, stackLevelSize = 1, actualStackLevelSize = 1, actualHeapSize = size,
-                stackSize = 1, actualStackSize = 1)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, stackLevelSize = 1, actualStackLevelSize = 1,
+                actualHeapSize = size, stackSize = 1, actualStackSize = 1)
 
         // Add cells and stack
         for (i in newObjects.withIndex()) {
@@ -778,21 +797,22 @@ internal class BigNodeTest {
 
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, stackLevelSize = 0,
                     actualStackLevelSize = 1, actualHeapSize = i.index + 1 + size, actualStackSize = 1)
-            checkBigNode(oldBigNode, heapSize = size, stackLevelSize = 1, actualStackLevelSize = 1,
-                    actualHeapSize = size, stackSize = 1, actualStackSize = 1)
+            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, stackLevelSize = 1,
+                    actualStackLevelSize = 1, actualHeapSize = size, stackSize = 1, actualStackSize = 1)
         }
 
         newBigNode.addToStack(stackName, LxmString.Nil, memory)
 
         checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size, stackLevelSize = 1,
                 actualStackLevelSize = 2, stackSize = 1, actualStackSize = 2)
-        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size, stackLevelSize = 1, actualStackLevelSize = 1,
-                stackSize = 1, actualStackSize = 1)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size, stackLevelSize = 1,
+                actualStackLevelSize = 1, stackSize = 1, actualStackSize = 1)
 
         // Remove all elements
         newBigNode.destroy()
+        oldBigNode.nextNode = null
 
-        checkBigNode(newBigNode, prevNode = oldBigNode)
+        checkBigNode(newBigNode)
         checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size, stackLevelSize = 1, actualStackLevelSize = 1,
                 stackSize = 1, actualStackSize = 1)
     }

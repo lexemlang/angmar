@@ -25,6 +25,7 @@ internal object Consts {
         const val minimumFreeSpace = 20.0
         const val garbageThresholdIncrement = 2.0
         const val maxPoolSize = 50
+        const val maxDistanceToShift = 5
     }
 
     object Analyzer {

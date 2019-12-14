@@ -12,7 +12,8 @@ internal class LexemMemory {
     var isInGarbageCollectionMode = false
         private set
 
-    var lastNode = BigNode(null)
+    val firstNode = BigNode(previousNode = null, nextNode = null)
+    var lastNode = firstNode
         private set
 
     // METHODS ----------------------------------------------------------------
@@ -115,12 +116,12 @@ internal class LexemMemory {
     fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
         // Increases the new reference.
         if (newValue is LxmReference) {
-            lastNode.getCell(newValue.position).increaseReferences()
+            lastNode.getCell(newValue.position, forceShift = true).increaseReferences()
         }
 
         // Removes the previous reference.
         if (oldValue is LxmReference) {
-            lastNode.getCell(oldValue.position).decreaseReferences(this)
+            lastNode.getCell(oldValue.position, forceShift = true).decreaseReferences(this)
         }
     }
 
@@ -128,13 +129,9 @@ internal class LexemMemory {
      * Clears the memory.
      */
     fun clear() {
-        var node = lastNode
-        while (node.previousNode != null) {
-            node.destroy()
-            node = node.previousNode!!
-        }
-
-        lastNode = node
+        firstNode.nextNode?.destroy()
+        firstNode.nextNode = null
+        lastNode = firstNode
     }
 
     /**
@@ -142,7 +139,8 @@ internal class LexemMemory {
      */
     fun freezeCopy(): BigNode {
         val res = lastNode
-        lastNode = BigNode(lastNode)
+        lastNode = BigNode(previousNode = lastNode, nextNode = null)
+        res.nextNode = lastNode
         return res
     }
 
@@ -151,13 +149,14 @@ internal class LexemMemory {
      */
     fun rollbackCopy() {
         // Prevents the deletion if it is the root node.
-        if (lastNode.previousNode == null) {
+        if (lastNode == firstNode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FirstBigNodeRollback,
                     "The memory cannot rollback the first BigNode") {}
         }
 
         val nodeToRemove = lastNode
         lastNode = lastNode.previousNode!!
+        lastNode.nextNode = null
 
         nodeToRemove.destroy()
     }
@@ -166,16 +165,9 @@ internal class LexemMemory {
      * Restores the specified copy, removing all changes since then.
      */
     fun restoreCopy(bigNode: BigNode) {
-        while (lastNode.previousNode != null && lastNode != bigNode) {
-            val nodeToRemove = lastNode
-            lastNode = lastNode.previousNode!!
-            nodeToRemove.destroy()
-        }
-
-        if (lastNode.previousNode == null) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BigNodeDoesNotBelongToMemoryChain,
-                    "The specified bigNode does not belong to this memory chain") {}
-        }
+        bigNode.nextNode?.destroy()
+        bigNode.nextNode = null
+        lastNode = bigNode
     }
 
     /**
