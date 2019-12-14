@@ -26,7 +26,7 @@ internal object DebugGlobalObject {
 
     // Method arguments
     private val LogArgs = listOf("message", "tag")
-    private val ThrowArgs = listOf("message")
+    private val ThrowArgs = LogArgs
 
     // METHODS ----------------------------------------------------------------
 
@@ -93,7 +93,7 @@ internal object DebugGlobalObject {
 
                 Logger("$result") {
                     if (tag != null) {
-                        addNote(Consts.Logger.errorIdTitle, tag.primitive)
+                        addNote(Consts.Logger.tagTitle, tag.primitive)
                     }
                 }.logAsInfo()
 
@@ -110,24 +110,36 @@ internal object DebugGlobalObject {
      */
     private fun throwFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
+        val parsedArguments =
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
+                        ThrowArgs)
+
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val parsedArguments =
-                        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                                ThrowArgs)
+                val message = parsedArguments[ThrowArgs[0]]!!
+                val tag = parsedArguments[ThrowArgs[1]]!!
+
+                if (tag != LxmNil && tag !is LxmString) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
+                            "The '$ObjectName${AccessExplicitMemberNode.accessToken}$Throw' method requires the parameter called '${ThrowArgs[1]}' be a ${StringType.TypeName}") {}
+                }
 
                 // Calls toString.
-                val message = parsedArguments[ThrowArgs[0]]!!
-                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Throw)
+                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Log)
 
                 return false
             }
             else -> {
+                val tag = parsedArguments[ThrowArgs[1]] as? LxmString
                 val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
                         "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {}
 
-                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CustomError, "$result") {}
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CustomError, "$result") {
+                    if (tag != null) {
+                        addNote(Consts.Logger.tagTitle, tag.primitive)
+                    }
+                }
             }
         }
     }

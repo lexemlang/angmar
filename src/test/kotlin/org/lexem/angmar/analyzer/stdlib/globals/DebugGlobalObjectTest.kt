@@ -101,6 +101,26 @@ internal class DebugGlobalObjectTest {
     }
 
     @Test
+    fun `test throw with tag`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CustomError) {
+            val value = "this is a test"
+            val tag = "tag"
+            val fnCall =
+                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
+            val fnArgs =
+                    "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
+            val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
+            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
+                LexemFileNode.parse(parser)
+            }
+
+            TestUtils.processAndCheckEmpty(analyzer)
+
+            TestUtils.checkEmptyStackAndContext(analyzer)
+        }
+    }
+
+    @Test
     @Incorrect
     fun `test log with incorrect tag type`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
