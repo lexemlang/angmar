@@ -98,10 +98,15 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
 
                     analyzer.setEntryPoint(entryPoint)
 
-                    val result = if (analyzer.start(textReader, timeoutInMilliseconds = timeout)) {
-                        null
+                    val finalTimeout = if (debug) {
+                        Consts.Analyzer.defaultTestTimeoutInMilliseconds
                     } else {
+                        timeout
+                    }
+                    val result = if (analyzer.start(textReader, timeoutInMilliseconds = finalTimeout)) {
                         analyzer.getResult()
+                    } else {
+                        null
                     }
 
                     results.add(Pair(i.value, result))

@@ -63,7 +63,7 @@ internal class AngmarCommandTest {
                 println(stdOut)
                 Assertions.assertTrue(errOut.isEmpty(), "The error output must be empty")
                 Assertions.assertEquals(
-                        "{\"${textUrl.canonicalPath}\":{\"from\":\"0\",\"to\":\"0\",\"content\":\"\",\"properties\":{},\"children\":[]}}",
+                        "{\"${textUrl.canonicalPath}\":{\"name\":\"root\",\"from\":\"0\",\"to\":\"0\",\"properties\":{}}}",
                         stdOut, "The output is incorrect")
             }
         }

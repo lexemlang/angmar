@@ -4,9 +4,11 @@ package org.lexem.angmar.config
  * Constants of the project.
  */
 internal object Consts {
+    // Flag to specify the system is under test.
+    const val debug = false
+
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
-    const val debug = false
 
     object Commands {
         const val parser = "angmar"
@@ -25,7 +27,8 @@ internal object Consts {
     }
 
     object Analyzer {
-        const val defaultTimeoutInMilliseconds = 20000L // 20 seconds
+        const val defaultTimeoutInMilliseconds = 60000L // 60 seconds
+        const val defaultTestTimeoutInMilliseconds = 300000L // 5 minutes
     }
 
     object Float {

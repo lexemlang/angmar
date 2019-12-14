@@ -1,5 +1,6 @@
 package org.lexem.angmar
 
+import es.jtp.kterm.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
@@ -119,7 +120,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         val timeout = OffsetDateTime.now().plusNanos(timeoutInMilliseconds * 1000000)
         var ticks = 0L
-        
+
         try {
             loop@ while (true) {
                 ticks += 1L
@@ -181,11 +182,15 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             }
 
             if (Consts.debug) {
-                throw Exception("Debug error at $ticks ticks", e)
+                e.logger.cause = Logger("Debug error at $ticks ticks", e)
             }
 
             throw e
         }
+
+        // Finish the root node.
+        val rootNode = getRootNode()!!
+        rootNode.setTo(memory, text.saveCursor())
 
         status = Status.Ended
         return true
