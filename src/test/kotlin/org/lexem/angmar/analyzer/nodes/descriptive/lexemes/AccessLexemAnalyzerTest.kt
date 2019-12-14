@@ -7,9 +7,11 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
+import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.descriptive.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
 import org.lexem.angmar.parser.descriptive.statements.*
+import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.macros.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -100,6 +102,62 @@ internal class AccessLexemAnalyzerTest {
                 "${ExpressionStmtNode.keyword} $expressionName${FunctionParameterListNode.startToken}${FunctionParameterListNode.endToken}${BlockStmtNode.startToken} $pattern ${BlockStmtNode.endToken}"
         val lexeme =
                 "$variableName ${AnyLexemeNode.dataCapturingRelationalToken} $expressionName${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
+        val grammar =
+                "${BlockStmtNode.startToken}$expression \n ${LexemePatternNode.patternToken} $lexeme${BlockStmtNode.endToken}"
+        val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = BlockStmtNode.Companion::parse,
+                isDescriptiveCode = true)
+        val textReader = IOStringReader.from(text)
+
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
+
+        TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
+
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
+        val result = resultRef.dereference(analyzer.memory) as? LxmNode ?: throw Error("The result must be a LxmNode")
+        val resultParent = result.getParent(analyzer.memory)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+
+        Assertions.assertEquals(expressionName, result.name, "The name property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(text.length, result.getTo(analyzer.memory)!!.primitive.position(),
+                "The to property is incorrect")
+        Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
+        Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
+        Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
+                "The parent child[0] is incorrect")
+        Assertions.assertEquals(textReader, analyzer.text, "The text has changed")
+        Assertions.assertEquals(text.length, analyzer.text.currentPosition(),
+                "The lexem has not consumed the characters")
+
+        // Remove the function cyclic reference.
+        analyzer.memory.spatialGarbageCollect(forced = true)
+
+        removeNode(analyzer)
+
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+    }
+
+    @Test
+    fun `test call expression - with properties`() {
+        val text = "this is a test"
+        val textVariable = "text"
+        val variableName = "test"
+        val expressionName = "expr"
+        val pattern =
+                "${LexemePatternNode.patternToken}${LexemePatternNode.staticTypeToken} ${StringNode.startToken}${EscapedExpressionNode.startToken}${AnalyzerCommons.Identifiers.Node}${AccessExplicitMemberNode.accessToken}${AnalyzerCommons.Identifiers.Properties}${AccessExplicitMemberNode.accessToken}$textVariable${EscapedExpressionNode.endToken}${StringNode.endToken}"
+        val expression =
+                "${ExpressionStmtNode.keyword} $expressionName${FunctionParameterListNode.startToken}${FunctionParameterListNode.endToken}${BlockStmtNode.startToken} $pattern ${BlockStmtNode.endToken}"
+        val properties =
+                "${PropertyStyleObjectBlockNode.startToken}${PropertyStyleObjectBlockNode.setToken}$textVariable${ParenthesisExpressionNode.startToken}${StringNode.startToken}$text${StringNode.endToken}${ParenthesisExpressionNode.endToken}${PropertyStyleObjectBlockNode.endToken}"
+        val lexeme =
+                "$variableName ${AnyLexemeNode.dataCapturingRelationalToken} $expressionName${FunctionCallNode.startToken}${FunctionCallNode.endToken}${FunctionCallExpressionPropertiesNode.relationalToken}$properties"
         val grammar =
                 "${BlockStmtNode.startToken}$expression \n ${LexemePatternNode.patternToken} $lexeme${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = BlockStmtNode.Companion::parse,

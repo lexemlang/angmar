@@ -4,6 +4,8 @@ import com.google.gson.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.io.printer.*
 
 /**
@@ -11,10 +13,33 @@ import org.lexem.angmar.io.printer.*
  */
 class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : JsonSerializable {
     val text = analyzer.text
+    val name = node.name
     val from = node.getFrom(analyzer.memory).primitive
     val to = node.getTo(analyzer.memory)!!.primitive
     val children = node.getChildrenAsList(analyzer.memory).map { position ->
         LexemMatch(analyzer, position.dereference(analyzer.memory) as LxmNode)
+    }
+    val properties: Map<String, Any>
+
+    init {
+        val result = mutableMapOf<String, Any>()
+        node.getProperties(analyzer.memory).getAllIterableProperties().forEach { (key, property) ->
+            val res: Any? = when (val value = property.value) {
+                is LxmLogic -> value.primitive
+                is LxmInteger -> value.primitive
+                is LxmFloat -> value.primitive
+                is LxmString -> value.primitive
+                is LxmBitList -> value.primitive
+                is LxmInterval -> value.primitive
+                else -> null
+            }
+
+            if (res != null) {
+                result[key] = res
+            }
+        }
+
+        properties = result
     }
 
     // METHODS ----------------------------------------------------------------
@@ -32,15 +57,65 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : 
         }
     }
 
+    /**
+     * Map the properties to a a tree.
+     */
+    private fun propertiesToTree(): JsonObject {
+        val result = JsonObject()
+
+        for ((key, value) in properties) {
+            val property = JsonObject()
+            result.add(key, property)
+
+            when (value) {
+                is Boolean -> {
+                    property.addProperty("type", LogicType.TypeName)
+                    property.addProperty("value", value)
+                }
+                is Int -> {
+                    property.addProperty("type", IntegerType.TypeName)
+                    property.addProperty("value", value)
+                }
+                is Float -> {
+                    property.addProperty("type", FloatType.TypeName)
+                    property.addProperty("value", value)
+                }
+                is String -> {
+                    property.addProperty("type", StringType.TypeName)
+                    property.addProperty("value", value)
+                }
+                is BitList -> {
+                    property.addProperty("type", BitListType.TypeName)
+                    property.addProperty("value", value.toString())
+                }
+                is IntegerInterval -> {
+                    property.addProperty("type", IntervalType.TypeName)
+                    property.addProperty("value", value.toHexString())
+                }
+            }
+        }
+
+        return result
+    }
+
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun toTree(): JsonObject {
-        val result = super.toTree()
+        val result = JsonObject()
 
+        result.addProperty("name", name)
         result.addProperty("from", from.position().toString())
         result.addProperty("to", to.position().toString())
-        result.addProperty("content", getContent().toString())
-        result.add("children", SerializationUtils.listToTest(children))
+
+        val properties = propertiesToTree()
+        if (properties.size() != 0) {
+            result.add("properties", properties)
+        }
+
+        val list = SerializationUtils.listToTest(children)
+        if (list.size() != 0) {
+            result.add("children", list)
+        }
 
         return result
     }

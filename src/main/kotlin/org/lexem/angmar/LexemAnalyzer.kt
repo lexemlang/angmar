@@ -219,7 +219,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         }
 
         // Return the correct result.
-        val rootNode = getRootNode()
+        val rootNode = getRootNode() ?: LxmNode(AnalyzerCommons.Identifiers.Root, initialCursor, null, memory)
+        rootNode.setTo(memory, initialCursor)
 
         return LexemMatch(this, rootNode)
     }
@@ -297,9 +298,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Gets the root [LxmNode] object.
      */
-    private fun getRootNode(): LxmNode {
+    private fun getRootNode(): LxmNode? {
         val analyzerObject = AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, AnalyzerGlobalObject.ObjectName)
-        return analyzerObject.getDereferencedProperty(memory, AnalyzerGlobalObject.RootNode)!!
+        return analyzerObject.getDereferencedProperty(memory, AnalyzerGlobalObject.RootNode)
     }
 
     /**
