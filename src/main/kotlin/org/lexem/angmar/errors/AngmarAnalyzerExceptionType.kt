@@ -24,10 +24,15 @@ enum class AngmarAnalyzerExceptionType {
     StackNotFoundElement,
 
     HeapSegmentationFault,
+    HeapBigNodeLinkFault,
     ReferencedHeapCellFreed,
     ReferenceCountUnderflow,
 
     FirstBigNodeRollback,
+    NonRecoverableNodeRollback,
+
+    LastBigNodeTemporalGarbageCollection,
+    CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
 
     // NUMBERS ----------------------------------------------------------------
 

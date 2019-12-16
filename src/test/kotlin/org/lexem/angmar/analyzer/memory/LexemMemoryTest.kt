@@ -239,12 +239,13 @@ internal class LexemMemoryTest {
         }
 
         memory.freezeCopy()
+        val obj1 = LxmObject(memory)
 
         for (i in size + 1..2 * size) {
-            val reference = memory.add(obj)
+            val reference = memory.add(obj1)
             val res = memory.get(reference, toWrite = false)
             Assertions.assertEquals(i, reference.position, "The position is incorrect")
-            Assertions.assertEquals(obj, res, "The value of the memory is incorrect")
+            Assertions.assertEquals(obj1, res, "The value of the memory is incorrect")
         }
 
         // Remove lasts in the second
@@ -273,7 +274,6 @@ internal class LexemMemoryTest {
     fun `test clear`() {
         val memory = TestUtils.generateTestMemory()
         val obj = LxmObject(memory)
-        val emptyList = LxmList(memory)
 
         for (i in 0..size) {
             val reference = memory.add(obj)
@@ -284,6 +284,7 @@ internal class LexemMemoryTest {
 
         memory.clear()
 
+        val emptyList = LxmList(memory)
         val reference = memory.add(emptyList)
         Assertions.assertEquals(0, reference.position, "The memory is not empty")
     }
@@ -292,7 +293,6 @@ internal class LexemMemoryTest {
     fun `test clear recursively`() {
         val memory = TestUtils.generateTestMemory()
         val obj = LxmObject(memory)
-        val emptyList = LxmList(memory)
 
         for (i in 0..size) {
             val reference = memory.add(obj)
@@ -303,15 +303,18 @@ internal class LexemMemoryTest {
 
         memory.freezeCopy()
 
+        val obj1 = LxmObject(memory)
+
         for (i in size + 1..2 * size) {
-            val reference = memory.add(obj)
+            val reference = memory.add(obj1)
             val res = memory.get(reference, toWrite = false)
             Assertions.assertEquals(i, reference.position, "The position is incorrect")
-            Assertions.assertEquals(obj, res, "The value of the memory is incorrect")
+            Assertions.assertEquals(obj1, res, "The value of the memory is incorrect")
         }
 
         memory.clear()
 
+        val emptyList = LxmList(memory)
         val reference = memory.add(emptyList)
         Assertions.assertEquals(0, reference.position, "The memory is not empty")
     }
@@ -319,13 +322,15 @@ internal class LexemMemoryTest {
     @Test
     fun `test freezeCopy and rollbackCopy`() {
         val memory = TestUtils.generateTestMemory()
-        val emptyList = LxmList(memory)
         val object1 = LxmObject(memory)
-        val object2 = LxmObject(memory)
         val reference1 = memory.add(object1)
 
         memory.freezeCopy()
+        memory.lastNode.isRecoverable = false
 
+        memory.freezeCopy()
+
+        val object2 = LxmObject(memory)
         val reference2 = memory.add(object2)
 
         Assertions.assertNotEquals(LxmNil, reference1, "The value of the memory is incorrect")
@@ -337,6 +342,7 @@ internal class LexemMemoryTest {
         Assertions.assertEquals(object1, memory.get(reference1, toWrite = false),
                 "The value of the memory is incorrect")
 
+        val emptyList = LxmList(memory)
         val reference = memory.add(emptyList)
         Assertions.assertEquals(reference2.position, reference.position, "The memory has not rollback correctly")
     }
@@ -354,18 +360,17 @@ internal class LexemMemoryTest {
     @Test
     fun `test freezeCopy and restoreCopy`() {
         val memory = TestUtils.generateTestMemory()
-        val emptyList = LxmList(memory)
         val object1 = LxmObject(memory)
-        val object2 = LxmObject(memory)
-        val object3 = LxmObject(memory)
         val reference1 = memory.add(object1)
 
         val bigNode1 = memory.freezeCopy()
 
+        val object2 = LxmObject(memory)
         val reference2 = memory.add(object2)
 
         memory.freezeCopy()
 
+        val object3 = LxmObject(memory)
         val reference3 = memory.add(object3)
 
         Assertions.assertNotEquals(LxmNil, reference1, "The value of the memory is incorrect")
@@ -378,6 +383,7 @@ internal class LexemMemoryTest {
         Assertions.assertEquals(object1, memory.get(reference1, toWrite = false),
                 "The value of the memory is incorrect")
 
+        val emptyList = LxmList(memory)
         val reference = memory.add(emptyList)
         Assertions.assertEquals(reference2.position, reference.position, "The memory has not rollback correctly")
     }
@@ -386,7 +392,6 @@ internal class LexemMemoryTest {
     fun `test shift empty cell`() {
         val memory = TestUtils.generateTestMemory()
         val object1 = LxmObject(memory)
-        val object2 = LxmObject(memory)
 
         // Previous big node.
         val reference1 = memory.add(object1)
@@ -395,6 +400,7 @@ internal class LexemMemoryTest {
         memory.freezeCopy()
 
         // New big node.
+        val object2 = LxmObject(memory)
         val reference2 = memory.add(object2)
 
         Assertions.assertEquals(reference1.position, reference2.position, "The position property is incorrect")
@@ -402,59 +408,128 @@ internal class LexemMemoryTest {
 
     @Test
     fun `test collapseTo`() {
-        val memory = TestUtils.generateTestMemoryFromAnalyzer()
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-        val oldBigNode = memory.lastNode
+        val memory = TestUtils.generateTestMemory()
+        val bigNode1 = memory.lastNode
 
-        // Add values to heap
-        var obj0 = LxmObject(memory)
-        obj0.setProperty(memory, "x", LxmString.Empty)
-        var obj1 = LxmList(memory)
-        obj1.addCell(memory, LxmInteger.Num0)
+        // Add values to heap.
+        val obj0 = LxmObject(memory)
+        val obj1 = LxmList(memory)
         val obj2 = LxmObject(memory)
 
-        val ref0 = memory.add(obj0)
+        memory.add(obj0)
         val ref1 = memory.add(obj1)
-        val ref2 = memory.add(obj2)
-
-        context.setProperty(memory, "ori", ref0)
+        memory.add(obj2)
 
         memory.freezeCopy()
+        val bigNode2 = memory.lastNode
 
 
-        // Add values to heap
-        obj1 = ref1.dereferenceAs(memory, toWrite = true)!!
-        obj1.addCell(memory, LxmInteger.Num10)
-        var obj3 = LxmObject(memory)
+        // Add values to heap.
+        ref1.dereference(memory, toWrite = true)
+        val obj3 = LxmObject(memory)
         val obj4 = LxmObject(memory)
         val obj5 = LxmObject(memory)
 
-        val ref3 = memory.add(obj3)
+        memory.add(obj3)
         val ref4 = memory.add(obj4)
-        val ref5 = memory.add(obj5)
+        memory.add(obj5)
 
         memory.remove(ref4)
 
-
         memory.freezeCopy()
+        val bigNode3 = memory.lastNode
 
-        obj0 = ref0.dereferenceAs(memory, toWrite = true)!!
-        obj0.setProperty(memory, "y", ref3)
-        obj3 = ref3.dereferenceAs(memory, toWrite = true)!!
-        memory.remove(ref2)
-        memory.remove(ref5)
 
         // Collapse
-        memory.collapseTo(oldBigNode, forceGarbageCollection = true)
+        memory.collapseTo(bigNode1)
+        val bigNode4 = memory.lastNode
 
-        // The spatial garbage collector removes those elements that are not
-        // referenced.
-        Assertions.assertEquals(obj0, memory.get(ref0, toWrite = false), "The heap[0] is incorrect")
-        Assertions.assertNull(memory.get(ref1, toWrite = false), "The heap[1] is incorrect")
-        Assertions.assertNull(memory.get(ref2, toWrite = false), "The heap[2] is incorrect")
-        Assertions.assertEquals(obj3, memory.get(ref3, toWrite = false), "The heap[3] is incorrect")
-        Assertions.assertNull(memory.get(ref4, toWrite = false), "The heap[4] is incorrect")
-        Assertions.assertNull(memory.get(ref5, toWrite = false), "The heap[5] is incorrect")
+
+        Assertions.assertNotEquals(bigNode4, bigNode3, "bigNode3 and bigNode4 cannot be equals")
+        Assertions.assertTrue(bigNode4.isRecoverable, "The bigNode4 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode3.isRecoverable, "The bigNode3 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode2.isRecoverable, "The bigNode2 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode1.isRecoverable, "The bigNode1 isRecoverable property is incorrect")
+
+        val totalCount = bigNode1.heapSize + bigNode2.heapSize + bigNode3.heapSize
+        Assertions.assertEquals(totalCount, bigNode4.temporalGarbageCollectorCount,
+                "The bigNode4 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode3.temporalGarbageCollectorCount,
+                "The bigNode3 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode2.temporalGarbageCollectorCount,
+                "The bigNode2 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode1.temporalGarbageCollectorCount,
+                "The temporalGarbageCollectorCount isRecoverable property is incorrect")
+    }
+
+
+    @Test
+    fun `test collapseTo - nested`() {
+        val memory = TestUtils.generateTestMemory()
+        val bigNode1 = memory.lastNode
+
+        // Add values to heap.
+        val obj0 = LxmObject(memory)
+        val obj1 = LxmList(memory)
+        val obj2 = LxmObject(memory)
+
+        memory.add(obj0)
+        val ref1 = memory.add(obj1)
+        memory.add(obj2)
+
+        memory.freezeCopy()
+        val bigNode2 = memory.lastNode
+
+
+        // Add values to heap.
+        ref1.dereference(memory, toWrite = true)
+        val obj3 = LxmObject(memory)
+        val obj4 = LxmObject(memory)
+        val obj5 = LxmObject(memory)
+
+        memory.add(obj3)
+        val ref4 = memory.add(obj4)
+        memory.add(obj5)
+
+        memory.remove(ref4)
+
+        memory.freezeCopy()
+        val bigNode3 = memory.lastNode
+
+
+        // Collapse
+        memory.collapseTo(bigNode2)
+        val bigNode4 = memory.lastNode
+        val obj6 = LxmObject(memory)
+        val obj7 = LxmObject(memory)
+
+        memory.add(obj6)
+        memory.add(obj7)
+
+
+        // Collapse
+        memory.collapseTo(bigNode1)
+        val bigNode5 = memory.lastNode
+
+        Assertions.assertNotEquals(bigNode5, bigNode4, "bigNode3 and bigNode5 cannot be equals")
+        Assertions.assertTrue(bigNode5.isRecoverable, "The bigNode5 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode4.isRecoverable, "The bigNode4 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode3.isRecoverable, "The bigNode3 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode2.isRecoverable, "The bigNode2 isRecoverable property is incorrect")
+        Assertions.assertFalse(bigNode1.isRecoverable, "The bigNode1 isRecoverable property is incorrect")
+
+        val totalCountFor4 = bigNode2.heapSize + bigNode3.heapSize
+        val totalCountFor5 = bigNode1.heapSize + totalCountFor4 + bigNode4.heapSize
+        Assertions.assertEquals(totalCountFor5, bigNode5.temporalGarbageCollectorCount,
+                "The bigNode5 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(totalCountFor4, bigNode4.temporalGarbageCollectorCount,
+                "The bigNode4 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode3.temporalGarbageCollectorCount,
+                "The bigNode3 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode2.temporalGarbageCollectorCount,
+                "The bigNode2 temporalGarbageCollectorCount property is incorrect")
+        Assertions.assertEquals(0, bigNode1.temporalGarbageCollectorCount,
+                "The temporalGarbageCollectorCount isRecoverable property is incorrect")
     }
 
     @Test
@@ -649,5 +724,92 @@ internal class LexemMemoryTest {
                 "The cell[3] property is incorrect")
         Assertions.assertTrue(memory.lastNode.getCell(memory, reference4.position).isFreed,
                 "The cell[4] property is incorrect")
+    }
+
+    @Test
+    fun `test temporalGarbageCollect - two groups with gap`() {
+        val memory = TestUtils.generateTestMemory()
+        val bigNode1 = memory.lastNode
+
+        // Add values to heap.
+        val obj0 = LxmObject(memory)
+        val obj1 = LxmList(memory)
+        val obj2 = LxmObject(memory)
+
+        memory.add(obj0)
+        val ref1 = memory.add(obj1)
+        memory.add(obj2)
+
+        memory.freezeCopy()
+        val bigNode2 = memory.lastNode
+
+
+        // Add values to heap.
+        ref1.dereference(memory, toWrite = true)
+        val obj3 = LxmObject(memory)
+        val obj4 = LxmObject(memory)
+        val obj5 = LxmObject(memory)
+
+        memory.add(obj3)
+        val ref4 = memory.add(obj4)
+        memory.add(obj5)
+
+        memory.remove(ref4)
+
+        // Collapse
+        memory.collapseTo(bigNode1)
+        val bigNode3 = memory.lastNode
+
+
+        // Add values to heap.
+        memory.freezeCopy()
+        val bigNode4 = memory.lastNode
+        val obj6 = LxmObject(memory)
+        val obj7 = LxmObject(memory)
+
+        memory.add(obj6)
+        memory.add(obj7)
+
+
+        // Add values to heap.
+        memory.freezeCopy()
+        val bigNode5 = memory.lastNode
+        val obj8 = LxmObject(memory)
+        val obj9 = LxmObject(memory)
+
+        memory.add(obj8)
+        memory.add(obj9)
+
+        // Collapse
+        memory.collapseTo(bigNode4)
+        val bigNode6 = memory.lastNode
+
+        memory.temporalGarbageCollect()
+
+        // Check isRecoverable and count.
+        var count = 0
+        var node: BigNode? = memory.lastNode
+        while (node != null) {
+            Assertions.assertTrue(node.isRecoverable, "The node[$count] isRecoverable property is incorrect")
+            Assertions.assertEquals(0, node.temporalGarbageCollectorCount,
+                    "The node[$count] temporalGarbageCollectorCount property is incorrect")
+            count += 1
+
+            when (count) {
+                1 -> {
+                    Assertions.assertEquals(4, node.heapSize, "The heapSize property is incorrect")
+                }
+                2 -> {
+                    Assertions.assertEquals(6, node.heapSize, "The heapSize property is incorrect")
+                }
+                else -> {
+                    Assertions.assertEquals(0, node.heapSize, "The heapSize property is incorrect")
+                }
+            }
+
+            node = node.previousNode
+        }
+        Assertions.assertEquals(3, count, "The number of bigNodes is incorrect")
+
     }
 }

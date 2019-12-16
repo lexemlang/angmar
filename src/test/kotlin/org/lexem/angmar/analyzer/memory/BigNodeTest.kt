@@ -400,9 +400,9 @@ internal class BigNodeTest {
 
         checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
 
-        // Add new bigNode
-        val newBigNode = BigNode(oldBigNode, null)
-        oldBigNode.nextNode = newBigNode
+        // Add new bigNode.
+        memory.freezeCopy()
+        val newBigNode = memory.lastNode
         val newObjects = List(size) { LxmList(memory) }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, actualHeapSize = size)
@@ -598,145 +598,6 @@ internal class BigNodeTest {
     }
 
     @Test
-    fun `test collapseTo only stack`() {
-        val memory = LexemMemory()
-        val oldBigNode = memory.lastNode
-
-        checkBigNode(oldBigNode)
-
-        // Add values to stack
-        val primitive0 = LxmInteger.Num1
-        val primitive1 = LxmNil
-        var primitive2 = LxmLogic.False
-
-        oldBigNode.addToStack("a", primitive0, memory)
-        oldBigNode.addToStack("b", primitive1, memory)
-        oldBigNode.addToStack("a", primitive2, memory)
-
-        checkBigNode(oldBigNode, stackLevelSize = 2, actualStackLevelSize = 2, stackSize = 3, actualStackSize = 3)
-
-
-        memory.freezeCopy()
-
-
-        // Add values to stack
-        val oldBigNode2 = memory.lastNode
-
-        primitive2 = LxmLogic.True
-        val primitive3 = LxmInteger.Num2
-        val primitive4 = LxmString.Empty
-
-        oldBigNode2.replaceStackCell("a", primitive2, memory)
-        oldBigNode2.addToStack("b", primitive3, memory)
-        oldBigNode2.addToStack("c", primitive4, memory)
-
-        checkBigNode(oldBigNode2, prevNode = oldBigNode, stackLevelSize = 1, actualStackLevelSize = 2, stackSize = 3,
-                actualStackSize = 5)
-
-
-        memory.freezeCopy()
-
-
-        // Add values to stack
-        val bigNode = memory.lastNode
-
-        bigNode.removeFromStack("c", memory)
-
-        checkBigNode(bigNode, prevNode = oldBigNode2, stackLevelSize = 1, actualStackLevelSize = 2, stackSize = 2,
-                actualStackSize = 4)
-
-        // Collapse
-        oldBigNode.nextNode!!.previousNode = null
-        bigNode.collapseTo(oldBigNode)
-
-        checkBigNode(bigNode)
-        checkBigNode(oldBigNode2)
-        checkBigNode(oldBigNode, nextNode = oldBigNode2, stackLevelSize = 2, actualStackLevelSize = 2, stackSize = 4,
-                actualStackSize = 4)
-
-        Assertions.assertEquals(oldBigNode.getFromStack("a"), primitive2, "The stack['a'] is incorrect")
-        Assertions.assertEquals(oldBigNode.getFromStack("b"), primitive3, "The stack['b'] is incorrect")
-        try {
-            oldBigNode.getFromStack("c")
-            throw Error("The c value cannot exist.")
-        } catch (e: AngmarAnalyzerException) {
-        }
-    }
-
-    @Test
-    fun `test collapseTo heap and stack`() {
-        val memory = LexemMemory()
-        val oldBigNode = memory.lastNode
-
-        checkBigNode(oldBigNode)
-
-        // Add values to heap
-        val obj0 = LxmObject(memory)
-        obj0.setProperty(memory, "x", LxmString.Empty)
-        var obj1 = LxmList(memory)
-        obj1.addCell(memory, LxmInteger.Num0)
-        val obj2 = LxmObject(memory)
-
-        val cell0 = oldBigNode.alloc(memory, obj0).position
-        val cell1 = oldBigNode.alloc(memory, obj1).position
-        val cell2 = oldBigNode.alloc(memory, obj2).position
-
-        checkBigNode(oldBigNode, heapSize = 3, actualHeapSize = 3)
-
-
-        memory.freezeCopy()
-
-
-        // Add values to heap
-        val oldBigNode2 = memory.lastNode
-
-        obj1 = oldBigNode2.getCell(memory, cell1, forceShift = true).value as LxmList
-        obj1.addCell(memory, LxmInteger.Num10)
-        val obj3 = LxmObject(memory)
-        val obj4 = LxmObject(memory)
-        val obj5 = LxmObject(memory)
-
-        val cell3 = oldBigNode2.alloc(memory, obj3).position
-        val cell4 = oldBigNode2.alloc(memory, obj4).position
-        val cell5 = oldBigNode2.alloc(memory, obj5).position
-
-        oldBigNode2.free(memory, cell4)
-
-        checkBigNode(oldBigNode2, prevNode = oldBigNode, heapSize = 4, actualHeapSize = 6, actualUsedCellCount = 5,
-                lastFreePosition = cell4)
-
-
-        memory.freezeCopy()
-
-
-        // Add values to heap
-        val bigNode = memory.lastNode
-
-        bigNode.free(memory, cell2)
-        bigNode.free(memory, cell5)
-
-        checkBigNode(bigNode, prevNode = oldBigNode2, heapSize = 2, actualHeapSize = 6, actualUsedCellCount = 3,
-                lastFreePosition = cell5)
-
-        // Collapse
-        oldBigNode.nextNode!!.previousNode = null
-        bigNode.collapseTo(oldBigNode)
-
-        // Check all nodes are correct and destroyed.
-        checkBigNode(bigNode)
-        checkBigNode(oldBigNode2)
-        checkBigNode(oldBigNode, nextNode = oldBigNode2, heapSize = 6, actualHeapSize = 6, actualUsedCellCount = 3,
-                lastFreePosition = cell5)
-
-        Assertions.assertEquals(obj0, oldBigNode.getCell(memory, cell0).value, "The heap[0] is incorrect")
-        Assertions.assertEquals(obj1, oldBigNode.getCell(memory, cell1).value, "The heap[1] is incorrect")
-        Assertions.assertNull(oldBigNode.getCell(memory, cell2).value, "The heap[2] is incorrect")
-        Assertions.assertEquals(obj3, oldBigNode.getCell(memory, cell3).value, "The heap[3] is incorrect")
-        Assertions.assertNull(oldBigNode.getCell(memory, cell4).value, "The heap[4] is incorrect")
-        Assertions.assertNull(oldBigNode.getCell(memory, cell5).value, "The heap[5] is incorrect")
-    }
-
-    @Test
     fun `test destroy`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
@@ -786,8 +647,8 @@ internal class BigNodeTest {
                 stackSize = 1, actualStackSize = 1)
 
         // Add new bigNode
-        val newBigNode = BigNode(oldBigNode, null)
-        oldBigNode.nextNode = newBigNode
+        memory.freezeCopy()
+        val newBigNode = memory.lastNode
         val newObjects = List(size) { LxmList(memory) }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, stackLevelSize = 0, actualStackLevelSize = 1,

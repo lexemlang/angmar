@@ -27,6 +27,7 @@ internal object Consts {
         const val maxDistanceToShift = 5
         const val spatialGarbageCollectorInitialThreshold = 1000
         const val spatialGarbageCollectorThresholdIncrement = 2.0
+        const val temporalGarbageCollectorThreshold = 15000
     }
 
     object Analyzer {
