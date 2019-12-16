@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of a Map iterator.
@@ -28,8 +29,9 @@ internal class LxmMapIterator : LexemIterator {
         size = values.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldIterator: LxmMapIterator) : super(memory, oldIterator) {
-        this.size = oldIterator.size
+    private constructor(memory: LexemMemory, oldVersion: LxmMapIterator, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        this.size = oldVersion.size
     }
     // METHODS ----------------------------------------------------------------
 
@@ -62,7 +64,8 @@ internal class LxmMapIterator : LexemIterator {
         return Pair(currentKey, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) = LxmMapIterator(memory, this)
+    override fun clone(memory: LexemMemory) = LxmMapIterator(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - MAP] ${super.toString()}"
 }

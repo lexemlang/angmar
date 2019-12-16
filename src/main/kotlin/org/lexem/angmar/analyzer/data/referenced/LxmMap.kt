@@ -6,16 +6,22 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
 /**
  * The Lexem value of the Map type.
  */
-internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemReferenced(memory) {
-    var isConstant: Boolean = oldMap?.isConstant ?: false
+internal class LxmMap(memory: LexemMemory, val oldVersion: LxmMap? = null, toClone: Boolean = false) :
+        LexemReferenced(memory) {
+    var isConstant: Boolean = oldVersion?.isConstant ?: false
         private set
-    private var properties = mutableMapOf<Int, MutableList<LxmMapProperty>>()
+    private var properties: MutableMap<Int, MutableList<LxmMapProperty>> = if (toClone) {
+        oldVersion!!.properties.mapValues { (_, list) -> list.map { it.clone(memory) }.toMutableList() }.toMutableMap()
+    } else {
+        mutableMapOf()
+    }
 
     // METHODS ----------------------------------------------------------------
 
@@ -55,7 +61,7 @@ internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemRe
 
         val keyHash = key.getHashCode(memory)
         val currentProperty = getOwnPropertyDescriptorInCurrent(key, keyHash)
-        val lastProperty = oldMap?.getOwnPropertyDescriptor(key, keyHash)
+        val lastProperty = oldVersion?.getOwnPropertyDescriptor(key, keyHash)
 
         when {
             // No property
@@ -106,7 +112,7 @@ internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemRe
 
         val keyHash = key.getHashCode(memory)
         val currentProperty = getOwnPropertyDescriptorInCurrent(key, keyHash)
-        val lastProperty = oldMap?.getOwnPropertyDescriptor(key, keyHash)
+        val lastProperty = oldVersion?.getOwnPropertyDescriptor(key, keyHash)
 
         when {
             // Current property
@@ -165,7 +171,7 @@ internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemRe
      * Gets the property descriptor of the specified property.
      */
     private fun getOwnPropertyDescriptor(key: LexemPrimitive, hash: Int): LxmMapProperty? =
-            getOwnPropertyDescriptorInCurrent(key, hash) ?: oldMap?.getOwnPropertyDescriptor(key, hash)
+            getOwnPropertyDescriptorInCurrent(key, hash) ?: oldVersion?.getOwnPropertyDescriptor(key, hash)
 
     /**
      * Gets the size of the map.
@@ -186,7 +192,7 @@ internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemRe
                 }
             }
 
-            currentObject = currentObject.oldMap
+            currentObject = currentObject.oldVersion
         }
 
         return result.map { it.value.size }.sum()
@@ -211,16 +217,24 @@ internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemRe
                 }
             }
 
-            currentObject = currentObject.oldMap
+            currentObject = currentObject.oldVersion
         }
 
         return result.mapValues { it.value.filter { !it.isRemoved } }
     }
 
+    /**
+     * Counts the number of old versions of this map.
+     */
+    private fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+
     // OVERRIDE METHODS -------------------------------------------------------
 
-
-    override fun clone(memory: LexemMemory) = LxmMap(memory, this)
+    override fun clone(memory: LexemMemory) = if (isConstant) {
+        this
+    } else {
+        LxmMap(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    }
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in this.properties) {

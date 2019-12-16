@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
@@ -12,7 +13,7 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the Object type.
  */
 internal open class LxmObject : LexemReferenced {
-    val oldObject: LxmObject?
+    val oldVersion: LxmObject?
     val prototypeReference: LxmReference?
     var isConstant = false
         private set
@@ -20,17 +21,27 @@ internal open class LxmObject : LexemReferenced {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, oldObject: LxmObject) : super(memory) {
-        this.oldObject = oldObject
-        prototypeReference = oldObject.prototypeReference
-        isConstant = oldObject.isConstant
+    constructor(memory: LexemMemory, oldVersion: LxmObject, toClone: Boolean = false) : super(memory) {
+        if (toClone) {
+            this.oldVersion = null
+            prototypeReference = oldVersion.prototypeReference
+            isConstant = oldVersion.isConstant
+
+            for ((key, property) in properties) {
+                properties[key] = property.clone()
+            }
+        } else {
+            this.oldVersion = oldVersion
+            prototypeReference = oldVersion.prototypeReference
+            isConstant = oldVersion.isConstant
+        }
     }
 
     /**
      * Creates an object without explicit prototype.
      */
     constructor(memory: LexemMemory) : super(memory) {
-        oldObject = null
+        oldVersion = null
         this.prototypeReference = null
     }
 
@@ -38,7 +49,7 @@ internal open class LxmObject : LexemReferenced {
      * Creates an object with explicit prototype.
      */
     constructor(prototypeReference: LxmReference, memory: LexemMemory) : super(memory) {
-        oldObject = null
+        oldVersion = null
         this.prototypeReference = prototypeReference
         prototypeReference.increaseReferences(memory)
     }
@@ -72,7 +83,7 @@ internal open class LxmObject : LexemReferenced {
      * Gets the property descriptor of the specified property inside the current object.
      */
     fun getOwnPropertyDescriptor(memory: LexemMemory, identifier: String): LxmObjectProperty? =
-            properties[identifier] ?: oldObject?.getOwnPropertyDescriptor(memory, identifier)
+            properties[identifier] ?: oldVersion?.getOwnPropertyDescriptor(memory, identifier)
 
     /**
      * Gets the property descriptor of the specified property.
@@ -119,7 +130,7 @@ internal open class LxmObject : LexemReferenced {
         }
 
         val currentProperty = properties[identifier]
-        val lastProperty = oldObject?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // No property.
@@ -215,7 +226,7 @@ internal open class LxmObject : LexemReferenced {
         }
 
         val currentProperty = properties[identifier]
-        val lastProperty = oldObject?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // Current property
@@ -280,7 +291,7 @@ internal open class LxmObject : LexemReferenced {
         }
 
         val currentProperty = properties[identifier]
-        val lastProperty = oldObject?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // No property
@@ -323,15 +334,21 @@ internal open class LxmObject : LexemReferenced {
                 result.putIfAbsent(key, value)
             }
 
-            currentObject = currentObject.oldObject
+            currentObject = currentObject.oldVersion
         }
 
         return result
     }
 
+    /**
+     * Counts the number of old versions of this object.
+     */
+    fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmObject(memory, this)
+    override fun clone(memory: LexemMemory) = LxmObject(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllProperties()) {

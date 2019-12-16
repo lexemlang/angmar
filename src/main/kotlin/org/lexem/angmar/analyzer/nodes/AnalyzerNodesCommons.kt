@@ -254,8 +254,7 @@ internal object AnalyzerNodesCommons {
                     lxmNode.applyDefaultPropertiesForExpression(analyzer.memory)
                 }
 
-                context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef,
-                        isConstant = true)
+                context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
 
                 // Create the union container.
                 val unions = LxmObject(analyzer.memory)

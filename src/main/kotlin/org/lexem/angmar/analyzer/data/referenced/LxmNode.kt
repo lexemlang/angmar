@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 
@@ -17,7 +18,7 @@ internal class LxmNode : LxmObject {
     // CONSTRUCTORS -----------------------------------------------------------
 
     // Only for the clone.
-    private constructor(memory: LexemMemory, oldNode: LxmNode) : super(memory, oldNode) {
+    private constructor(memory: LexemMemory, oldNode: LxmNode, toClone: Boolean) : super(memory, oldNode, toClone) {
         this.name = oldNode.name
     }
 
@@ -280,7 +281,8 @@ internal class LxmNode : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmNode(memory, this)
+    override fun clone(memory: LexemMemory) =
+            LxmNode(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun getType(memory: LexemMemory): LxmReference {
         val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)

@@ -16,11 +16,11 @@ internal class LxmListTest {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
 
-        Assertions.assertNull(old.oldList, "The oldList property is incorrect")
+        Assertions.assertNull(old.oldVersion, "The oldList property is incorrect")
 
         val new = LxmList(memory, old)
 
-        Assertions.assertEquals(old, new.oldList, "The oldList property is incorrect")
+        Assertions.assertEquals(old, new.oldVersion, "The oldList property is incorrect")
     }
 
     @Test
@@ -115,7 +115,7 @@ internal class LxmListTest {
         Assertions.assertEquals(LxmInteger.Num10, new.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num_1, new.getCell(memory, 1), "The cell[0] is incorrect")
 
-        Assertions.assertEquals(old, new.oldList, "The oldList property is incorrect")
+        Assertions.assertEquals(old, new.oldVersion, "The oldList property is incorrect")
     }
 
     @Test
@@ -137,7 +137,7 @@ internal class LxmListTest {
         Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
         Assertions.assertNull(old.getCell(memory, 1), "The cell[0] is incorrect")
 
-        Assertions.assertEquals(old, new.oldList, "The oldList property is incorrect")
+        Assertions.assertEquals(old, new.oldVersion, "The oldList property is incorrect")
     }
 
     @Test
@@ -226,7 +226,7 @@ internal class LxmListTest {
         val old = LxmList(memory)
         val cloned = old.clone(memory)
 
-        Assertions.assertEquals(old, cloned.oldList, "The oldObject is incorrect")
+        Assertions.assertEquals(old, cloned.oldVersion, "The oldObject is incorrect")
 
         val oldConst = LxmList(memory)
         oldConst.makeConstant(memory)

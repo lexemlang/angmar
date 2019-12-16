@@ -16,12 +16,12 @@ internal class LxmObjectTest {
 
         val old = LxmObject(memory)
 
-        Assertions.assertNull(old.oldObject, "The oldObject property is incorrect")
+        Assertions.assertNull(old.oldVersion, "The oldObject property is incorrect")
         Assertions.assertNull(old.prototypeReference, "The prototypeReference property is incorrect")
 
         val new = LxmObject(memory, old)
 
-        Assertions.assertEquals(old, new.oldObject, "The oldObject property is incorrect")
+        Assertions.assertEquals(old, new.oldVersion, "The oldObject property is incorrect")
         Assertions.assertNull(new.prototypeReference, "The prototypeReference property is incorrect")
     }
 
@@ -33,7 +33,7 @@ internal class LxmObjectTest {
         val oldRef = memory.add(old)
         val oldCell = memory.lastNode.getCell(memory, oldRef.position)
 
-        Assertions.assertNull(old.oldObject, "The oldObject property is incorrect")
+        Assertions.assertNull(old.oldVersion, "The oldObject property is incorrect")
         Assertions.assertNull(old.prototypeReference, "The prototypeReference property is incorrect")
         Assertions.assertEquals(0, oldCell.referenceCount, "The referenceCount property is incorrect")
 
@@ -41,7 +41,7 @@ internal class LxmObjectTest {
         val new1Ref = memory.add(old)
         val new1Cell = memory.lastNode.getCell(memory, new1Ref.position)
 
-        Assertions.assertNull(new1.oldObject, "The oldObject property is incorrect")
+        Assertions.assertNull(new1.oldVersion, "The oldObject property is incorrect")
         Assertions.assertEquals(oldRef, new1.prototypeReference, "The prototypeReference property is incorrect")
         Assertions.assertEquals(0, new1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, oldCell.referenceCount, "The referenceCount property is incorrect")
@@ -486,7 +486,7 @@ internal class LxmObjectTest {
         val old = LxmObject(memory)
         val cloned = old.clone(memory)
 
-        Assertions.assertEquals(old, cloned.oldObject, "The oldObject is incorrect")
+        Assertions.assertEquals(old, cloned.oldVersion, "The oldObject is incorrect")
 
         val oldConst = LxmObject(memory)
         oldConst.makeConstant(memory)

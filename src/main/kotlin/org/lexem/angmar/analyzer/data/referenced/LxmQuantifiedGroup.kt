@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.data.referenced
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 
 /**
  * The Lexem value for a quantified group.
@@ -19,7 +20,8 @@ internal class LxmQuantifiedGroup : LxmObject {
         setProperty(memory, AnalyzerCommons.Identifiers.List, memory.add(list))
     }
 
-    constructor(memory: LexemMemory, oldContext: LxmQuantifiedGroup) : super(memory, oldContext)
+    private constructor(memory: LexemMemory, oldContext: LxmQuantifiedGroup, toClone: Boolean) : super(memory,
+            oldContext, toClone)
 
     // METHODS ----------------------------------------------------------------
 
@@ -146,7 +148,8 @@ internal class LxmQuantifiedGroup : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmQuantifiedGroup(memory, this)
+    override fun clone(memory: LexemMemory) = LxmQuantifiedGroup(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[QUANTIFIED GROUP] ${super.toString()}"
 }

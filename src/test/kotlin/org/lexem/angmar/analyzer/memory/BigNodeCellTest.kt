@@ -104,7 +104,7 @@ internal class BigNodeCellTest {
         checkCell(cell0, 0, cell0Value, referenceCount = 1)
         checkCell(shiftedCell, 0, shiftedCell.value, referenceCount = 1)
 
-        Assertions.assertEquals(cell0Value, (shiftedCell.value as LxmList).oldList,
+        Assertions.assertEquals(cell0Value, (shiftedCell.value as LxmList).oldVersion,
                 "The object has been incorrectly cloned")
     }
 

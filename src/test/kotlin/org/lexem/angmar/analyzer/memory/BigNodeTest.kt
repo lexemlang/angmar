@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
@@ -208,6 +209,28 @@ internal class BigNodeTest {
         bigNodeOld.removeFromStack("b", memory)
         bigNodeOld.removeFromStack("b", memory)
         checkBigNode(bigNodeOld, nextNode = bigNodeNew)
+    }
+
+    @Test
+    fun `test not shift cell until reach threshold`() {
+        val memory = LexemMemory()
+        val bigNodeOld = memory.lastNode
+
+        val obj = LxmObject(memory)
+        val ref = bigNodeOld.alloc(memory, obj).position
+
+        for (i in 0 until Consts.Memory.maxDistanceToShift - 1) {
+            memory.freezeCopy()
+
+            val obj2 = memory.lastNode.getCell(memory, ref, forceShift = false).value
+            Assertions.assertEquals(obj, obj2, "The object has been shifted in [$i]")
+        }
+
+        memory.freezeCopy()
+
+        val obj2 = memory.lastNode.getCell(memory, ref, forceShift = false).value as LxmObject
+        Assertions.assertNotEquals(obj, obj2, "The object has not been shifted")
+        Assertions.assertEquals(obj, obj2.oldVersion, "The object has not been shifted")
     }
 
     @Test

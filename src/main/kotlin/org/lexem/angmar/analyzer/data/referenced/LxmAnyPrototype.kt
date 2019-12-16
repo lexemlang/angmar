@@ -4,6 +4,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of the Any prototype.
@@ -13,7 +14,7 @@ internal open class LxmAnyPrototype : LxmObject {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory) : super(memory)
-    constructor(memory: LexemMemory, oldContext: LxmAnyPrototype) : super(memory, oldContext)
+    constructor(memory: LexemMemory, oldContext: LxmAnyPrototype, toClone: Boolean) : super(memory, oldContext, toClone)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -25,8 +26,8 @@ internal open class LxmAnyPrototype : LxmObject {
         return type.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype) as LxmReference
     }
 
-
-    override fun clone(memory: LexemMemory) = LxmAnyPrototype(memory, this)
+    override fun clone(memory: LexemMemory) = LxmAnyPrototype(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ANY PROTOTYPE] ${super.toString()}"
 }

@@ -16,7 +16,7 @@ internal abstract class LexemIterator : LxmObject {
         restart(memory)
     }
 
-    constructor(memory: LexemMemory, oldIterator: LexemIterator) : super(memory, oldIterator)
+    constructor(memory: LexemMemory, oldIterator: LexemIterator, toClone: Boolean) : super(memory, oldIterator, toClone)
 
     // METHODS ----------------------------------------------------------------
 

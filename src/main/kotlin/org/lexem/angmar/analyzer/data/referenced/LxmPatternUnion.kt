@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.data.referenced
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 
 /**
  * The Lexem value for a pattern union.
@@ -17,7 +18,8 @@ internal class LxmPatternUnion : LxmObject {
         setIndex(memory, index)
     }
 
-    constructor(memory: LexemMemory, oldContext: LxmPatternUnion) : super(memory, oldContext) {
+    private constructor(memory: LexemMemory, oldContext: LxmPatternUnion, toClone: Boolean) : super(memory, oldContext,
+            toClone) {
         this.quantifier = oldContext.quantifier
     }
 
@@ -79,7 +81,8 @@ internal class LxmPatternUnion : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmPatternUnion(memory, this)
+    override fun clone(memory: LexemMemory) = LxmPatternUnion(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[PATTERN UNION] Qtf$quantifier - ${super.toString()}"
 }

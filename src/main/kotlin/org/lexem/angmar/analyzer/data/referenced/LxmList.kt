@@ -5,18 +5,24 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
 /**
  * The Lexem value of the List type.
  */
-internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : LexemReferenced(memory) {
-    var isConstant: Boolean = oldList?.isConstant ?: false
+internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toClone: Boolean = false) :
+        LexemReferenced(memory) {
+    var isConstant: Boolean = oldVersion?.isConstant ?: false
         private set
-    var actualListSize: Int = oldList?.actualListSize ?: 0
+    var actualListSize: Int = oldVersion?.actualListSize ?: 0
         private set
-    private var cellList = mutableMapOf<Int, LexemPrimitive>()
+    private var cellList: MutableMap<Int, LexemPrimitive> = if (toClone) {
+        oldVersion!!.cellList.toMutableMap()
+    } else {
+        mutableMapOf()
+    }
     val listSize get() = cellList.size
 
     // METHODS ----------------------------------------------------------------
@@ -53,7 +59,7 @@ internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : Lexe
         }
 
         val currentCell = cellList[index]
-        val lastCell = oldList?.getCellRecursively(memory, index)
+        val lastCell = oldVersion?.getCellRecursively(memory, index)
 
         when {
             // Current cell
@@ -195,7 +201,7 @@ internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : Lexe
      * Gets cell recursively.
      */
     private fun getCellRecursively(memory: LexemMemory, index: Int): LexemPrimitive? =
-            cellList[index] ?: oldList?.getCellRecursively(memory, index)
+            cellList[index] ?: oldVersion?.getCellRecursively(memory, index)
 
     /**
      * Gets all cells of the list in order.
@@ -210,7 +216,7 @@ internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : Lexe
                     result[key] = value
                 }
             }
-            currentList = currentList.oldList
+            currentList = currentList.oldVersion
         }
 
         return List(actualListSize) { result[it]!! }
@@ -226,9 +232,15 @@ internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : Lexe
         memory.replacePrimitives(oldValue, newValue)
     }
 
+    /**
+     * Counts the number of old versions of this list.
+     */
+    private fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmList(memory, this)
+    override fun clone(memory: LexemMemory) =
+            LxmList(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllCells()) {

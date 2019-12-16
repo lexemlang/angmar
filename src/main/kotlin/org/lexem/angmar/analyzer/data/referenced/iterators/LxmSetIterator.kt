@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of a List iterator.
@@ -28,8 +29,9 @@ internal class LxmSetIterator : LexemIterator {
         size = values.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldIterator: LxmSetIterator) : super(memory, oldIterator) {
-        this.size = oldIterator.size
+    private constructor(memory: LexemMemory, oldVersion: LxmSetIterator, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        this.size = oldVersion.size
     }
 
     // METHODS ----------------------------------------------------------------
@@ -55,7 +57,8 @@ internal class LxmSetIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) = LxmSetIterator(memory, this)
+    override fun clone(memory: LexemMemory) = LxmSetIterator(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - SET] ${super.toString()}"
 }

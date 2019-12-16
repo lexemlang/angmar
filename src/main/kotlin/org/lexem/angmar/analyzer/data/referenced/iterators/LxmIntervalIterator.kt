@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.data.referenced.iterators
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.data.*
 
 /**
@@ -18,9 +19,10 @@ internal class LxmIntervalIterator : LexemIterator {
         this.size = value.pointCount
     }
 
-    private constructor(memory: LexemMemory, oldIterator: LxmIntervalIterator) : super(memory, oldIterator) {
-        this.value = oldIterator.value
-        this.size = oldIterator.size
+    private constructor(memory: LexemMemory, oldVersion: LxmIntervalIterator, toClone: Boolean) : super(memory,
+            oldVersion, toClone) {
+        this.value = oldVersion.value
+        this.size = oldVersion.size
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -37,7 +39,8 @@ internal class LxmIntervalIterator : LexemIterator {
         return Pair(null, LxmInteger.from(currentValue))
     }
 
-    override fun clone(memory: LexemMemory) = LxmIntervalIterator(memory, this)
+    override fun clone(memory: LexemMemory) = LxmIntervalIterator(memory, this,
+            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - INTERVAL] (value: $value) - ${super.toString()}"
 }
