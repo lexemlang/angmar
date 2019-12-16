@@ -12,7 +12,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     var garbageThreshold = Consts.Memory.spatialGarbageCollectorInitialThreshold
         private set
     private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
-    private val heap = mutableMapOf<Int, BigNodeCell>()
+    internal val heap = mutableMapOf<Int, BigNodeCell>()
     var garbageCollectorMark = false
         private set
 
