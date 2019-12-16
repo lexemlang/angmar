@@ -66,7 +66,7 @@ internal class LxmDestructuring : LexemPrimitive {
             elementsAsMap[it.original] = it
         }
 
-        val spreadObject = LxmObject()
+        val spreadObject = LxmObject(memory)
         val spreadObjectRef = memory.add(spreadObject)
 
         for (property in value.getAllIterableProperties()) {
@@ -104,7 +104,7 @@ internal class LxmDestructuring : LexemPrimitive {
             setVars.add(alias!!)
         }
 
-        val spreadList = LxmList()
+        val spreadList = LxmList(memory)
         val spreadListRef = memory.add(spreadList)
 
         var index = 0

@@ -25,14 +25,14 @@ internal class SetPropsMacroStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = SetPropsMacroStmtNode.Companion::parse,
                 isDescriptiveCode = true)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
         Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(analyzer.memory, affirmativeVar),
                 "The $affirmativeVar property is incorrect")
         Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(analyzer.memory, negativeVar),

@@ -79,7 +79,8 @@ internal class StringPrototypeTest {
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.UnicodePointsAt}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             val listValues = list.getAllCells()
             Assertions.assertEquals(resultValue.size, listValues.size, "The result is incorrect")
 
@@ -728,7 +729,8 @@ internal class StringPrototypeTest {
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Split}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             val listValues = list.getAllCells()
             Assertions.assertEquals(resultValue.size, listValues.size, "The result is incorrect")
 

@@ -13,14 +13,14 @@ internal class LxmArguments : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(oldArguments: LxmArguments) : super(oldArguments)
-
-    constructor(memory: LexemMemory) {
+    constructor(memory: LexemMemory) : super(memory) {
         init(memory)
     }
 
-    constructor(memory: LexemMemory, oldArguments: LxmArguments) : super(oldArguments) {
-        init(memory)
+    constructor(memory: LexemMemory, oldArguments: LxmArguments, mustInit: Boolean) : super(memory, oldArguments) {
+        if (mustInit) {
+            init(memory)
+        }
     }
 
     // METHODS ----------------------------------------------------------------
@@ -29,55 +29,55 @@ internal class LxmArguments : LxmObject {
      * Adds the initial properties.
      */
     private fun init(memory: LexemMemory) {
-        val positional = LxmList()
-        val named = LxmObject()
+        val positional = LxmList(memory)
+        val named = LxmObject(memory)
         val positionalReference = memory.add(positional)
         val namedReference = memory.add(named)
-        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, positionalReference)
-        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, namedReference)
+        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, positionalReference, isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, namedReference, isConstant = true)
     }
 
     /**
      * Gets the positional list.
      */
-    private fun getPositionalList(memory: LexemMemory) =
-            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.ArgumentsPositional)!!
+    private fun getPositionalList(memory: LexemMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, toWrite)!!
 
     /**
      * Gets the named object.
      */
-    private fun getNamedObject(memory: LexemMemory) =
-            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.ArgumentsNamed)!!
+    private fun getNamedObject(memory: LexemMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite)!!
 
     /**
      * Adds a named argument.
      */
     fun getNamedArgument(memory: LexemMemory, identifier: String) =
-            getNamedObject(memory).getPropertyValue(memory, identifier)
+            getNamedObject(memory, toWrite = false).getPropertyValue(memory, identifier)
 
     /**
      * Adds a positional argument.
      */
     fun addPositionalArgument(memory: LexemMemory, value: LexemPrimitive) {
-        getPositionalList(memory).addCell(memory, value)
+        getPositionalList(memory, toWrite = true).addCell(memory, value)
     }
 
     /**
      * Adds a named argument.
      */
     fun addNamedArgument(memory: LexemMemory, identifier: String, value: LexemPrimitive) {
-        getNamedObject(memory).setProperty(memory, identifier, value)
+        getNamedObject(memory, toWrite = true).setProperty(memory, identifier, value)
     }
 
     /**
      * Maps the [LxmArguments] to a [LxmBacktrackingData].
      */
     fun mapToBacktrackingData(memory: LexemMemory): LxmBacktrackingData {
-        val positionalArguments = getPositionalList(memory).getAllCells()
-        val namedArguments = getNamedObject(memory).getAllIterableProperties()
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
 
         val mappedArguments = namedArguments.mapValues { (_, property) ->
-            val deref = property.value.dereference(memory)
+            val deref = property.value.dereference(memory, toWrite = false)
             if (deref is LexemPrimitive) {
                 deref
             } else {
@@ -95,8 +95,8 @@ internal class LxmArguments : LxmObject {
             spreadPositionalParameter: MutableList<LexemPrimitive>? = null,
             spreadNamedParameter: MutableMap<String, LexemPrimitive>? = null): Map<String, LexemPrimitive> {
         val result = mutableMapOf<String, LexemPrimitive>()
-        val positionalArguments = getPositionalList(memory).getAllCells()
-        val namedArguments = getNamedObject(memory).getAllIterableProperties()
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
 
         // Map positional arguments.
         for (parameter in parameterNames.withIndex()) {
@@ -138,8 +138,8 @@ internal class LxmArguments : LxmObject {
     fun mapArgumentsToContext(memory: LexemMemory, parameters: LxmParameters, context: LxmObject) {
         val parameterNames = parameters.getParameters()
         val result = mutableSetOf<String>()
-        val positionalArguments = getPositionalList(memory).getAllCells()
-        val namedArguments = getNamedObject(memory).getAllIterableProperties()
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
 
         // Map positional arguments.
         for (parameter in parameterNames.withIndex()) {
@@ -156,7 +156,7 @@ internal class LxmArguments : LxmObject {
 
         // Add positional arguments to spread parameter.
         if (parameters.positionalSpread != null) {
-            val list = LxmList()
+            val list = LxmList(memory)
             val listRef = memory.add(list)
 
             for (i in positionalArguments.drop(parameterNames.size)) {
@@ -168,7 +168,7 @@ internal class LxmArguments : LxmObject {
 
         // Map named arguments.
         if (parameters.namedSpread != null) {
-            val obj = LxmObject()
+            val obj = LxmObject(memory)
             val objRef = memory.add(obj)
 
             for ((key, argument) in namedArguments) {
@@ -202,7 +202,7 @@ internal class LxmArguments : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = LxmArguments(this)
+    override fun clone(memory: LexemMemory) = LxmArguments(memory, this, false)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

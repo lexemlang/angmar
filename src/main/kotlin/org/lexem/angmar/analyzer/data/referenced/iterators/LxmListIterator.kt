@@ -14,12 +14,12 @@ internal class LxmListIterator : LexemIterator {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
-        val list = value.dereferenceAs<LxmList>(memory)!!
+        val list = value.dereferenceAs<LxmList>(memory, toWrite = false)!!
         setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
         this.size = list.actualListSize.toLong()
     }
 
-    private constructor(oldIterator: LxmListIterator) : super(oldIterator) {
+    private constructor(memory: LexemMemory, oldIterator: LxmListIterator) : super(memory, oldIterator) {
         this.size = oldIterator.size
     }
 
@@ -29,7 +29,7 @@ internal class LxmListIterator : LexemIterator {
      * Gets the iterator's list.
      */
     private fun getList(memory: LexemMemory) =
-            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Value)!!
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -46,7 +46,7 @@ internal class LxmListIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun clone() = LxmListIterator(this)
+    override fun clone(memory: LexemMemory) = LxmListIterator(memory, this)
 
     override fun toString() = "[ITERATOR - LIST] ${super.toString()}"
 }

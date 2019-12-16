@@ -44,8 +44,9 @@ internal object NameSelectorAnalyzer {
                     val position = (signal - signalEndFirstName) + 1
 
                     val name = analyzer.memory.getLastFromStack() as LxmString
-                    val lxmNode = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(
-                            analyzer.memory) as LxmNode
+                    val lxmNode =
+                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
+                                    toWrite = false) as LxmNode
 
                     // Check the name.
                     if (lxmNode.name != name.primitive) {

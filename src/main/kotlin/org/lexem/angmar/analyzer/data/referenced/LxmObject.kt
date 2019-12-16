@@ -14,12 +14,13 @@ import org.lexem.angmar.parser.literals.*
 internal open class LxmObject : LexemReferenced {
     val oldObject: LxmObject?
     val prototypeReference: LxmReference?
-    private var isConstant = false
+    var isConstant = false
+        private set
     protected var properties = mutableMapOf<String, LxmObjectProperty>()
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(oldObject: LxmObject) {
+    constructor(memory: LexemMemory, oldObject: LxmObject) : super(memory) {
         this.oldObject = oldObject
         prototypeReference = oldObject.prototypeReference
         isConstant = oldObject.isConstant
@@ -28,7 +29,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Creates an object without explicit prototype.
      */
-    constructor() {
+    constructor(memory: LexemMemory) : super(memory) {
         oldObject = null
         this.prototypeReference = null
     }
@@ -36,7 +37,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Creates an object with explicit prototype.
      */
-    constructor(prototypeReference: LxmReference, memory: LexemMemory) {
+    constructor(prototypeReference: LxmReference, memory: LexemMemory) : super(memory) {
         oldObject = null
         this.prototypeReference = prototypeReference
         prototypeReference.increaseReferences(memory)
@@ -56,7 +57,7 @@ internal open class LxmObject : LexemReferenced {
                 return null
             }
 
-            val prototype = getPrototypeAsObject(memory)
+            val prototype = getPrototypeAsObject(memory, toWrite = false)
             return prototype.getPropertyValue(memory, identifier)
         }
 
@@ -85,7 +86,7 @@ internal open class LxmObject : LexemReferenced {
                 return null
             }
 
-            val prototype = getPrototypeAsObject(memory)
+            val prototype = getPrototypeAsObject(memory, toWrite = false)
             return prototype.getPropertyDescriptor(memory, identifier)
         }
 
@@ -95,10 +96,10 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Gets the final value of a property. It searches also in prototypes.
      */
-
-    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: LexemMemory, identifier: String): T? {
+    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: LexemMemory, identifier: String,
+            toWrite: Boolean): T? {
         val property = getPropertyValue(memory, identifier) ?: return null
-        return property.dereference(memory) as? T
+        return property.dereference(memory, toWrite) as? T
     }
 
     /**
@@ -107,6 +108,11 @@ internal open class LxmObject : LexemReferenced {
     fun setProperty(memory: LexemMemory, identifier: String, value: LexemPrimitive, isConstant: Boolean = false,
             isIterable: Boolean = true, ignoringConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoringConstant && this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
@@ -156,6 +162,11 @@ internal open class LxmObject : LexemReferenced {
     fun setPropertyAsContext(memory: LexemMemory, identifier: String, value: LexemPrimitive,
             isConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
@@ -168,7 +179,7 @@ internal open class LxmObject : LexemReferenced {
 
         // Check the current object and the prototype.
         val currentProperty = getOwnPropertyDescriptor(memory, identifier)
-        val prototype = getPrototypeAsObject(memory)
+        val prototype = getPrototypeAsObject(memory, toWrite = true)
         val prototypeProperty = prototype.getPropertyValue(memory, identifier)
 
         // Set in prototype.
@@ -193,6 +204,11 @@ internal open class LxmObject : LexemReferenced {
      */
     fun removeProperty(memory: LexemMemory, identifier: String) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
@@ -240,6 +256,11 @@ internal open class LxmObject : LexemReferenced {
      * Makes the object constant.
      */
     fun makeConstant(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         isConstant = true
     }
 
@@ -248,6 +269,11 @@ internal open class LxmObject : LexemReferenced {
      */
     fun makePropertyConstant(memory: LexemMemory, identifier: String) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
@@ -305,14 +331,7 @@ internal open class LxmObject : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val isImmutable: Boolean
-        get() = isConstant
-
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmObject(this)
-    }
+    override fun clone(memory: LexemMemory) = LxmObject(memory, this)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllProperties()) {
@@ -335,7 +354,7 @@ internal open class LxmObject : LexemReferenced {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ObjectType.TypeName) as LxmReference
     }
 

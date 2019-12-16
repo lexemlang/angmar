@@ -12,8 +12,9 @@ import org.lexem.angmar.parser.literals.*
 /**
  * The Lexem value of the Map type.
  */
-internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
-    private var isConstant = false
+internal class LxmMap(memory: LexemMemory, val oldMap: LxmMap? = null) : LexemReferenced(memory) {
+    var isConstant: Boolean = oldMap?.isConstant ?: false
+        private set
     private var properties = mutableMapOf<Int, MutableList<LxmMapProperty>>()
 
     // METHODS ----------------------------------------------------------------
@@ -34,14 +35,19 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     /**
      * Gets the final value of a property.
      */
-    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: LexemMemory, key: LexemPrimitive): T? =
-            getPropertyValue(memory, key) as? T
+    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: LexemMemory, key: LexemPrimitive,
+            toWrite: Boolean): T? = getPropertyValue(memory, key)?.dereference(memory, toWrite) as? T
 
     /**
      * Sets a new value to the property or creates a new property with the specified value.
      */
     fun setProperty(memory: LexemMemory, key: LexemPrimitive, value: LexemPrimitive) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore cannot be modified") {}
@@ -88,6 +94,11 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
      */
     fun removeProperty(memory: LexemMemory, key: LexemPrimitive) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore it cannot be modified") {}
@@ -127,6 +138,11 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
      * Makes the map constant.
      */
     fun makeConstant(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         isConstant = true
     }
 
@@ -203,10 +219,8 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val isImmutable: Boolean
-        get() = isConstant
 
-    override fun clone() = LxmMap(this)
+    override fun clone(memory: LexemMemory) = LxmMap(memory, this)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in this.properties) {
@@ -236,7 +250,7 @@ internal class LxmMap(val oldMap: LxmMap?) : LexemReferenced {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, MapType.TypeName) as LxmReference
     }
 

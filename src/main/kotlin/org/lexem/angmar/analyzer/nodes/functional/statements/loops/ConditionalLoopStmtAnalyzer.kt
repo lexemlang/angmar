@@ -40,7 +40,7 @@ internal object ConditionalLoopStmtAnalyzer {
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopIndexName)
 
                 // Set the index in the context.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.condition)
@@ -168,7 +168,7 @@ internal object ConditionalLoopStmtAnalyzer {
 
         if (indexValue.primitive != 0 && node.lastClauses?.lastBlock != null) {
             // Remove the name of the intermediate statement.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
             return analyzer.nextNode(node.lastClauses!!.lastBlock)
@@ -190,7 +190,7 @@ internal object ConditionalLoopStmtAnalyzer {
 
         // Set the index if there is an index expression.
         if (node.index != null) {
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
             context.setProperty(analyzer.memory, indexName.primitive, newIndex)

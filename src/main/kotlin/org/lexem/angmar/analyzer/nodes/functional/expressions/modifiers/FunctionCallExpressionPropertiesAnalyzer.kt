@@ -22,8 +22,9 @@ internal object FunctionCallExpressionPropertiesAnalyzer {
             }
             signalEndValue -> {
                 val value = analyzer.memory.getLastFromStack()
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = true) as LxmArguments
 
                 arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsProperties, value)
 

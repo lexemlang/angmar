@@ -25,7 +25,7 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
     /**
      * Builds a custom function.
      */
-    constructor(memory: LexemMemory, node: ParserNode, contextReference: LxmReference) {
+    constructor(memory: LexemMemory, node: ParserNode, contextReference: LxmReference) : super(memory) {
         this.node = node
         this.contextReference = contextReference
         this.internalFunction = null
@@ -36,8 +36,9 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
     /**
      * Builds a built-in function.
      */
-    constructor(
-            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) {
+    constructor(memory: LexemMemory,
+            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) : super(
+            memory) {
         this.node = InternalFunctionCallNode
         this.contextReference = null
         this.internalFunction = internalFunction
@@ -47,7 +48,8 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
      * Builds a built-in function with context.
      */
     constructor(memory: LexemMemory, contextReference: LxmReference,
-            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) {
+            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) : super(
+            memory) {
         this.node = InternalFunctionCallNode
         this.contextReference = contextReference
         this.internalFunction = internalFunction
@@ -57,13 +59,11 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val isImmutable = true
-
     override val parserNode get() = node
 
     override val parentContext get() = contextReference
 
-    override fun clone() = this
+    override fun clone(memory: LexemMemory) = this
 
     override fun memoryDealloc(memory: LexemMemory) {
         contextReference?.decreaseReferences(memory)
@@ -74,7 +74,7 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
     }
 

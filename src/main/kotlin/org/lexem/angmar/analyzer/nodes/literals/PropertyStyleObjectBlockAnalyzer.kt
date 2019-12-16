@@ -23,7 +23,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Create object
-                val arguments = LxmObject()
+                val arguments = LxmObject(analyzer.memory)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, analyzer.memory.add(arguments))
 
                 // Call next element
@@ -50,7 +50,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the expression must be a ${StringType.TypeName}. Actual value: $identifier") {
+                            "The returned value by the expression must be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -66,7 +66,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 }
 
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmObject
+                        analyzer.memory, toWrite = true) as LxmObject
 
                 obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.True)
 
@@ -97,7 +97,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the expression must be a ${StringType.TypeName}. Actual value: $identifier") {
+                            "The returned value by the expression must be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -113,7 +113,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 }
 
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmObject
+                        analyzer.memory, toWrite = true) as LxmObject
 
                 obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.False)
 

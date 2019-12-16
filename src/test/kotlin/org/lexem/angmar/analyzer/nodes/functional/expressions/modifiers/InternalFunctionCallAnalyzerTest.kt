@@ -19,7 +19,7 @@ internal class InternalFunctionCallAnalyzerTest {
 
         // Prepare context.
         var executed = false
-        val function = LxmFunction { _, _, _, _ ->
+        val function = LxmFunction(analyzer.memory) { _, _, _, _ ->
             executed = true
 
             // Always return a value
@@ -28,7 +28,7 @@ internal class InternalFunctionCallAnalyzerTest {
         }
         val functionRef = analyzer.memory.add(function)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, functionName, functionRef)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -53,14 +53,14 @@ internal class InternalFunctionCallAnalyzerTest {
 
         // Prepare context.
         var executed = -1
-        val function = LxmFunction { analyzer, _, _, signal ->
+        val function = LxmFunction(analyzer.memory) { analyzer, _, _, signal ->
             when (signal) {
                 AnalyzerNodesCommons.signalCallFunction -> {
                     executed = signal
 
                     // Prepare stack to call toString over an integer.
                     val value = LxmInteger.Num10
-                    val prototype = value.getPrototypeAsObject(analyzer.memory)
+                    val prototype = value.getPrototypeAsObject(analyzer.memory, toWrite = false)
                     val functionRef =
                             prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
 
@@ -82,7 +82,7 @@ internal class InternalFunctionCallAnalyzerTest {
         }
         val functionRef = analyzer.memory.add(function)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, functionName, functionRef)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))

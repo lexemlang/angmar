@@ -41,9 +41,10 @@ internal object FloatType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
@@ -54,8 +55,9 @@ internal object FloatType {
         type.setProperty(memory, MaxValue, LxmFloat.from(Float.MAX_VALUE), isConstant = true)
 
         // Methods
-        type.setProperty(memory, Parse, memory.add(LxmFunction(::parseFunction)), isConstant = true)
-        type.setProperty(memory, EpsilonEquals, memory.add(LxmFunction(::epsilonEqualsFunction)), isConstant = true)
+        type.setProperty(memory, Parse, memory.add(LxmFunction(memory, ::parseFunction)), isConstant = true)
+        type.setProperty(memory, EpsilonEquals, memory.add(LxmFunction(memory, ::epsilonEqualsFunction)),
+                isConstant = true)
     }
 
     /**
@@ -64,8 +66,8 @@ internal object FloatType {
     private fun parseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        ParseArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, ParseArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -113,8 +115,8 @@ internal object FloatType {
     private fun epsilonEqualsFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        EpsilonEqualsArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, EpsilonEqualsArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

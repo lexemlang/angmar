@@ -32,7 +32,7 @@ internal object MapElementAnalyzer {
                 val value = analyzer.memory.getLastFromStack()
                 val key = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key)
                 val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmMap
+                        analyzer.memory, toWrite = true) as LxmMap
 
                 map.setProperty(analyzer.memory, key, value)
 

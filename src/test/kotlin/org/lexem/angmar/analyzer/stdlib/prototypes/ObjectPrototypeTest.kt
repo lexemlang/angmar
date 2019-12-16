@@ -31,11 +31,11 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
-            Assertions.assertTrue(objOri.isImmutable, "The isImmutable property is incorrect")
+            Assertions.assertTrue(objOri.isConstant, "The isConstant property is incorrect")
         }
     }
 
@@ -124,9 +124,9 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             Assertions.assertTrue(objOri.getPropertyDescriptor(analyzer.memory, "a")?.isConstant ?: false,
                     "The a property is incorrect")
@@ -152,9 +152,9 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             Assertions.assertFalse(objOri.getPropertyDescriptor(analyzer.memory, "a")?.isConstant ?: true,
                     "The a property is incorrect")
@@ -200,9 +200,9 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
                 val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
@@ -232,9 +232,9 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             Assertions.assertNull(objOri.getPropertyDescriptor(analyzer.memory, "a"), "The a property is incorrect")
             Assertions.assertNotNull(objOri.getPropertyDescriptor(analyzer.memory, "b"), "The b property is incorrect")
@@ -258,9 +258,9 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             Assertions.assertNotNull(objOri.getPropertyDescriptor(analyzer.memory, "a"), "The a property is incorrect")
             Assertions.assertNotNull(objOri.getPropertyDescriptor(analyzer.memory, "b"), "The b property is incorrect")
@@ -301,7 +301,8 @@ internal class ObjectPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
@@ -309,9 +310,9 @@ internal class ObjectPrototypeTest {
                 Assertions.assertTrue(element.primitive in obj, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
                 val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
@@ -336,16 +337,17 @@ internal class ObjectPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(obj.containsValue(element), "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
                 val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
@@ -370,11 +372,12 @@ internal class ObjectPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
-                val elementObj = element.dereference(analyzer.memory) as? LxmObject ?: throw Error(
+                val elementObj = element.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                         "All elements in the result list must be LxmObject")
                 val key = elementObj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key) as? LxmString
                         ?: throw Error("All keys must be LxmString")
@@ -386,9 +389,9 @@ internal class ObjectPrototypeTest {
                 Assertions.assertEquals(obj[key.primitive], value, "The value property is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
                 val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
@@ -413,7 +416,8 @@ internal class ObjectPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resMap = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(obj.size, resMap.getSize(), "The result is incorrect")
 
             for (prop in resMap.getAllProperties().flatMap { it.value }) {
@@ -424,9 +428,9 @@ internal class ObjectPrototypeTest {
                 Assertions.assertEquals(obj[key.primitive], value, "The value property is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmObject")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val objOri = context.getDereferencedProperty<LxmObject>(analyzer.memory, variable, toWrite = false)
+                    ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
                 val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(

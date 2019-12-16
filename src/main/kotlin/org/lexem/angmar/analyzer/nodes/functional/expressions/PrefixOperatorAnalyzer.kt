@@ -35,9 +35,6 @@ internal object PrefixOperatorAnalyzer {
         // Get operand values.
         val thisValue = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
 
-        // Remove Last from the stack.
-        analyzer.memory.removeLastFromStack()
-
         // Get operand function.
         val operatorFunctionName = when (node.operator) {
             PrefixOperatorNode.notOperator -> AnalyzerCommons.Operators.LogicalNot
@@ -55,6 +52,9 @@ internal object PrefixOperatorAnalyzer {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, thisValue)
         val argumentsRef = analyzer.memory.add(arguments)
+
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
         val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
         return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, argumentsRef, node,

@@ -13,7 +13,7 @@ internal object AnalyzerIteratorCommons {
      * Creates an iterator from an object.
      */
     fun createIterator(memory: LexemMemory, value: LexemPrimitive): LexemIterator? =
-            when (val derefValue = value.dereference(memory)) {
+            when (val derefValue = value.dereference(memory, toWrite = false)) {
                 is LxmString -> LxmStringIterator(memory, derefValue.primitive)
                 is LxmInterval -> LxmIntervalIterator(memory, derefValue.primitive)
                 is LxmList -> LxmListIterator(memory, value as LxmReference)

@@ -10,16 +10,17 @@ internal class LxmReference(val position: Int) : LexemPrimitive {
     /**
      * Dereferences the value to the specified type.
      */
-    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: LexemMemory) = dereference(memory) as? T
+    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: LexemMemory, toWrite: Boolean) =
+            dereference(memory, toWrite) as? T
 
     /**
      * Gets the memory cell that this reference points to.
      */
-    fun getCell(memory: LexemMemory) = memory.lastNode.getCell(position)
+    fun getCell(memory: LexemMemory) = memory.lastNode.getCell(memory, position)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun dereference(memory: LexemMemory) = memory.get(this)
+    override fun dereference(memory: LexemMemory, toWrite: Boolean) = memory.get(this, toWrite)!!
 
     override fun increaseReferences(memory: LexemMemory) {
         memory.replacePrimitives(LxmNil, this)

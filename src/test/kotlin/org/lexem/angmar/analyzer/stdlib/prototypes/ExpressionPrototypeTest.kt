@@ -26,18 +26,18 @@ internal class ExpressionPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(grammar, initialVars = mapOf(varName to LxmNil),
                 preFunctionCall = expression) { analyzer, result ->
-            val resultDeref =
-                    result?.dereference(analyzer.memory) as? LxmNode ?: throw Error("The result must be a LxmNode")
+            val resultDeref = result?.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
+                    "The result must be a LxmNode")
             Assertions.assertEquals(expName, resultDeref.name, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val result2 = context.getPropertyValue(analyzer.memory, varName)
 
             Assertions.assertEquals(value, result2, "The result2 is incorrect")
 
             // Remove the function cyclic reference.
             val node = context.getDereferencedProperty<LxmNode>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
+                    AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = true)!!
             node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
         }
     }

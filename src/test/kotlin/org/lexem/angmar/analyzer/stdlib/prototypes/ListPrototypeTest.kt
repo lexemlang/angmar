@@ -51,11 +51,12 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val list = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
 
-            Assertions.assertTrue(list.isImmutable, "The isImmutable property is incorrect")
+            Assertions.assertTrue(oriList.isConstant, "The isConstant property is incorrect")
         }
     }
 
@@ -108,9 +109,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -140,9 +142,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }
@@ -186,7 +189,8 @@ internal class ListPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resultList = list.filter { it > 2 }
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(resultList.size, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in resultList.zip(resList.getAllCells())) {
@@ -194,9 +198,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(listElement, resElement.primitive, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -247,9 +252,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, variableAccumulator to LxmInteger.Num0)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -258,8 +264,8 @@ internal class ListPrototypeTest {
             }
 
             val accumulator =
-                    context.getDereferencedProperty<LxmInteger>(analyzer.memory, variableAccumulator) ?: throw Error(
-                            "The variable must contain a LxmInteger")
+                    context.getDereferencedProperty<LxmInteger>(analyzer.memory, variableAccumulator, toWrite = false)
+                            ?: throw Error("The variable must contain a LxmInteger")
             Assertions.assertEquals(list.sum(), accumulator.primitive, "The variable is incorrect")
         }
     }
@@ -310,7 +316,7 @@ internal class ListPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             if (isOk) {
-                val obj = result?.dereference(analyzer.memory) as? LxmObject ?: throw Error(
+                val obj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                         "The result must be a LxmObject")
                 val index = obj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Index)
                 val value = obj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)
@@ -321,9 +327,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(LxmNil, result, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -378,7 +385,7 @@ internal class ListPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             if (isOk) {
-                val obj = result?.dereference(analyzer.memory) as? LxmObject ?: throw Error(
+                val obj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                         "The result must be a LxmObject")
                 val index = obj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Index) as? LxmInteger
                         ?: throw Error("The index property must be a LxmInteger")
@@ -390,9 +397,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(LxmNil, result, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -448,9 +456,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(LxmNil, result, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -490,9 +499,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(LxmNil, result, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -517,9 +527,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -551,9 +562,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -578,9 +590,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -612,9 +625,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -643,7 +657,8 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.zip(resList.getAllCells())) {
@@ -651,9 +666,10 @@ internal class ListPrototypeTest {
                 Assertions.assertEquals(listElement + 1, resElement.primitive, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -705,9 +721,10 @@ internal class ListPrototypeTest {
             result as? LxmInteger ?: throw Error("The result must be a LxmInteger")
             Assertions.assertEquals(list.sum(), result.primitive, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -764,9 +781,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -796,9 +814,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }
@@ -837,9 +856,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -867,9 +887,10 @@ internal class ListPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val resultList = list.filter { it != LxmLogic.True }
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(resultList.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in resultList.zip(oriList.getAllCells())) {
@@ -896,9 +917,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -930,9 +952,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -964,9 +987,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -994,9 +1018,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(at, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -1155,17 +1180,18 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, targetVariable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
             }
 
-            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable) ?: throw Error(
-                    "The target variable must contain a LxmList")
+            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
+                    ?: throw Error("The target variable must contain a LxmList")
             Assertions.assertEquals(at + list.size - from, targetList.actualListSize, "The target list is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
@@ -1202,17 +1228,18 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, targetVariable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
             }
 
-            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable) ?: throw Error(
-                    "The target variable must contain a LxmList")
+            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
+                    ?: throw Error("The target variable must contain a LxmList")
             Assertions.assertEquals(at + count, targetList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
@@ -1249,17 +1276,18 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, targetVariable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
             }
 
-            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable) ?: throw Error(
-                    "The target variable must contain a LxmList")
+            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
+                    ?: throw Error("The target variable must contain a LxmList")
             Assertions.assertEquals(target.size + count, targetList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in target.zip(targetList.getAllCells().take(target.size))) {
@@ -1297,17 +1325,18 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, targetVariable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
             }
 
-            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable) ?: throw Error(
-                    "The target variable must contain a LxmList")
+            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
+                    ?: throw Error("The target variable must contain a LxmList")
             Assertions.assertEquals(target.size, targetList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in target.zip(targetList.getAllCells())) {
@@ -1340,17 +1369,18 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, targetVariable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
             }
 
-            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable) ?: throw Error(
-                    "The target variable must contain a LxmList")
+            val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
+                    ?: throw Error("The target variable must contain a LxmList")
             Assertions.assertEquals(at + list.size - from, targetList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
@@ -1543,9 +1573,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -1572,9 +1603,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -1604,9 +1636,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(list.last(), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.dropLast(1).zip(oriList.getAllCells())) {
@@ -1631,16 +1664,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.takeLast(count).asReversed().zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.dropLast(count).zip(oriList.getAllCells())) {
@@ -1665,16 +1700,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.asReversed().zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }
@@ -1731,9 +1768,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -1760,9 +1798,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -1792,9 +1831,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(list.first(), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.drop(1).zip(oriList.getAllCells())) {
@@ -1819,16 +1859,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.take(count).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.drop(count).zip(oriList.getAllCells())) {
@@ -1853,16 +1895,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }
@@ -1921,9 +1965,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -1951,9 +1996,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -1991,9 +2037,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -2062,9 +2109,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -2097,9 +2145,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size - count + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -2137,9 +2186,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
                     "The result is incorrect")
 
@@ -2173,9 +2223,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(at + additionElements.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -2275,9 +2326,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.reversed().zip(oriList.getAllCells())) {
@@ -2301,9 +2353,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.reversed().zip(oriList.getAllCells())) {
@@ -2328,16 +2381,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(list.size - from, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -2362,12 +2417,14 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(0, resList.actualListSize, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -2393,16 +2450,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).take(count).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -2428,12 +2487,14 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(0, resList.actualListSize, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -2459,16 +2520,18 @@ internal class ListPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(list.size - from, resList.actualListSize, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -2564,9 +2627,10 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val oriList = context.getDereferencedProperty<LxmList>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmList")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val oriList =
+                    context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmList")
             Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
         }
     }

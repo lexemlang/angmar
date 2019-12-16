@@ -36,15 +36,14 @@ internal class LxmIndexerSetter : LexemSetter {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
-        val element = element.dereference(memory)
+        val element = element.dereference(memory, toWrite = false)
         val index = index
 
         return when (element) {
             is LxmString -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${StringType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${StringType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -66,7 +65,7 @@ internal class LxmIndexerSetter : LexemSetter {
 
                 if (primitive < 0 || primitive >= element.primitive.length) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                            "Cannot access to the character at $primitive. Actual value: $element") {
+                            "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -86,8 +85,7 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmBitList -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${BitListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${BitListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -109,7 +107,7 @@ internal class LxmIndexerSetter : LexemSetter {
 
                 if (primitive < 0 || primitive >= element.primitive.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                            "Cannot access to the character at $primitive. Actual value: $element") {
+                            "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -128,8 +126,7 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmList -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -151,7 +148,7 @@ internal class LxmIndexerSetter : LexemSetter {
 
                 if (primitive < 0 || primitive >= element.actualListSize) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                            "Cannot access to the character at $primitive. Actual value: $element") {
+                            "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -170,8 +167,7 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmObject -> {
                 if (index !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -191,8 +187,7 @@ internal class LxmIndexerSetter : LexemSetter {
                 element.getPropertyValue(memory, index) ?: LxmNil
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedIndexer,
-                    "The indexer getter is not applicable over the element ($element) with the index expression (${index.dereference(
-                            memory)})") {
+                    "The indexer getter is not applicable over the element ($element) with the used index expression.") {
                 val fullText = node.parser.reader.readAllText()
                 addSourceCode(fullText, node.parser.reader.getSource()) {
                     title = Consts.Logger.hintTitle
@@ -204,15 +199,14 @@ internal class LxmIndexerSetter : LexemSetter {
     }
 
     override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
-        val element = element.dereference(memory)
+        val element = element.dereference(memory, toWrite = true)
         val index = index
 
         when (element) {
             is LxmList -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -234,7 +228,7 @@ internal class LxmIndexerSetter : LexemSetter {
 
                 if (primitive < 0 || primitive >= element.actualListSize) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                            "Cannot access to the character at $primitive. Actual value: $element") {
+                            "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -253,8 +247,7 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmObject -> {
                 if (index !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}. Actual value: ${index.dereference(
-                                    memory)}") {
+                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -274,8 +267,7 @@ internal class LxmIndexerSetter : LexemSetter {
                 element.setProperty(memory, index, value)
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedIndexer,
-                    "The indexer setter is not applicable over the element ($element) with the index expression (${index.dereference(
-                            memory)})") {
+                    "The indexer setter is not applicable over the element ($element) with the used index expression.") {
                 val fullText = node.parser.reader.readAllText()
                 addSourceCode(fullText, node.parser.reader.getSource()) {
                     title = Consts.Logger.hintTitle

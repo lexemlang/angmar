@@ -31,7 +31,7 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val param1 = context.getPropertyValue(analyzer.memory, param1Id)
         val param2 = context.getPropertyValue(analyzer.memory, param2Id)
 
@@ -68,10 +68,10 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val positionalSpreadParam =
-                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
 
         val positionalParams = positionalSpreadParam.getAllCells()
         Assertions.assertEquals(1, positionalParams.size, "The number of positional params is incorrect")
@@ -107,10 +107,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val namedSpreadParam =
-                context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         val namedParams = namedSpreadParam.getAllIterableProperties()
         Assertions.assertEquals(1, namedParams.size, "The number of named params is incorrect")
@@ -149,12 +148,12 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val param1 = context.getPropertyValue(analyzer.memory, "param1")
         val param2 = context.getPropertyValue(analyzer.memory, "param2")
         val positionalSpreadParam =
-                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
@@ -196,12 +195,11 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val param1 = context.getPropertyValue(analyzer.memory, "param1")
         val param2 = context.getPropertyValue(analyzer.memory, "param2")
-        val namedSpreadParam =
-                context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
@@ -243,13 +241,12 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val positionalSpreadParam =
-                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
-        val namedSpreadParam =
-                context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         val positionalParams = positionalSpreadParam.getAllCells()
         Assertions.assertEquals(1, positionalParams.size, "The number of positional params is incorrect")
@@ -294,15 +291,14 @@ internal class FunctionParameterListAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val param1 = context.getPropertyValue(analyzer.memory, param1Id)
         val param2 = context.getPropertyValue(analyzer.memory, param2Id)
         val positionalSpreadParam =
-                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
-        val namedSpreadParam =
-                context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The $param1Id is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The $param2Id is incorrect")

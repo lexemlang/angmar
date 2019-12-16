@@ -62,7 +62,7 @@ internal object PropertyBlockSelectorAnalyzer {
      */
     private fun generateAlias(analyzer: LexemAnalyzer, aliasName: String) {
         val property = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Property)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, aliasName, property)
     }
 }

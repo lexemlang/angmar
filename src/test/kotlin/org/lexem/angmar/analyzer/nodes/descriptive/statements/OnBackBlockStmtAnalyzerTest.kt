@@ -44,7 +44,7 @@ internal class OnBackBlockStmtAnalyzerTest {
                 isDescriptiveCode = true)
 
         // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -52,7 +52,7 @@ internal class OnBackBlockStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         // Check variable.
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be a LxmInteger")
 

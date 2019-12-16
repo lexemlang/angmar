@@ -22,8 +22,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val text = "${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.trueLiteral} $block"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
@@ -38,7 +38,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
                 "The mainValue is not in the stack")
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
@@ -61,8 +61,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.falseLiteral} ${SelectiveCaseStmtNode.patternSeparator} ${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.trueLiteral}  $block"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
@@ -77,7 +77,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
                 "The mainValue is not in the stack")
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
@@ -100,8 +100,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.falseLiteral} ${SelectiveCaseStmtNode.patternSeparator} 5 $block"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
@@ -114,7 +114,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
                 "The mainValue is not in the stack")
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
@@ -137,8 +137,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
         val text = "${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.trueLiteral} $block"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveCaseStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
@@ -151,7 +151,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition),
                 "The mainValue is not in the stack")
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 

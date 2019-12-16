@@ -19,7 +19,7 @@ internal object ObjectAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new object.
-                val obj = LxmObject()
+                val obj = LxmObject(analyzer.memory)
                 val objRef = analyzer.memory.add(obj)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
@@ -44,7 +44,7 @@ internal object ObjectAnalyzer {
 
                 if (node.isConstant) {
                     val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                            analyzer.memory) as LxmObject
+                            analyzer.memory, toWrite = true) as LxmObject
 
                     obj.makeConstant(analyzer.memory)
                 }

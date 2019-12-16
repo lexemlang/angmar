@@ -35,7 +35,7 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
 
         // Add positional arguments to spread parameter.
         if (parameters.positionalSpread != null) {
-            val list = LxmList()
+            val list = LxmList(memory)
             val listRef = memory.add(list)
 
             for (i in positional.drop(parameters.getParameters().size)) {
@@ -47,7 +47,7 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
 
         // Map named arguments.
         if (parameters.namedSpread != null) {
-            val obj = LxmObject()
+            val obj = LxmObject(memory)
             val objRef = memory.add(obj)
 
             for ((key, value) in named) {

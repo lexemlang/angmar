@@ -47,9 +47,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -103,9 +104,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -136,9 +138,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
         }
     }
@@ -180,7 +183,8 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resMap = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(1, resMap.getSize(), "The result is incorrect")
 
             val resultMap = map.filter { it.value.primitive >= value2Check.primitive }
@@ -189,9 +193,10 @@ internal class MapPrototypeTest {
                 Assertions.assertEquals(resultMap[prop.key], prop.value, "The original map has been modified")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -240,9 +245,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil, variableAccumulator to LxmInteger.Num0)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -293,9 +299,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -319,9 +326,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -352,9 +360,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -378,9 +387,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -410,7 +420,8 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resMap = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(map.size, resMap.getSize(), "The result is incorrect")
 
             val resultMap = map.mapValues { LxmInteger.from(it.value.primitive + 1) }
@@ -419,9 +430,10 @@ internal class MapPrototypeTest {
                 Assertions.assertEquals(resultMap[prop.key], prop.value, "The original map has been modified")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -470,9 +482,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmInteger.Num1, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -527,9 +540,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -560,9 +574,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
         }
     }
@@ -600,9 +615,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size + 1, mapOri.getSize(), "The result is incorrect")
 
             val resProps = mapOri.getAllProperties().flatMap { it.value }
@@ -632,9 +648,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -661,9 +678,10 @@ internal class MapPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val resultMap = map.filter { it.key !in additionElements }
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size - 1, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -684,11 +702,12 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
-                val obj = element.dereference(analyzer.memory) as? LxmObject ?: throw Error(
+                val obj = element.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                         "All elements must be LxmObjects")
                 val key = obj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)
                 val value = obj.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)
@@ -697,9 +716,10 @@ internal class MapPrototypeTest {
                 Assertions.assertEquals(map[key], value, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -720,17 +740,18 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resObj =
-                    result?.dereference(analyzer.memory) as? LxmObject ?: throw Error("The result must be LxmObject")
+            val resObj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
+                    "The result must be LxmObject")
 
             for ((key, value) in resObj.getAllIterableProperties()) {
                 Assertions.assertTrue(LxmString.from(key) in map, "The result is incorrect")
                 Assertions.assertEquals(map[LxmString.from(key)], value.value, "The result is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -751,16 +772,18 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(element in map.keys, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -781,16 +804,18 @@ internal class MapPrototypeTest {
 
         TestUtils.e2eTestExecutingExpression(fnCall, preFunctionCall,
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
-            val resList = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be LxmList")
+            val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be LxmList")
             Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(element in map.values, "The result list is incorrect")
             }
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
 
             for (prop in mapOri.getAllProperties().flatMap { it.value }) {
@@ -813,9 +838,10 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-            val mapOri = context.getDereferencedProperty<LxmMap>(analyzer.memory, variable) ?: throw Error(
-                    "The variable must contain a LxmMap")
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+            val mapOri =
+                    context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmMap")
             Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
         }
     }
@@ -828,7 +854,8 @@ internal class MapPrototypeTest {
         val fnCall = "${mapToString(map1)}${AdditiveExpressionNode.additionOperator}${mapToString(map2)}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(3, map.getSize(), "The size of the result is incorrect")
 
             for (prop in map.getAllProperties().flatMap { it.value }) {
@@ -853,7 +880,8 @@ internal class MapPrototypeTest {
         val fnCall = "${mapToString(map1)}${AdditiveExpressionNode.subtractionOperator}${mapToString(map2)}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(1, map.getSize(), "The size of the result is incorrect")
 
             for (prop in map.getAllProperties().flatMap { it.value }) {
@@ -875,7 +903,8 @@ internal class MapPrototypeTest {
         val fnCall = "${mapToString(map1)}${LogicalExpressionNode.andOperator}${mapToString(map2)}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(1, map.getSize(), "The size of the result is incorrect")
 
             for (prop in map.getAllProperties().flatMap { it.value }) {
@@ -894,7 +923,8 @@ internal class MapPrototypeTest {
         val fnCall = "${mapToString(map1)}${LogicalExpressionNode.orOperator}${mapToString(map2)}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(3, map.getSize(), "The size of the result is incorrect")
 
             for (prop in map.getAllProperties().flatMap { it.value }) {
@@ -919,7 +949,8 @@ internal class MapPrototypeTest {
         val fnCall = "${mapToString(map1)}${LogicalExpressionNode.xorOperator}${mapToString(map2)}"
 
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be LxmMap")
             Assertions.assertEquals(2, map.getSize(), "The size of the result is incorrect")
 
             for (prop in map.getAllProperties().flatMap { it.value }) {

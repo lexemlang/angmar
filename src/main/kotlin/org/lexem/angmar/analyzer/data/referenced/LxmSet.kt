@@ -12,8 +12,9 @@ import org.lexem.angmar.parser.literals.*
 /**
  * The Lexem value of the Set type.
  */
-internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
-    private var isConstant = false
+internal class LxmSet(memory: LexemMemory, val oldSet: LxmSet? = null) : LexemReferenced(memory) {
+    var isConstant: Boolean = oldSet?.isConstant ?: false
+        private set
     private var values = mutableMapOf<Int, MutableList<LxmSetProperty>>()
 
     // METHODS ----------------------------------------------------------------
@@ -23,9 +24,14 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
      */
     fun addValue(memory: LexemMemory, value: LexemPrimitive) {
         // Prevent modifications if the object is constant.
-        if (this.isConstant) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
-                    "The map is constant therefore cannot be modified") {}
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
+        if (isConstant) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
+                    "The set is constant therefore cannot be modified") {}
         }
 
         val valueHash = value.getHashCode(memory)
@@ -68,9 +74,14 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
      */
     fun removeValue(memory: LexemMemory, value: LexemPrimitive) {
         // Prevent modifications if the object is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
-                    "The map is constant therefore it cannot be modified") {}
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
+                    "The set is constant therefore it cannot be modified") {}
         }
 
         val valueHash = value.getHashCode(memory)
@@ -106,6 +117,11 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
      * Makes the set constant.
      */
     fun makeConstant(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
         isConstant = true
     }
 
@@ -182,17 +198,10 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val isImmutable: Boolean
-        get() = isConstant
-
-    override fun clone() = if (isImmutable) {
-        this
-    } else {
-        LxmSet(this)
-    }
+    override fun clone(memory: LexemMemory) = LxmSet(memory, this)
 
     override fun memoryDealloc(memory: LexemMemory) {
-        for (i in this.values) {
+        for (i in values) {
             for (j in i.value) {
                 val reference = j.value
                 if (reference is LxmReference) {
@@ -201,11 +210,11 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
             }
         }
 
-        this.values.clear()
+        values.clear()
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
-        for ((_, list) in this.values) {
+        for ((_, list) in values) {
             for (property in list) {
                 property.value.spatialGarbageCollect(memory)
             }
@@ -213,7 +222,7 @@ internal class LxmSet(val oldSet: LxmSet?) : LexemReferenced {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, SetType.TypeName) as LxmReference
     }
 

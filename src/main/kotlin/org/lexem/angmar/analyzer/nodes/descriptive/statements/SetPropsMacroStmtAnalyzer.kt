@@ -22,8 +22,9 @@ internal object SetPropsMacroStmtAnalyzer {
                 return analyzer.nextNode(node.properties)
             }
             signalEndProperties -> {
-                val values = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmObject
-                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                val values =
+                        analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmObject
+                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = true)
 
                 for ((key, value) in values.getAllIterableProperties()) {
                     properties.setProperty(analyzer.memory, key, value.value)

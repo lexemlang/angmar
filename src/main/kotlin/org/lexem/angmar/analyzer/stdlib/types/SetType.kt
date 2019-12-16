@@ -26,16 +26,17 @@ internal object SetType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, memory.add(LxmFunction(::newFromFunction)), isConstant = true)
-        type.setProperty(memory, Join, memory.add(LxmFunction(::joinFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, memory.add(LxmFunction(memory, ::newFromFunction)), isConstant = true)
+        type.setProperty(memory, Join, memory.add(LxmFunction(memory, ::joinFunction)), isConstant = true)
     }
 
     /**
@@ -44,12 +45,12 @@ internal object SetType {
     private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val newSet = LxmSet(null)
+                val newSet = LxmSet(analyzer.memory)
                 val newSetRef = analyzer.memory.add(newSet)
                 for (i in spreadArguments) {
                     newSet.addValue(analyzer.memory, i)
@@ -68,14 +69,14 @@ internal object SetType {
     private fun joinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val newSet = LxmSet(null)
+                val newSet = LxmSet(analyzer.memory)
                 val newSetRef = analyzer.memory.add(newSet)
-                for (set in spreadArguments.map { it.dereference(analyzer.memory) }) {
+                for (set in spreadArguments.map { it.dereference(analyzer.memory, toWrite = false) }) {
                     if (set !is LxmSet) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Join' method requires that all its parameters be a $TypeName") {}

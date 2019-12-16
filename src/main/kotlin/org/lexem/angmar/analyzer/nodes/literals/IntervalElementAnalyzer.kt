@@ -31,9 +31,9 @@ internal object IntervalElementAnalyzer {
 
                 if (left !is LxmInteger) {
                     val msg = if (node.right != null) {
-                        "The returned value by the left expression must be an ${IntegerType.TypeName}. Actual value: $left"
+                        "The returned value by the left expression must be an ${IntegerType.TypeName}."
                     } else {
-                        "The returned value by the expression must be an ${IntegerType.TypeName}. Actual value: $left"
+                        "The returned value by the expression must be an ${IntegerType.TypeName}."
                     }
 
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType, msg) {
@@ -70,7 +70,7 @@ internal object IntervalElementAnalyzer {
 
                 if (right !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the right expression must be an ${IntegerType.TypeName}. Actual value: $right") {
+                            "The returned value by the right expression must be an ${IntegerType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle

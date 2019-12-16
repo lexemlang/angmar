@@ -5,24 +5,29 @@ import org.lexem.angmar.analyzer.memory.*
 /**
  * The common part of every referenced value in lexem.
  */
-internal interface LexemReferenced : LexemMemoryValue {
+internal abstract class LexemReferenced(memory: LexemMemory) : LexemMemoryValue {
     /**
-     * Indicates whether the value is immutable or not.
+     * Holds a reference to the node that it belongs to.
      */
-    val isImmutable: Boolean
+    var bigNode = memory.lastNode
+
+    /**
+     * Indicates whether the value is an immutable view of the memory value or can be modified.
+     */
+    fun isMemoryImmutable(memory: LexemMemory) = bigNode != memory.lastNode
 
     /**
      * Clones the current value.
      */
-    fun clone(): LexemReferenced
+    abstract fun clone(memory: LexemMemory): LexemReferenced
 
     /**
      * Clears the memory value.
      */
-    fun memoryDealloc(memory: LexemMemory)
+    abstract fun memoryDealloc(memory: LexemMemory)
 
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect(memory: LexemMemory)
+    abstract fun spatialGarbageCollect(memory: LexemMemory)
 }

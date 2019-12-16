@@ -21,7 +21,7 @@ internal class AnalyzerNodesCommonsTest {
         val arguments = LxmArguments(analyzer.memory)
         val argumentReference = analyzer.memory.add(arguments)
 
-        val function = LxmFunction { _, _, _, _ -> true }
+        val function = LxmFunction(analyzer.memory) { _, _, _, _ -> true }
         val functionRef = analyzer.memory.add(function)
 
         val returnSignal = 45
@@ -32,8 +32,8 @@ internal class AnalyzerNodesCommonsTest {
 
         // Assert status of the analyzer.
         val stackFunction = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
-        val stackArguments =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory)
+        val stackArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments)
+                .dereference(analyzer.memory, toWrite = false)
         val stackReturnPosition =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as LxmCodePoint
 

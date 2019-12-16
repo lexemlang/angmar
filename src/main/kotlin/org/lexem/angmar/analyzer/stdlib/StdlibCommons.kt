@@ -75,7 +75,7 @@ internal object StdlibCommons {
 
         AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
                 LxmCodePoint(InternalFunctionCallNode, returnSignal,
-                        callerNode = (function.dereference(analyzer.memory) as LxmFunction).node,
+                        callerNode = (function.dereference(analyzer.memory, toWrite = false) as LxmFunction).node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 
@@ -83,7 +83,8 @@ internal object StdlibCommons {
      * Calls the toString method of a value.
      */
     fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int, functionName: String) {
-        val prototype = value.dereference(analyzer.memory).getPrototypeAsObject(analyzer.memory)
+        val prototype = value.dereference(analyzer.memory, toWrite = false)
+                .getPrototypeAsObject(analyzer.memory, toWrite = false)
         val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
 
         val arguments = LxmArguments(analyzer.memory)
@@ -92,7 +93,7 @@ internal object StdlibCommons {
 
         AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
                 LxmCodePoint(InternalFunctionCallNode, returnSignal,
-                        callerNode = (function.dereference(analyzer.memory) as LxmFunction).node,
+                        callerNode = (function.dereference(analyzer.memory, toWrite = false) as LxmFunction).node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 }

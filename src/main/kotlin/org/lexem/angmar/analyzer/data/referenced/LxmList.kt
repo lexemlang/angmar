@@ -11,12 +11,15 @@ import org.lexem.angmar.parser.literals.*
 /**
  * The Lexem value of the List type.
  */
-internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
-    private var isConstant = false
+internal class LxmList(memory: LexemMemory, val oldList: LxmList? = null) : LexemReferenced(memory) {
+    var isConstant: Boolean = oldList?.isConstant ?: false
+        private set
     var actualListSize: Int = oldList?.actualListSize ?: 0
         private set
     private var cellList = mutableMapOf<Int, LexemPrimitive>()
     val listSize get() = cellList.size
+
+    // METHODS ----------------------------------------------------------------
 
     /**
      * Gets the value of a cell.
@@ -26,14 +29,19 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     /**
      * Gets the final value of a cell.
      */
-    inline fun <reified T : LexemMemoryValue> getDereferencedCell(memory: LexemMemory, index: Int): T? =
-            getCell(memory, index) as? T
+    inline fun <reified T : LexemMemoryValue> getDereferencedCell(memory: LexemMemory, index: Int,
+            toWrite: Boolean): T? = getCell(memory, index)?.dereference(memory, toWrite) as? T
 
     /**
      * Sets a new value to a cell.
      */
     fun setCell(memory: LexemMemory, index: Int, value: LexemPrimitive) {
         // Prevent modifications if the list is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -66,6 +74,11 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      */
     fun addCell(memory: LexemMemory, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -82,6 +95,11 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      */
     fun removeCell(memory: LexemMemory, index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -125,6 +143,11 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      */
     fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -160,6 +183,11 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
      * Makes the object constant.
      */
     fun makeConstant(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         isConstant = true
     }
 
@@ -200,10 +228,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val isImmutable: Boolean
-        get() = isConstant
-
-    override fun clone() = LxmList(this)
+    override fun clone(memory: LexemMemory) = LxmList(memory, this)
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllCells()) {
@@ -223,7 +248,7 @@ internal class LxmList(val oldList: LxmList? = null) : LexemReferenced {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ListType.TypeName) as LxmReference
     }
 

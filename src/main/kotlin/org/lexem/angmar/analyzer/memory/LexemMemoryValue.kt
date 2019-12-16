@@ -14,33 +14,36 @@ internal interface LexemMemoryValue {
      * Gets the type of the value.
      */
     fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, AnyType.TypeName) as LxmReference
     }
 
     /**
      * Gets the type of the value as a [LxmObject].
      */
-    fun getTypeAsObject(memory: LexemMemory) = getType(memory).dereferenceAs<LxmObject>(memory)!!
+    fun getTypeAsObject(memory: LexemMemory, toWrite: Boolean) =
+            getType(memory).dereferenceAs<LxmObject>(memory, toWrite)!!
 
     /**
      * Gets the prototype of the value.
      */
-    fun getPrototype(memory: LexemMemory) = getType(memory).dereferenceAs<LxmObject>(memory)!!.getPropertyValue(memory,
-            AnalyzerCommons.Identifiers.Prototype) as LxmReference
+    fun getPrototype(memory: LexemMemory) =
+            getType(memory).dereferenceAs<LxmObject>(memory, toWrite = false)!!.getPropertyValue(memory,
+                    AnalyzerCommons.Identifiers.Prototype) as LxmReference
 
     /**
      * Gets the prototype of the value as a [LxmObject].
      */
-    fun getPrototypeAsObject(memory: LexemMemory) = getPrototype(memory).dereferenceAs<LxmObject>(memory)!!
+    fun getPrototypeAsObject(memory: LexemMemory, toWrite: Boolean) =
+            getPrototype(memory).dereferenceAs<LxmObject>(memory, toWrite)!!
 
     /**
      * Returns the current object if it is a [LxmObject] or the prototype otherwise.
      */
-    fun getObjectOrPrototype(memory: LexemMemory) = if (this is LxmObject) {
+    fun getObjectOrPrototype(memory: LexemMemory, toWrite: Boolean) = if (this is LxmObject) {
         this
     } else {
-        getPrototypeAsObject(memory)
+        getPrototypeAsObject(memory, toWrite)
     }
 
     /**

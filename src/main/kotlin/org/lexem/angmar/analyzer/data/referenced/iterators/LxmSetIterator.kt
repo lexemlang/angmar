@@ -14,10 +14,10 @@ internal class LxmSetIterator : LexemIterator {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
-        val set = value.dereferenceAs<LxmSet>(memory)!!
+        val set = value.dereferenceAs<LxmSet>(memory, toWrite = false)!!
         setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
 
-        val list = LxmList()
+        val list = LxmList(memory)
         val values = set.getAllValues().flatMap { it.value.map { it.value } }
         for (v in values) {
             list.addCell(memory, v)
@@ -28,7 +28,7 @@ internal class LxmSetIterator : LexemIterator {
         size = values.size.toLong()
     }
 
-    private constructor(oldIterator: LxmSetIterator) : super(oldIterator) {
+    private constructor(memory: LexemMemory, oldIterator: LxmSetIterator) : super(memory, oldIterator) {
         this.size = oldIterator.size
     }
 
@@ -38,7 +38,7 @@ internal class LxmSetIterator : LexemIterator {
      * Gets the iterator's keys.
      */
     private fun getKeys(memory: LexemMemory) =
-            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Keys)!!
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Keys, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -55,7 +55,7 @@ internal class LxmSetIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun clone() = LxmSetIterator(this)
+    override fun clone(memory: LexemMemory) = LxmSetIterator(memory, this)
 
     override fun toString() = "[ITERATOR - SET] ${super.toString()}"
 }

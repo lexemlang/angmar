@@ -30,7 +30,7 @@ internal object PropertyStyleObjectElementAnalyzer {
 
                 if (key !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the key expression must be a ${StringType.TypeName}. Actual value: $key") {
+                            "The returned value by the key expression must be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -53,7 +53,7 @@ internal object PropertyStyleObjectElementAnalyzer {
                 val value = analyzer.memory.getLastFromStack()
                 val key = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmObject
+                        analyzer.memory, toWrite = true) as LxmObject
 
                 obj.setProperty(analyzer.memory, key.primitive, value)
 

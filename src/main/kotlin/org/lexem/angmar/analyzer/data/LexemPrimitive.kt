@@ -10,7 +10,7 @@ internal interface LexemPrimitive : LexemMemoryValue {
     /**
      * Dereferences all indirect references until get a value that is not a [LxmReference] or [LexemSetter].
      */
-    fun dereference(memory: LexemMemory): LexemMemoryValue = this
+    fun dereference(memory: LexemMemory, toWrite: Boolean): LexemMemoryValue = this
 
     /**
      * Increase the internal references of the primitive.

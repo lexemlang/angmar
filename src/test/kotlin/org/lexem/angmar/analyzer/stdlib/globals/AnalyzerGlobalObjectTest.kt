@@ -13,7 +13,8 @@ internal class AnalyzerGlobalObjectTest {
                 "${AnalyzerGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${AnalyzerGlobalObject.RootNode}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val result = result?.dereference(analyzer.memory) as? LxmNode ?: throw Error("The result must be a LxmNode")
+            val result = result?.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
+                    "The result must be a LxmNode")
             Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, result.name, "The result is incorrect")
         }
     }

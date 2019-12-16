@@ -101,7 +101,7 @@ internal object LexemePatternGroupAnalyzer {
 
                 // Increase index.
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = true) as LxmPatternUnion
                 union.increaseIndex(analyzer.memory)
 
                 if (union.canHaveANextPattern(analyzer.memory)) {
@@ -130,7 +130,7 @@ internal object LexemePatternGroupAnalyzer {
                 val position = (signal - signalBadPattern) + 1
 
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 // Check the quantifier can be matched with the remaining patterns.
                 if (!union.canFinish(analyzer.memory, node.patterns.size - position)) {

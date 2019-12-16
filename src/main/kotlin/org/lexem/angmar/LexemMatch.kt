@@ -17,13 +17,13 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : 
     val from = node.getFrom(analyzer.memory).primitive
     val to = node.getTo(analyzer.memory)!!.primitive
     val children = node.getChildrenAsList(analyzer.memory).map { position ->
-        LexemMatch(analyzer, position.dereference(analyzer.memory) as LxmNode)
+        LexemMatch(analyzer, position.dereference(analyzer.memory, toWrite = false) as LxmNode)
     }
     val properties: Map<String, Any>
 
     init {
         val result = mutableMapOf<String, Any>()
-        node.getProperties(analyzer.memory).getAllIterableProperties().forEach { (key, property) ->
+        node.getProperties(analyzer.memory, toWrite = false).getAllIterableProperties().forEach { (key, property) ->
             val res: Any? = when (val value = property.value) {
                 is LxmLogic -> value.primitive
                 is LxmInteger -> value.primitive

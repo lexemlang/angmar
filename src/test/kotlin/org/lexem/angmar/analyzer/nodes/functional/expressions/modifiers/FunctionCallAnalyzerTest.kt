@@ -85,21 +85,21 @@ internal class FunctionCallAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(finalText, parserFunction = FunctionCallNode.Companion::parse)
 
         // Prepare context and stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         var executed = false
-        val function = LxmFunction { _, argumentsReference, _, _ ->
-            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!
+        val function = LxmFunction(analyzer.memory) { _, argumentsReference, _, _ ->
+            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
             executed = true
 
             val positionalArguments = arguments.getDereferencedProperty<LxmList>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.ArgumentsPositional) ?: throw Error(
+                    AnalyzerCommons.Identifiers.ArgumentsPositional, toWrite = false) ?: throw Error(
                     "The ${AnalyzerCommons.Identifiers.ArgumentsPositional} must be a LxmList")
 
             val namedArguments = arguments.getDereferencedProperty<LxmObject>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.ArgumentsNamed) ?: throw Error(
+                    AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite = false) ?: throw Error(
                     "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
 
             val allPositional = positionalArguments.getAllCells()
@@ -154,7 +154,7 @@ internal class FunctionCallAnalyzerTest {
             // Check props
             if (addProperties) {
                 val propRef = allNamed[AnalyzerCommons.Identifiers.ArgumentsProperties]!!.value
-                val properties = propRef.dereference(analyzer.memory) as LxmObject
+                val properties = propRef.dereference(analyzer.memory, toWrite = false) as LxmObject
 
                 for (p in props) {
                     val value = properties.getPropertyValue(analyzer.memory, p)

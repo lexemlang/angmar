@@ -22,9 +22,8 @@ internal class NameSelectorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
 
-        val result =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory) as? LxmNode
-                        ?: throw Error("The result must be a LxmNode")
+        val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
+                toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
         Assertions.assertEquals(initialPosition, result.getFrom(analyzer.memory).primitive.position(),
                 "The from property is incorrect")

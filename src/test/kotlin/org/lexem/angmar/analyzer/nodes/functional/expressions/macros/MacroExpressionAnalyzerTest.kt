@@ -15,7 +15,7 @@ internal class MacroExpressionAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = MultiplicativeExpressionNode.Companion::parse)
 
         // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
@@ -39,7 +39,7 @@ internal class MacroExpressionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFromFile(mainPath, MacroExpressionNode.Companion::parse)
 
             // Prepare context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
             TestUtils.processAndCheckEmpty(analyzer)
@@ -64,7 +64,7 @@ internal class MacroExpressionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFromFile(mainPath, MacroExpressionNode.Companion::parse)
 
             // Prepare context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
             TestUtils.processAndCheckEmpty(analyzer)

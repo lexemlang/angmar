@@ -49,7 +49,7 @@ internal object SelectiveStmtAnalyzer {
             signalEndTag -> {
                 // Set the name of the context.
                 val identifier = analyzer.memory.getLastFromStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag, identifier)
 
                 // Remove Last from the stack.

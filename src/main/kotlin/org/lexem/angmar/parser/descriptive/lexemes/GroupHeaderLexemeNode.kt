@@ -16,6 +16,7 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
     var quantifier: QuantifierLexemeNode? = null
     var identifier: IdentifierNode? = null
     var propertyBlock: PropertyStyleObjectBlockNode? = null
+    var isFilterCode = false
 
     override fun toString() = StringBuilder().apply {
         if (quantifier != null) {
@@ -57,6 +58,7 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
 
             val initCursor = parser.reader.saveCursor()
             val result = GroupHeaderLexemeNode(parser, parent, parentSignal)
+            result.isFilterCode = parser.isFilterCode
 
             result.quantifier = QuantifierLexemeNode.parse(parser, result, GroupHeaderLexemAnalyzer.signalEndQuantifier)
 

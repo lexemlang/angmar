@@ -32,7 +32,7 @@ internal class LxmAccessSetter : LexemSetter {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
-        val ctxObject = context.dereference(memory) as LxmObject
+        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = false)!!
 
         return ctxObject.getPropertyValue(memory, variableName) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType,
@@ -51,7 +51,7 @@ internal class LxmAccessSetter : LexemSetter {
     }
 
     override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
-        val ctxObject = context.dereference(memory) as LxmObject
+        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = true)!!
         ctxObject.setPropertyAsContext(memory, variableName, value)
     }
 

@@ -114,8 +114,8 @@ internal object LexemePatternAnalyzer {
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
 
                         // Increase the index.
-                        val union = getUnion(analyzer, node, unionName.primitive).dereference(
-                                analyzer.memory) as LxmPatternUnion
+                        val union = getUnion(analyzer, node, unionName.primitive).dereference(analyzer.memory,
+                                toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
                     }
                 }
@@ -151,8 +151,8 @@ internal object LexemePatternAnalyzer {
                                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion) as LxmString
 
                         // Increase the index.
-                        val union = getUnion(analyzer, node, unionName.primitive).dereference(
-                                analyzer.memory) as LxmPatternUnion
+                        val union = getUnion(analyzer, node, unionName.primitive).dereference(analyzer.memory,
+                                toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
 
                         // Remove LexemeUnion from the stack.
@@ -173,7 +173,7 @@ internal object LexemePatternAnalyzer {
     private fun executePattern(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: LxmString,
             quantifier: LxmQuantifier? = null) {
         val unionReference = getOrInitUnion(analyzer, node, unionName.primitive, quantifier)
-        val union = unionReference.dereferenceAs<LxmPatternUnion>(analyzer.memory)!!
+        val union = unionReference.dereferenceAs<LxmPatternUnion>(analyzer.memory, toWrite = false)!!
 
         if (union.canHaveANextPattern(analyzer.memory)) {
             // On backwards skip.
@@ -193,7 +193,7 @@ internal object LexemePatternAnalyzer {
      */
     private fun getUnion(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: String): LxmReference {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenPatternUnions)
+                AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)
         return unions.getPropertyValue(analyzer.memory, unionName) as LxmReference
     }
 
@@ -203,7 +203,7 @@ internal object LexemePatternAnalyzer {
     private fun getOrInitUnion(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: String,
             quantifier: LxmQuantifier?): LxmReference {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenPatternUnions)
+                AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = true)
         var unionRef = unions.getPropertyValue(analyzer.memory, unionName) as? LxmReference
 
         if (unionRef == null) {
@@ -226,7 +226,7 @@ internal object LexemePatternAnalyzer {
             }
         } else if (quantifier != null) {
             // Check the quantifier of the union match with the current one.
-            val union = unionRef.dereference(analyzer.memory) as LxmPatternUnion
+            val union = unionRef.dereference(analyzer.memory, toWrite = false) as LxmPatternUnion
             if (!union.quantifierIsEqualsTo(quantifier)) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.PatternUnionAlreadyExists,
                         "The union called '$unionName' already exist with other bounds. Previous: ${union.quantifier}, Current: $quantifier") {

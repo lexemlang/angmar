@@ -8,19 +8,19 @@ import java.util.*
 /**
  * The representation of a memory cell.
  */
-internal class BigNodeCell private constructor(position: Int, value: LexemReferenced) {
+internal class BigNodeCell private constructor(position: Int, value: LexemReferenced?) {
     var isNotGarbage = false
         private set
     var position = position
         private set
     var referenceCount = 0
         private set
-    var value = value
+    var value: LexemReferenced? = value
         private set
 
     // PROPERTIES -------------------------------------------------------------
 
-    val isFreed get() = value == EmptyCell
+    val isFreed get() = value == null
 
     // METHODS ----------------------------------------------------------------
 
@@ -43,7 +43,7 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
     fun destroy() {
         position = -1
         referenceCount = 0
-        value = EmptyCell
+        value = null
 
         if (instances.size < Consts.Memory.maxPoolSize) {
             instances.add(this)
@@ -53,10 +53,9 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
     /**
      * Shifts the memory cell to a forward [BigNode].
      */
-    fun shiftCell(): BigNodeCell {
-        val newCell = new(position, value)
+    fun shiftCell(memory: LexemMemory): BigNodeCell {
+        val newCell = new(position, value?.clone(memory))
         newCell.referenceCount = referenceCount
-        newCell.value = value.clone()
 
         return newCell
     }
@@ -66,7 +65,7 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
      */
     fun reallocCell(memory: LexemMemory, value: LexemReferenced) {
         referenceCount = 0
-        this.value.memoryDealloc(memory)
+        this.value?.memoryDealloc(memory)
         this.value = value
     }
 
@@ -90,8 +89,8 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
         }
 
         isNotGarbage = false
-        val value = value
-        this.value = EmptyCell
+        val value = value!!
+        this.value = null
         value.memoryDealloc(memory)
         referenceCount = memory.lastNode.lastFreePosition
     }
@@ -151,7 +150,7 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
             this.isNotGarbage = true
 
             // Collect.
-            this.value.spatialGarbageCollect(memory)
+            this.value!!.spatialGarbageCollect(memory)
         }
     }
 
@@ -169,47 +168,22 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
 
     // STATIC -----------------------------------------------------------------
 
-    internal object EmptyCell : LexemReferenced {
-        override val isImmutable = true
-        override fun clone() = this
-        override fun memoryDealloc(memory: LexemMemory) = Unit
-        override fun spatialGarbageCollect(memory: LexemMemory) = throw AngmarUnreachableException()
-    }
-
     companion object {
         private val instances = Stack<BigNodeCell>()
 
         /**
          * Creates a new [BigNodeCell] for a specified position with a default value value.
          */
-        fun new(position: Int, value: LexemReferenced): BigNodeCell {
+        fun new(position: Int, value: LexemReferenced?): BigNodeCell {
             val instance = if (instances.size > 0) {
                 instances.pop()!!
             } else {
-                BigNodeCell(position, EmptyCell)
+                BigNodeCell(position, null)
             }
 
             instance.position = position
             instance.value = value
             instance.referenceCount = 0
-
-            return instance
-        }
-
-        /**
-         * Clones the specified [BigNodeCell]. USED ONLY IN COLLAPSE DUE TO IT DOES NOT HANDLE POINTERS.
-         */
-        fun newFrom(cellToClone: BigNodeCell): BigNodeCell {
-            val instance = if (instances.size > 0) {
-                instances.pop()!!
-            } else {
-                BigNodeCell(cellToClone.position, cellToClone.value)
-            }
-
-            instance.isNotGarbage = cellToClone.isNotGarbage
-            instance.position = cellToClone.position
-            instance.referenceCount = cellToClone.referenceCount
-            instance.value = cellToClone.value
 
             return instance
         }

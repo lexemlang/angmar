@@ -16,7 +16,7 @@ internal class MapElementAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = MapElementNode.Companion::parse)
 
         // Prepare stack.
-        val map = LxmMap(null)
+        val map = LxmMap(analyzer.memory)
         val mapRef = analyzer.memory.add(map)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
 
@@ -25,10 +25,11 @@ internal class MapElementAnalyzerTest {
         val resultRef =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
                         "The result must be a LxmReference")
-        val mapDeref = resultRef.dereferenceAs<LxmMap>(analyzer.memory) ?: throw Error("The result must be a LxmMap")
+        val mapDeref = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmMap")
         val element =
-                mapDeref.getDereferencedProperty<LxmInteger>(analyzer.memory, LxmInteger.from(key)) ?: throw Error(
-                        "The element must be a LxmInteger")
+                mapDeref.getDereferencedProperty<LxmInteger>(analyzer.memory, LxmInteger.from(key), toWrite = false)
+                        ?: throw Error("The element must be a LxmInteger")
 
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
 

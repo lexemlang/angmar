@@ -32,7 +32,7 @@ internal class LxmNodeTest {
         readerChild.setPosition(parentChild1LeftBound)
         val parentChild1 = LxmNode("parentChild1", readerChild.saveCursor(), parentRef, memory)
         val parentChild1Ref = memory.add(parentChild1)
-        parent.getChildren(memory).addCell(memory, parentChild1Ref, ignoreConstant = true)
+        parent.getChildren(memory, toWrite = true).addCell(memory, parentChild1Ref, ignoreConstant = true)
         readerChild.setPosition(parentChild1RightBound)
         parentChild1.setTo(memory, readerChild.saveCursor())
 
@@ -41,7 +41,7 @@ internal class LxmNodeTest {
         readerChild.setPosition(parentChild2LeftBound)
         val parentChild2 = LxmNode("parentChild2", readerChild.saveCursor(), parentRef, memory)
         val parentChild2Ref = memory.add(parentChild2)
-        parent.getChildren(memory).addCell(memory, parentChild2Ref, ignoreConstant = true)
+        parent.getChildren(memory, toWrite = true).addCell(memory, parentChild2Ref, ignoreConstant = true)
         readerChild.setPosition(parentChild2RightBound)
         parentChild2.setTo(memory, readerChild.saveCursor())
 

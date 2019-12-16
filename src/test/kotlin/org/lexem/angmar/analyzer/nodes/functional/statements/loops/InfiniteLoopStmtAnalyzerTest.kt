@@ -25,14 +25,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(finalValue, result.primitive, "The primitive property is incorrect")
 
@@ -54,14 +54,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -124,14 +124,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -156,14 +156,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -203,14 +203,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -235,14 +235,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -282,14 +282,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 
@@ -314,14 +314,14 @@ internal class InfiniteLoopStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = InfiniteLoopStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(resultValue, result.primitive, "The primitive property is incorrect")
 

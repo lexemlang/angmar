@@ -21,7 +21,7 @@ internal class BinarySequenceLexemAnalyzerTest {
         val binaryReader = IOBinaryReader.from(binarySequence)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -52,7 +52,7 @@ internal class BinarySequenceLexemAnalyzerTest {
         binaryReader.setPosition(binaryReader.getLength())
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -81,9 +81,9 @@ internal class BinarySequenceLexemAnalyzerTest {
         val binaryReader = IOBinaryReader.from(binarySequence)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
-        val props = node.getProperties(analyzer.memory)
+        val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -114,9 +114,9 @@ internal class BinarySequenceLexemAnalyzerTest {
         binaryReader.setPosition(binaryReader.getLength())
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
-        val props = node.getProperties(analyzer.memory)
+        val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -146,7 +146,7 @@ internal class BinarySequenceLexemAnalyzerTest {
         val binaryReader = IOBinaryReader.from(binarySequence2)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -166,7 +166,7 @@ internal class BinarySequenceLexemAnalyzerTest {
         val binaryReader = IOBinaryReader.from(binarySequence)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -189,7 +189,7 @@ internal class BinarySequenceLexemAnalyzerTest {
         val binaryReader = IOBinaryReader.from(binarySequence2)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 

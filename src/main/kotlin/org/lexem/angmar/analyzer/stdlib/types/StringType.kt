@@ -31,17 +31,18 @@ internal object StringType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, Join, memory.add(LxmFunction(::joinFunction)), isConstant = true)
-        type.setProperty(memory, JoinBy, memory.add(LxmFunction(::joinByFunction)), isConstant = true)
-        type.setProperty(memory, FromUnicodePoints, memory.add(LxmFunction(::fromUnicodePointsFunction)),
+        type.setProperty(memory, Join, memory.add(LxmFunction(memory, ::joinFunction)), isConstant = true)
+        type.setProperty(memory, JoinBy, memory.add(LxmFunction(memory, ::joinByFunction)), isConstant = true)
+        type.setProperty(memory, FromUnicodePoints, memory.add(LxmFunction(memory, ::fromUnicodePointsFunction)),
                 isConstant = true)
     }
 
@@ -52,8 +53,8 @@ internal object StringType {
             signal: Int): Boolean {
         val signalEndFirstParam = AnalyzerNodesCommons.signalCallFunction + 1
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -113,8 +114,8 @@ internal object StringType {
         val signalEndFirstParam = AnalyzerNodesCommons.signalCallFunction + 1
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        JoinByArgs, spreadPositionalParameter = spreadArguments)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, JoinByArgs, spreadPositionalParameter = spreadArguments)
         val separator = parsedArguments[JoinByArgs[0]]!!
 
         when (signal) {
@@ -184,8 +185,8 @@ internal object StringType {
     private fun fromUnicodePointsFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
             function: LxmFunction, signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

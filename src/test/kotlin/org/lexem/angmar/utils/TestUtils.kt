@@ -258,8 +258,8 @@ object TestUtils {
         }
 
         // Check context.
-        val stdLibContext = AnalyzerCommons.getStdLibContext(memory)
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val stdLibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
 
         Assertions.assertEquals(stdLibContext, context, "The context must be the stdLib")
 
@@ -310,7 +310,7 @@ object TestUtils {
         }
 
         // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
 
         for ((name, value) in initialVars) {
@@ -319,7 +319,7 @@ object TestUtils {
 
         processAndCheckEmpty(analyzer)
 
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val result = context.getPropertyValue(analyzer.memory, varName)
 
         checkFunction(analyzer, result)

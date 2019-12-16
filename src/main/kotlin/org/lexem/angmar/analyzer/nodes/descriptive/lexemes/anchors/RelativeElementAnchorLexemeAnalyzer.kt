@@ -83,7 +83,7 @@ internal object RelativeElementAnchorLexemeAnalyzer {
                         var text = value.primitive
                         val cursor = reader.saveCursor()
                         val isForward = !(analyzer.isForward() xor isStartLogic)
-                        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
                         val insensible = RelationalFunctions.isTruthy(
                                 props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible)
                                         ?: LxmNil)
@@ -131,7 +131,7 @@ internal object RelativeElementAnchorLexemeAnalyzer {
                         val interval = value.primitive
                         val cursor = reader.saveCursor()
                         val isForward = !(analyzer.isForward() xor isStartLogic)
-                        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
                         val insensible = RelationalFunctions.isTruthy(
                                 props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible)
                                         ?: LxmNil)

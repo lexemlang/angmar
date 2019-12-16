@@ -26,7 +26,8 @@ internal class MapTypeTest {
         }}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val map = result?.dereference(analyzer.memory) as? LxmMap ?: throw Error("The result must be a LxmMap")
+            val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
+                    "The result must be a LxmMap")
 
             // Make the result.
             val targetResult: MutableMap<String, LexemPrimitive> = target.toMutableMap()

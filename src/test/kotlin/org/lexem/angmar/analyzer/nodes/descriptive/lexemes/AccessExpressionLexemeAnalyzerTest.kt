@@ -15,9 +15,9 @@ internal class AccessExpressionLexemeAnalyzerTest {
         val text = varName
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -38,12 +38,14 @@ internal class AccessExpressionLexemeAnalyzerTest {
         val text = functionName
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
 
-        // Create variable in context.
-        val function = LxmFunction { analyzer, argumentsReference, _, _ ->
-            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!
+        // Prepare context.
+        val function = LxmFunction(analyzer.memory) { analyzer, argumentsReference, _, _ ->
+            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
             val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
-            val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+            val thisValue =
+                    parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                            ?: LxmNil
 
             Assertions.assertNotNull(thisValue, "The ${AnalyzerCommons.Identifiers.This} cannot be null")
 
@@ -51,7 +53,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
             return@LxmFunction true
         }
         val functionRef = analyzer.memory.add(function)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, functionName, functionRef)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -80,9 +82,9 @@ internal class AccessExpressionLexemeAnalyzerTest {
                 "$varName${IndexerNode.startToken}$cellIndex${IndexerNode.endToken}${AccessExplicitMemberNode.accessToken}$funName${FunctionCallNode.startToken}$right${FunctionCallNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
 
-        // Create variable in context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val list = LxmList()
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        val list = LxmList(analyzer.memory)
         for (i in 0 until cellIndex) {
             list.addCell(analyzer.memory, LxmNil)
         }

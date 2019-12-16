@@ -31,8 +31,8 @@ internal class RightExpressionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = RightExpressionNode.Companion::parse)
 
         // Prepare context.
-        val ctx = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        ctx.setProperty(analyzer.memory, varName, value)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

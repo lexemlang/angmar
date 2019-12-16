@@ -28,7 +28,7 @@ internal class MacroBacktrackAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = MacroBacktrackNode.Companion::parse)
 
         // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

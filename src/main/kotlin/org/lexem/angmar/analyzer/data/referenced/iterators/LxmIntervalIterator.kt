@@ -18,7 +18,7 @@ internal class LxmIntervalIterator : LexemIterator {
         this.size = value.pointCount
     }
 
-    private constructor(oldIterator: LxmIntervalIterator) : super(oldIterator) {
+    private constructor(memory: LexemMemory, oldIterator: LxmIntervalIterator) : super(memory, oldIterator) {
         this.value = oldIterator.value
         this.size = oldIterator.size
     }
@@ -37,7 +37,7 @@ internal class LxmIntervalIterator : LexemIterator {
         return Pair(null, LxmInteger.from(currentValue))
     }
 
-    override fun clone() = LxmIntervalIterator(this)
+    override fun clone(memory: LexemMemory) = LxmIntervalIterator(memory, this)
 
     override fun toString() = "[ITERATOR - INTERVAL] (value: $value) - ${super.toString()}"
 }

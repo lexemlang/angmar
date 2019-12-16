@@ -14,7 +14,7 @@ internal class BigNodeCellTest {
         // AUX METHODS --------------------------------------------------------
 
         // Checks the status of a Cell.
-        fun checkCell(cell: BigNodeCell, position: Int, value: LexemReferenced, referenceCount: Int = 0,
+        fun checkCell(cell: BigNodeCell, position: Int, value: LexemReferenced?, referenceCount: Int = 0,
                 isFreed: Boolean = false) {
             Assertions.assertEquals(position, cell.position, "The position property is incorrect")
             Assertions.assertEquals(value, cell.value, "The value property is incorrect")
@@ -30,15 +30,15 @@ internal class BigNodeCellTest {
     fun `test new`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyObject = LxmObject()
-        val emptyList = LxmList()
+        val emptyObject = LxmObject(memory)
+        val emptyList = LxmList(memory)
         val cell = BigNodeCell.new(0, emptyObject)
 
         checkCell(cell, 0, emptyObject)
 
         // Destroys the cell
         cell.destroy()
-        checkCell(cell, -1, BigNodeCell.EmptyCell, isFreed = true)
+        checkCell(cell, -1, null, isFreed = true)
 
         // Check whether the new cell is the same as before to check the reuse of them.
         val newCell = BigNodeCell.new(56, emptyList)
@@ -52,7 +52,7 @@ internal class BigNodeCellTest {
     fun `test get`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyList = LxmList()
+        val emptyList = LxmList(memory)
         val cell = BigNodeCell.new(0, emptyList)
 
         checkCell(cell, 0, emptyList)
@@ -62,8 +62,8 @@ internal class BigNodeCellTest {
     fun `test set simple`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyObject = LxmObject()
-        val emptyList = LxmList()
+        val emptyObject = LxmObject(memory)
+        val emptyList = LxmList(memory)
         val cell0 = bigNode.alloc(memory, emptyObject)
 
         checkCell(cell0, 0, emptyObject)
@@ -77,7 +77,7 @@ internal class BigNodeCellTest {
     fun `test set and free by reference count`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyList = LxmList()
+        val emptyList = LxmList(memory)
         val cell0 = bigNode.alloc(memory, emptyList)
 
         checkCell(cell0, 0, emptyList)
@@ -85,22 +85,21 @@ internal class BigNodeCellTest {
         // Reduce the reference count.
         cell0.increaseReferences()
         cell0.decreaseReferences(memory)
-        checkCell(cell0, 0, BigNodeCell.EmptyCell, referenceCount = 1, isFreed = true) // 1 = lastFreeCell
+        checkCell(cell0, 0, null, referenceCount = 1, isFreed = true) // 1 = lastFreeCell
     }
 
     @Test
     fun `test shift`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
 
-        val cell0Value = LxmList()
+        val cell0Value = LxmList(memory)
         val cell0 = bigNode.alloc(memory, cell0Value)
         cell0.increaseReferences()
 
         checkCell(cell0, 0, cell0Value, referenceCount = 1)
 
-        val shiftedCell = cell0.shiftCell()
+        val shiftedCell = cell0.shiftCell(memory)
 
         checkCell(cell0, 0, cell0Value, referenceCount = 1)
         checkCell(shiftedCell, 0, shiftedCell.value, referenceCount = 1)
@@ -113,12 +112,12 @@ internal class BigNodeCellTest {
     fun `test realloc`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyObject = LxmObject()
-        val emptyList = LxmList()
+        val emptyObject = LxmObject(memory)
+        val emptyList = LxmList(memory)
 
         val cell0 = bigNode.alloc(memory, emptyObject)
 
-        val obj = LxmObject()
+        val obj = LxmObject(memory)
         obj.setProperty(memory, "test", LxmReference(cell0.position))
 
         val cell1 = bigNode.alloc(memory, obj)
@@ -130,7 +129,7 @@ internal class BigNodeCellTest {
         // Realloc
         cell1.reallocCell(memory, emptyList)
 
-        checkCell(cell0, 0, BigNodeCell.EmptyCell, referenceCount = 2, isFreed = true) // 2 = lastFreeCell
+        checkCell(cell0, 0, null, referenceCount = 2, isFreed = true) // 2 = lastFreeCell
         checkCell(cell1, 1, emptyList)
     }
 
@@ -138,8 +137,8 @@ internal class BigNodeCellTest {
     fun `test free with value`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val emptyObject = LxmObject()
-        val emptyList = LxmList()
+        val emptyObject = LxmObject(memory)
+        val emptyList = LxmList(memory)
         bigNode.alloc(memory, emptyObject)
         val cell1 = bigNode.alloc(memory, emptyList)
 
@@ -148,14 +147,14 @@ internal class BigNodeCellTest {
         // Free
         cell1.freeCell(memory)
 
-        checkCell(cell1, 1, BigNodeCell.EmptyCell, referenceCount = bigNode.actualHeapSize, isFreed = true)
+        checkCell(cell1, 1, null, referenceCount = bigNode.actualHeapSize, isFreed = true)
     }
 
     @Test
     fun `test destroy`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject()
+        val empty = LxmObject(memory)
         val cell = bigNode.alloc(memory, empty)
 
         // Add reference to increase the count.
@@ -165,7 +164,7 @@ internal class BigNodeCellTest {
 
         // Destroys the cell
         cell.destroy()
-        checkCell(cell, -1, BigNodeCell.EmptyCell, isFreed = true)
+        checkCell(cell, -1, null, isFreed = true)
     }
 
     @Test
@@ -174,7 +173,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
@@ -191,7 +190,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
@@ -208,7 +207,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
@@ -225,7 +224,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
@@ -242,7 +241,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.increaseReferences()
 
@@ -257,7 +256,7 @@ internal class BigNodeCellTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferenceCountUnderflow) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val empty = LxmObject()
+            val empty = LxmObject(memory)
             val cell0 = bigNode.alloc(memory, empty)
             cell0.decreaseReferences(memory)
         }

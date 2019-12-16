@@ -17,11 +17,11 @@ internal class LxmNode : LxmObject {
     // CONSTRUCTORS -----------------------------------------------------------
 
     // Only for the clone.
-    private constructor(oldNode: LxmNode) : super(oldNode) {
+    private constructor(memory: LexemMemory, oldNode: LxmNode) : super(memory, oldNode) {
         this.name = oldNode.name
     }
 
-    constructor(name: String, from: IReaderCursor, parent: LxmReference?, memory: LexemMemory) {
+    constructor(name: String, from: IReaderCursor, parent: LxmReference?, memory: LexemMemory) : super(memory) {
         this.name = name
 
         if (parent != null) {
@@ -40,11 +40,11 @@ internal class LxmNode : LxmObject {
      * Adds the initial properties.
      */
     private fun init(memory: LexemMemory) {
-        val children = LxmList()
+        val children = LxmList(memory)
         children.makeConstant(memory)
         setProperty(memory, AnalyzerCommons.Identifiers.Children, memory.add(children), isConstant = true)
 
-        val properties = LxmObject()
+        val properties = LxmObject(memory)
         setProperty(memory, AnalyzerCommons.Identifiers.Properties, memory.add(properties), isConstant = true)
     }
 
@@ -57,7 +57,8 @@ internal class LxmNode : LxmObject {
     /**
      * Gets the parent node.
      */
-    fun getParent(memory: LexemMemory) = getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.Parent)
+    fun getParent(memory: LexemMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.Parent, toWrite)
 
     /**
      * Sets the parent node.
@@ -74,13 +75,13 @@ internal class LxmNode : LxmObject {
     /**
      * Gets the children.
      */
-    fun getChildren(memory: LexemMemory) =
-            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Children)!!
+    fun getChildren(memory: LexemMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Children, toWrite)!!
 
     /**
      * Gets the children property value as a list.
      */
-    fun getChildrenAsList(memory: LexemMemory) = getChildren(memory).getAllCells()
+    fun getChildrenAsList(memory: LexemMemory) = getChildren(memory, toWrite = false).getAllCells()
 
     /**
      * Gets the content of the node.
@@ -96,14 +97,14 @@ internal class LxmNode : LxmObject {
     /**
      * Gets the property object.
      */
-    fun getProperties(memory: LexemMemory) =
-            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Properties)!!
+    fun getProperties(memory: LexemMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Properties, toWrite)!!
 
     /**
      * Gets the initial position of the content of the node.
      */
     fun getFrom(memory: LexemMemory) =
-            getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.HiddenFrom)!!
+            getPropertyValue(memory, AnalyzerCommons.Identifiers.HiddenFrom) as LxmReaderCursor
 
     /**
      * Sets the value of the from property.
@@ -118,8 +119,7 @@ internal class LxmNode : LxmObject {
     /**
      * Gets the final position of the content of the node.
      */
-    fun getTo(memory: LexemMemory) =
-            getDereferencedProperty<LxmReaderCursor>(memory, AnalyzerCommons.Identifiers.HiddenTo)
+    fun getTo(memory: LexemMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.HiddenTo) as? LxmReaderCursor
 
     /**
      * Sets the value of the to property.
@@ -135,7 +135,7 @@ internal class LxmNode : LxmObject {
      * Applies the default properties for expressions.
      */
     fun applyDefaultPropertiesForExpression(memory: LexemMemory) {
-        val props = getProperties(memory)
+        val props = getProperties(memory, toWrite = true)
         props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
@@ -149,7 +149,7 @@ internal class LxmNode : LxmObject {
      * Applies the default properties for filters.
      */
     fun applyDefaultPropertiesForFilter(memory: LexemMemory) {
-        val props = getProperties(memory)
+        val props = getProperties(memory, toWrite = true)
         props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.False)
@@ -160,7 +160,7 @@ internal class LxmNode : LxmObject {
      * Applies the default properties for groups.
      */
     fun applyDefaultPropertiesForGroup(memory: LexemMemory) {
-        val props = getProperties(memory)
+        val props = getProperties(memory, toWrite = true)
         props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
@@ -174,9 +174,11 @@ internal class LxmNode : LxmObject {
      * Applies the default properties for filter groups.
      */
     fun applyDefaultPropertiesForFilterGroup(memory: LexemMemory) {
-        val props = getProperties(memory)
+        val props = getProperties(memory, toWrite = true)
+        props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.True)
         props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
+        props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.False)
         props.setProperty(memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
     }
 
@@ -194,7 +196,7 @@ internal class LxmNode : LxmObject {
 
         // Update children.
         for (child in getChildrenAsList(memory)) {
-            val childNode = child.dereference(memory) as LxmNode
+            val childNode = child.dereference(memory, toWrite = true) as LxmNode
 
             // Calculate and set the offset.
             val difference = childNode.getFrom(memory).primitive.position() - prevCursor.position()
@@ -223,7 +225,7 @@ internal class LxmNode : LxmObject {
 
         // Update children.
         for (child in getChildrenAsList(memory)) {
-            val childNode = child.dereference(memory) as LxmNode
+            val childNode = child.dereference(memory, toWrite = true) as LxmNode
 
             // Calculate and set the offset.
             val difference = childNode.getFrom(memory).primitive.position() - prevCursor.position()
@@ -246,19 +248,20 @@ internal class LxmNode : LxmObject {
      */
     fun memoryDeallocBranch(memory: LexemMemory) {
         // Remove children.
-        for (child in getChildrenAsList(memory).map { it.dereference(memory) as LxmNode }) {
+        for (child in getChildrenAsList(memory).map { it.dereference(memory, toWrite = true) as LxmNode }) {
             child.memoryDeallocBranchRecursively(memory)
         }
 
         // Remove from parent.
-        val parent = getParent(memory)
+        val parent = getParent(memory, toWrite = false)
         if (parent != null) {
-            val index = parent.getChildrenAsList(memory).map { it.dereference(memory) as LxmNode }.indexOf(this)
+            val index = parent.getChildrenAsList(memory).map { it.dereference(memory, toWrite = false) as LxmNode }
+                    .indexOf(this)
             if (index < 0) {
                 throw AngmarUnreachableException()
             }
 
-            parent.getChildren(memory).removeCell(memory, index)
+            parent.getChildren(memory, toWrite = true).removeCell(memory, index, ignoreConstant = true)
         }
 
         // Dealloc the current one.
@@ -267,7 +270,7 @@ internal class LxmNode : LxmObject {
 
     private fun memoryDeallocBranchRecursively(memory: LexemMemory) {
         // Remove children.
-        for (child in getChildrenAsList(memory).map { it.dereference(memory) as LxmNode }) {
+        for (child in getChildrenAsList(memory).map { it.dereference(memory, toWrite = true) as LxmNode }) {
             child.memoryDeallocBranchRecursively(memory)
         }
 
@@ -277,10 +280,10 @@ internal class LxmNode : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = LxmNode(this)
+    override fun clone(memory: LexemMemory) = LxmNode(memory, this)
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, NodeType.TypeName) as LxmReference
     }
 

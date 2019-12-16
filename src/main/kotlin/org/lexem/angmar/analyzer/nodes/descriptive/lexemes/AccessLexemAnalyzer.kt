@@ -47,7 +47,7 @@ internal object AccessLexemAnalyzer {
 
                 if (node.nextAccess != null) {
                     val resultRef = analyzer.memory.getLastFromStack()
-                    val result = resultRef.dereference(analyzer.memory)
+                    val result = resultRef.dereference(analyzer.memory, toWrite = false)
 
                     if (result !is LxmNode) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.AccessLexemWithNextRequiresANode,
@@ -66,7 +66,7 @@ internal object AccessLexemAnalyzer {
                     }
 
                     // Save the result as the node to re-parse or filter.
-                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                     context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter, resultRef)
 
                     // Remove Last from the stack.
@@ -77,7 +77,7 @@ internal object AccessLexemAnalyzer {
             }
             signalEndNextAccess -> {
                 // Remove HiddenNode2Filter.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)
             }
             signalBadEndExpression -> {

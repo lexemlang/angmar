@@ -18,7 +18,7 @@ internal class FilterLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
 
@@ -27,7 +27,7 @@ internal class FilterLexemeAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -39,9 +39,9 @@ internal class FilterLexemeAnalyzerTest {
 
         val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
         val resultRef = analyzer.memory.getLastFromStack() as LxmReference
-        val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+        val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParentRef = result.getParentReference(analyzer.memory)!!
-        val resultParent = resultParentRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+        val resultParent = resultParentRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
 
         Assertions.assertEquals(1, newPosition.primitive, "The new position is incorrect")
@@ -57,7 +57,7 @@ internal class FilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -70,7 +70,7 @@ internal class FilterLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
 
@@ -79,7 +79,7 @@ internal class FilterLexemeAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName + "x", analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -94,7 +94,7 @@ internal class FilterLexemeAnalyzerTest {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.FilterNodePosition)
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -108,7 +108,7 @@ internal class FilterLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
 
@@ -117,7 +117,7 @@ internal class FilterLexemeAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName + "x", analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -138,7 +138,7 @@ internal class FilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -152,7 +152,7 @@ internal class FilterLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
 
@@ -161,7 +161,7 @@ internal class FilterLexemeAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -176,7 +176,7 @@ internal class FilterLexemeAnalyzerTest {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.FilterNodePosition)
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -191,15 +191,15 @@ internal class FilterLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("rootNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
         var executed = false
-        val function = LxmFunction { analyzer, _, _, _ ->
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val function = LxmFunction(analyzer.memory) { analyzer, _, _, _ ->
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val nodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)!!
-            val node = nodeRef.dereference(analyzer.memory) as LxmNode
+            val node = nodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
 
             Assertions.assertEquals(nodeName, node.name, "The name is incorrect")
 
@@ -217,7 +217,7 @@ internal class FilterLexemeAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -229,9 +229,9 @@ internal class FilterLexemeAnalyzerTest {
 
         val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
         val resultRef = analyzer.memory.getLastFromStack() as LxmReference
-        val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+        val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParentRef = result.getParentReference(analyzer.memory)!!
-        val resultParent = resultParentRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+        val resultParent = resultParentRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
 
         Assertions.assertTrue(executed, "The function has not been executed")
@@ -248,7 +248,7 @@ internal class FilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
@@ -267,13 +267,13 @@ internal class FilterLexemeAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = FilterLexemeNode.Companion::parse)
 
             // Prepare context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val lxmNode = LxmNode("rootNode", analyzer.text.saveCursor(), null, analyzer.memory)
             val lxmNodeRef = analyzer.memory.add(lxmNode)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
-            val function = LxmFunction { analyzer, _, _, _ ->
+            val function = LxmFunction(analyzer.memory) { analyzer, _, _, _ ->
                 val node = AnalyzerCommons.getCurrentContextElement<LxmNode>(analyzer.memory,
-                        AnalyzerCommons.Identifiers.HiddenNode2Filter)
+                        AnalyzerCommons.Identifiers.HiddenNode2Filter, toWrite = false)
 
                 Assertions.assertEquals(nodeName, node.name, "The name is incorrect")
 
@@ -289,7 +289,7 @@ internal class FilterLexemeAnalyzerTest {
             // Prepare the node to filter.
             val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
             val parentRef = analyzer.memory.add(parent)
-            val children = parent.getChildren(analyzer.memory)
+            val children = parent.getChildren(analyzer.memory, toWrite = true)
             val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parentRef, analyzer.memory)
             val childNodeRef = analyzer.memory.add(childNode)
             children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)

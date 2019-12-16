@@ -18,12 +18,12 @@ internal object MacroExpressionAnalyzer {
                 analyzer.memory.addToStackAsLast(LxmInteger.from(lineColumn.first))
             }
             MacroExpressionNode.fileMacro -> {
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 val source = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath)!!
                 analyzer.memory.addToStackAsLast(source)
             }
             MacroExpressionNode.directoryMacro -> {
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 val source = context.getPropertyValue(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenFilePath) as LxmString
                 analyzer.memory.addToStackAsLast(LxmString.from(File(source.primitive).parentFile.canonicalPath))

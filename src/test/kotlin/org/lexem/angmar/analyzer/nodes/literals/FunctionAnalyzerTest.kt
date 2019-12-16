@@ -24,7 +24,7 @@ internal class FunctionAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmFunction ?: throw Error(
+        analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmFunction ?: throw Error(
                 "The result must be a LxmFunction")
 
         // Remove Last from the stack.
@@ -53,14 +53,14 @@ internal class FunctionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
         // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
                 "The $varName is incorrect")
 
@@ -90,14 +90,14 @@ internal class FunctionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
         // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
                 "The $varName is incorrect")
 
@@ -126,7 +126,7 @@ internal class FunctionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             // Prepare the context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                     LxmString.from("test"))
 
@@ -154,7 +154,7 @@ internal class FunctionAnalyzerTest {
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
             // Prepare the context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                     LxmString.from("test"))
 
@@ -179,14 +179,14 @@ internal class FunctionAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
         // Prepare the context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
                 "The $varName is incorrect")
 

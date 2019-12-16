@@ -23,8 +23,8 @@ internal object MacroCheckPropsAnalyzer {
             }
             signalEndValue -> {
                 val valuesRef = analyzer.memory.getLastFromStack()
-                val values = valuesRef.dereference(analyzer.memory) as LxmObject
-                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                val values = valuesRef.dereference(analyzer.memory, toWrite = false) as LxmObject
+                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
                 for ((key, value) in values.getAllIterableProperties()) {
                     val property = properties.getPropertyValue(analyzer.memory, key)

@@ -17,9 +17,10 @@ internal object NilType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)

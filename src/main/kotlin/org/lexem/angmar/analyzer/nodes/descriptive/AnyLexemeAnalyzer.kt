@@ -43,7 +43,7 @@ internal object AnyLexemeAnalyzer {
                 // Set the data capturing name.
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LexemeDataCapturingName)
 
-                val list = LxmList()
+                val list = LxmList(analyzer.memory)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeDataCapturingList,
                         analyzer.memory.add(list))
 
@@ -75,7 +75,8 @@ internal object AnyLexemeAnalyzer {
                 // Add result to the list.
                 if (node.dataCapturing != null) {
                     val list = analyzer.memory.getFromStack(
-                            AnalyzerCommons.Identifiers.LexemeDataCapturingList).dereference(analyzer.memory) as LxmList
+                            AnalyzerCommons.Identifiers.LexemeDataCapturingList).dereference(analyzer.memory,
+                            toWrite = true) as LxmList
                     list.addCell(analyzer.memory, result)
                 }
 
@@ -97,7 +98,7 @@ internal object AnyLexemeAnalyzer {
             signalStartLexemeForLazy -> {
                 // Evaluate the condition.
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 if (union.canHaveANextPattern(analyzer.memory)) {
                     // Execute the then block.
@@ -108,7 +109,7 @@ internal object AnyLexemeAnalyzer {
             }
             signalExitForGreedy -> {
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 return finalization(analyzer, node, union.quantifier.isAtomic)
             }
@@ -133,8 +134,8 @@ internal object AnyLexemeAnalyzer {
      */
     private fun evaluateCondition(analyzer: LexemAnalyzer, node: AnyLexemeNode) {
         // Evaluate the condition.
-        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                analyzer.memory) as LxmPatternUnion
+        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
+                toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
         val indexValue = union.getIndex(analyzer.memory)
 
@@ -207,7 +208,7 @@ internal object AnyLexemeAnalyzer {
 
         val setter = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeDataCapturingName) as LexemSetter
         val listRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeDataCapturingList)
-        val list = listRef.dereference(analyzer.memory) as LxmList
+        val list = listRef.dereference(analyzer.memory, toWrite = false) as LxmList
 
         if (node.quantifier == null) {
             setter.setPrimitive(analyzer.memory, list.getCell(analyzer.memory, 0)!!)
@@ -220,8 +221,8 @@ internal object AnyLexemeAnalyzer {
      * Increment the iteration index.
      */
     private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: AnyLexemeNode, count: Int = 1) {
-        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                analyzer.memory) as LxmPatternUnion
+        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
+                toWrite = true) as LxmPatternUnion
 
         union.increaseIndex(analyzer.memory)
     }

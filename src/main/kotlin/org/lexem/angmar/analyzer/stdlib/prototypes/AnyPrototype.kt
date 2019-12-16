@@ -29,18 +29,19 @@ internal object AnyPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmAnyPrototype()
+        val prototype = LxmAnyPrototype(memory)
 
         // Methods
-        prototype.setProperty(memory, Is, memory.add(LxmFunction(::isFunction)), isConstant = true)
-        prototype.setProperty(memory, IsAny, memory.add(LxmFunction(::isAnyFunction)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, memory.add(LxmFunction(::toStringFunction)),
-                isConstant = true)
+        prototype.setProperty(memory, Is, memory.add(LxmFunction(memory, ::isFunction)), isConstant = true)
+        prototype.setProperty(memory, IsAny, memory.add(LxmFunction(memory, ::isAnyFunction)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString,
+                memory.add(LxmFunction(memory, ::toStringFunction)), isConstant = true)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, memory.add(LxmFunction(::logicalNot)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot,
+                memory.add(LxmFunction(memory, ::logicalNot)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(::add)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -51,11 +52,13 @@ internal object AnyPrototype {
     private fun isFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, IsArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, IsArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory)
+                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory,
+                        toWrite = false)
                 val type = parsedArguments[IsArgs[0]]!!
 
                 val thisValueType = thisValue.getType(analyzer.memory)
@@ -74,12 +77,13 @@ internal object AnyPrototype {
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter = spreadArguments)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory)
+                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory,
+                        toWrite = false)
 
                 val thisValueType = thisValue.getType(analyzer.memory)
 
@@ -103,12 +107,13 @@ internal object AnyPrototype {
     private fun toStringFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList())
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory)
+                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory,
+                        toWrite = false)
 
                 analyzer.memory.addToStackAsLast(thisValue.toLexemString(analyzer.memory))
             }
@@ -125,8 +130,8 @@ internal object AnyPrototype {
     private fun logicalNot(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList())
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -146,8 +151,8 @@ internal object AnyPrototype {
     private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        AnalyzerCommons.Operators.ParameterList)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

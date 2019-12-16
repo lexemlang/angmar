@@ -17,12 +17,12 @@ internal class AccessExplicitMemberAnalyzerTest {
         val text = "$varName${AccessExplicitMemberNode.accessToken}$propName"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val obj = LxmObject()
+        val obj = LxmObject(analyzer.memory)
         obj.setProperty(analyzer.memory, propName, value)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val objReference = analyzer.memory.add(obj)
         context.setProperty(analyzer.memory, varName, objReference)
 
@@ -32,7 +32,8 @@ internal class AccessExplicitMemberAnalyzerTest {
                 "The result must be a LxmPropertySetter")
         Assertions.assertEquals(objReference, result.obj, "The obj property is incorrect")
         Assertions.assertEquals(propName, result.property, "The property property is incorrect")
-        Assertions.assertEquals(value, result.dereference(analyzer.memory), "The value property is incorrect")
+        Assertions.assertEquals(value, result.dereference(analyzer.memory, toWrite = false),
+                "The value property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -49,12 +50,12 @@ internal class AccessExplicitMemberAnalyzerTest {
                 "$varName${AccessExplicitMemberNode.accessToken}$propName ${AssignOperatorNode.assignOperator} $right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AssignExpressionNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val obj = LxmObject()
+        val obj = LxmObject(analyzer.memory)
         obj.setProperty(analyzer.memory, propName, value)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val objReference = analyzer.memory.add(obj)
         context.setProperty(analyzer.memory, varName, objReference)
 
@@ -63,10 +64,10 @@ internal class AccessExplicitMemberAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
-        val finalObject =
-                objReference.dereference(analyzer.memory) as? LxmObject ?: throw Error("The result must be a LxmObject")
-        val property = finalObject.getDereferencedProperty<LxmInteger>(analyzer.memory, propName) ?: throw Error(
-                "The result must be a LxmInteger")
+        val finalObject = objReference.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
+                "The result must be a LxmObject")
+        val property = finalObject.getDereferencedProperty<LxmInteger>(analyzer.memory, propName, toWrite = false)
+                ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.

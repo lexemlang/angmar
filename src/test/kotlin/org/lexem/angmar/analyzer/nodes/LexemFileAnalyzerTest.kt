@@ -35,12 +35,12 @@ internal class LexemFileAnalyzerTest {
         }
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(value, result, "The result is incorrect")
 

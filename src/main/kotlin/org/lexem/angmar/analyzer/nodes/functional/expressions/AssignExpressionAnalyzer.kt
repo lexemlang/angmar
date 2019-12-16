@@ -30,7 +30,7 @@ internal object AssignExpressionAnalyzer {
 
                 if (left !is LexemSetter) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.AssignToConstant,
-                            "The returned value by the left expression is a value not a reference, therefore it cannot be assigned. Actual value: $left") {
+                            "The returned value by the left expression is a value not a reference, therefore it cannot be assigned.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle

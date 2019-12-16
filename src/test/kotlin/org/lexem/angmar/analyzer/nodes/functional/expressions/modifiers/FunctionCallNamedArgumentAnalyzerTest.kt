@@ -28,14 +28,15 @@ internal class FunctionCallNamedArgumentAnalyzerTest {
                         "The result must be a LxmReference")
         Assertions.assertEquals(argsRef, resultRef, "The resultRef is incorrect")
 
-        val result = resultRef.dereferenceAs<LxmArguments>(analyzer.memory) ?: throw Error(
+        val result = resultRef.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmArguments")
         val namedArguments =
-                result.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsNamed)
-                        ?: throw Error("The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
+                result.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsNamed,
+                        toWrite = false) ?: throw Error(
+                        "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
 
-        val argument = namedArguments.getDereferencedProperty<LxmInteger>(analyzer.memory, key) ?: throw Error(
-                "The $key must be a LxmInteger")
+        val argument = namedArguments.getDereferencedProperty<LxmInteger>(analyzer.memory, key, toWrite = false)
+                ?: throw Error("The $key must be a LxmInteger")
 
         Assertions.assertEquals(value, argument.primitive, "The primitive property is incorrect")
 

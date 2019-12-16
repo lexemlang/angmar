@@ -27,15 +27,15 @@ internal class SelectiveStmtAnalyzerTest {
                 "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken} $case2 \n $case1 ${SelectiveStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 
@@ -59,15 +59,15 @@ internal class SelectiveStmtAnalyzerTest {
                 "${SelectiveStmtNode.keyword} ${ParenthesisExpressionNode.startToken} $value ${ParenthesisExpressionNode.endToken} ${SelectiveStmtNode.startToken} $case2 \n $case1 ${SelectiveStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveStmtNode.Companion::parse)
 
-        // Prepare stack.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context and stack.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The variable must be LxmInteger")
 

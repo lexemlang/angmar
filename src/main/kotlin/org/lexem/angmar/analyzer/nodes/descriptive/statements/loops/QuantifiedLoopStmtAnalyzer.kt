@@ -47,7 +47,7 @@ internal object QuantifiedLoopStmtAnalyzer {
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopIndexName)
 
                 // Set the index in the context.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.quantifier)
@@ -76,8 +76,9 @@ internal object QuantifiedLoopStmtAnalyzer {
             }
             signalStartThenBlockForLazy -> {
                 // Evaluate the condition.
-                val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                val union =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                                toWrite = false) as LxmPatternUnion
                 val quantifier = union.quantifier
                 val indexValue = union.getIndex(analyzer.memory)
 
@@ -89,8 +90,9 @@ internal object QuantifiedLoopStmtAnalyzer {
                 }
             }
             signalExitForGreedy -> {
-                val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                val union =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                                toWrite = false) as LxmPatternUnion
                 val indexValue = union.getIndex(analyzer.memory)
 
                 return evaluateLoopEnd(analyzer, node, indexValue.primitive)
@@ -162,8 +164,9 @@ internal object QuantifiedLoopStmtAnalyzer {
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 // Restart the loop.
-                val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                val union =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                                toWrite = true) as LxmPatternUnion
                 union.setIndex(analyzer.memory, LxmInteger.Num0)
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
@@ -186,8 +189,8 @@ internal object QuantifiedLoopStmtAnalyzer {
      */
     private fun evaluateCondition(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
         // Evaluate the condition.
-        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                analyzer.memory) as LxmPatternUnion
+        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
         val indexValue = union.getIndex(analyzer.memory)
 
@@ -241,7 +244,7 @@ internal object QuantifiedLoopStmtAnalyzer {
 
         if (indexValue != 0 && node.lastClauses?.lastBlock != null) {
             // Remove the name of the intermediate statement.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
             return analyzer.nextNode(node.lastClauses!!.lastBlock)
@@ -256,15 +259,15 @@ internal object QuantifiedLoopStmtAnalyzer {
      * Increment the iteration index.
      */
     private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode, count: Int = 1) {
-        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                analyzer.memory) as LxmPatternUnion
+        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                toWrite = true) as LxmPatternUnion
 
         union.increaseIndex(analyzer.memory)
 
         // Set the index if there is an index expression.
         if (node.index != null) {
             val newIndex = union.getIndex(analyzer.memory)
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
             context.setProperty(analyzer.memory, indexName.primitive, newIndex)
@@ -275,8 +278,8 @@ internal object QuantifiedLoopStmtAnalyzer {
      * Collapses the intermediate [BigNode]s.
      */
     private fun collapseBigNodes(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
-        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(
-                analyzer.memory) as LxmPatternUnion
+        val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
+                toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
 
         if (quantifier.isAtomic) {

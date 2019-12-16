@@ -226,8 +226,8 @@ internal class GroupLexemAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
-        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmNode ?: throw Error(
-                "The result must be a LxmNode")
+        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode
+                ?: throw Error("The result must be a LxmNode")
 
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -260,8 +260,8 @@ internal class GroupLexemAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
-        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmNode ?: throw Error(
-                "The result must be a LxmNode")
+        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode
+                ?: throw Error("The result must be a LxmNode")
 
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -374,7 +374,7 @@ internal class GroupLexemAnalyzerTest {
                 isFilterCode = true)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val lxmNodeRef = analyzer.memory.add(lxmNode)
 
@@ -383,7 +383,7 @@ internal class GroupLexemAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
         val parentRef = analyzer.memory.add(parent)
-        val children = parent.getChildren(analyzer.memory)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parentRef, analyzer.memory)
         val childNodeRef = analyzer.memory.add(childNode)
         children.addCell(analyzer.memory, childNodeRef, ignoreConstant = true)
@@ -394,7 +394,7 @@ internal class GroupLexemAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
-        val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmList
+        val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmList
 
         Assertions.assertEquals(1, list.actualListSize, "The result is incorrect")
         Assertions.assertEquals(childNodeRef.position, (list.getCell(analyzer.memory, 0) as LxmReference).position,
@@ -407,7 +407,7 @@ internal class GroupLexemAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!.setProperty(analyzer.memory,
+        childNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -419,10 +419,10 @@ internal class GroupLexemAnalyzerTest {
      * Checks all the results of the header.
      */
     private fun removeNode(analyzer: LexemAnalyzer) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val lxmNodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
-        val lxmNode = lxmNodeRef.dereference(analyzer.memory) as LxmNode
-        val children = lxmNode.getChildren(analyzer.memory)
+        val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
+        val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
 
         for (i in children.actualListSize - 1 downTo 0) {
             children.removeCell(analyzer.memory, i, ignoreConstant = true)

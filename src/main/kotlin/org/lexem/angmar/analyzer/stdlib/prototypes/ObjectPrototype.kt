@@ -41,28 +41,28 @@ internal object ObjectPrototype {
         val prototype = LxmObject(anyPrototypeReference, memory)
 
         // Methods
-        prototype.setProperty(memory, Freeze, memory.add(LxmFunction(::freezeFunction)), isConstant = true)
-        prototype.setProperty(memory, IsFrozen, memory.add(LxmFunction(::isFrozenFunction)), isConstant = true)
-        prototype.setProperty(memory, IsPropertyFrozen, memory.add(LxmFunction(::isPropertyFrozenFunction)),
+        prototype.setProperty(memory, Freeze, memory.add(LxmFunction(memory, ::freezeFunction)), isConstant = true)
+        prototype.setProperty(memory, IsFrozen, memory.add(LxmFunction(memory, ::isFrozenFunction)), isConstant = true)
+        prototype.setProperty(memory, IsPropertyFrozen, memory.add(LxmFunction(memory, ::isPropertyFrozenFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, FreezeProperties, memory.add(LxmFunction(::freezePropertiesFunction)),
+        prototype.setProperty(memory, FreezeProperties, memory.add(LxmFunction(memory, ::freezePropertiesFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, FreezeAllProperties, memory.add(LxmFunction(::freezeAllPropertiesFunction)),
+        prototype.setProperty(memory, FreezeAllProperties,
+                memory.add(LxmFunction(memory, ::freezeAllPropertiesFunction)), isConstant = true)
+        prototype.setProperty(memory, RemoveProperties, memory.add(LxmFunction(memory, ::removePropertiesFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, RemoveProperties, memory.add(LxmFunction(::removePropertiesFunction)),
+        prototype.setProperty(memory, GetOwnPropertyKeys, memory.add(LxmFunction(memory, ::getOwnPropertyKeysFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, GetOwnPropertyKeys, memory.add(LxmFunction(::getOwnPropertyKeysFunction)),
+        prototype.setProperty(memory, GetOwnPropertyValues,
+                memory.add(LxmFunction(memory, ::getOwnPropertyValuesFunction)), isConstant = true)
+        prototype.setProperty(memory, GetOwnProperties, memory.add(LxmFunction(memory, ::getOwnPropertiesFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, GetOwnPropertyValues, memory.add(LxmFunction(::getOwnPropertyValuesFunction)),
+        prototype.setProperty(memory, OwnPropertiesToMap, memory.add(LxmFunction(memory, ::ownPropertiesToMapFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, GetOwnProperties, memory.add(LxmFunction(::getOwnPropertiesFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, OwnPropertiesToMap, memory.add(LxmFunction(::ownPropertiesToMapFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, ContainsAnyOwnProperty, memory.add(LxmFunction(::containsAnyOwnPropertyFunction)),
-                isConstant = true)
+        prototype.setProperty(memory, ContainsAnyOwnProperty,
+                memory.add(LxmFunction(memory, ::containsAnyOwnPropertyFunction)), isConstant = true)
         prototype.setProperty(memory, ContainsAllOwnProperties,
-                memory.add(LxmFunction(::containsAllOwnPropertiesFunction)), isConstant = true)
+                memory.add(LxmFunction(memory, ::containsAllOwnPropertiesFunction)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -71,22 +71,22 @@ internal object ObjectPrototype {
      * Makes the object constant.
      */
     private fun freezeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    Freeze, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                thisValue.makeConstant(analyzer.memory)
-                LxmNil
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Freeze, ObjectType.TypeName,
+            toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
+        thisValue.makeConstant(analyzer.memory)
+        LxmNil
+    }
 
     /**
      * Returns whether the object is constant or not.
      */
     private fun isFrozenFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    IsFrozen, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                LxmLogic.from(thisValue.isImmutable)
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IsFrozen, ObjectType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmObject ->
+        LxmLogic.from(thisValue.isConstant)
+    }
 
     /**
      * Returns whether the object property is constant or not.
@@ -94,10 +94,11 @@ internal object ObjectPrototype {
     private fun isPropertyFrozenFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
             function: LxmFunction, signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        IsPropertyFrozenArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, IsPropertyFrozenArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val property = parserArguments[IsPropertyFrozenArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmObject) {
@@ -122,10 +123,11 @@ internal object ObjectPrototype {
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
+                ?: LxmNil
 
         if (thisValue !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -149,16 +151,16 @@ internal object ObjectPrototype {
      * Freezes all properties of the object.
      */
     private fun freezeAllPropertiesFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
-            function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    FreezeAllProperties, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                val allProperties = thisValue.getAllIterableProperties()
-                for ((key, _) in allProperties) {
-                    thisValue.makePropertyConstant(analyzer.memory, key)
-                }
+            function: LxmFunction, signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, FreezeAllProperties,
+            ObjectType.TypeName, toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
+        val allProperties = thisValue.getAllIterableProperties()
+        for ((key, _) in allProperties) {
+            thisValue.makePropertyConstant(analyzer.memory, key)
+        }
 
-                LxmNil
-            }
+        LxmNil
+    }
 
     /**
      * Remove the specified keys of the object.
@@ -167,10 +169,11 @@ internal object ObjectPrototype {
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
+                ?: LxmNil
 
         if (thisValue !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -194,79 +197,79 @@ internal object ObjectPrototype {
      * Gets the property keys of this object.
      */
     private fun getOwnPropertyKeysFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
-            function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    GetOwnPropertyKeys, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                val allProperties = thisValue.getAllIterableProperties()
-                val list = LxmList()
-                val listReference = analyzer.memory.add(list)
+            function: LxmFunction, signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, GetOwnPropertyKeys,
+            ObjectType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmObject ->
+        val allProperties = thisValue.getAllIterableProperties()
+        val list = LxmList(analyzer.memory)
+        val listReference = analyzer.memory.add(list)
 
-                for ((key, _) in allProperties) {
-                    list.addCell(analyzer.memory, LxmString.from(key))
-                }
+        for ((key, _) in allProperties) {
+            list.addCell(analyzer.memory, LxmString.from(key))
+        }
 
-                listReference
-            }
+        listReference
+    }
 
     /**
      * Gets the property values of this object.
      */
     private fun getOwnPropertyValuesFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
-            function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    GetOwnPropertyValues, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                val allProperties = thisValue.getAllIterableProperties()
-                val list = LxmList()
-                val listReference = analyzer.memory.add(list)
+            function: LxmFunction, signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, GetOwnPropertyValues,
+            ObjectType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmObject ->
+        val allProperties = thisValue.getAllIterableProperties()
+        val list = LxmList(analyzer.memory)
+        val listReference = analyzer.memory.add(list)
 
-                for ((_, value) in allProperties) {
-                    list.addCell(analyzer.memory, value.value)
-                }
+        for ((_, value) in allProperties) {
+            list.addCell(analyzer.memory, value.value)
+        }
 
-                listReference
-            }
+        listReference
+    }
 
     /**
      * Gets the properties of this object.
      */
     private fun getOwnPropertiesFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
-            function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    GetOwnProperties, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                val allProperties = thisValue.getAllIterableProperties()
-                val list = LxmList()
-                val listReference = analyzer.memory.add(list)
+            function: LxmFunction, signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, GetOwnProperties, ObjectType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmObject ->
+        val allProperties = thisValue.getAllIterableProperties()
+        val list = LxmList(analyzer.memory)
+        val listReference = analyzer.memory.add(list)
 
-                for ((key, value) in allProperties) {
-                    val obj = LxmObject()
-                    val objReference = analyzer.memory.add(obj)
+        for ((key, value) in allProperties) {
+            val obj = LxmObject(analyzer.memory)
+            val objReference = analyzer.memory.add(obj)
 
-                    obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, LxmString.from(key))
-                    obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, value.value)
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, LxmString.from(key))
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, value.value)
 
-                    list.addCell(analyzer.memory, objReference)
-                }
+            list.addCell(analyzer.memory, objReference)
+        }
 
-                listReference
-            }
+        listReference
+    }
 
     /**
      * Returns the properties of the object as a map.
      */
     private fun ownPropertiesToMapFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference,
-            function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    IsFrozen, ObjectType.TypeName) { _: LexemAnalyzer, thisValue: LxmObject ->
-                val allProperties = thisValue.getAllIterableProperties()
-                val map = LxmMap(null)
-                val mapReference = analyzer.memory.add(map)
+            function: LxmFunction, signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IsFrozen, ObjectType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmObject ->
+        val allProperties = thisValue.getAllIterableProperties()
+        val map = LxmMap(analyzer.memory)
+        val mapReference = analyzer.memory.add(map)
 
-                for ((key, value) in allProperties) {
-                    map.setProperty(analyzer.memory, LxmString.from(key), value.value)
-                }
+        for ((key, value) in allProperties) {
+            map.setProperty(analyzer.memory, LxmString.from(key), value.value)
+        }
 
-                mapReference
-            }
+        mapReference
+    }
 
     /**
      * Checks whether any of the specified properties are contained in the object.
@@ -275,10 +278,11 @@ internal object ObjectPrototype {
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
 
         if (thisValue !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -309,10 +313,11 @@ internal object ObjectPrototype {
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
 
         if (thisValue !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,

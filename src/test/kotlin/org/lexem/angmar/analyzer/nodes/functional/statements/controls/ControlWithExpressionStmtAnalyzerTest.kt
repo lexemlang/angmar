@@ -47,7 +47,7 @@ internal class ControlWithExpressionStmtAnalyzerTest {
             Assertions.assertEquals(keyword, controlValue.type, "The type property is incorrect")
             Assertions.assertEquals(null, controlValue.tag, "The tag property is incorrect")
 
-            val result = controlValue.value?.dereference(analyzer.memory) as? LxmList ?: throw Error(
+            val result = controlValue.value?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The value must be a LxmList")
             Assertions.assertEquals(1, result.actualListSize, "The number of values is incorrect")
             Assertions.assertEquals(LxmInteger.Num2, result.getCell(analyzer.memory, 0),

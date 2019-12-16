@@ -34,14 +34,15 @@ internal object DebugGlobalObject {
      * Initiates the global object.
      */
     fun initObject(memory: LexemMemory) {
-        val objectValue = LxmObject()
+        val objectValue = LxmObject(memory)
         val reference = memory.add(objectValue)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, ObjectName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, ObjectName, reference, isConstant = true)
 
         // Methods
-        objectValue.setProperty(memory, Pause, memory.add(LxmFunction(::pauseFunction)), isConstant = true)
-        objectValue.setProperty(memory, Log, memory.add(LxmFunction(::logFunction)), isConstant = true)
-        objectValue.setProperty(memory, Throw, memory.add(LxmFunction(::throwFunction)), isConstant = true)
+        objectValue.setProperty(memory, Pause, memory.add(LxmFunction(memory, ::pauseFunction)), isConstant = true)
+        objectValue.setProperty(memory, Log, memory.add(LxmFunction(memory, ::logFunction)), isConstant = true)
+        objectValue.setProperty(memory, Throw, memory.add(LxmFunction(memory, ::throwFunction)), isConstant = true)
     }
 
     /**
@@ -68,7 +69,8 @@ internal object DebugGlobalObject {
     private fun logFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, LogArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, LogArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -111,8 +113,8 @@ internal object DebugGlobalObject {
     private fun throwFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        ThrowArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, ThrowArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

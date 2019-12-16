@@ -29,7 +29,7 @@ internal class BlockStmtAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val contextName =
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
 
@@ -47,12 +47,12 @@ internal class BlockStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(value, result, "The result is incorrect")
 
@@ -69,17 +69,17 @@ internal class BlockStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(value, result, "The result is incorrect")
 
-        val contextFinal = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val contextName = contextFinal.getPropertyValue(analyzer.memory,
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val contextName = finalContext.getPropertyValue(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
 
         Assertions.assertEquals(tagName, contextName.primitive, "The contextName is incorrect")

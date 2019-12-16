@@ -25,10 +25,10 @@ internal class MacroCheckPropsAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MacroCheckPropsNode.Companion::parse,
                 isDescriptiveCode = true)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
-        val props = node.getProperties(analyzer.memory)
+        val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, affirmativeVar, LxmLogic.True)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)
         props.setProperty(analyzer.memory, withValueVar, LxmInteger.from(withValueValue))
@@ -59,10 +59,10 @@ internal class MacroCheckPropsAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MacroCheckPropsNode.Companion::parse,
                 isDescriptiveCode = true)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
-        val props = node.getProperties(analyzer.memory)
+        val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, affirmativeVar, LxmNil)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)
         props.setProperty(analyzer.memory, withValueVar, LxmInteger.from(withValueValue))

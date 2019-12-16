@@ -90,14 +90,14 @@ internal object FunctionParameterListAnalyzer {
      * Process the parameters.
      */
     private fun processParameters(analyzer: LexemAnalyzer, node: FunctionParameterListNode) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
         val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments)
 
         if (argumentsRef is LxmBacktrackingData) {
             argumentsRef.mapBacktrackingDataToContext(analyzer.memory, parameters, context)
         } else {
-            val arguments = argumentsRef.dereference(analyzer.memory) as LxmArguments
+            val arguments = argumentsRef.dereference(analyzer.memory, toWrite = false) as LxmArguments
             arguments.mapArgumentsToContext(analyzer.memory, parameters, context)
         }
 

@@ -30,7 +30,7 @@ internal object FunctionParameterAnalyzer {
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the identifier expression must be a ${StringType.TypeName}. Actual value: $identifier") {
+                            "The returned value by the identifier expression must be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -58,11 +58,11 @@ internal object FunctionParameterAnalyzer {
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
 
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.setProperty(analyzer.memory, identifier.primitive, LxmNil)
             }
             signalEndExpression -> {
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 val value = analyzer.memory.getLastFromStack()
                 val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
 

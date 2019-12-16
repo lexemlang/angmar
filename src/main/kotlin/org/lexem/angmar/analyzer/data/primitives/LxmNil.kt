@@ -13,7 +13,7 @@ internal object LxmNil : LexemPrimitive {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, NilType.TypeName) as LxmReference
     }
 

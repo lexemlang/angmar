@@ -20,7 +20,7 @@ internal class PropertyStyleObjectElementAnalyzerTest {
                 TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectElementNode.Companion::parse)
 
         // Prepare stack
-        val obj = LxmObject()
+        val obj = LxmObject(analyzer.memory)
         val objRef = analyzer.memory.add(obj)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
@@ -31,10 +31,11 @@ internal class PropertyStyleObjectElementAnalyzerTest {
                         "The result must be a LxmReference")
         Assertions.assertEquals(objRef, resultRef, "The resultRef is incorrect")
 
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
-        val property = result.getDereferencedProperty<LxmInteger>(analyzer.memory, propName) ?: throw Error(
-                "The property must be a LxmInteger")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
+        val property =
+                result.getDereferencedProperty<LxmInteger>(analyzer.memory, propName, toWrite = false) ?: throw Error(
+                        "The property must be a LxmInteger")
         Assertions.assertEquals(345, property.primitive, "The primitive property is incorrect")
 
         // Remove Accumulator from the stack.
@@ -53,7 +54,7 @@ internal class PropertyStyleObjectElementAnalyzerTest {
                     TestUtils.createAnalyzerFrom(text, parserFunction = PropertyStyleObjectElementNode.Companion::parse)
 
             // Prepare stack
-            val obj = LxmObject()
+            val obj = LxmObject(analyzer.memory)
             val objRef = analyzer.memory.add(obj)
             analyzer.memory.addToStackAsLast(objRef)
 

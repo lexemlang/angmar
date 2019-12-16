@@ -54,8 +54,9 @@ internal object FunctionCallAnalyzer {
                 val position = (signal - signalEndFirstArgument) + 1
 
                 val value = analyzer.memory.getLastFromStack()
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = true) as LxmArguments
 
                 arguments.addPositionalArgument(analyzer.memory, value)
 
@@ -105,9 +106,10 @@ internal object FunctionCallAnalyzer {
                 val position =
                         (signal - signalEndFirstArgument - node.positionalArguments.size - node.namedArguments.size) + 1
 
-                val value = analyzer.memory.getLastFromStack().dereference(analyzer.memory)
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val value = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false)
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = true) as LxmArguments
 
                 when (value) {
                     is LxmList -> {
@@ -125,7 +127,7 @@ internal object FunctionCallAnalyzer {
                         }
                     }
                     else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "The value is incorrect for a spread operator. Actual value: $value") {
+                            "The value is incorrect for a spread operator.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -165,7 +167,7 @@ internal object FunctionCallAnalyzer {
 
     private fun callFunction(analyzer: LexemAnalyzer, node: FunctionCallNode) {
         val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as LxmReference
-        val arguments = argumentsRef.dereference(analyzer.memory) as LxmArguments
+        val arguments = argumentsRef.dereference(analyzer.memory, toWrite = true) as LxmArguments
         var functionRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
 
         when (functionRef) {

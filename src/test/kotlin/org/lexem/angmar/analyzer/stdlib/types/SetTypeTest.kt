@@ -19,7 +19,8 @@ internal class SetTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be a LxmSet")
+            val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
+                    "The result must be a LxmSet")
 
             var size = 0
             for ((_, propList) in set.getAllValues()) {
@@ -41,7 +42,8 @@ internal class SetTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be a LxmSet")
+            val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
+                    "The result must be a LxmSet")
 
             var size = 0
             for ((_, propList) in set.getAllValues()) {
@@ -68,7 +70,8 @@ internal class SetTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be a LxmSet")
+            val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
+                    "The result must be a LxmSet")
 
             val listResult = list1 + list2
             var size = 0
@@ -91,7 +94,8 @@ internal class SetTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val set = result?.dereference(analyzer.memory) as? LxmSet ?: throw Error("The result must be a LxmSet")
+            val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
+                    "The result must be a LxmSet")
 
             var size = 0
             for ((_, propList) in set.getAllValues()) {

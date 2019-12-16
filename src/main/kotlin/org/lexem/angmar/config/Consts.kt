@@ -5,7 +5,7 @@ package org.lexem.angmar.config
  */
 internal object Consts {
     // Flag to specify the system is under test.
-    const val debug = false
+    const val debug = true
 
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
@@ -23,9 +23,10 @@ internal object Consts {
 
     object Memory {
         const val minimumFreeSpace = 20.0
-        const val garbageThresholdIncrement = 2.0
         const val maxPoolSize = 50
         const val maxDistanceToShift = 5
+        const val spatialGarbageCollectorInitialThreshold = 1000
+        const val spatialGarbageCollectorThresholdIncrement = 2.0
     }
 
     object Analyzer {

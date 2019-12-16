@@ -12,12 +12,12 @@ internal class LxmPatternUnion : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(quantifier: LxmQuantifier, index: LxmInteger, memory: LexemMemory) {
+    constructor(quantifier: LxmQuantifier, index: LxmInteger, memory: LexemMemory) : super(memory) {
         this.quantifier = quantifier
         setIndex(memory, index)
     }
 
-    constructor(oldContext: LxmPatternUnion) : super(oldContext) {
+    constructor(memory: LexemMemory, oldContext: LxmPatternUnion) : super(memory, oldContext) {
         this.quantifier = oldContext.quantifier
     }
 
@@ -26,7 +26,8 @@ internal class LxmPatternUnion : LxmObject {
     /**
      * Gets the index.
      */
-    fun getIndex(memory: LexemMemory) = getDereferencedProperty<LxmInteger>(memory, AnalyzerCommons.Identifiers.Index)!!
+    fun getIndex(memory: LexemMemory) =
+            getDereferencedProperty<LxmInteger>(memory, AnalyzerCommons.Identifiers.Index, toWrite = false)!!
 
     /**
      * Sets the index.
@@ -78,7 +79,7 @@ internal class LxmPatternUnion : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = LxmPatternUnion(this)
+    override fun clone(memory: LexemMemory) = LxmPatternUnion(memory, this)
 
     override fun toString() = "[PATTERN UNION] Qtf$quantifier - ${super.toString()}"
 }

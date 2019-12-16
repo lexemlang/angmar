@@ -156,6 +156,7 @@ internal class AnyPrototypeTest {
     @ParameterizedTest
     @MethodSource("provideNotOptions")
     fun `test not`(option: LexemPrimitive?) {
+        val option: LexemPrimitive? = null
         val optionTxt = when (option) {
             null -> {
                 "${ListNode.startToken}${ListNode.endToken}"

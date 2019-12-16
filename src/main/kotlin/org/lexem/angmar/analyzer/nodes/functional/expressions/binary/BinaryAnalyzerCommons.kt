@@ -21,24 +21,26 @@ internal object BinaryAnalyzerCommons {
      */
     fun getOperatorFunction(analyzer: LexemAnalyzer, value: LexemPrimitive, expressionNode: ParserNode,
             leftOperand: ParserNode, operator: String, operatorFunctionName: String): LexemPrimitive {
-        val derefValue = value.dereference(analyzer.memory)
-        val prototype = derefValue.getObjectOrPrototype(analyzer.memory)
+        val derefValue = value.dereference(analyzer.memory, toWrite = false)
+        val prototype = derefValue.getObjectOrPrototype(analyzer.memory, toWrite = false)
 
         val operatorFunctionRef = prototype.getPropertyValue(analyzer.memory, operatorFunctionName)
-        val operatorFunction = operatorFunctionRef?.dereference(analyzer.memory) ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.UndefinedObjectProperty,
-                "The operator $operator is associated to a function called '$operatorFunctionName' which is not contained inside the prototype of the operand. Current: $prototype") {
-            val fullText = expressionNode.parser.reader.readAllText()
-            addSourceCode(fullText, expressionNode.parser.reader.getSource()) {
-                title = Consts.Logger.codeTitle
-                highlightSection(expressionNode.from.position(), expressionNode.to.position() - 1)
-            }
-            addSourceCode(fullText, null) {
-                title = Consts.Logger.hintTitle
-                highlightSection(expressionNode.from.position(), leftOperand.to.position() - 1)
-                message = "The returned value by this expression has not a property called '$operatorFunctionName'"
-            }
-        }
+        val operatorFunction =
+                operatorFunctionRef?.dereference(analyzer.memory, toWrite = false) ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.UndefinedObjectProperty,
+                        "The operator $operator is associated to a function called '$operatorFunctionName' which is not contained inside the prototype of the operand. Current: $prototype") {
+                    val fullText = expressionNode.parser.reader.readAllText()
+                    addSourceCode(fullText, expressionNode.parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(expressionNode.from.position(), expressionNode.to.position() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(expressionNode.from.position(), leftOperand.to.position() - 1)
+                        message =
+                                "The returned value by this expression has not a property called '$operatorFunctionName'"
+                    }
+                }
 
         if (operatorFunction !is ExecutableValue) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -76,11 +78,12 @@ internal object BinaryAnalyzerCommons {
      * Executes a unitary operator.
      */
     inline fun <reified T : LexemMemoryValue> executeUnitaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
-            functionName: String, thisTypeName: String,
+            functionName: String, thisTypeName: String, toWrite: Boolean,
             processFunction: (LexemAnalyzer, T) -> LexemPrimitive): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue =
+                parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite) ?: LxmNil
 
         if (thisValue !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -97,13 +100,14 @@ internal object BinaryAnalyzerCommons {
      * Executes a binary operator.
      */
     inline fun <reified T : LexemMemoryValue> executeBinaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
-            functionName: String, leftTypeName: String, typeNamesForRightOperand: List<String>,
-            processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemPrimitive?): Boolean {
+            functionName: String, leftTypeName: String, typeNamesForRightOperand: List<String>, toWriteLeft: Boolean,
+            toWriteRight: Boolean, processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemPrimitive?): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
-        val left = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
-        val right =
-                parserArguments[AnalyzerCommons.Operators.RightParameterName]?.dereference(analyzer.memory) ?: LxmNil
+        val left =
+                parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWriteLeft) ?: LxmNil
+        val right = parserArguments[AnalyzerCommons.Operators.RightParameterName]?.dereference(analyzer.memory,
+                toWriteRight) ?: LxmNil
 
         if (left !is T) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,

@@ -51,35 +51,39 @@ internal object SetPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+        val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Size, memory.add(LxmFunction(::sizeFunction)), isConstant = true)
-        prototype.setProperty(memory, Freeze, memory.add(LxmFunction(::freezeFunction)), isConstant = true)
-        prototype.setProperty(memory, IsFrozen, memory.add(LxmFunction(::isFrozenFunction)), isConstant = true)
-        prototype.setProperty(memory, Every, memory.add(LxmFunction(::everyFunction)), isConstant = true)
-        prototype.setProperty(memory, Filter, memory.add(LxmFunction(::filterFunction)), isConstant = true)
-        prototype.setProperty(memory, ForEach, memory.add(LxmFunction(::forEachFunction)), isConstant = true)
-        prototype.setProperty(memory, Find, memory.add(LxmFunction(::findFunction)), isConstant = true)
-        prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(::containsAnyFunction)), isConstant = true)
-        prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(::containsAllFunction)), isConstant = true)
-        prototype.setProperty(memory, Map, memory.add(LxmFunction(::mapFunction)), isConstant = true)
-        prototype.setProperty(memory, Reduce, memory.add(LxmFunction(::reduceFunction)), isConstant = true)
-        prototype.setProperty(memory, Any, memory.add(LxmFunction(::anyFunction)), isConstant = true)
-        prototype.setProperty(memory, Put, memory.add(LxmFunction(::putFunction)), isConstant = true)
-        prototype.setProperty(memory, Remove, memory.add(LxmFunction(::removeFunction)), isConstant = true)
-        prototype.setProperty(memory, ToList, memory.add(LxmFunction(::toListFunction)), isConstant = true)
-        prototype.setProperty(memory, Clear, memory.add(LxmFunction(::clearFunction)), isConstant = true)
+        prototype.setProperty(memory, Size, memory.add(LxmFunction(memory, ::sizeFunction)), isConstant = true)
+        prototype.setProperty(memory, Freeze, memory.add(LxmFunction(memory, ::freezeFunction)), isConstant = true)
+        prototype.setProperty(memory, IsFrozen, memory.add(LxmFunction(memory, ::isFrozenFunction)), isConstant = true)
+        prototype.setProperty(memory, Every, memory.add(LxmFunction(memory, ::everyFunction)), isConstant = true)
+        prototype.setProperty(memory, Filter, memory.add(LxmFunction(memory, ::filterFunction)), isConstant = true)
+        prototype.setProperty(memory, ForEach, memory.add(LxmFunction(memory, ::forEachFunction)), isConstant = true)
+        prototype.setProperty(memory, Find, memory.add(LxmFunction(memory, ::findFunction)), isConstant = true)
+        prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(memory, ::containsAnyFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(memory, ::containsAllFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, Map, memory.add(LxmFunction(memory, ::mapFunction)), isConstant = true)
+        prototype.setProperty(memory, Reduce, memory.add(LxmFunction(memory, ::reduceFunction)), isConstant = true)
+        prototype.setProperty(memory, Any, memory.add(LxmFunction(memory, ::anyFunction)), isConstant = true)
+        prototype.setProperty(memory, Put, memory.add(LxmFunction(memory, ::putFunction)), isConstant = true)
+        prototype.setProperty(memory, Remove, memory.add(LxmFunction(memory, ::removeFunction)), isConstant = true)
+        prototype.setProperty(memory, ToList, memory.add(LxmFunction(memory, ::toListFunction)), isConstant = true)
+        prototype.setProperty(memory, Clear, memory.add(LxmFunction(memory, ::clearFunction)), isConstant = true)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(::add)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, memory.add(LxmFunction(::sub)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, memory.add(LxmFunction(::logicalAnd)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, memory.add(LxmFunction(::logicalOr)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, memory.add(LxmFunction(memory, ::sub)),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, memory.add(LxmFunction(::logicalXor)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd,
+                memory.add(LxmFunction(memory, ::logicalAnd)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, memory.add(LxmFunction(memory, ::logicalOr)),
                 isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor,
+                memory.add(LxmFunction(memory, ::logicalXor)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -88,32 +92,32 @@ internal object SetPrototype {
      * Returns the size of the set.
      */
     private fun sizeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    Size, SetType.TypeName) { _: LexemAnalyzer, thisValue: LxmSet ->
-                LxmInteger.from(thisValue.getSize())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Size, SetType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmSet ->
+        LxmInteger.from(thisValue.getSize())
+    }
 
     /**
      * Makes the set constant.
      */
     private fun freezeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    Freeze, SetType.TypeName) { _: LexemAnalyzer, thisValue: LxmSet ->
-                thisValue.makeConstant(analyzer.memory)
-                LxmNil
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Freeze, SetType.TypeName,
+            toWrite = true) { _: LexemAnalyzer, thisValue: LxmSet ->
+        thisValue.makeConstant(analyzer.memory)
+        LxmNil
+    }
 
     /**
      * Returns whether the set is constant or not.
      */
     private fun isFrozenFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    IsFrozen, SetType.TypeName) { _: LexemAnalyzer, thisValue: LxmSet ->
-                LxmLogic.from(thisValue.isImmutable)
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IsFrozen, SetType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmSet ->
+        LxmLogic.from(thisValue.isConstant)
+    }
 
     /**
      * Checks whether all the elements of the set match the condition.
@@ -122,10 +126,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        EveryArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, EveryArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[EveryArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -133,7 +138,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Every' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Every' method requires the parameter called '${EveryArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -157,8 +162,8 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -199,10 +204,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        FilterArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, FilterArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[FilterArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -210,7 +216,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Filter' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Filter' method requires the parameter called '${FilterArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -222,7 +228,7 @@ internal object SetPrototype {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listReference)
 
                 // Generate the map.
-                val set = LxmSet(null)
+                val set = LxmSet(analyzer.memory)
                 val setReference = analyzer.memory.add(set)
 
                 if (list.actualListSize > 0) {
@@ -240,10 +246,10 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(setReference)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
                 val set = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmSet
+                        analyzer.memory, toWrite = true) as LxmSet
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -284,10 +290,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        ForEachArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, ForEachArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[ForEachArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -295,7 +302,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ForEach' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ForEach' method requires the parameter called '${ForEachArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -319,8 +326,8 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -353,10 +360,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        FindArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, FindArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[FindArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -364,7 +372,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Find' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Find' method requires the parameter called '${FindArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -388,8 +396,8 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -431,10 +439,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -462,10 +471,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -492,9 +502,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, MapArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, MapArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[MapArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -502,7 +514,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Map' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Map' method requires the parameter called '${MapArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -514,7 +526,7 @@ internal object SetPrototype {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listReference)
 
                 // Generate the map.
-                val set = LxmSet(null)
+                val set = LxmSet(analyzer.memory)
                 val setReference = analyzer.memory.add(set)
 
                 if (list.actualListSize > 0) {
@@ -532,10 +544,10 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(setReference)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
                 val set = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmSet
+                        analyzer.memory, toWrite = true) as LxmSet
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -574,10 +586,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        ReduceArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, ReduceArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val default = parserArguments[ReduceArgs[0]] ?: LxmNil
         val function = parserArguments[ReduceArgs[1]] ?: LxmNil
 
@@ -586,7 +599,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Reduce' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Reduce' method requires the parameter called '${ReduceArgs[1]}' be a ${FunctionType.TypeName}") {}
         }
@@ -610,8 +623,8 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(default)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -645,9 +658,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, AnyArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, AnyArgs)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
         val function = parserArguments[AnyArgs[0]] ?: LxmNil
 
         if (thisValue !is LxmSet) {
@@ -655,7 +670,7 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Any' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory) !is LxmFunction) {
+        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Any' method requires the parameter called '${AnyArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -679,8 +694,8 @@ internal object SetPrototype {
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
             }
             else -> {
-                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(
-                        analyzer.memory) as LxmList
+                val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
+                        toWrite = false) as LxmList
 
                 if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
@@ -721,10 +736,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -746,10 +762,11 @@ internal object SetPrototype {
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositional)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositional)
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -770,10 +787,11 @@ internal object SetPrototype {
     private fun toListFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList())
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList())
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -793,10 +811,11 @@ internal object SetPrototype {
     private fun clearFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList())
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList())
 
-        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory) ?: LxmNil
+        val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
+                ?: LxmNil
 
         if (thisValue !is LxmSet) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
@@ -820,12 +839,13 @@ internal object SetPrototype {
      * Performs the addition of two values.
      */
     private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    AnalyzerCommons.Operators.Add, SetType.TypeName,
-                    listOf(SetType.TypeName)) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
+                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Add,
+                    SetType.TypeName, listOf(SetType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
                 when (right) {
                     is LxmSet -> {
-                        val newSet = LxmSet(null)
+                        val newSet = LxmSet(analyzer.memory)
                         val newSetReference = analyzer.memory.add(newSet)
 
                         for ((_, list) in left.getAllValues()) {
@@ -850,12 +870,13 @@ internal object SetPrototype {
      * Performs the subtraction of two values.
      */
     private fun sub(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    AnalyzerCommons.Operators.Sub, SetType.TypeName,
-                    listOf(SetType.TypeName)) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
+                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Sub,
+                    SetType.TypeName, listOf(SetType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
                 when (right) {
                     is LxmSet -> {
-                        val newSet = LxmSet(null)
+                        val newSet = LxmSet(analyzer.memory)
                         val newSetReference = analyzer.memory.add(newSet)
 
                         for ((_, list) in left.getAllValues()) {
@@ -880,99 +901,99 @@ internal object SetPrototype {
      * Performs a logical AND between two logical values.
      */
     private fun logicalAnd(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    AnalyzerCommons.Operators.LogicalAnd, SetType.TypeName,
-                    listOf(SetType.TypeName)) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
-                when (right) {
-                    is LxmSet -> {
-                        val newSet = LxmSet(null)
-                        val newSetReference = analyzer.memory.add(newSet)
+            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalAnd,
+            SetType.TypeName, listOf(SetType.TypeName), toWriteLeft = false,
+            toWriteRight = false) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
+        when (right) {
+            is LxmSet -> {
+                val newSet = LxmSet(analyzer.memory)
+                val newSetReference = analyzer.memory.add(newSet)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                if (right.containsValue(analyzer.memory, prop.value)) {
-                                    newSet.addValue(analyzer.memory, prop.value)
-                                }
-                            }
+                for ((_, list) in left.getAllValues()) {
+                    for (prop in list) {
+                        if (right.containsValue(analyzer.memory, prop.value)) {
+                            newSet.addValue(analyzer.memory, prop.value)
                         }
-
-                        newSetReference
                     }
-                    else -> null
                 }
+
+                newSetReference
             }
+            else -> null
+        }
+    }
 
     /**
      * Performs a logical OR between two logical values.
      */
     private fun logicalOr(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    AnalyzerCommons.Operators.LogicalOr, SetType.TypeName,
-                    listOf(SetType.TypeName)) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
-                when (right) {
-                    is LxmSet -> {
-                        val newSet = LxmSet(null)
-                        val newSetReference = analyzer.memory.add(newSet)
+            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalOr,
+            SetType.TypeName, listOf(SetType.TypeName), toWriteLeft = false,
+            toWriteRight = false) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
+        when (right) {
+            is LxmSet -> {
+                val newSet = LxmSet(analyzer.memory)
+                val newSetReference = analyzer.memory.add(newSet)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
-                        }
-
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
-                        }
-
-                        newSetReference
+                for ((_, list) in left.getAllValues()) {
+                    for (prop in list) {
+                        newSet.addValue(analyzer.memory, prop.value)
                     }
-                    else -> null
                 }
+
+                for ((_, list) in right.getAllValues()) {
+                    for (prop in list) {
+                        newSet.addValue(analyzer.memory, prop.value)
+                    }
+                }
+
+                newSetReference
             }
+            else -> null
+        }
+    }
 
     /**
      * Performs a logical XOR between two logical values.
      */
     private fun logicalXor(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    AnalyzerCommons.Operators.LogicalXor, LogicType.TypeName,
-                    listOf(LogicType.TypeName)) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
-                when (right) {
-                    is LxmSet -> {
-                        val newSet = LxmSet(null)
-                        val newSetReference = analyzer.memory.add(newSet)
+            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalXor,
+            LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
+            toWriteRight = false) { _: LexemAnalyzer, left: LxmSet, right: LexemMemoryValue ->
+        when (right) {
+            is LxmSet -> {
+                val newSet = LxmSet(analyzer.memory)
+                val newSetReference = analyzer.memory.add(newSet)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
-                        }
-
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                if (newSet.containsValue(analyzer.memory, prop.value)) {
-                                    newSet.removeValue(analyzer.memory, prop.value)
-                                } else {
-                                    newSet.addValue(analyzer.memory, prop.value)
-                                }
-                            }
-                        }
-
-                        newSetReference
+                for ((_, list) in left.getAllValues()) {
+                    for (prop in list) {
+                        newSet.addValue(analyzer.memory, prop.value)
                     }
-                    else -> null
                 }
+
+                for ((_, list) in right.getAllValues()) {
+                    for (prop in list) {
+                        if (newSet.containsValue(analyzer.memory, prop.value)) {
+                            newSet.removeValue(analyzer.memory, prop.value)
+                        } else {
+                            newSet.addValue(analyzer.memory, prop.value)
+                        }
+                    }
+                }
+
+                newSetReference
             }
+            else -> null
+        }
+    }
 
     // AUXILIARY METHODS ------------------------------------------------------
 
     private fun toList(analyzer: LexemAnalyzer, set: LxmSet): Pair<LxmList, LxmReference> {
-        val list = LxmList()
+        val list = LxmList(analyzer.memory)
         val listReference = analyzer.memory.add(list)
         for ((i, propList) in set.getAllValues()) {
             for (prop in propList) {

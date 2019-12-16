@@ -99,8 +99,8 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
 
-            // Create variable in context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                     LxmString.from("test"))
 

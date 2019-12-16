@@ -28,7 +28,7 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(1, parameterList.size, "The number of parameters is incorrect")
         Assertions.assertEquals(parameterName, parameterList[0], "The first parameter is incorrect")
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, parameterName),
                 "The result is incorrect")
 
@@ -60,7 +60,7 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(1, parameterList.size, "The number of parameters is incorrect")
         Assertions.assertEquals(parameterName, parameterList[0], "The first parameter is incorrect")
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         Assertions.assertEquals(value, context.getPropertyValue(analyzer.memory, parameterName),
                 "The result is incorrect")
 

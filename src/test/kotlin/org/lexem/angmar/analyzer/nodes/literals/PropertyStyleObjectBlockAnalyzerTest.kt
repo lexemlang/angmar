@@ -32,8 +32,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)
@@ -56,8 +56,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in negativePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)
@@ -80,8 +80,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (prop in setProps) {
             val property = result.getPropertyValue(analyzer.memory, prop.first) as? LxmInteger ?: throw Error(
@@ -105,8 +105,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)
@@ -134,8 +134,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)
@@ -164,8 +164,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in negativePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)
@@ -194,8 +194,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
             val property = result.getPropertyValue(analyzer.memory, propName)

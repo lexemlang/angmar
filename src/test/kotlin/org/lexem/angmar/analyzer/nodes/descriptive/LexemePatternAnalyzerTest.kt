@@ -47,8 +47,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -68,8 +68,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -89,8 +89,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -110,8 +110,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -130,8 +130,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -151,8 +151,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -173,10 +173,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -187,10 +187,11 @@ internal class LexemePatternAnalyzerTest {
                 "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
@@ -218,10 +219,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -231,10 +232,11 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
@@ -262,8 +264,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         val quantifier = when (type) {
             LexemePatternNode.Companion.PatternType.Additive -> LxmQuantifier.AdditivePattern
@@ -271,7 +273,7 @@ internal class LexemePatternAnalyzerTest {
             LexemePatternNode.Companion.PatternType.Alternative -> LxmQuantifier.AlternativePattern
             else -> throw AngmarUnreachableException()
         }
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -284,9 +286,10 @@ internal class LexemePatternAnalyzerTest {
                 "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -307,8 +310,8 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         val quantifier = when (type) {
             LexemePatternNode.Companion.PatternType.Additive -> LxmQuantifier.AdditivePattern
@@ -316,7 +319,7 @@ internal class LexemePatternAnalyzerTest {
             LexemePatternNode.Companion.PatternType.Alternative -> LxmQuantifier.AlternativePattern
             else -> throw AngmarUnreachableException()
         }
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -328,9 +331,10 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -350,11 +354,11 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         val quantifier = LxmQuantifier.AlternativePattern
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num1, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -366,9 +370,10 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -389,10 +394,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -403,10 +408,11 @@ internal class LexemePatternAnalyzerTest {
                 "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
@@ -426,10 +432,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -439,10 +445,11 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
@@ -462,10 +469,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -478,9 +485,10 @@ internal class LexemePatternAnalyzerTest {
                 "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -501,10 +509,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -516,9 +524,10 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -539,10 +548,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.from(quantifier.max), analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -554,9 +563,10 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -581,10 +591,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -597,9 +607,10 @@ internal class LexemePatternAnalyzerTest {
                 "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -620,10 +631,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from(text)
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
@@ -635,9 +646,10 @@ internal class LexemePatternAnalyzerTest {
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The pattern has not consumed the characters")
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName) ?: throw Error(
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
@@ -659,10 +671,10 @@ internal class LexemePatternAnalyzerTest {
                     isDescriptiveCode = true)
             val textReader = IOStringReader.from(text)
 
-            // Prepare context for text lexemes.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-            val unions = LxmObject()
+            val unions = LxmObject(analyzer.memory)
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                     analyzer.memory.add(unions))
@@ -683,10 +695,10 @@ internal class LexemePatternAnalyzerTest {
                     isDescriptiveCode = true)
             val textReader = IOStringReader.from(text)
 
-            // Prepare context for text lexemes.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-            val unions = LxmObject()
+            val unions = LxmObject(analyzer.memory)
             val quantifier2 = LxmQuantifier(3)
             val union = LxmPatternUnion(quantifier2, LxmInteger.Num0, analyzer.memory)
             unions.setProperty(analyzer.memory, unionName, analyzer.memory.add(union))
@@ -709,10 +721,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -722,10 +734,11 @@ internal class LexemePatternAnalyzerTest {
         }
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
@@ -749,10 +762,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -762,10 +775,11 @@ internal class LexemePatternAnalyzerTest {
         }
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
@@ -788,10 +802,10 @@ internal class LexemePatternAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        var unions = LxmObject()
+        var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                 analyzer.memory.add(unions))
@@ -801,10 +815,11 @@ internal class LexemePatternAnalyzerTest {
         }
 
         // Check unions
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName) ?: throw Error(
-                "The union called $unionName does not exist.")
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
+                toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
+                ?: throw Error("The union called $unionName does not exist.")
         val unionIndex = union.getIndex(analyzer.memory)
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")

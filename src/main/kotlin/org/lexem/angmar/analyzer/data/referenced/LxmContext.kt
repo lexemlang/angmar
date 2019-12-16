@@ -10,8 +10,8 @@ internal class LxmContext : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor()
-    constructor(oldContext: LxmContext) : super(oldContext)
+    constructor(memory: LexemMemory) : super(memory)
+    constructor(memory: LexemMemory, oldContext: LxmContext) : super(memory, oldContext)
     constructor(higherContextReference: LxmReference, memory: LexemMemory) : super(higherContextReference, memory)
 
     // METHODS ----------------------------------------------------------------
@@ -50,7 +50,7 @@ internal class LxmContext : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone() = LxmContext(this)
+    override fun clone(memory: LexemMemory) = LxmContext(memory, this)
 
     override fun toString() = "[CONTEXT] ${super.toString()}"
 }

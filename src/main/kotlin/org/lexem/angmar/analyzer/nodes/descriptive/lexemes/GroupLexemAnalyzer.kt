@@ -57,14 +57,14 @@ internal object GroupLexemAnalyzer {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnionRef)
 
                     // Create the node.
-                    GroupHeaderLexemAnalyzer.createNode(analyzer, "")
+                    GroupHeaderLexemAnalyzer.createNode(analyzer, "", node.isFilterCode)
                 }
 
                 return analyzer.nextNode(node, signalEndHeader)
             }
             signalEndHeader -> {
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 if (union.canHaveANextPattern(analyzer.memory)) {
                     val pattern = node.patterns.first()
@@ -86,7 +86,7 @@ internal object GroupLexemAnalyzer {
 
                 // Increase index.
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = true) as LxmPatternUnion
                 union.increaseIndex(analyzer.memory)
 
                 if (union.canHaveANextPattern(analyzer.memory)) {
@@ -110,7 +110,7 @@ internal object GroupLexemAnalyzer {
                 val position = (signal - signalBadPattern) + 1
 
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmPatternUnion
+                        analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 // Check the quantifier can be matched with the remaining patterns.
                 if (!union.canFinish(analyzer.memory, node.patterns.size - position)) {
@@ -159,20 +159,20 @@ internal object GroupLexemAnalyzer {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LastNode)
 
         // Finish the node.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val lxmNodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Node) as LxmReference
-        val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+        val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
 
         // Process the properties.
         let {
-            val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+            val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
             val children = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Children) ?: LxmNil)
             if (!children) {
-                val childList = lxmNode.getChildren(analyzer.memory)
-                childList.removeCell(analyzer.memory, childList.actualListSize)
+                val childList = lxmNode.getChildren(analyzer.memory, toWrite = true)
+                childList.removeCell(analyzer.memory, childList.actualListSize - 1, ignoreConstant = true)
             }
 
             var returnValue: LexemPrimitive = if (lxmNode.name.isBlank()) {
@@ -183,8 +183,8 @@ internal object GroupLexemAnalyzer {
             val capture = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture) {
-                val parent = lxmNode.getParent(analyzer.memory)!!
-                val parentChildren = parent.getChildren(analyzer.memory)
+                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
+                val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
 
                 // Find position in parent.
                 var index = -1
@@ -203,13 +203,13 @@ internal object GroupLexemAnalyzer {
                 parentChildren.removeCell(analyzer.memory, index, ignoreConstant = true)
 
                 // Add children to parent in the same position.
-                val childrenArray = lxmNode.getChildren(analyzer.memory).getAllCells().toTypedArray()
+                val childrenArray = lxmNode.getChildren(analyzer.memory, toWrite = true).getAllCells().toTypedArray()
                 parentChildren.insertCell(analyzer.memory, index, *childrenArray, ignoreConstant = true)
 
                 // Set the returned value.
                 if (children && childrenArray.isNotEmpty()) {
                     // Set the children as returned value.
-                    val resultList = LxmList()
+                    val resultList = LxmList(analyzer.memory)
                     val resultListRef = analyzer.memory.add(resultList)
                     resultList.addCell(analyzer.memory, *childrenArray)
                     returnValue = resultListRef
@@ -225,8 +225,8 @@ internal object GroupLexemAnalyzer {
             val propertyValue = props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Property) ?: LxmNil
             val property = RelationalFunctions.isTruthy(propertyValue)
             if (property) {
-                val parent = lxmNode.getParent(analyzer.memory)!!
-                val parentProps = parent.getProperties(analyzer.memory)
+                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
+                val parentProps = parent.getProperties(analyzer.memory, toWrite = true)
 
                 if (propertyValue is LxmString) {
                     val value = lxmNode.getContent(analyzer.memory)!!
@@ -261,7 +261,6 @@ internal object GroupLexemAnalyzer {
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition)
             }
         }
-
         // Set parent node as the current one.
         analyzer.setUpperNode()
 

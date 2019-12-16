@@ -21,7 +21,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().withIndex()) {
@@ -40,7 +41,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().withIndex()) {
@@ -57,7 +59,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {
@@ -75,7 +78,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {
@@ -97,7 +101,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(list1.size + list2.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(list1 + list2).withIndex()) {
@@ -115,7 +120,8 @@ internal class ListTypeTest {
                 FunctionCallNode.argumentSeparator)}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val list = result?.dereference(analyzer.memory) as? LxmList ?: throw Error("The result must be a LxmList")
+            val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+                    "The result must be a LxmList")
             Assertions.assertEquals(fnCallArguments.size, list.actualListSize, "The size of the result is incorrect")
 
             for ((i, v) in list.getAllCells().zip(fnCallArguments).withIndex()) {

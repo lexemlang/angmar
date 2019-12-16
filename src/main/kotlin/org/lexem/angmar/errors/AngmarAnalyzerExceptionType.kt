@@ -28,7 +28,6 @@ enum class AngmarAnalyzerExceptionType {
     ReferenceCountUnderflow,
 
     FirstBigNodeRollback,
-    BigNodeDoesNotBelongToMemoryChain,
 
     // NUMBERS ----------------------------------------------------------------
 
@@ -44,6 +43,8 @@ enum class AngmarAnalyzerExceptionType {
 
     // OBJECTS ----------------------------------------------------------------
 
+    CannotModifyAnImmutableView,
+
     CannotModifyAConstantList,
 
     CannotModifyAConstantObject,
@@ -51,6 +52,8 @@ enum class AngmarAnalyzerExceptionType {
     UndefinedObjectProperty,
 
     CannotModifyAConstantMap,
+
+    CannotModifyAConstantSet,
 
     // FUNCTIONS --------------------------------------------------------------
 

@@ -33,7 +33,7 @@ internal object GroupHeaderLexemAnalyzer {
                 if (node.identifier != null) {
                     return analyzer.nextNode(node.identifier)
                 } else {
-                    createNode(analyzer, "")
+                    createNode(analyzer, "", node.isFilterCode)
                 }
 
                 if (node.propertyBlock != null) {
@@ -52,7 +52,7 @@ internal object GroupHeaderLexemAnalyzer {
                 if (node.identifier != null) {
                     return analyzer.nextNode(node.identifier)
                 } else {
-                    createNode(analyzer, "")
+                    createNode(analyzer, "", node.isFilterCode)
                 }
 
                 if (node.propertyBlock != null) {
@@ -62,7 +62,7 @@ internal object GroupHeaderLexemAnalyzer {
             signalEndIdentifier -> {
                 val name = analyzer.memory.getLastFromStack() as LxmString
 
-                createNode(analyzer, name.primitive)
+                createNode(analyzer, name.primitive, node.isFilterCode)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -72,8 +72,9 @@ internal object GroupHeaderLexemAnalyzer {
                 }
             }
             signalEndPropertyBlock -> {
-                val values = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmObject
-                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                val values =
+                        analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmObject
+                val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = true)
 
                 for ((key, value) in values.getAllIterableProperties()) {
                     properties.setProperty(analyzer.memory, key, value.value)
@@ -90,11 +91,17 @@ internal object GroupHeaderLexemAnalyzer {
     /**
      * Creates a new node by the specified name.
      */
-    fun createNode(analyzer: LexemAnalyzer, name: String) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+    fun createNode(analyzer: LexemAnalyzer, name: String, isFilterCode: Boolean) {
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNodeRef = analyzer.createNewNode(name)
-        val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!
-        lxmNode.applyDefaultPropertiesForGroup(analyzer.memory)
+        val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!
+
+        if (isFilterCode) {
+            lxmNode.applyDefaultPropertiesForFilterGroup(analyzer.memory)
+        } else {
+            lxmNode.applyDefaultPropertiesForGroup(analyzer.memory)
+        }
+
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
     }
 }

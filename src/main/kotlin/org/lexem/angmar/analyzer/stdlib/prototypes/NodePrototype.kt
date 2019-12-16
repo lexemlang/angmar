@@ -12,7 +12,7 @@ internal object NodePrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+        val prototype = LxmObject(memory)
         return memory.add(prototype)
     }
 }

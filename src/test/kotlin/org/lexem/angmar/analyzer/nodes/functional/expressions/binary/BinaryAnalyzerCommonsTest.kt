@@ -24,10 +24,12 @@ internal class BinaryAnalyzerCommonsTest {
                 BinaryAnalyzerCommons.getOperatorFunction(analyzer, LxmLogic.True, analyzer.grammarRootNode, operand,
                         LogicalExpressionNode.xorOperator, AnalyzerCommons.Operators.LogicalXor)
 
-        val directFunction = getCurrentContext(analyzer.memory).getDereferencedProperty<LxmObject>(analyzer.memory,
-                LogicType.TypeName)
-                ?.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Prototype)
-                ?.getPropertyValue(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
+        val directFunction =
+                getCurrentContext(analyzer.memory, toWrite = false).getDereferencedProperty<LxmObject>(analyzer.memory,
+                        LogicType.TypeName, toWrite = false)
+                        ?.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Prototype,
+                                toWrite = false)
+                        ?.getPropertyValue(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
         Assertions.assertEquals(directFunction, function, "The function is incorrect")
     }
 
@@ -52,7 +54,7 @@ internal class BinaryAnalyzerCommonsTest {
             val text = "${LogicNode.trueLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
-            val logicTypeRef = getCurrentContext(analyzer.memory).getPropertyValue(analyzer.memory,
+            val logicTypeRef = getCurrentContext(analyzer.memory, toWrite = false).getPropertyValue(analyzer.memory,
                     LogicType.TypeName)!! // Trick: change to a type
             val operand = (analyzer.grammarRootNode as LogicalExpressionNode).expressions[0]
 
@@ -71,7 +73,7 @@ internal class BinaryAnalyzerCommonsTest {
         val right = LxmLogic.True
 
         val argumentsRef = BinaryAnalyzerCommons.createArguments(analyzer, left, right)
-        val arguments = argumentsRef.dereferenceAs<LxmArguments>(analyzer.memory)!!
+        val arguments = argumentsRef.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
         val map = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         Assertions.assertEquals(2, map.size, "The number of parameters is incorrect")

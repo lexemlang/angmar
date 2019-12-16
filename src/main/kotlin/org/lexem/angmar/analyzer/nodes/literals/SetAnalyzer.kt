@@ -20,8 +20,8 @@ internal object SetAnalyzer {
                 return analyzer.nextNode(node.list)
             }
             signalEndList -> {
-                val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as LxmList
-                val set = LxmSet(null)
+                val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmList
+                val set = LxmSet(analyzer.memory)
                 val setRef = analyzer.memory.add(set)
 
                 for (i in list.getAllCells()) {

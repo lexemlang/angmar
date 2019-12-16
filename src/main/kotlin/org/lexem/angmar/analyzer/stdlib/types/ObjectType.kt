@@ -30,16 +30,17 @@ internal object ObjectType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, memory.add(LxmFunction(::newFromFunction)), isConstant = true)
-        type.setProperty(memory, Assign, memory.add(LxmFunction(::assignFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, memory.add(LxmFunction(memory, ::newFromFunction)), isConstant = true)
+        type.setProperty(memory, Assign, memory.add(LxmFunction(memory, ::assignFunction)), isConstant = true)
     }
 
     /**
@@ -48,13 +49,13 @@ internal object ObjectType {
     private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        AssignArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, AssignArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val prototypeRef = parsedArguments[AssignArgs[0]]!!
-                val prototype = prototypeRef.dereference(analyzer.memory)
+                val prototype = prototypeRef.dereference(analyzer.memory, toWrite = false)
 
                 if (prototype !is LxmObject) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -78,20 +79,20 @@ internal object ObjectType {
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        AssignArgs, spreadPositionalParameter = spreadArguments)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val targetRef = parsedArguments[AssignArgs[0]]!!
-                val target = targetRef.dereference(analyzer.memory)
+                val target = targetRef.dereference(analyzer.memory, toWrite = true)
 
                 if (target !is LxmObject) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                             "The '$TypeName${AccessExplicitMemberNode.accessToken}$Assign' method requires the parameter called '${AssignArgs[0]}' be an $TypeName") {}
                 }
 
-                for (source in spreadArguments.map { it.dereference(analyzer.memory) }) {
+                for (source in spreadArguments.map { it.dereference(analyzer.memory, toWrite = false) }) {
                     if (source !is LxmObject) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Assign' method requires that all its source parameters be an $TypeName") {}

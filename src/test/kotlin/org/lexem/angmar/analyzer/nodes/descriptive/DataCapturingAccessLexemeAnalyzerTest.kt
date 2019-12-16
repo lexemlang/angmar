@@ -17,9 +17,9 @@ internal class DataCapturingAccessLexemeAnalyzerTest {
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = DataCapturingAccessLexemeNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -48,9 +48,9 @@ internal class DataCapturingAccessLexemeAnalyzerTest {
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = DataCapturingAccessLexemeNode.Companion::parse)
 
-        // Create variable in context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val list = LxmList()
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        val list = LxmList(analyzer.memory)
         for (i in 0 until cellIndex) {
             list.addCell(analyzer.memory, LxmNil)
         }

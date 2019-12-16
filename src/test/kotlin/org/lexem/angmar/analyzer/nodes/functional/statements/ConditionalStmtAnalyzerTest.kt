@@ -23,12 +23,12 @@ internal class ConditionalStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(thenValue, result.primitive, "The primitive property is incorrect")
 
@@ -57,12 +57,12 @@ internal class ConditionalStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(elseValue, result.primitive, "The primitive property is incorrect")
 
@@ -80,12 +80,12 @@ internal class ConditionalStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(thenValue, result.primitive, "The primitive property is incorrect")
 
@@ -114,12 +114,12 @@ internal class ConditionalStmtAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalStmtNode.Companion::parse)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName)
+        val result = AnalyzerCommons.getCurrentContextElement<LxmInteger>(analyzer.memory, varName, toWrite = false)
 
         Assertions.assertEquals(elseValue, result.primitive, "The primitive property is incorrect")
 

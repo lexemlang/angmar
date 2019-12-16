@@ -12,11 +12,11 @@ internal abstract class LexemIterator : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) {
+    constructor(memory: LexemMemory) : super(memory) {
         restart(memory)
     }
 
-    constructor(oldIterator: LexemIterator) : super(oldIterator)
+    constructor(memory: LexemMemory, oldIterator: LexemIterator) : super(memory, oldIterator)
 
     // METHODS ----------------------------------------------------------------
 

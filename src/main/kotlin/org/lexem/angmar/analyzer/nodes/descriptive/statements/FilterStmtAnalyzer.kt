@@ -28,7 +28,7 @@ internal object FilterStmtAnalyzer {
             signalEndName -> {
                 // Create the function.
                 val name = analyzer.memory.getLastFromStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 val contextReference = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
                 val filter = LxmFilter(analyzer.memory, node, name.primitive, contextReference)
                 val filterRef = analyzer.memory.add(filter)
@@ -39,7 +39,7 @@ internal object FilterStmtAnalyzer {
                 // Add it to the exports if the parent is a public macro.
                 if (node.parent is PublicMacroStmtNode) {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.Exports)!!
+                            AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
                     exports.setProperty(analyzer.memory, name.primitive, filterRef)
                 }

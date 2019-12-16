@@ -108,12 +108,12 @@ internal class LexemAnalyzerTest {
         }
 
         // Prepare context.
-        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val result = context.getPropertyValue(analyzer.memory, varName) as? LxmString ?: throw Error(
                 "The result must be a LxmString")
         Assertions.assertEquals(Consts.defaultEntryPoint, result.primitive, "The result is incorrect")
@@ -140,13 +140,13 @@ internal class LexemAnalyzerTest {
                         ?: throw Error("The analyzer cannot be null")
 
         // Prepare context.
-        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         initialContext.setProperty(analyzer.memory, varName1, LxmInteger.Num0)
         initialContext.setProperty(analyzer.memory, varName2, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer, entryPoint = entryPoint)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val result1 = context.getPropertyValue(analyzer.memory, varName1) as? LxmString ?: throw Error(
                 "The result1 must be a LxmString")
         val result2 = context.getPropertyValue(analyzer.memory, varName2)

@@ -67,7 +67,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
                 val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmQuantifiedGroup
+                        analyzer.memory, toWrite = true) as LxmQuantifiedGroup
                 quantifiedGroup.addUnion(analyzer.memory, analyzer.memory.add(union))
 
                 // Remove Last from the stack.
@@ -80,7 +80,7 @@ internal object QuantifiedGroupLexemAnalyzer {
 
                 // Update the index.
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmQuantifiedGroup
+                        analyzer.memory, toWrite = true) as LxmQuantifiedGroup
                 quantifiedGroup.increaseIndex(analyzer.memory, position - 1)
 
                 return callNextPattern(analyzer, quantifiedGroup, node, 0)
@@ -91,7 +91,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                 // Skip the pattern.
 
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
-                        analyzer.memory) as LxmQuantifiedGroup
+                        analyzer.memory, toWrite = false) as LxmQuantifiedGroup
                 return callNextPattern(analyzer, quantifiedGroup, node, position)
             }
             signalBadEnd -> {
@@ -117,11 +117,11 @@ internal object QuantifiedGroupLexemAnalyzer {
         }
 
         // Calculate the main union.
-        val oldMainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory).quantifier
+        val oldMainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory, toWrite = false).quantifier
         quantifiedGroup.calculateMainUnion(analyzer.memory)
 
         // Check bounds.
-        val mainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory).quantifier
+        val mainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory, toWrite = false).quantifier
         if (mainQuantifier.max < mainQuantifier.min) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds,
                     "The maximum value cannot be lower than the minimum. Actual: {min: ${mainQuantifier.min}, max: ${mainQuantifier.max}}") {

@@ -41,7 +41,7 @@ internal object AccessExpressionLexemeAnalyzer {
                     return analyzer.nextNode(node.modifiers[0])
                 } else {
                     // If the setter has a function execute it.
-                    val finalValue = finalValueRef.dereference(analyzer.memory)
+                    val finalValue = finalValueRef.dereference(analyzer.memory, toWrite = false)
                     if (finalValue is ExecutableValue) {
                         val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
                         val arguments = LxmArguments(analyzer.memory)

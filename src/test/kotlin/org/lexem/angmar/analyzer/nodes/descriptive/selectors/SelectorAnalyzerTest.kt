@@ -48,7 +48,7 @@ internal class SelectorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmNode ?: throw Error(
+        analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
 
         // Remove Last from the stack.
@@ -68,9 +68,9 @@ internal class SelectorAnalyzerTest {
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory) as? LxmNode ?: throw Error(
-                "The result must be a LxmNode")
-        val props = result.getProperties(analyzer.memory)
+        val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode
+                ?: throw Error("The result must be a LxmNode")
+        val props = result.getProperties(analyzer.memory, toWrite = false)
         Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(analyzer.memory, propName1),
                 "The property called $propName1 is incorrect")
         Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(analyzer.memory, propName2),
@@ -112,7 +112,8 @@ internal class SelectorAnalyzerTest {
             val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
             val lxmNodeRef = analyzer.memory.add(lxmNode)
 
-            lxmNode.getProperties(analyzer.memory).setProperty(analyzer.memory, propertyName, LxmLogic.True)
+            lxmNode.getProperties(analyzer.memory, toWrite = true)
+                    .setProperty(analyzer.memory, propertyName, LxmLogic.True)
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
         } else {
             when {
@@ -121,9 +122,10 @@ internal class SelectorAnalyzerTest {
                     val lxmNodeRef = analyzer.memory.add(lxmNode)
                     val lxmNodeAux = LxmNode("aux", analyzer.text.saveCursor(), null, analyzer.memory)
 
-                    lxmNode.getChildren(analyzer.memory)
+                    lxmNode.getChildren(analyzer.memory, toWrite = true)
                             .addCell(analyzer.memory, analyzer.memory.add(lxmNodeAux), ignoreConstant = true)
-                    lxmNode.getProperties(analyzer.memory).setProperty(analyzer.memory, propertyName, LxmLogic.True)
+                    lxmNode.getProperties(analyzer.memory, toWrite = true)
+                            .setProperty(analyzer.memory, propertyName, LxmLogic.True)
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
                 }
                 hasProperty -> {

@@ -16,7 +16,7 @@ internal class ObjectElementAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ObjectElementNode.Companion::parse)
 
         // Prepare stack.
-        val obj = LxmObject()
+        val obj = LxmObject(analyzer.memory)
         val objRef = analyzer.memory.add(obj)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
@@ -25,8 +25,8 @@ internal class ObjectElementAnalyzerTest {
         val resultRef =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
                         "The result must be a LxmReference")
-        val objDeref =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
         val element = property.value as? LxmInteger ?: throw Error("The element must be a LxmInteger")
 
@@ -47,7 +47,7 @@ internal class ObjectElementAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ObjectElementNode.Companion::parse)
 
         // Prepare stack.
-        val obj = LxmObject()
+        val obj = LxmObject(analyzer.memory)
         val objRef = analyzer.memory.add(obj)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
 
@@ -56,8 +56,8 @@ internal class ObjectElementAnalyzerTest {
         val resultRef =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
                         "The result must be a LxmReference")
-        val objDeref =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
         val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
         val element = property.value as? LxmInteger ?: throw Error("The element must be a LxmInteger")
 

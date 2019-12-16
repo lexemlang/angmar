@@ -124,7 +124,7 @@ internal object BitListElementAnalyzer {
 
                 if (right !is LxmBitList) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "${BitListType.TypeName} literals require that internal escaped expressions return a ${BitListType.TypeName}. Actual value: $right") {
+                            "${BitListType.TypeName} literals require that internal escaped expressions return a ${BitListType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle

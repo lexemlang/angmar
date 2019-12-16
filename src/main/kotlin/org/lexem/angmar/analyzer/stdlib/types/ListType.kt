@@ -30,17 +30,18 @@ internal object ListType {
      * Initiates the type.
      */
     fun initType(memory: LexemMemory, prototype: LxmReference) {
-        val type = LxmObject()
+        val type = LxmObject(memory)
         val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, TypeName, reference, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, New, memory.add(LxmFunction(::newFunction)), isConstant = true)
-        type.setProperty(memory, NewFrom, memory.add(LxmFunction(::newFromFunction)), isConstant = true)
-        type.setProperty(memory, Concat, memory.add(LxmFunction(::concatFunction)), isConstant = true)
+        type.setProperty(memory, New, memory.add(LxmFunction(memory, ::newFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, memory.add(LxmFunction(memory, ::newFromFunction)), isConstant = true)
+        type.setProperty(memory, Concat, memory.add(LxmFunction(memory, ::concatFunction)), isConstant = true)
     }
 
     /**
@@ -49,7 +50,8 @@ internal object ListType {
     private fun newFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, NewArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, NewArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -66,7 +68,7 @@ internal object ListType {
                             "The '$TypeName${AccessExplicitMemberNode.accessToken}$New' method requires the parameter called '${NewArgs[0]}' be a positive ${IntegerType.TypeName}. Actual: ${size.primitive}") {}
                 }
 
-                val newList = LxmList()
+                val newList = LxmList(analyzer.memory)
                 val newListRef = analyzer.memory.add(newList)
                 for (i in 0 until size.primitive) {
                     newList.addCell(analyzer.memory, value)
@@ -85,12 +87,12 @@ internal object ListType {
     private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val newList = LxmList()
+                val newList = LxmList(analyzer.memory)
                 val newListRef = analyzer.memory.add(newList)
                 for (i in spreadArguments) {
                     newList.addCell(analyzer.memory, i)
@@ -109,14 +111,14 @@ internal object ListType {
     private fun concatFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory, emptyList(),
-                spreadPositionalParameter = spreadArguments)
+        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
+                emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val newList = LxmList()
+                val newList = LxmList(analyzer.memory)
                 val newListRef = analyzer.memory.add(newList)
-                for (list in spreadArguments.map { it.dereference(analyzer.memory) }) {
+                for (list in spreadArguments.map { it.dereference(analyzer.memory, toWrite = false) }) {
                     if (list !is LxmList) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Concat' method requires that all its parameters be a $TypeName") {}

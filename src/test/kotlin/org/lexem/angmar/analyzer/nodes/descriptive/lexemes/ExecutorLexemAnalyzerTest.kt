@@ -18,7 +18,7 @@ internal class ExecutorLexemAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = ExecutorLexemeNode.Companion::parse)
 
         // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -28,7 +28,7 @@ internal class ExecutorLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack()
         Assertions.assertEquals(5, (result as LxmInteger).primitive, "The returned value is incorrect")
 
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val varValue = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The returned value must be a LxmInteger")
         Assertions.assertEquals(5, varValue.primitive, "The returned value is incorrect")
@@ -48,7 +48,7 @@ internal class ExecutorLexemAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = ExecutorLexemeNode.Companion::parse)
 
         // Prepare context.
-        var context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -56,7 +56,7 @@ internal class ExecutorLexemAnalyzerTest {
         val result = analyzer.memory.getLastFromStack()
         Assertions.assertEquals(LxmLogic.True, result, "The returned value is incorrect")
 
-        context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val varValue = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The returned value must be a LxmInteger")
         Assertions.assertEquals(3, varValue.primitive, "The returned value is incorrect")

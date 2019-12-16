@@ -57,34 +57,42 @@ internal object StringPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+        val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Length, memory.add(LxmFunction(::lengthFunction)), isConstant = true)
-        prototype.setProperty(memory, CharsAt, memory.add(LxmFunction(::charsAtFunction)), isConstant = true)
-        prototype.setProperty(memory, UnicodePointsAt, memory.add(LxmFunction(::unicodePointsAtFunction)),
+        prototype.setProperty(memory, Length, memory.add(LxmFunction(memory, ::lengthFunction)), isConstant = true)
+        prototype.setProperty(memory, CharsAt, memory.add(LxmFunction(memory, ::charsAtFunction)), isConstant = true)
+        prototype.setProperty(memory, UnicodePointsAt, memory.add(LxmFunction(memory, ::unicodePointsAtFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, EndsWithAny, memory.add(LxmFunction(::endsWithAnyFunction)), isConstant = true)
-        prototype.setProperty(memory, StartsWithAny, memory.add(LxmFunction(::startsWithAnyFunction)),
+        prototype.setProperty(memory, EndsWithAny, memory.add(LxmFunction(memory, ::endsWithAnyFunction)),
                 isConstant = true)
-        prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(::containsAnyFunction)), isConstant = true)
-        prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(::containsAllFunction)), isConstant = true)
-        prototype.setProperty(memory, IndexOf, memory.add(LxmFunction(::indexOfFunction)), isConstant = true)
-        prototype.setProperty(memory, LastIndexOf, memory.add(LxmFunction(::lastIndexOfFunction)), isConstant = true)
-        prototype.setProperty(memory, PadStart, memory.add(LxmFunction(::padStartFunction)), isConstant = true)
-        prototype.setProperty(memory, PadEnd, memory.add(LxmFunction(::padEndFunction)), isConstant = true)
-        prototype.setProperty(memory, Repeat, memory.add(LxmFunction(::repeatFunction)), isConstant = true)
-        prototype.setProperty(memory, Replace, memory.add(LxmFunction(::replaceFunction)), isConstant = true)
-        prototype.setProperty(memory, Slice, memory.add(LxmFunction(::sliceFunction)), isConstant = true)
-        prototype.setProperty(memory, Split, memory.add(LxmFunction(::splitFunction)), isConstant = true)
-        prototype.setProperty(memory, ToLowercase, memory.add(LxmFunction(::toLowercaseFunction)), isConstant = true)
-        prototype.setProperty(memory, ToUppercase, memory.add(LxmFunction(::toUppercaseFunction)), isConstant = true)
-        prototype.setProperty(memory, TrimStart, memory.add(LxmFunction(::trimStartFunction)), isConstant = true)
-        prototype.setProperty(memory, TrimEnd, memory.add(LxmFunction(::trimEndFunction)), isConstant = true)
-        prototype.setProperty(memory, Trim, memory.add(LxmFunction(::trimFunction)), isConstant = true)
+        prototype.setProperty(memory, StartsWithAny, memory.add(LxmFunction(memory, ::startsWithAnyFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(memory, ::containsAnyFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(memory, ::containsAllFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, IndexOf, memory.add(LxmFunction(memory, ::indexOfFunction)), isConstant = true)
+        prototype.setProperty(memory, LastIndexOf, memory.add(LxmFunction(memory, ::lastIndexOfFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, PadStart, memory.add(LxmFunction(memory, ::padStartFunction)), isConstant = true)
+        prototype.setProperty(memory, PadEnd, memory.add(LxmFunction(memory, ::padEndFunction)), isConstant = true)
+        prototype.setProperty(memory, Repeat, memory.add(LxmFunction(memory, ::repeatFunction)), isConstant = true)
+        prototype.setProperty(memory, Replace, memory.add(LxmFunction(memory, ::replaceFunction)), isConstant = true)
+        prototype.setProperty(memory, Slice, memory.add(LxmFunction(memory, ::sliceFunction)), isConstant = true)
+        prototype.setProperty(memory, Split, memory.add(LxmFunction(memory, ::splitFunction)), isConstant = true)
+        prototype.setProperty(memory, ToLowercase, memory.add(LxmFunction(memory, ::toLowercaseFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, ToUppercase, memory.add(LxmFunction(memory, ::toUppercaseFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, TrimStart, memory.add(LxmFunction(memory, ::trimStartFunction)),
+                isConstant = true)
+        prototype.setProperty(memory, TrimEnd, memory.add(LxmFunction(memory, ::trimEndFunction)), isConstant = true)
+        prototype.setProperty(memory, Trim, memory.add(LxmFunction(memory, ::trimFunction)), isConstant = true)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(::add)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
+                isConstant = true)
 
         return memory.add(prototype)
     }
@@ -93,11 +101,11 @@ internal object StringPrototype {
      * Returns the length of the string.
      */
     private fun lengthFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    Length, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmInteger.from(thisValue.primitive.length)
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Length, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmInteger.from(thisValue.primitive.length)
+    }
 
     /**
      * Return a string with the specified unicode points.
@@ -106,8 +114,8 @@ internal object StringPrototype {
             signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -157,8 +165,8 @@ internal object StringPrototype {
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -167,7 +175,7 @@ internal object StringPrototype {
                     "The '<${StringType.TypeName} value>${AccessExplicitMemberNode.accessToken}$UnicodePointsAt' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${StringType.TypeName}") {}
         }
 
-        val list = LxmList()
+        val list = LxmList(analyzer.memory)
         val listRef = analyzer.memory.add(list)
 
         loop@ for (i in spreadPositionalParameter) {
@@ -207,8 +215,8 @@ internal object StringPrototype {
             signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -242,8 +250,8 @@ internal object StringPrototype {
             signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -277,8 +285,8 @@ internal object StringPrototype {
             signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -312,8 +320,8 @@ internal object StringPrototype {
             signal: Int): Boolean {
         val spreadPositionalParameter = mutableListOf<LexemPrimitive>()
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        emptyList(), spreadPositionalParameter)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, emptyList(), spreadPositionalParameter)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -346,8 +354,8 @@ internal object StringPrototype {
     private fun indexOfFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        IndexOfArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, IndexOfArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val substring = parserArguments[IndexOfArgs[0]] ?: LxmNil
@@ -378,8 +386,8 @@ internal object StringPrototype {
     private fun lastIndexOfFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        LastIndexOfArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, LastIndexOfArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val substring = parserArguments[LastIndexOfArgs[0]] ?: LxmNil
@@ -410,8 +418,8 @@ internal object StringPrototype {
     private fun padStartFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        PadStartArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, PadStartArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val length = parserArguments[PadStartArgs[0]] ?: LxmNil
@@ -470,8 +478,8 @@ internal object StringPrototype {
     private fun padEndFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        PadEndArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, PadEndArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val length = parserArguments[PadEndArgs[0]] ?: LxmNil
@@ -531,8 +539,8 @@ internal object StringPrototype {
     private fun repeatFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        RepeatArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, RepeatArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val count = parserArguments[RepeatArgs[0]] ?: LxmNil
@@ -575,8 +583,8 @@ internal object StringPrototype {
     private fun replaceFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        ReplaceArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, ReplaceArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val original = parserArguments[ReplaceArgs[0]] ?: LxmNil
@@ -621,8 +629,8 @@ internal object StringPrototype {
     private fun sliceFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        SliceArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, SliceArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val from = parserArguments[SliceArgs[0]] ?: LxmNil
@@ -671,8 +679,8 @@ internal object StringPrototype {
     private fun splitFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        SplitArgs)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, SplitArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val substring = parserArguments[SplitArgs[0]] ?: LxmNil
@@ -688,7 +696,7 @@ internal object StringPrototype {
         }
 
         val values = thisValue.primitive.split(substring.primitive)
-        val list = LxmList()
+        val list = LxmList(analyzer.memory)
         val listRef = analyzer.memory.add(list)
 
         for (str in values) {
@@ -704,51 +712,51 @@ internal object StringPrototype {
      * Converts the string to lowercase.
      */
     private fun toLowercaseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    TrimStart, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmString.from(thisValue.primitive.toUnicodeLowercase())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, TrimStart, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmString.from(thisValue.primitive.toUnicodeLowercase())
+    }
 
     /**
      * Converts the string to uppercase.
      */
     private fun toUppercaseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    TrimStart, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmString.from(thisValue.primitive.toUnicodeUppercase())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, TrimStart, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmString.from(thisValue.primitive.toUnicodeUppercase())
+    }
 
     /**
      * Trims the string in the start.
      */
     private fun trimStartFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    TrimStart, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmString.from(thisValue.primitive.trimStart())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, TrimStart, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmString.from(thisValue.primitive.trimStart())
+    }
 
     /**
      * Trims the string in the end.
      */
     private fun trimEndFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    TrimEnd, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmString.from(thisValue.primitive.trimEnd())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, TrimEnd, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmString.from(thisValue.primitive.trimEnd())
+    }
 
     /**
      * Trims the string in both ends.
      */
     private fun trimFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) =
-            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, argumentsReference.dereferenceAs(analyzer.memory)!!,
-                    Trim, StringType.TypeName) { _: LexemAnalyzer, thisValue: LxmString ->
-                LxmString.from(thisValue.primitive.trim())
-            }
+            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
+            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Trim, StringType.TypeName,
+            toWrite = false) { _: LexemAnalyzer, thisValue: LxmString ->
+        LxmString.from(thisValue.primitive.trim())
+    }
 
     // OPERATORS --------------------------------------------------------------
 
@@ -758,8 +766,8 @@ internal object StringPrototype {
     private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
         val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                        AnalyzerCommons.Operators.ParameterList)
+                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                        analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

@@ -16,7 +16,9 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
  */
 internal object ImportGlobalFunction {
     const val FunctionName = "import"
-    const val PathParam = "path"
+
+    // Method arguments
+    private val ImportArgs = listOf("path")
 
     // METHODS ----------------------------------------------------------------
 
@@ -24,9 +26,10 @@ internal object ImportGlobalFunction {
      * Initiates the global function.
      */
     fun initFunction(memory: LexemMemory) {
-        val function = LxmFunction(::importFile)
+        val function = LxmFunction(memory, ::importFile)
         val functionRef = memory.add(function)
-        AnalyzerCommons.getCurrentContext(memory).setProperty(memory, FunctionName, functionRef, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, FunctionName, functionRef, isConstant = true)
     }
 
     /**
@@ -38,29 +41,29 @@ internal object ImportGlobalFunction {
 
         when (signal) {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 val callerContext = context.getDereferencedProperty<LxmContext>(analyzer.memory,
-                        AnalyzerCommons.Identifiers.HiddenCallerContext)!!
+                        AnalyzerCommons.Identifiers.HiddenCallerContext, toWrite = false)!!
                 val currentFilePath = callerContext.getDereferencedProperty<LxmString>(analyzer.memory,
-                        AnalyzerCommons.Identifiers.HiddenFilePath)!!
+                        AnalyzerCommons.Identifiers.HiddenFilePath, toWrite = false)!!
 
                 val parserArguments =
-                        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!.mapArguments(analyzer.memory,
-                                listOf(PathParam))
-                val path = parserArguments[PathParam] as? LxmString ?: throw AngmarAnalyzerException(
+                        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
+                                analyzer.memory, ImportArgs)
+                val path = parserArguments[ImportArgs[0]] as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.BadArgumentError,
-                        "The $FunctionName method requires the parameter called '$PathParam' be a ${StringType.TypeName}") {}
+                        "The $FunctionName method requires the parameter called '${ImportArgs[0]}' be a ${StringType.TypeName}") {}
 
 
                 // Parse and analyze the code.
                 val finalSource: String
                 val parser = if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
                     val parserMap = AnalyzerCommons.getStdLibContextElement<LxmObject>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.HiddenParserMap)
+                            AnalyzerCommons.Identifiers.HiddenParserMap, toWrite = false)
 
-                    val parser = parserMap.getDereferencedProperty<LxmParser>(analyzer.memory, path.primitive)
-                            ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
-                                    "The file '${path.primitive}' does not exist") {}
+                    val parser = parserMap.getDereferencedProperty<LxmParser>(analyzer.memory, path.primitive,
+                            toWrite = false) ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
+                            "The file '${path.primitive}' does not exist") {}
 
                     finalSource = path.primitive
 
@@ -112,7 +115,8 @@ internal object ImportGlobalFunction {
      * Finds the path in the processed files to avoid repetitions.
      */
     private fun findPathInMap(memory: LexemMemory, context: LxmContext, path: String): LxmReference? {
-        val fileMap = context.getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.HiddenFileMap)!!
+        val fileMap = context.getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.HiddenFileMap,
+                toWrite = false)!!
         return fileMap.getPropertyValue(memory, path) as? LxmReference
     }
 }

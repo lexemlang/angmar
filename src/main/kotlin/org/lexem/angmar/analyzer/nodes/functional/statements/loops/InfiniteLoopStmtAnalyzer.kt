@@ -38,7 +38,7 @@ internal object InfiniteLoopStmtAnalyzer {
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LoopIndexName)
 
                 // Set the index in the context.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.thenBlock)
@@ -142,7 +142,7 @@ internal object InfiniteLoopStmtAnalyzer {
 
         // Set the index if there is an index expression.
         if (node.index != null) {
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
             context.setProperty(analyzer.memory, indexName.primitive, newIndex)

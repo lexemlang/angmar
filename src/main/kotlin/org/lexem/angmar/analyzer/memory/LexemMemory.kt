@@ -84,12 +84,13 @@ internal class LexemMemory {
     /**
      * Gets a value from the memory.
      */
-    fun get(reference: LxmReference) = lastNode.getCell(reference.position).value
+    fun get(reference: LxmReference, toWrite: Boolean) =
+            lastNode.getCell(this, reference.position, forceShift = toWrite).value
 
     /**
      * Sets a value in the memory.
      */
-    fun set(reference: LxmReference, value: LexemReferenced) = lastNode.setCell(reference.position, value)
+    fun set(reference: LxmReference, value: LexemReferenced) = lastNode.setCell(this, reference.position, value)
 
     /**
      * Adds a value in the memory returning the position in which it has been added.
@@ -116,12 +117,12 @@ internal class LexemMemory {
     fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
         // Increases the new reference.
         if (newValue is LxmReference) {
-            lastNode.getCell(newValue.position, forceShift = true).increaseReferences()
+            lastNode.getCell(this, newValue.position, forceShift = true).increaseReferences()
         }
 
         // Removes the previous reference.
         if (oldValue is LxmReference) {
-            lastNode.getCell(oldValue.position, forceShift = true).decreaseReferences(this)
+            lastNode.getCell(this, oldValue.position, forceShift = true).decreaseReferences(this)
         }
     }
 
@@ -174,8 +175,17 @@ internal class LexemMemory {
      * Collapses all the big nodes from the current one to the specified.
      */
     fun collapseTo(bigNode: BigNode, forceGarbageCollection: Boolean = false) {
+        if (lastNode == bigNode) {
+            // Skip because it is the end.
+            return
+        }
+
+        // Unlink the bigNode.
+        bigNode.nextNode!!.previousNode = null
+
         lastNode.collapseTo(bigNode)
         lastNode = bigNode
+        bigNode.nextNode = null
         spatialGarbageCollect(forceGarbageCollection)
     }
 

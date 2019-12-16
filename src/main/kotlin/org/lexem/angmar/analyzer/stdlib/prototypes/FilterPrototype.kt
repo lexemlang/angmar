@@ -26,10 +26,10 @@ internal object FilterPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory): LxmReference {
-        val prototype = LxmObject()
+        val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Wrap, memory.add(LxmFunction(::wrapFunction)), isConstant = true)
+        prototype.setProperty(memory, Wrap, memory.add(LxmFunction(memory, ::wrapFunction)), isConstant = true)
 
         return memory.add(prototype)
     }
@@ -39,13 +39,13 @@ internal object FilterPrototype {
      */
     private fun wrapFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
             signal: Int): Boolean {
-        val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory)!!
+        val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
         val parsedArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val thisValueRef = parsedArguments[AnalyzerCommons.Identifiers.This]!!
-                val thisValue = thisValueRef.dereference(analyzer.memory)
+                val thisValue = thisValueRef.dereference(analyzer.memory, toWrite = false)
 
                 if (thisValue !is LxmFilter) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,

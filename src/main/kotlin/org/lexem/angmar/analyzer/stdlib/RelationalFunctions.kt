@@ -21,12 +21,12 @@ internal object RelationalFunctions {
     fun lxmEquals(memory: LexemMemory, left: LexemPrimitive, right: LexemPrimitive) =
             identityEquals(left, right) || let {
                 if (left is LxmReference && right is LxmReference) {
-                    val leftDeref = left.dereference(memory)
-                    val rightDeref = right.dereference(memory)
+                    val leftDeref = left.dereference(memory, toWrite = false)
+                    val rightDeref = right.dereference(memory, toWrite = false)
 
                     when {
                         leftDeref is LxmList && rightDeref is LxmList -> {
-                            if (leftDeref.isImmutable != rightDeref.isImmutable) {
+                            if (leftDeref.isConstant != rightDeref.isConstant) {
                                 return@let false
                             }
 
@@ -41,7 +41,7 @@ internal object RelationalFunctions {
                             }
                         }
                         leftDeref is LxmSet && rightDeref is LxmSet -> {
-                            if (leftDeref.isImmutable != rightDeref.isImmutable) {
+                            if (leftDeref.isConstant != rightDeref.isConstant) {
                                 return@let false
                             }
 
@@ -65,7 +65,7 @@ internal object RelationalFunctions {
                             }
                         }
                         leftDeref is LxmObject && rightDeref is LxmObject -> {
-                            if (leftDeref.isImmutable != rightDeref.isImmutable) {
+                            if (leftDeref.isConstant != rightDeref.isConstant) {
                                 return@let false
                             }
 
@@ -89,7 +89,7 @@ internal object RelationalFunctions {
                             }
                         }
                         leftDeref is LxmMap && rightDeref is LxmMap -> {
-                            if (leftDeref.isImmutable != rightDeref.isImmutable) {
+                            if (leftDeref.isConstant != rightDeref.isConstant) {
                                 return@let false
                             }
 

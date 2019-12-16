@@ -105,7 +105,7 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FloatType.TypeName) as LxmReference
     }
 

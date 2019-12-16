@@ -19,7 +19,7 @@ internal object ListAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new list.
-                val list = LxmList()
+                val list = LxmList(analyzer.memory)
                 val listRef = analyzer.memory.add(list)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, listRef)
 
@@ -40,7 +40,7 @@ internal object ListAnalyzer {
                 // Add the value to the list.
                 val value = analyzer.memory.getLastFromStack()
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmList
+                        analyzer.memory, toWrite = true) as LxmList
 
                 list.addCell(analyzer.memory, value)
                 analyzer.memory.removeLastFromStack()

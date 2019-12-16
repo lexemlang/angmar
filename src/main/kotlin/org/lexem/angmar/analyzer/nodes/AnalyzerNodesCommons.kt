@@ -36,7 +36,7 @@ internal object AnalyzerNodesCommons {
      */
     fun callFunction(analyzer: LexemAnalyzer, primitive: LexemPrimitive, arguments: LxmReference, node: ParserNode,
             returnPoint: LxmCodePoint) {
-        val function = primitive.dereference(analyzer.memory)
+        val function = primitive.dereference(analyzer.memory, toWrite = false)
         if (function !is ExecutableValue) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
                     "The value is not callable, i.e. a function, expression or filter. Current: $primitive") {
@@ -89,9 +89,10 @@ internal object AnalyzerNodesCommons {
                 }
 
                 // Set the arguments.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = false) as LxmArguments
                 arguments.mapArgumentsToContext(analyzer.memory, LxmParameters(), context)
 
                 // Remove Arguments from the stack.
@@ -185,11 +186,12 @@ internal object AnalyzerNodesCommons {
             // Call the function.
             signalCallFunction -> {
                 // Checks whether the current call is a re-parsing.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 val node2ReParse =
                         context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = false) as LxmArguments
                 if (node2ReParse != null) {
                     if (node is ExpressionStmtNode) {
                         // Save the current text.
@@ -197,7 +199,7 @@ internal object AnalyzerNodesCommons {
                                 LxmReader(analyzer.text))
 
                         // Prepare the re-parsing.
-                        val node2ReParseDeref = node2ReParse.dereference(analyzer.memory) as LxmNode
+                        val node2ReParseDeref = node2ReParse.dereference(analyzer.memory, toWrite = false) as LxmNode
                         val content = node2ReParseDeref.getContent(analyzer.memory)!!
                         val reader = AnalyzerCommons.createReaderFrom(content)
                         analyzer.text = reader
@@ -233,17 +235,18 @@ internal object AnalyzerNodesCommons {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LastNode, memoryIndex)
 
                 // Create node.
-                val expression = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function).dereference(
-                        analyzer.memory) as LxmFunction
+                val expression =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function).dereference(analyzer.memory,
+                                toWrite = false) as LxmFunction
                 val name = if (node is FilterStmtNode) {
                     val node = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNode).dereference(
-                            analyzer.memory) as LxmNode
+                            analyzer.memory, toWrite = false) as LxmNode
                     node.name
                 } else {
                     expression.name
                 }
                 val lxmNodeRef = analyzer.createNewNode(name)
-                val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory)!!
+                val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!
 
                 if (node is FilterStmtNode) {
                     lxmNode.applyDefaultPropertiesForFilter(analyzer.memory)
@@ -255,7 +258,7 @@ internal object AnalyzerNodesCommons {
                         isConstant = true)
 
                 // Create the union container.
-                val unions = LxmObject()
+                val unions = LxmObject(analyzer.memory)
                 context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
                         analyzer.memory.add(unions))
 
@@ -281,9 +284,9 @@ internal object AnalyzerNodesCommons {
             // Parse the propertyNode.
             signalEndProperties -> {
                 // Set the propertyNode.
-                val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+                val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = true)
                 val propertiesRef = analyzer.memory.getLastFromStack() as LxmReference
-                val properties = propertiesRef.dereferenceAs<LxmObject>(analyzer.memory)!!
+                val properties = propertiesRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false)!!
 
                 for ((name, property) in properties.getAllIterableProperties()) {
                     nodeProperties.setProperty(analyzer.memory, name, property.value)
@@ -298,9 +301,10 @@ internal object AnalyzerNodesCommons {
                 }
 
                 // Set the arguments.
-                val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = false) as LxmArguments
                 arguments.mapArgumentsToContext(analyzer.memory, LxmParameters(), context)
 
                 // Move the properties of the arguments to the node.
@@ -313,8 +317,9 @@ internal object AnalyzerNodesCommons {
             }
             // Parse the arguments.
             signalEndParameterList -> {
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = false) as LxmArguments
 
                 // Move the properties of the arguments to the node.
                 descriptiveExecutionControllerMovePropertiesToNode(analyzer, node, arguments)
@@ -368,15 +373,15 @@ internal object AnalyzerNodesCommons {
      * Process the final actions of the descriptive controller.
      */
     private fun descriptiveExecutionControllerFinal(analyzer: LexemAnalyzer, node: ParserNode) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
         // Check the unions before leave.
         let {
             val unionsRef = context.getPropertyValue(analyzer.memory,
                     AnalyzerCommons.Identifiers.HiddenPatternUnions) as LxmReference
-            val unions = unionsRef.dereferenceAs<LxmObject>(analyzer.memory)!!
+            val unions = unionsRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false)!!
             for ((_, property) in unions.getAllIterableProperties()) {
-                val union = property.value.dereference(analyzer.memory) as LxmPatternUnion
+                val union = property.value.dereference(analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 if (!union.isFinished(analyzer.memory)) {
                     return analyzer.initBacktracking()
@@ -392,26 +397,26 @@ internal object AnalyzerNodesCommons {
 
         // Prepare the node.
         val lxmNodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Node)!!
-        val lxmNode = lxmNodeRef.dereference(analyzer.memory) as LxmNode
+        val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = true) as LxmNode
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
 
         // Process the properties.
         let {
-            val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+            val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
             val children = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Children) ?: LxmNil)
             if (!children) {
-                val childList = lxmNode.getChildren(analyzer.memory)
-                childList.removeCell(analyzer.memory, childList.actualListSize)
+                val childList = lxmNode.getChildren(analyzer.memory, toWrite = true)
+                childList.removeCell(analyzer.memory, childList.actualListSize - 1, ignoreConstant = true)
             }
 
             var returnValue: LexemPrimitive = lxmNodeRef
             val capture = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture) {
-                val parent = lxmNode.getParent(analyzer.memory)!!
-                val parentChildren = parent.getChildren(analyzer.memory)
+                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
+                val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
 
                 // Find position in parent.
                 val index = parentChildren.getAllCells()
@@ -424,13 +429,13 @@ internal object AnalyzerNodesCommons {
                 parentChildren.removeCell(analyzer.memory, index, ignoreConstant = true)
 
                 // Add children to parent in the same position.
-                val childrenArray = lxmNode.getChildren(analyzer.memory).getAllCells().toTypedArray()
+                val childrenArray = lxmNode.getChildren(analyzer.memory, toWrite = false).getAllCells().toTypedArray()
                 parentChildren.insertCell(analyzer.memory, index, *childrenArray, ignoreConstant = true)
 
                 // Set the returned value.
                 if (children && childrenArray.isNotEmpty()) {
                     // Set the children as returned value.
-                    val resultList = LxmList()
+                    val resultList = LxmList(analyzer.memory)
                     val resultListRef = analyzer.memory.add(resultList)
                     resultList.addCell(analyzer.memory, *childrenArray)
                     returnValue = resultListRef
@@ -446,8 +451,8 @@ internal object AnalyzerNodesCommons {
             val propertyValue = props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Property) ?: LxmNil
             val property = RelationalFunctions.isTruthy(propertyValue)
             if (property) {
-                val parent = lxmNode.getParent(analyzer.memory)!!
-                val parentProps = parent.getProperties(analyzer.memory)
+                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
+                val parentProps = parent.getProperties(analyzer.memory, toWrite = true)
 
                 if (propertyValue is LxmString) {
                     val value = lxmNode.getContent(analyzer.memory)!!
@@ -477,11 +482,12 @@ internal object AnalyzerNodesCommons {
             (oldReader as LxmReader).restore(analyzer)
 
             // Change the result.
-            val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory)
+            val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = true)
             when (result) {
                 is LxmNode -> {
                     val node2ReParse = context.getPropertyValue(analyzer.memory,
-                            AnalyzerCommons.Identifiers.HiddenNode2Filter)!!.dereference(analyzer.memory) as LxmNode
+                            AnalyzerCommons.Identifiers.HiddenNode2Filter)!!.dereference(analyzer.memory,
+                            toWrite = true) as LxmNode
 
                     result.applyOffset(analyzer.memory, node2ReParse.getFrom(analyzer.memory).primitive)
 
@@ -489,10 +495,13 @@ internal object AnalyzerNodesCommons {
                 }
                 is LxmList -> {
                     val node2ReParse = context.getPropertyValue(analyzer.memory,
-                            AnalyzerCommons.Identifiers.HiddenNode2Filter)!!.dereference(analyzer.memory) as LxmNode
+                            AnalyzerCommons.Identifiers.HiddenNode2Filter)!!.dereference(analyzer.memory,
+                            toWrite = true) as LxmNode
                     val from = node2ReParse.getFrom(analyzer.memory).primitive
 
-                    for (child in result.getAllCells().map { it.dereference(analyzer.memory) as LxmNode }) {
+                    for (child in result.getAllCells().map {
+                        it.dereference(analyzer.memory, toWrite = true) as LxmNode
+                    }) {
                         child.applyOffset(analyzer.memory, from)
                     }
 
@@ -527,7 +536,7 @@ internal object AnalyzerNodesCommons {
     private fun descriptiveExecutionControllerMovePropertiesToNode(analyzer: LexemAnalyzer, node: ParserNode,
             arguments: LxmArguments) {
         val properties = arguments.getNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.Properties)
-                ?.dereference(analyzer.memory)
+                ?.dereference(analyzer.memory, toWrite = false)
 
         if (properties != null) {
             if (properties !is LxmObject) {
@@ -541,7 +550,7 @@ internal object AnalyzerNodesCommons {
                 }
             }
 
-            val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+            val nodeProperties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = true)
             for ((name, property) in properties.getAllIterableProperties()) {
                 nodeProperties.setProperty(analyzer.memory, name, property.value)
             }
@@ -552,7 +561,7 @@ internal object AnalyzerNodesCommons {
      * Resolves the inline properties of lexemes.
      */
     fun resolveInlineProperties(analyzer: LexemAnalyzer, node: LexemPropertyPostfixNode?): Pair<Boolean, Boolean> {
-        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory)
+        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
         var reversed = RelationalFunctions.isTruthy(
                 props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)

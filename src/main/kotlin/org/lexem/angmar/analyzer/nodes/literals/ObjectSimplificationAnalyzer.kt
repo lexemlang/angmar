@@ -35,7 +35,7 @@ internal object ObjectSimplificationAnalyzer {
 
                 if (identifier !is LxmString) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
-                            "The returned value by the key expression must be a ${StringType.TypeName}. Actual value: $identifier") {
+                            "The returned value by the key expression must be a ${StringType.TypeName}.") {
                         val fullText = node.parser.reader.readAllText()
                         addSourceCode(fullText, node.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
@@ -50,7 +50,7 @@ internal object ObjectSimplificationAnalyzer {
                 }
 
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                        analyzer.memory) as LxmObject
+                        analyzer.memory, toWrite = true) as LxmObject
                 val ctxRef = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
                 val fn = LxmFunction(analyzer.memory, node, ctxRef)
                 val fnRef = analyzer.memory.add(fn)

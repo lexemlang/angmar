@@ -21,7 +21,8 @@ internal class SetAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory) ?: throw Error("The result must be a LxmSet")
+        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmSet")
         val allValues = set.getAllValues()
 
         Assertions.assertEquals(values.size, values.size, "The number of values is incorrect")
@@ -33,7 +34,7 @@ internal class SetAnalyzerTest {
             }
         }
 
-        Assertions.assertFalse(set.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertFalse(set.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -50,7 +51,8 @@ internal class SetAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory) ?: throw Error("The result must be a LxmSet")
+        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmSet")
         val allValues = set.getAllValues()
 
         Assertions.assertEquals(values.size, values.size, "The number of values is incorrect")
@@ -62,7 +64,7 @@ internal class SetAnalyzerTest {
             }
         }
 
-        Assertions.assertTrue(set.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertTrue(set.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -79,11 +81,12 @@ internal class SetAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory) ?: throw Error("The result must be a LxmSet")
+        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmSet")
         val values = set.getAllValues()
 
         Assertions.assertEquals(0, values.size, "The number of cells is incorrect")
-        Assertions.assertFalse(set.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertFalse(set.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -100,11 +103,12 @@ internal class SetAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory) ?: throw Error("The result must be a LxmSet")
+        val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmSet")
         val values = set.getAllValues()
 
         Assertions.assertEquals(0, values.size, "The number of cells is incorrect")
-        Assertions.assertTrue(set.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertTrue(set.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

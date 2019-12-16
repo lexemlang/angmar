@@ -14,7 +14,7 @@ internal class LxmLogic private constructor(val primitive: Boolean) : LexemPrimi
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
         return context.getPropertyValue(memory, LogicType.TypeName) as LxmReference
     }
 

@@ -16,9 +16,9 @@ internal class AccessExpressionAnalyzerTest {
         val text = varName
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -26,7 +26,8 @@ internal class AccessExpressionAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmAccessSetter ?: throw Error(
                 "The result must be a LxmAccessSetter")
         Assertions.assertEquals(varName, result.variableName, "The variableName property is incorrect")
-        Assertions.assertEquals(value, result.dereference(analyzer.memory), "The value property is incorrect")
+        Assertions.assertEquals(value, result.dereference(analyzer.memory, toWrite = false),
+                "The value property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -46,9 +47,9 @@ internal class AccessExpressionAnalyzerTest {
                 "$varName${IndexerNode.startToken}$cellIndex${IndexerNode.endToken}${AccessExplicitMemberNode.accessToken}$funName${FunctionCallNode.startToken}$right${FunctionCallNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionNode.Companion::parse)
 
-        // Create variable in context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val list = LxmList()
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        val list = LxmList(analyzer.memory)
         for (i in 0 until cellIndex) {
             list.addCell(analyzer.memory, LxmNil)
         }
@@ -78,9 +79,9 @@ internal class AccessExpressionAnalyzerTest {
         val text = "$varName ${AssignOperatorNode.assignOperator} $right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AssignExpressionNode.Companion::parse)
 
-        // Create variable in context.
+        // Prepare context.
         val value = LxmInteger.from(5)
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -88,9 +89,9 @@ internal class AccessExpressionAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
-        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory)
-        val property = finalContext.getDereferencedProperty<LxmInteger>(analyzer.memory, varName) ?: throw Error(
-                "The result must be a LxmInteger")
+        val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val property = finalContext.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false)
+                ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.

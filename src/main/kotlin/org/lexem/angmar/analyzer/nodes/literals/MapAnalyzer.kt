@@ -19,7 +19,7 @@ internal object MapAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new map.
-                val map = LxmMap(null)
+                val map = LxmMap(analyzer.memory)
                 val mapRef = analyzer.memory.add(map)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
 
@@ -44,7 +44,7 @@ internal object MapAnalyzer {
 
                 if (node.isConstant) {
                     val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
-                            analyzer.memory) as LxmMap
+                            analyzer.memory, toWrite = true) as LxmMap
 
                     map.makeConstant(analyzer.memory)
                 }

@@ -14,11 +14,11 @@ internal class LxmMapIterator : LexemIterator {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
-        val set = value.dereferenceAs<LxmMap>(memory)!!
+        val map = value.dereferenceAs<LxmMap>(memory, toWrite = false)!!
         setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
 
-        val list = LxmList()
-        val values = set.getAllProperties().flatMap { it.value.map { it.key } }
+        val list = LxmList(memory)
+        val values = map.getAllProperties().flatMap { it.value.map { it.key } }
         for (v in values) {
             list.addCell(memory, v)
         }
@@ -28,7 +28,7 @@ internal class LxmMapIterator : LexemIterator {
         size = values.size.toLong()
     }
 
-    private constructor(oldIterator: LxmMapIterator) : super(oldIterator) {
+    private constructor(memory: LexemMemory, oldIterator: LxmMapIterator) : super(memory, oldIterator) {
         this.size = oldIterator.size
     }
     // METHODS ----------------------------------------------------------------
@@ -37,13 +37,13 @@ internal class LxmMapIterator : LexemIterator {
      * Gets the iterator's map.
      */
     private fun getMap(memory: LexemMemory) =
-            getDereferencedProperty<LxmMap>(memory, AnalyzerCommons.Identifiers.Value)!!
+            getDereferencedProperty<LxmMap>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     /**
      * Gets the iterator's keys.
      */
     private fun getKeys(memory: LexemMemory) =
-            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Keys)!!
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Keys, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -62,7 +62,7 @@ internal class LxmMapIterator : LexemIterator {
         return Pair(currentKey, currentValue)
     }
 
-    override fun clone() = LxmMapIterator(this)
+    override fun clone(memory: LexemMemory) = LxmMapIterator(memory, this)
 
     override fun toString() = "[ITERATOR - MAP] ${super.toString()}"
 }

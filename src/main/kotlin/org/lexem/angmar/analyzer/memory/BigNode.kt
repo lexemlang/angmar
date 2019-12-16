@@ -9,7 +9,7 @@ import org.lexem.angmar.errors.*
  * A big node that represents an differential view of the memory.
  */
 internal class BigNode constructor(var previousNode: BigNode?, var nextNode: BigNode?) {
-    var garbageThreshold = 500
+    var garbageThreshold = Consts.Memory.spatialGarbageCollectorInitialThreshold
         private set
     private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
     private val heap = mutableMapOf<Int, BigNodeCell>()
@@ -208,7 +208,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
 
         // Increase the reference count of the incoming value.
         if (newValue is LxmReference) {
-            getCell(newValue.position, forceShift = true).increaseReferences()
+            getCell(memory, newValue.position, forceShift = true).increaseReferences()
         }
 
         // Replace the cell.
@@ -227,7 +227,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Gets a cell recursively in the [BigNode]'s chain.
      */
-    fun getCell(position: Int, forceShift: Boolean = false): BigNodeCell {
+    fun getCell(memory: LexemMemory, position: Int, forceShift: Boolean = false): BigNodeCell {
         if (position >= actualHeapSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "The analyzer is trying to access a forbidden memory position") {}
@@ -241,7 +241,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         val (distance, cell) = previousNode?.getCellRecursive(position, 1) ?: throw AngmarUnreachableException()
 
         return if (forceShift || distance >= Consts.Memory.maxDistanceToShift) {
-            val cell2 = cell.shiftCell()
+            val cell2 = cell.shiftCell(memory)
             heap[position] = cell2
             cell2
         } else {
@@ -260,13 +260,13 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Sets a new value to the cell at the specified position.
      */
-    fun setCell(position: Int, value: LexemReferenced) {
+    fun setCell(memory: LexemMemory, position: Int, value: LexemReferenced) {
         if (position >= actualHeapSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "The analyzer is trying to access a forbidden memory position") {}
         }
 
-        val cell = getCell(position, forceShift = true)
+        val cell = getCell(memory, position, forceShift = true)
         cell.setValue(value)
     }
 
@@ -292,7 +292,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         }
 
         // Reuse a free cell.
-        val cell = getCell(lastFreePosition, forceShift = true)
+        val cell = getCell(memory, lastFreePosition, forceShift = true)
         lastFreePosition = cell.referenceCount
         cell.reallocCell(memory, value)
         actualUsedCellCount += 1
@@ -304,9 +304,9 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * Frees a memory cell to reuse it in the future.
      */
     fun free(memory: LexemMemory, position: Int) {
-        var cell = getCell(position)
+        var cell = getCell(memory, position)
         if (!cell.isFreed) {
-            cell = getCell(position, forceShift = true)
+            cell = getCell(memory, position, forceShift = true)
             cell.freeCell(memory)
             lastFreePosition = cell.position
             actualUsedCellCount -= 1
@@ -321,15 +321,14 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             return
         }
 
-        val ignoreStackIndexes = mutableSetOf<Int>()
-        val ignoreHeapIndexes = mutableSetOf<Int>()
-
         // Sets the information.
         destination.actualStackLevelSize = actualStackLevelSize
         destination.actualStackSize = actualStackSize
         destination.actualHeapSize = actualHeapSize
         destination.actualUsedCellCount = actualUsedCellCount
         destination.lastFreePosition = lastFreePosition
+        destination.garbageThreshold = garbageThreshold
+        destination.garbageCollectorMark = garbageCollectorMark
 
         // Remove the excess levels in the stack.
         for (i in destination.stackLevels.keys) {
@@ -340,46 +339,49 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             }
         }
 
-        collapseToRecursively(destination, ignoreStackIndexes, ignoreHeapIndexes)
+        // Move stack elements backwards
+        for (i in 0 until actualStackLevelSize) {
+            var node: BigNode? = this
+            while (node != null) {
+                val level = node.stackLevels[i]
+                if (level != null) {
+                    destination.stackLevels[i] = level
+                    node.stackLevels.remove(i)
+                    break
+                }
+
+                node = node.previousNode
+            }
+        }
+
+        collapseToRecursively(destination)
     }
 
-    private fun collapseToRecursively(destination: BigNode, ignoreStackIndexes: MutableSet<Int>,
-            ignoreHeapIndexes: MutableSet<Int>) {
-        if (this == destination) {
-            return
-        }
-
-        // Move stack elements backwards
-        for ((i, level) in stackLevels) {
-            if (i !in ignoreStackIndexes) {
-                destination.stackLevels[i] = level.shiftLevel()
-
-                ignoreStackIndexes.add(i)
-            }
-        }
-
+    private fun collapseToRecursively(destination: BigNode) {
         // Move heap elements backwards.
-        for ((i, cell) in heap) {
-            if (i !in ignoreHeapIndexes) {
-                destination.heap[i] = BigNodeCell.newFrom(cell)
+        val iterator = heap.iterator()
+        while (iterator.hasNext()) {
+            val (i, cell) = iterator.next()
+            var node = previousNode
+            while (node != null) {
+                if (i in node.heap) {
+                    node.heap[i]!!.destroy()
+                    node.heap.remove(i)
+                }
 
-                ignoreHeapIndexes.add(i)
+                node = node.previousNode
             }
 
-            // Clear the value in the current heap to not remove the value.
-            if (!cell.isFreed) {
-                cell.setValue(BigNodeCell.EmptyCell)
-            }
+            destination.heap[i] = cell
+            cell.value?.bigNode = destination
+            iterator.remove()
         }
 
         if (previousNode == null) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BigNodeDoesNotBelongToMemoryChain,
-                    "The specified bigNode does not belong to this memory chain") {}
+            destroy()
+        } else {
+            previousNode!!.collapseToRecursively(destination)
         }
-
-        previousNode!!.collapseToRecursively(destination, ignoreStackIndexes, ignoreHeapIndexes)
-
-        destroy()
     }
 
     /**
@@ -431,7 +433,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
 
         // Clean memory.
         for (i in 0 until actualHeapSize) {
-            val cell = getCell(i)
+            val cell = getCell(memory, i)
 
             if (!cell.isNotGarbage) {
                 free(memory, i)
@@ -442,7 +444,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
 
         // Update the threshold only under the minimum quantity of free space.
         if (freeSpacePercentage < Consts.Memory.minimumFreeSpace) {
-            garbageThreshold = (garbageThreshold * Consts.Memory.garbageThresholdIncrement).toInt()
+            garbageThreshold = (garbageThreshold * Consts.Memory.spatialGarbageCollectorThresholdIncrement).toInt()
         }
 
         garbageCollectorMark = false

@@ -26,7 +26,7 @@ internal class LexemePatternContentAnalyzerTest {
         val textReader = IOStringReader.from(text)
 
         // Prepare context.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -47,8 +47,8 @@ internal class LexemePatternContentAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -70,8 +70,8 @@ internal class LexemePatternContentAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 
@@ -92,8 +92,8 @@ internal class LexemePatternContentAnalyzerTest {
                 isDescriptiveCode = true)
         val textReader = IOStringReader.from("")
 
-        // Prepare context for text lexemes.
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory)
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
 

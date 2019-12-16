@@ -17,12 +17,12 @@ internal class PropertyStyleObjectAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         val property = result.getPropertyValue(analyzer.memory, propName)
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
-        Assertions.assertFalse(result.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertFalse(result.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -40,12 +40,12 @@ internal class PropertyStyleObjectAnalyzerTest {
 
         val resultRef =
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
-        val result =
-                resultRef.dereferenceAs<LxmObject>(analyzer.memory) ?: throw Error("The result must be a LxmObject")
+        val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
+                "The result must be a LxmObject")
 
         val property = result.getPropertyValue(analyzer.memory, propName)
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
-        Assertions.assertTrue(result.isImmutable, "The isImmutable property is incorrect")
+        Assertions.assertTrue(result.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

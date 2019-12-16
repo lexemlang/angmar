@@ -32,8 +32,9 @@ internal object FunctionCallNamedArgumentAnalyzer {
                 // Get the arguments
                 val value = analyzer.memory.getLastFromStack()
                 val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
-                val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(
-                        analyzer.memory) as LxmArguments
+                val arguments =
+                        analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                                toWrite = true) as LxmArguments
 
                 arguments.addNamedArgument(analyzer.memory, identifier.primitive, value)
 

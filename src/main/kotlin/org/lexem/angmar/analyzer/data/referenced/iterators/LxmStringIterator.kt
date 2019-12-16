@@ -17,7 +17,7 @@ internal class LxmStringIterator : LexemIterator {
         this.size = value.length.toLong()
     }
 
-    private constructor(oldIterator: LxmStringIterator) : super(oldIterator) {
+    private constructor(memory: LexemMemory, oldIterator: LxmStringIterator) : super(memory, oldIterator) {
         this.value = oldIterator.value
         this.size = oldIterator.size
     }
@@ -36,7 +36,7 @@ internal class LxmStringIterator : LexemIterator {
         return Pair(null, LxmString.from("$currentValue"))
     }
 
-    override fun clone() = LxmStringIterator(this)
+    override fun clone(memory: LexemMemory) = LxmStringIterator(memory, this)
 
     override fun toString() = "[ITERATOR - STRING] (value: $value) - ${super.toString()}"
 }

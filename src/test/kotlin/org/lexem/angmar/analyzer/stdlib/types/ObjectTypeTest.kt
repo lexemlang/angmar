@@ -21,12 +21,12 @@ internal class ObjectTypeTest {
         val grammar = "$fnCall${FunctionCallNode.startToken}$fnCallArguments${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val obj =
-                    result?.dereference(analyzer.memory) as? LxmObject ?: throw Error("The result must be a LxmObject")
+            val obj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
+                    "The result must be a LxmObject")
 
             Assertions.assertEquals(0, obj.getAllIterableProperties().size, "The size of the result is incorrect")
 
-            val prototype = obj.getPrototypeAsObject(analyzer.memory)
+            val prototype = obj.getPrototypeAsObject(analyzer.memory, toWrite = false)
             Assertions.assertEquals(value, prototype.getPropertyDescriptor(analyzer.memory, propName)!!.value,
                     "The prototype is incorrect")
         }
@@ -47,8 +47,8 @@ internal class ObjectTypeTest {
         }}${FunctionCallNode.endToken}"
 
         TestUtils.e2eTestExecutingExpression(grammar) { analyzer, result ->
-            val obj =
-                    result?.dereference(analyzer.memory) as? LxmObject ?: throw Error("The result must be a LxmObject")
+            val obj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
+                    "The result must be a LxmObject")
 
             // Make the result.
             val targetResult: MutableMap<String, LexemPrimitive> = target.toMutableMap()
