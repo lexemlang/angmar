@@ -44,7 +44,7 @@ internal object StringAnalyzer {
 
                     accumulator.primitive + Character.toChars(escape.primitive).joinToString("") + node.texts[position]
                 }
-                
+
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmString.from(concatenation))
 
                 // Remove Last from the stack.

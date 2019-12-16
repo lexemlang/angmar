@@ -121,7 +121,7 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                LxmLogic.from(element.primitive[primitive] ?: false)
+                LxmLogic.from(element.primitive[primitive])
             }
             is LxmList -> {
                 if (index !is LxmInteger) {

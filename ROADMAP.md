@@ -6,7 +6,6 @@ This is the plan to work towards a future release.
 
 ## TODO
 
-- Format and clean up the code
 - Change collapseTo to just mark the bignodes to be non-recoverable and delegate the real collapsing to another time.
   - When collapsing if there are more than x bignodes, it executes directly the collapsing over that group. Probably 10 or 20
   - During the temporal garbage collector it tracks the non recoverable groups and collapses them.
