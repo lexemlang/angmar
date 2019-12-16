@@ -41,6 +41,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         internal set
     var entryPoint = Consts.defaultEntryPoint
         internal set
+    internal var ticks = 0L
+        private set
 
     init {
         val stdLibContext = LxmContext(memory)
@@ -81,6 +83,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     fun start(text: IReader, entryPoint: String? = null,
             timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         // Init state
+        ticks = 0L
         this.text = text
         memory.clear()
 
@@ -118,19 +121,19 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      * Resumes the analysis.
      */
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
+        status = Status.Executing
         val timeout = OffsetDateTime.now().plusNanos(timeoutInMilliseconds * 1000000)
-        var ticks = 0L
 
         try {
             loop@ while (true) {
-                ticks += 1L
-
                 // Check timeout.
                 val time = OffsetDateTime.now()
                 if (!Consts.debug && time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false
                 }
+
+                ticks += 1L
 
                 when (processStatus) {
                     ProcessStatus.Forward -> {
@@ -150,7 +153,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
 
                         // Execute the temporal garbage collector if the memory has asked for.
                         if (memory.lastNode.temporalGarbageCollectorMark) {
-                            // TODO
+                            memory.temporalGarbageCollect()
                         }
                     }
                     ProcessStatus.Backward -> {
@@ -206,6 +209,10 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             if (Consts.debug) {
                 e.logger.cause = Logger("Debug error at $ticks ticks", e)
             }
+
+            throw e
+        } catch (e: Throwable) {
+            Logger.debug("Unexpected error at $ticks ticks", e)
 
             throw e
         }
@@ -393,6 +400,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     enum class Status {
         Ready,
         Paused,
+        Executing,
         Ended
     }
 

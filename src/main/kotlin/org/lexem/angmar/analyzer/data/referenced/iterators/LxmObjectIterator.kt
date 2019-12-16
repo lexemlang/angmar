@@ -54,7 +54,7 @@ internal class LxmObjectIterator : LexemIterator {
     }
 
     override fun clone(memory: LexemMemory) = LxmObjectIterator(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - OBJECT] ${super.toString()}"
 }

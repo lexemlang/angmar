@@ -497,6 +497,17 @@ internal class LxmObjectTest {
     }
 
     @Test
+    fun `test clone - non-writable`() {
+        val memory = TestUtils.generateTestMemory()
+
+        val old = LxmObject(memory)
+        old.makeConstantAndNotWritable(memory)
+        val cloned = old.clone(memory)
+
+        Assertions.assertEquals(old, cloned, "The cloned is incorrect")
+    }
+
+    @Test
     fun `test memory dealloc`() {
         val memory = TestUtils.generateTestMemory()
 
@@ -534,6 +545,26 @@ internal class LxmObjectTest {
         Assertions.assertEquals(1, objCell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, oldCell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, prototypeCell.referenceCount, "The referenceCount property is incorrect")
+    }
+
+    @Test
+    fun `test memory dealloc - non-writable`() {
+        val memory = TestUtils.generateTestMemory()
+
+        val obj1 = LxmObject(memory)
+        val obj2 = LxmObject(memory)
+
+        val obj1Ref = memory.add(obj1)
+        val obj2Ref = memory.add(obj2)
+
+        obj1.setProperty(memory, "test", obj2Ref)
+        obj1.makeConstantAndNotWritable(memory)
+        obj1Ref.increaseReferences(memory)
+
+        obj1.memoryDealloc(memory)
+
+        Assertions.assertTrue(obj2Ref.getCell(memory).isFreed, "The object has not been dealloc")
+        Assertions.assertEquals(obj2Ref, obj1.getPropertyValue(memory, "test"), "The reference property is incorrect")
     }
 
     @Test
@@ -656,6 +687,19 @@ internal class LxmObjectTest {
 
             obj.makeConstant(memory)
             obj.makePropertyConstant(memory, "test")
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `set a property in a non-writable object`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableObject) {
+            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val memory = analyzer.memory
+            val obj = LxmObject(memory)
+
+            obj.makeConstantAndNotWritable(memory)
+            obj.setProperty(memory, "test", LxmNil, ignoringConstant = true)
         }
     }
 }

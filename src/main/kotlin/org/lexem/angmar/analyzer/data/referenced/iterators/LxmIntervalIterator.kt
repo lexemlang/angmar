@@ -40,7 +40,7 @@ internal class LxmIntervalIterator : LexemIterator {
     }
 
     override fun clone(memory: LexemMemory) = LxmIntervalIterator(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - INTERVAL] (value: $value) - ${super.toString()}"
 }

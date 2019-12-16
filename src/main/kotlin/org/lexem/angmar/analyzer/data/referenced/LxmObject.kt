@@ -17,6 +17,8 @@ internal open class LxmObject : LexemReferenced {
     val prototypeReference: LxmReference?
     var isConstant = false
         private set
+    var isWritable = true
+        private set
     protected var properties = mutableMapOf<String, LxmObjectProperty>()
 
     // CONSTRUCTORS -----------------------------------------------------------
@@ -26,14 +28,16 @@ internal open class LxmObject : LexemReferenced {
             this.oldVersion = null
             prototypeReference = oldVersion.prototypeReference
             isConstant = oldVersion.isConstant
+            isWritable = oldVersion.isWritable
 
-            for ((key, property) in properties) {
+            for ((key, property) in oldVersion.getAllProperties()) {
                 properties[key] = property.clone()
             }
         } else {
             this.oldVersion = oldVersion
             prototypeReference = oldVersion.prototypeReference
             isConstant = oldVersion.isConstant
+            isWritable = oldVersion.isWritable
         }
     }
 
@@ -64,7 +68,7 @@ internal open class LxmObject : LexemReferenced {
 
         if (property == null) {
             // Avoid infinite loops.
-            if (this is LxmAnyPrototype) {
+            if (this is LxmAnyPrototype || (this is LxmContext && this.prototypeReference == null)) {
                 return null
             }
 
@@ -127,6 +131,11 @@ internal open class LxmObject : LexemReferenced {
         if (!ignoringConstant && this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
+        }
+
+        if (!isWritable) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableObject,
+                    "The object is non writable therefore cannot be modified") {}
         }
 
         val currentProperty = properties[identifier]
@@ -276,6 +285,19 @@ internal open class LxmObject : LexemReferenced {
     }
 
     /**
+     * Makes the list constant and not writable.
+     */
+    fun makeConstantAndNotWritable(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
+        isConstant = true
+        isWritable = false
+    }
+
+    /**
      * Makes a property constant.
      */
     fun makePropertyConstant(memory: LexemMemory, identifier: String) {
@@ -347,8 +369,11 @@ internal open class LxmObject : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmObject(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun clone(memory: LexemMemory) = if (!isWritable) {
+        this
+    } else {
+        LxmObject(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    }
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllProperties()) {
@@ -359,7 +384,10 @@ internal open class LxmObject : LexemReferenced {
         }
 
         prototypeReference?.decreaseReferences(memory)
-        properties.clear()
+
+        if (isWritable) {
+            properties.clear()
+        }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
@@ -371,7 +399,7 @@ internal open class LxmObject : LexemReferenced {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ObjectType.TypeName) as LxmReference
     }
 

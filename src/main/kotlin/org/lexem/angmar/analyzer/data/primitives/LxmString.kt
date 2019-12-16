@@ -13,7 +13,7 @@ internal class LxmString private constructor(val primitive: String) : LexemPrimi
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, StringType.TypeName) as LxmReference
     }
 

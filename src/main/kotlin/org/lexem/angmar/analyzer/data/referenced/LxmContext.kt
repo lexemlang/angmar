@@ -1,7 +1,9 @@
 package org.lexem.angmar.analyzer.data.referenced
 
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.config.*
 
 /**
@@ -51,8 +53,16 @@ internal class LxmContext : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmContext(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun getPrototype(memory: LexemMemory) = prototypeReference ?: let {
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val type =
+                context.getPropertyValue(memory, AnyType.TypeName)!!.dereference(memory, toWrite = false) as LxmObject
+
+        return type.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype) as LxmReference
+    }
+
+    override fun clone(memory: LexemMemory) =
+            LxmContext(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[CONTEXT] ${super.toString()}"
 }

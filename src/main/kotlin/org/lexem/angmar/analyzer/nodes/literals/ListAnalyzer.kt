@@ -28,7 +28,7 @@ internal object ListAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    list.makeConstant(analyzer.memory)
+                    list.makeConstantAndNotWritable(analyzer.memory)
                 }
 
                 // Move accumulator to last.
@@ -51,7 +51,7 @@ internal object ListAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    list.makeConstant(analyzer.memory)
+                    list.makeConstantAndNotWritable(analyzer.memory)
                 }
 
                 // Move accumulator to last.

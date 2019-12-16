@@ -237,6 +237,17 @@ internal class LxmListTest {
     }
 
     @Test
+    fun `test clone - non-writable`() {
+        val memory = TestUtils.generateTestMemory()
+
+        val old = LxmList(memory)
+        old.makeConstantAndNotWritable(memory)
+        val cloned = old.clone(memory)
+
+        Assertions.assertEquals(old, cloned, "The cloned is incorrect")
+    }
+
+    @Test
     fun `test memory dealloc`() {
         val memory = TestUtils.generateTestMemory()
 
@@ -260,6 +271,26 @@ internal class LxmListTest {
 
         Assertions.assertEquals(0, new.actualListSize, "The listSize property is incorrect")
         Assertions.assertEquals(1, listCell.referenceCount, "The referenceCount property is incorrect")
+    }
+
+    @Test
+    fun `test memory dealloc - non-writable`() {
+        val memory = TestUtils.generateTestMemory()
+
+        val list1 = LxmList(memory)
+        val list2 = LxmList(memory)
+
+        val obj1Ref = memory.add(list1)
+        val obj2Ref = memory.add(list2)
+
+        list1.addCell(memory, obj2Ref)
+        list1.makeConstantAndNotWritable(memory)
+        obj1Ref.increaseReferences(memory)
+
+        list1.memoryDealloc(memory)
+
+        Assertions.assertTrue(obj2Ref.getCell(memory).isFreed, "The object has not been dealloc")
+        Assertions.assertEquals(obj2Ref, list1.getCell(memory, 0), "The reference property is incorrect")
     }
 
     @Test
@@ -339,6 +370,44 @@ internal class LxmListTest {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.removeCell(memory, 0)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `add a cell in a non-writable list`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+            val memory = TestUtils.generateTestMemory()
+            val list = LxmList(memory)
+
+            list.makeConstantAndNotWritable(memory)
+            list.addCell(memory, LxmNil, ignoreConstant = true)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `remove a cell in a non-writable list`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+            val memory = TestUtils.generateTestMemory()
+            val list = LxmList(memory)
+            list.addCell(memory, LxmLogic.True)
+
+            list.makeConstantAndNotWritable(memory)
+            list.removeCell(memory, 0, ignoreConstant = true)
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `insert a cell in a non-writable list`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+            val memory = TestUtils.generateTestMemory()
+            val list = LxmList(memory)
+            list.addCell(memory, LxmLogic.True)
+
+            list.makeConstantAndNotWritable(memory)
+            list.insertCell(memory, 0, LxmNil, ignoreConstant = true)
         }
     }
 }

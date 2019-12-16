@@ -18,7 +18,8 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     var isConstant: Boolean = oldVersion?.isConstant ?: false
         private set
     private var values: MutableMap<Int, MutableList<LxmSetProperty>> = if (toClone) {
-        oldVersion!!.values.mapValues { (_, list) -> list.map { it.clone(memory) }.toMutableList() }.toMutableMap()
+        oldVersion!!.getAllValues().mapValues { (_, list) -> list.map { it.clone(memory) }.toMutableList() }
+                .toMutableMap()
     } else {
         mutableMapOf()
     }
@@ -212,7 +213,7 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     override fun clone(memory: LexemMemory) = if (isConstant) {
         this
     } else {
-        LxmSet(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+        LxmSet(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
@@ -225,7 +226,9 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
             }
         }
 
-        values.clear()
+        if (!isConstant) {
+            values.clear()
+        }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
@@ -237,7 +240,7 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, SetType.TypeName) as LxmReference
     }
 

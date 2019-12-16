@@ -74,7 +74,7 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
     }
 

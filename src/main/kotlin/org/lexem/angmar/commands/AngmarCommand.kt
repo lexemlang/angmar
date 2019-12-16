@@ -13,6 +13,7 @@ import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
 import java.io.*
+import kotlin.system.*
 
 /**
  * The main command of Angmar.
@@ -108,11 +109,32 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                     } else {
                         timeout
                     }
+                    var currentTime = 0L
+
                     try {
-                        val result = if (analyzer.start(textReader, timeoutInMilliseconds = finalTimeout)) {
-                            analyzer.getResult().toTree()
-                        } else {
-                            null
+                        var result: JsonObject? = null
+                        while (currentTime < finalTimeout) {
+                            var hasFinished = false
+                            val subTime = measureTimeMillis {
+                                hasFinished = if (currentTime == 0L) {
+                                    analyzer.start(textReader,
+                                            timeoutInMilliseconds = Consts.Commands.debugLogEachMilliseconds)
+                                } else {
+                                    analyzer.resume(timeoutInMilliseconds = Consts.Commands.debugLogEachMilliseconds)
+                                }
+                            }
+
+                            currentTime += subTime
+
+                            if (hasFinished) {
+                                result = analyzer.getResult().toTree()
+                                break
+                            } else {
+                                conditionalDebugLog(debug) {
+                                    "  [${(i.index + 1).toString().padStart(
+                                            count.length)}/$count] Analyzing file: ${i.value.canonicalPath} - ${currentTime / 1000.0} seconds - ticks[${analyzer.ticks}]"
+                                }
+                            }
                         }
 
                         results.add(Pair(i.value, result))

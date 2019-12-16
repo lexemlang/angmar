@@ -131,7 +131,7 @@ internal object ListPrototype {
             signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
             argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Freeze, ListType.TypeName,
             toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-        thisValue.makeConstant(analyzer.memory)
+        thisValue.makeConstantAndNotWritable(analyzer.memory)
         LxmNil
     }
 

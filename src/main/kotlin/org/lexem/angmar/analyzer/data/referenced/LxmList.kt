@@ -16,14 +16,21 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         LexemReferenced(memory) {
     var isConstant: Boolean = oldVersion?.isConstant ?: false
         private set
+    var isWritable: Boolean = oldVersion?.isWritable ?: true
+        private set
     var actualListSize: Int = oldVersion?.actualListSize ?: 0
         private set
-    private var cellList: MutableMap<Int, LexemPrimitive> = if (toClone) {
-        oldVersion!!.cellList.toMutableMap()
-    } else {
-        mutableMapOf()
-    }
+
+    private var cellList = mutableMapOf<Int, LexemPrimitive>()
     val listSize get() = cellList.size
+
+    init {
+        if (toClone) {
+            for ((i, value) in oldVersion!!.getAllCells().withIndex()) {
+                cellList[i] = value
+            }
+        }
+    }
 
     // METHODS ----------------------------------------------------------------
 
@@ -90,6 +97,11 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
                     "The list is constant therefore cannot be modified") {}
         }
 
+        if (!isWritable) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
+                    "The list is non writable therefore cannot be modified") {}
+        }
+
         for (value in values) {
             replaceCell(memory, actualListSize, value)
             actualListSize += 1
@@ -109,6 +121,11 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
+        }
+
+        if (!isWritable) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
+                    "The list is non writable therefore cannot be modified") {}
         }
 
         if (index >= actualListSize) {
@@ -159,6 +176,11 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
                     "The list is constant therefore cannot be modified") {}
         }
 
+        if (!isWritable) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
+                    "The list is non writable therefore cannot be modified") {}
+        }
+
         if (index > actualListSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
@@ -186,7 +208,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     }
 
     /**
-     * Makes the object constant.
+     * Makes the list constant.
      */
     fun makeConstant(memory: LexemMemory) {
         if (isMemoryImmutable(memory)) {
@@ -195,6 +217,19 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         }
 
         isConstant = true
+    }
+
+    /**
+     * Makes the list constant and not writable.
+     */
+    fun makeConstantAndNotWritable(memory: LexemMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
+        isConstant = true
+        isWritable = false
     }
 
     /**
@@ -239,8 +274,11 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) =
-            LxmList(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun clone(memory: LexemMemory) = if (!isWritable) {
+        this
+    } else {
+        LxmList(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    }
 
     override fun memoryDealloc(memory: LexemMemory) {
         for (i in getAllCells()) {
@@ -249,8 +287,10 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
             }
         }
 
-        cellList.clear()
-        actualListSize = 0
+        if (isWritable) {
+            cellList.clear()
+            actualListSize = 0
+        }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory) {
@@ -260,7 +300,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ListType.TypeName) as LxmReference
     }
 

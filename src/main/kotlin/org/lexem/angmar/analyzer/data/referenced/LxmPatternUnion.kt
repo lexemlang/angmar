@@ -82,7 +82,7 @@ internal class LxmPatternUnion : LxmObject {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun clone(memory: LexemMemory) = LxmPatternUnion(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[PATTERN UNION] Qtf$quantifier - ${super.toString()}"
 }

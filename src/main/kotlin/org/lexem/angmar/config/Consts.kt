@@ -5,13 +5,14 @@ package org.lexem.angmar.config
  */
 internal object Consts {
     // Flag to specify the system is under test.
-    const val debug = true
+    const val debug = false
 
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
 
     object Commands {
         const val parser = "angmar"
+        const val debugLogEachMilliseconds = 20000L // 20 seconds
     }
 
     object Logger {

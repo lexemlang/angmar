@@ -21,7 +21,7 @@ internal class LxmFilter : LxmFunction {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FilterType.TypeName) as LxmReference
     }
 

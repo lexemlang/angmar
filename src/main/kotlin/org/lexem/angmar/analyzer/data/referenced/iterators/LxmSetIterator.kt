@@ -57,8 +57,8 @@ internal class LxmSetIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) = LxmSetIterator(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun clone(memory: LexemMemory) =
+            LxmSetIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - SET] ${super.toString()}"
 }

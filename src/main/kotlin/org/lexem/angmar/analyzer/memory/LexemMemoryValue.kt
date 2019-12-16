@@ -14,7 +14,7 @@ internal interface LexemMemoryValue {
      * Gets the type of the value.
      */
     fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, AnyType.TypeName) as LxmReference
     }
 

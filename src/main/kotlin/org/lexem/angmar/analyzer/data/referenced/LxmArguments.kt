@@ -205,7 +205,7 @@ internal class LxmArguments : LxmObject {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun clone(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

@@ -21,7 +21,7 @@ internal class LxmExpression : LxmFunction {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ExpressionType.TypeName) as LxmReference
     }
 

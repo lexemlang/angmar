@@ -288,7 +288,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "The analyzer is trying to access a forbidden memory position") {}
         }
-        
+
         // Prevent errors regarding the BigNode link.
         if (value.bigNode != this) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapBigNodeLinkFault,
@@ -418,6 +418,15 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * Moves the heap of the current node to the destination and destroys this.
      */
     fun temporalGarbageCollect(destination: BigNode) {
+        // Remove the excess levels in the stack.
+        if (destination.actualStackLevelSize > actualStackLevelSize) {
+            for (i in actualStackLevelSize until destination.actualStackLevelSize) {
+                val level = destination.stackLevels[i]!!
+                level.destroy()
+                destination.stackLevels.remove(i)
+            }
+        }
+
         // Sets the information.
         destination.actualStackLevelSize = actualStackLevelSize
         destination.actualStackSize = actualStackSize
@@ -427,15 +436,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         destination.garbageThreshold = garbageThreshold
         destination.spatialGarbageCollectorMark = spatialGarbageCollectorMark
         destination.temporalGarbageCollectorCount = 0
-
-        // Remove the excess levels in the stack.
-        for (i in destination.stackLevels.keys) {
-            if (i >= actualStackSize) {
-                val level = destination.stackLevels[i]!!
-                level.destroy()
-                destination.stackLevels.remove(i)
-            }
-        }
 
         // Move stack and heap elements backwards until reach this.
         var node = destination.nextNode ?: throw AngmarAnalyzerException(

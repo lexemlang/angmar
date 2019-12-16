@@ -64,8 +64,8 @@ internal class LxmMapIterator : LexemIterator {
         return Pair(currentKey, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) = LxmMapIterator(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun clone(memory: LexemMemory) =
+            LxmMapIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[ITERATOR - MAP] ${super.toString()}"
 }

@@ -149,7 +149,7 @@ internal class LxmQuantifiedGroup : LxmObject {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun clone(memory: LexemMemory) = LxmQuantifiedGroup(memory, this,
-            toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[QUANTIFIED GROUP] ${super.toString()}"
 }

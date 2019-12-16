@@ -282,10 +282,10 @@ internal class LxmNode : LxmObject {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun clone(memory: LexemMemory) =
-            LxmNode(memory, this, toClone = (countOldVersions() ?: 0) >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+            LxmNode(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, NodeType.TypeName) as LxmReference
     }
 

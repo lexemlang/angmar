@@ -20,7 +20,7 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, IntegerType.TypeName) as LxmReference
     }
 
