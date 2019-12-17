@@ -86,8 +86,19 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Gets the property descriptor of the specified property inside the current object.
      */
-    fun getOwnPropertyDescriptor(memory: LexemMemory, identifier: String): LxmObjectProperty? =
-            properties[identifier] ?: oldVersion?.getOwnPropertyDescriptor(memory, identifier)
+    fun getOwnPropertyDescriptor(memory: LexemMemory, identifier: String): LxmObjectProperty? {
+        var obj: LxmObject? = this
+        while (obj != null) {
+            val value = obj.properties[identifier]
+            if (value != null) {
+                return value
+            }
+
+            obj = oldVersion
+        }
+
+        return null
+    }
 
     /**
      * Gets the property descriptor of the specified property.
@@ -365,7 +376,17 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Counts the number of old versions of this object.
      */
-    fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+    fun countOldVersions(): Int {
+        var count = 1
+
+        var version = oldVersion
+        while (version != null) {
+            count += 1
+            version = version.oldVersion
+        }
+
+        return count
+    }
 
     // OVERRIDE METHODS -------------------------------------------------------
 

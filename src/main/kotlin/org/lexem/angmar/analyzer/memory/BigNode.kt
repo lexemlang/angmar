@@ -244,8 +244,21 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Gets the specified stack level.
      */
-    private fun getStackLevelRecursively(position: Int): BigNodeStackLevel? =
-            stackLevels[position] ?: previousNode?.getStackLevelRecursively(position)
+    private fun getStackLevelRecursively(position: Int): BigNodeStackLevel? {
+        var distance = 0
+        var node: BigNode? = this
+        while (node != null) {
+            val value = node.stackLevels[position]
+            if (value != null) {
+                return value
+            }
+
+            distance += 1
+            node = node.previousNode
+        }
+
+        return null
+    }
 
     /**
      * Gets a cell recursively in the [BigNode]'s chain.
@@ -261,7 +274,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             return res
         }
 
-        val (distance, cell) = previousNode?.getCellRecursive(position, 1) ?: throw AngmarUnreachableException()
+        val (distance, cell) = previousNode?.getCellRecursive(position) ?: throw AngmarUnreachableException()
 
         return if (forceShift || distance >= Consts.Memory.maxDistanceToShift) {
             val cell2 = cell.shiftCell(memory)
@@ -275,9 +288,20 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Gets a value recursively without shifting the value in newer nodes.
      */
-    private fun getCellRecursive(position: Int, distance: Int): Pair<Int, BigNodeCell>? {
-        val value = heap[position] ?: return previousNode?.getCellRecursive(position, distance + 1)
-        return Pair(distance, value)
+    private fun getCellRecursive(position: Int): Pair<Int, BigNodeCell>? {
+        var distance = 0
+        var node: BigNode? = this
+        while (node != null) {
+            val value = node.heap[position]
+            if (value != null) {
+                return Pair(distance, value)
+            }
+
+            distance += 1
+            node = node.previousNode
+        }
+
+        return null
     }
 
     /**
@@ -379,7 +403,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      */
     fun spatialGarbageCollect(memory: LexemMemory, forced: Boolean = false) {
         // Avoid to execute the garbage collector when there are enough free space.
-        if (!forced && freeSpacePercentage >= Consts.Memory.minimumFreeSpace) {
+        if (!forced && freeSpacePercentage >= Consts.Memory.spatialGarbageCollectorMinimumFreeSpace) {
             return
         }
 
@@ -407,7 +431,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         }
 
         // Update the threshold only under the minimum quantity of free space.
-        if (freeSpacePercentage < Consts.Memory.minimumFreeSpace) {
+        if (freeSpacePercentage < Consts.Memory.spatialGarbageCollectorMinimumFreeSpace) {
             garbageThreshold = (garbageThreshold * Consts.Memory.spatialGarbageCollectorThresholdIncrement).toInt()
         }
 

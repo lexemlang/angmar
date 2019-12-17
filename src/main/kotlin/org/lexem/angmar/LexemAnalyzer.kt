@@ -14,7 +14,6 @@ import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
-import java.time.*
 
 
 /**
@@ -122,12 +121,12 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      */
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         status = Status.Executing
-        val timeout = OffsetDateTime.now().plusNanos(timeoutInMilliseconds * 1000000)
+        val timeout = System.nanoTime() + timeoutInMilliseconds * 1000000
 
         try {
             loop@ while (true) {
                 // Check timeout.
-                val time = OffsetDateTime.now()
+                val time = System.nanoTime()
                 if (!Consts.debug && time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false

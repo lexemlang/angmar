@@ -23,12 +23,12 @@ internal object Consts {
     }
 
     object Memory {
-        const val minimumFreeSpace = 20.0
-        const val maxPoolSize = 50
-        const val maxDistanceToShift = 10
-        const val maxVersionCountToFullyCopyAValue = 20
-        const val spatialGarbageCollectorInitialThreshold = 1000
-        const val spatialGarbageCollectorThresholdIncrement = 2.0
+        const val maxPoolSize = 500
+        const val maxDistanceToShift = 5
+        const val maxVersionCountToFullyCopyAValue = 15
+        const val spatialGarbageCollectorMinimumFreeSpace = 20.0
+        const val spatialGarbageCollectorInitialThreshold = 10000
+        const val spatialGarbageCollectorThresholdIncrement = 3.0
         const val temporalGarbageCollectorThreshold = 15000
     }
 

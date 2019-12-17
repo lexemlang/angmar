@@ -27,7 +27,7 @@ internal object ExpressionPatternSelectiveStmtAnalyzer {
                 val value = analyzer.memory.getLastFromStack()
                 val mainValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SelectiveCondition)
 
-                if (RelationalFunctions.lxmEquals(analyzer.memory, value, mainValue)) {
+                if (RelationalFunctions.identityEquals(value, mainValue)) {
                     if (node.conditional != null) {
                         analyzer.memory.removeLastFromStack()
 

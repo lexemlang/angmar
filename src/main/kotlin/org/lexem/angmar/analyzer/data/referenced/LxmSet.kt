@@ -206,7 +206,17 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     /**
      * Counts the number of old versions of this set.
      */
-    private fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+    private fun countOldVersions(): Int {
+        var count = 1
+
+        var version = oldVersion
+        while (version != null) {
+            count += 1
+            version = version.oldVersion
+        }
+
+        return count
+    }
 
     // OVERRIDE METHODS -------------------------------------------------------
 

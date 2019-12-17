@@ -21,16 +21,13 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     var actualListSize: Int = oldVersion?.actualListSize ?: 0
         private set
 
-    private var cellList = mutableMapOf<Int, LexemPrimitive>()
-    val listSize get() = cellList.size
-
-    init {
-        if (toClone) {
-            for ((i, value) in oldVersion!!.getAllCells().withIndex()) {
-                cellList[i] = value
-            }
-        }
+    private var cellList: MutableMap<Int, LexemPrimitive> = if (toClone) {
+        oldVersion!!.getAllCellsAsMap()
+    } else {
+        mutableMapOf()
     }
+
+    val listSize get() = cellList.size
 
     // METHODS ----------------------------------------------------------------
 
@@ -235,14 +232,26 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     /**
      * Gets cell recursively.
      */
-    private fun getCellRecursively(memory: LexemMemory, index: Int): LexemPrimitive? =
-            cellList[index] ?: oldVersion?.getCellRecursively(memory, index)
+    private fun getCellRecursively(memory: LexemMemory, index: Int): LexemPrimitive? {
+        var list: LxmList? = this
+        while (list != null) {
+            val value = list.cellList[index]
+            if (value != null) {
+                return value
+            }
+
+            list = oldVersion
+        }
+
+        return null
+    }
+
 
     /**
      * Gets all cells of the list in order.
      */
-    fun getAllCells(): List<LexemPrimitive> {
-        val result = LinkedHashMap<Int, LexemPrimitive>(actualListSize)
+    fun getAllCellsAsMap(): MutableMap<Int, LexemPrimitive> {
+        val result = HashMap<Int, LexemPrimitive>(actualListSize)
 
         var currentList: LxmList? = this
         while (currentList != null) {
@@ -251,9 +260,18 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
                     result[key] = value
                 }
             }
+
             currentList = currentList.oldVersion
         }
 
+        return result
+    }
+
+    /**
+     * Gets all cells of the list in order.
+     */
+    fun getAllCells(): List<LexemPrimitive> {
+        val result = getAllCellsAsMap()
         return List(actualListSize) { result[it]!! }
     }
 
@@ -270,7 +288,17 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     /**
      * Counts the number of old versions of this list.
      */
-    private fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+    private fun countOldVersions(): Int {
+        var count = 1
+
+        var version = oldVersion
+        while (version != null) {
+            count += 1
+            version = version.oldVersion
+        }
+
+        return count
+    }
 
     // OVERRIDE METHODS -------------------------------------------------------
 

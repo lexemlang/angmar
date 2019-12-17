@@ -418,8 +418,8 @@ internal object AnalyzerNodesCommons {
                 val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
 
                 // Find position in parent.
-                val index = parentChildren.getAllCells()
-                        .indexOfFirst { RelationalFunctions.lxmEquals(analyzer.memory, it, lxmNodeRef) }
+                val index =
+                        parentChildren.getAllCells().indexOfFirst { RelationalFunctions.identityEquals(it, lxmNodeRef) }
                 if (index < 0) {
                     throw AngmarUnreachableException()
                 }

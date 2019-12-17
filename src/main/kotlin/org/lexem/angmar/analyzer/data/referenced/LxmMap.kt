@@ -227,7 +227,17 @@ internal class LxmMap(memory: LexemMemory, val oldVersion: LxmMap? = null, toClo
     /**
      * Counts the number of old versions of this map.
      */
-    private fun countOldVersions(): Int = 1 + (oldVersion?.countOldVersions() ?: 0)
+    private fun countOldVersions(): Int {
+        var count = 1
+
+        var version = oldVersion
+        while (version != null) {
+            count += 1
+            version = version.oldVersion
+        }
+
+        return count
+    }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
