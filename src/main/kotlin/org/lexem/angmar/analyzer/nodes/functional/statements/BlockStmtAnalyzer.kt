@@ -21,14 +21,16 @@ internal object BlockStmtAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.tag != null) {
                     // Generate a new context.
-                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                     return analyzer.nextNode(node.tag)
                 }
 
                 if (node.statements.isNotEmpty()) {
                     // Generate a new context.
-                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                     return analyzer.nextNode(node.statements[0])
                 }

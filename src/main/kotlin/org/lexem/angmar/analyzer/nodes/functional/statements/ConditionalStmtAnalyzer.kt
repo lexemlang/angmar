@@ -22,7 +22,8 @@ internal object ConditionalStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                 return analyzer.nextNode(node.condition)
             }
@@ -44,7 +45,8 @@ internal object ConditionalStmtAnalyzer {
 
                     if (node.elseBlock != null) {
                         // Generate an intermediate context.
-                        AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                        AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                         return analyzer.nextNode(node.elseBlock)
                     }
@@ -58,7 +60,8 @@ internal object ConditionalStmtAnalyzer {
 
                     if (node.elseBlock != null) {
                         // Generate an intermediate context.
-                        AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                        AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                         return analyzer.nextNode(node.elseBlock)
                     }

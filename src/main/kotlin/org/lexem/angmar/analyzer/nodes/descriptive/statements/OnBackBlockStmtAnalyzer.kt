@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.statements
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.descriptive.statements.*
 
@@ -25,7 +26,7 @@ internal object OnBackBlockStmtAnalyzer {
             }
             signalOnBacktrack -> {
                 // Generate an intermediate context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, LxmContext.LxmContextType.Function)
 
                 if (node.parameters != null) {
                     // Add arguments

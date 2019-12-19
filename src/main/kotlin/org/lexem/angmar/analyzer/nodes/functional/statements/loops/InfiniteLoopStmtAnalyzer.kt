@@ -21,7 +21,8 @@ internal object InfiniteLoopStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                 // Save the index.
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)

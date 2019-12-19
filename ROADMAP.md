@@ -6,34 +6,30 @@ This is the plan to work towards a future release.
 
 ## TODO
 
+- Put type to nodes.
+  - Remove in the serialization the default values of the nodes. Add an optional property.
+- Optimize stack. Use a model like objects with differential copies of the levels.
+  - ShiftLevel
+  - RemoveFromStack
+- Optimize the node reference to their parent. Nodes need to be ordered and must be queryable by position and reference.
+  - addToParent
 - Make an `optimize` function in the ParserNode classes.
   - Intervals
   - Strings
   - Parameters
   - Numbers
   - Create a new ParserNode that just holds a LexemPrimitive and stores it in the stack as Last.
-- Put type to the contexts: Functional, Expression, Filter and Root.
-- ?? - Allow calling the import function from anywhere or just Root contexts.
-  - Better to change import function to statement.
-- ?? - Pool of objects. Require control over destroy. The dealloc function must work for this.
-  - In inheritance use two methods dealloc and deallocInInheritance to dealloc parents without reuse them in their pools.
-  - Add realloc method.
-  - Lists
-  - Maps
-  - Objects
-  - Contexts
-  - Arguments
-  - Primitives:
-    - Intervals
-    - Strings
-    - Parameters
-    - Numbers
 - Review TODOs
+- Async spatial garbage collector.
+  - Mark objects to remove when they reach 0 references.
+  - Keep executing it in all bigNodes until they are clean and frozen. Always try the previous first.
+  - Ignore those bigNodes that are marked to be collapsed because the temporal GC will execute it.
+- Async temporal garbage collector.
+  - Collapse all contiguous bigNodes that are already alive.
+  - The object probably will need an index instead of a bigNode reference to avoid problems. If the index is greater than the
+    current bigNode, it is ok.
 - Test forward buffer.
 - Check what is public of the library.
-
-- Possibility of use an integer interval to see what cells are ok and what else not to only iterate at the end
-through those. 
 
 
 - The hidden properties are serializable?

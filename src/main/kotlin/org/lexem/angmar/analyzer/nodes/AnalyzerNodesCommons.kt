@@ -45,9 +45,14 @@ internal object AnalyzerNodesCommons {
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Function, function.getPrimitive())
 
         // Generate an intermediate context that will be removed at the end.
+        val type = when (function) {
+            is LxmExpression -> LxmContext.LxmContextType.Expression
+            is LxmFilter -> LxmContext.LxmContextType.Filter
+            else -> LxmContext.LxmContextType.Function
+        }
         AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory,
                 function.getParentContext(analyzer.memory, toWrite = false) ?: AnalyzerCommons.getStdLibContext(
-                        analyzer.memory, toWrite = false), function.name)
+                        analyzer.memory, toWrite = false), function.name, type)
 
         // Call the function
         analyzer.nextNode(function.parserNode, signalCallFunction)

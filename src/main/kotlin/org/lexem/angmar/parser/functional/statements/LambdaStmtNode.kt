@@ -17,6 +17,7 @@ import org.lexem.angmar.parser.functional.expressions.*
 internal class LambdaStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
         ParserNode(parser, parent, parentSignal) {
     lateinit var statement: ParserNode
+    var isFilterCode = false
 
     override fun toString() = StringBuilder().apply {
         append("$token $statement")
@@ -26,6 +27,7 @@ internal class LambdaStmtNode private constructor(parser: LexemParser, parent: P
         val result = super.toTree()
 
         result.add("statement", statement.toTree())
+        result.addProperty("isFilterCode", isFilterCode)
 
         return result
     }
@@ -54,6 +56,7 @@ internal class LambdaStmtNode private constructor(parser: LexemParser, parent: P
             }
 
             val result = LambdaStmtNode(parser, parent, parentSignal)
+            result.isFilterCode = parser.isFilterCode
 
             WhitespaceNode.parse(parser)
 

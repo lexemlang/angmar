@@ -10,15 +10,23 @@ import org.lexem.angmar.config.*
  * The Lexem value for the context.
  */
 internal class LxmContext : LxmObject {
+    val type: LxmContextType
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory)
+    constructor(memory: LexemMemory, type: LxmContextType) : super(memory) {
+        this.type = type
+    }
+
+    constructor(memory: LexemMemory, higherContextReference: LxmContext, type: LxmContextType) : super(memory,
+            higherContextReference) {
+        this.type = type
+    }
 
     private constructor(memory: LexemMemory, oldContext: LxmContext, toClone: Boolean) : super(memory, oldContext,
-            toClone)
-
-    constructor(memory: LexemMemory, higherContextReference: LxmContext) : super(memory, higherContextReference)
+            toClone) {
+        type = oldContext.type
+    }
 
     // METHODS ----------------------------------------------------------------
 
@@ -68,4 +76,27 @@ internal class LxmContext : LxmObject {
             LxmContext(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[Context] ${super.toString()}"
+
+    // STATIC -----------------------------------------------------------------
+
+    /**
+     * The types of contexts.
+     */
+    enum class LxmContextType {
+        StdLib,
+        Root,
+        Function,
+        Expression,
+        Filter;
+
+        /**
+         * Checks whether this type is functional or not.
+         */
+        fun isFunctional() = when (this) {
+            StdLib -> true
+            Root -> true
+            Function -> true
+            else -> false
+        }
+    }
 }

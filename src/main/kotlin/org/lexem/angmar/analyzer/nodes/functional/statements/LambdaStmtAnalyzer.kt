@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.nodes.functional.statements
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.descriptive.*
 import org.lexem.angmar.parser.functional.statements.*
@@ -21,7 +22,15 @@ internal object LambdaStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate a new context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                val type = if (node.statement !is LexemePatternContentNode) {
+                    LxmContext.LxmContextType.Function
+                } else if (node.isFilterCode) {
+                    LxmContext.LxmContextType.Filter
+                } else {
+                    LxmContext.LxmContextType.Expression
+                }
+
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, type)
 
                 return analyzer.nextNode(node.statement)
             }

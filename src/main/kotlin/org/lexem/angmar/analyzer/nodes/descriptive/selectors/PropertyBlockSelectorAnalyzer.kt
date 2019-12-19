@@ -27,7 +27,8 @@ internal object PropertyBlockSelectorAnalyzer {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {
                     // Generate an intermediate context.
-                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                    AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                     if (node.identifier != null) {
                         return analyzer.nextNode(node.identifier)

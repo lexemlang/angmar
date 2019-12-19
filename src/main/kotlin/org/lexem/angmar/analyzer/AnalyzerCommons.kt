@@ -234,10 +234,10 @@ internal object AnalyzerCommons {
     /**
      * Creates a new context and assigns it as the current context.
      */
-    fun createAndAssignNewContext(memory: LexemMemory) {
+    fun createAndAssignNewContext(memory: LexemMemory, contextType: LxmContext.LxmContextType) {
         val stdLibContext = getStdLibContext(memory, toWrite = true)
         val lastContext = getCurrentContext(memory, toWrite = false)
-        val newContext = LxmContext(memory, lastContext)
+        val newContext = LxmContext(memory, lastContext, contextType)
 
         stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContext)
     }
@@ -255,10 +255,11 @@ internal object AnalyzerCommons {
     /**
      * Creates a new function context and assigns it as the current context.
      */
-    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmContext, contextName: String) {
+    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmContext, contextName: String,
+            contextType: LxmContext.LxmContextType) {
         val stdLibContext = getStdLibContext(memory, toWrite = true)
         val lastContextReference = getCurrentContextReference(memory)
-        val newContext = LxmContext(memory, higherContext)
+        val newContext = LxmContext(memory, higherContext, contextType)
 
         newContext.setProperty(memory, Identifiers.HiddenCurrentContextName, LxmString.from(contextName))
         newContext.setProperty(memory, Identifiers.HiddenCallerContext, lastContextReference, isConstant = true)
@@ -305,7 +306,8 @@ internal object AnalyzerCommons {
         val stdLibContext = getStdLibContext(analyzer.memory, toWrite = true)
         val lastContextReference = getCurrentContextReference(analyzer.memory)
 
-        val newContext = LxmContext(analyzer.memory, getStdLibContext(analyzer.memory, toWrite = false))
+        val newContext = LxmContext(analyzer.memory, getStdLibContext(analyzer.memory, toWrite = false),
+                LxmContext.LxmContextType.Root)
         val fileMap = newContext.getDereferencedProperty<LxmObject>(analyzer.memory, Identifiers.HiddenFileMap,
                 toWrite = true)!!
         val exports = LxmObject(analyzer.memory)

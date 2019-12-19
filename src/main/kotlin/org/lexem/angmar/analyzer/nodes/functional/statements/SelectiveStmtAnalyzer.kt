@@ -21,7 +21,8 @@ internal object SelectiveStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                 if (node.condition != null) {
                     return analyzer.nextNode(node.condition)

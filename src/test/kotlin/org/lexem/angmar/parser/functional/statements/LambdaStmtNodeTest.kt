@@ -60,6 +60,7 @@ internal class LambdaStmtNodeTest {
             node as LambdaStmtNode
 
             ExpressionsCommonsTest.checkTestExpression(node.statement)
+            Assertions.assertFalse(node.isFilterCode, "The isFilterCode property is incorrect")
         }
 
         fun checkTestLexemExpression(node: ParserNode) {
@@ -67,6 +68,7 @@ internal class LambdaStmtNodeTest {
             node as LambdaStmtNode
 
             LexemePatternContentNodeTest.checkTestExpression(node.statement)
+            Assertions.assertFalse(node.isFilterCode, "The isFilterCode property is incorrect")
         }
 
         fun checkTestFilterLexemExpression(node: ParserNode) {
@@ -74,6 +76,7 @@ internal class LambdaStmtNodeTest {
             node as LambdaStmtNode
 
             LexemePatternContentNodeTest.checkTestExpressionFilter(node.statement)
+            Assertions.assertTrue(node.isFilterCode, "The isFilterCode property is incorrect")
         }
     }
 
@@ -90,6 +93,7 @@ internal class LambdaStmtNodeTest {
         res as LambdaStmtNode
 
         ExpressionsCommonsTest.checkTestExpression(res.statement)
+        Assertions.assertFalse(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
     @ParameterizedTest
@@ -103,6 +107,7 @@ internal class LambdaStmtNodeTest {
         res as LambdaStmtNode
 
         LexemePatternContentNodeTest.checkTestExpression(res.statement)
+        Assertions.assertFalse(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
     @ParameterizedTest
@@ -117,6 +122,7 @@ internal class LambdaStmtNodeTest {
         res as LambdaStmtNode
 
         LexemePatternContentNodeTest.checkTestExpressionFilter(res.statement)
+        Assertions.assertTrue(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
     @Test

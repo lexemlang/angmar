@@ -20,7 +20,8 @@ internal object SelectiveCaseStmtAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
-                AnalyzerCommons.createAndAssignNewContext(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                 return analyzer.nextNode(node.patterns[0])
             }

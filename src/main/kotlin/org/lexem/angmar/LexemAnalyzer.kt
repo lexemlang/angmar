@@ -44,7 +44,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         private set
 
     init {
-        val stdLibContext = LxmContext(memory)
+        val stdLibContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
         val stdLibContextReference = stdLibContext.getPrimitive()
         stdLibContextReference.increaseReferences(memory)
 
