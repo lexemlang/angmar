@@ -36,19 +36,17 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
         // Add positional arguments to spread parameter.
         if (parameters.positionalSpread != null) {
             val list = LxmList(memory)
-            val listRef = memory.add(list)
 
             for (i in positional.drop(parameters.getParameters().size)) {
                 list.addCell(memory, i)
             }
 
-            context.setProperty(memory, parameters.positionalSpread!!, listRef)
+            context.setProperty(memory, parameters.positionalSpread!!, list)
         }
 
         // Map named arguments.
         if (parameters.namedSpread != null) {
             val obj = LxmObject(memory)
-            val objRef = memory.add(obj)
 
             for ((key, value) in named) {
                 if (result.contains(key)) {
@@ -61,7 +59,7 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
                 }
             }
 
-            context.setProperty(memory, parameters.namedSpread!!, objRef)
+            context.setProperty(memory, parameters.namedSpread!!, obj)
         } else {
             for ((key, value) in named) {
                 if (result.contains(key)) {
@@ -75,5 +73,5 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[BacktrackingData](positional: $positional, named: $named)"
+    override fun toString() = "[BacktrackingData] (positional: $positional, named: $named)"
 }

@@ -57,7 +57,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(memory, alias!!, memory.add(value), isConstant = forceConstant)
+            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
@@ -67,7 +67,6 @@ internal class LxmDestructuring : LexemPrimitive {
         }
 
         val spreadObject = LxmObject(memory)
-        val spreadObjectRef = memory.add(spreadObject)
 
         for (property in value.getAllIterableProperties()) {
             if (property.key in elementsAsMap) {
@@ -81,9 +80,10 @@ internal class LxmDestructuring : LexemPrimitive {
         }
 
         if (spread != null) {
-            to.setProperty(memory, spread!!.alias, spreadObjectRef, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(memory, spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
+            val spreadObjectRef = spreadObject.getPrimitive()
             spreadObjectRef.increaseReferences(memory)
             spreadObjectRef.decreaseReferences(memory)
         }
@@ -100,12 +100,11 @@ internal class LxmDestructuring : LexemPrimitive {
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(memory, alias!!, memory.add(value), isConstant = forceConstant)
+            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
         val spreadList = LxmList(memory)
-        val spreadListRef = memory.add(spreadList)
 
         var index = 0
         for (cell in value.getAllCells()) {
@@ -121,9 +120,10 @@ internal class LxmDestructuring : LexemPrimitive {
         }
 
         if (spread != null) {
-            to.setProperty(memory, spread!!.alias, spreadListRef, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(memory, spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
+            val spreadListRef = spreadList.getPrimitive()
             spreadListRef.increaseReferences(memory)
             spreadListRef.decreaseReferences(memory)
         }
@@ -135,7 +135,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Destructuring](alias: $alias, elements: $elements, spread: $spread)"
+    override fun toString() = "[Destructuring] (alias: $alias, elements: $elements, spread: $spread)"
 
     // STATIC -----------------------------------------------------------------
 

@@ -47,5 +47,5 @@ internal class LxmParameters : LexemPrimitive {
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
     override fun toString() =
-            "[Parameters](parameters: $parameters, positionalSpread: $positionalSpread, namedSpread: $namedSpread)"
+            "[Parameters] (parameters: $parameters, positionalSpread: $positionalSpread, namedSpread: $namedSpread)"
 }

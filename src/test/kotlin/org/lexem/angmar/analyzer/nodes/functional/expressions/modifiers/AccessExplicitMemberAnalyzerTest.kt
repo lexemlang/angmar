@@ -23,14 +23,13 @@ internal class AccessExplicitMemberAnalyzerTest {
         obj.setProperty(analyzer.memory, propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val objReference = analyzer.memory.add(obj)
-        context.setProperty(analyzer.memory, varName, objReference)
+        context.setProperty(analyzer.memory, varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmPropertySetter ?: throw Error(
                 "The result must be a LxmPropertySetter")
-        Assertions.assertEquals(objReference, result.obj, "The obj property is incorrect")
+        Assertions.assertEquals(obj.getPrimitive(), result.value, "The value property is incorrect")
         Assertions.assertEquals(propName, result.property, "The property property is incorrect")
         Assertions.assertEquals(value, result.dereference(analyzer.memory, toWrite = false),
                 "The value property is incorrect")
@@ -56,15 +55,14 @@ internal class AccessExplicitMemberAnalyzerTest {
         obj.setProperty(analyzer.memory, propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val objReference = analyzer.memory.add(obj)
-        context.setProperty(analyzer.memory, varName, objReference)
+        context.setProperty(analyzer.memory, varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
-        val finalObject = objReference.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
+        val finalObject = obj.getPrimitive().dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                 "The result must be a LxmObject")
         val property = finalObject.getDereferencedProperty<LxmInteger>(analyzer.memory, propName, toWrite = false)
                 ?: throw Error("The result must be a LxmInteger")

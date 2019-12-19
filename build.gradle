@@ -1,6 +1,5 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
-    id 'org.jetbrains.dokka' version '0.9.18'
 }
 
 group 'org.lexem'
@@ -53,14 +52,4 @@ task incorrectTest(type: Test) {
     }
     check.dependsOn it
     shouldRunAfter test
-}
-
-dokka {
-    outputFormat = 'gfm'
-    outputDirectory = "$rootDir/doc/generated/md"
-}
-
-task docInHtml(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'html'
-    outputDirectory = "$rootDir/doc/generated/html"
 }

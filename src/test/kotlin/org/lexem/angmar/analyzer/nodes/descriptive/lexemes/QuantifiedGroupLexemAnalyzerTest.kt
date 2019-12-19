@@ -93,7 +93,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = count + 1)
 
@@ -125,7 +125,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -153,7 +153,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = count + 1)
 
@@ -187,7 +187,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 4)
 
@@ -218,7 +218,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -244,7 +244,7 @@ internal class QuantifiedGroupLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 

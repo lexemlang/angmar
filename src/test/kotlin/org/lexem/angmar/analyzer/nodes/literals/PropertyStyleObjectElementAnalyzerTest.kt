@@ -21,15 +21,14 @@ internal class PropertyStyleObjectElementAnalyzerTest {
 
         // Prepare stack
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val resultRef =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmReference ?: throw Error(
                         "The result must be a LxmReference")
-        Assertions.assertEquals(objRef, resultRef, "The resultRef is incorrect")
+        Assertions.assertEquals(obj.getPrimitive(), resultRef, "The resultRef is incorrect")
 
         val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
@@ -55,8 +54,7 @@ internal class PropertyStyleObjectElementAnalyzerTest {
 
             // Prepare stack
             val obj = LxmObject(analyzer.memory)
-            val objRef = analyzer.memory.add(obj)
-            analyzer.memory.addToStackAsLast(objRef)
+            analyzer.memory.addToStackAsLast(obj)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

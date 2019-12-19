@@ -17,8 +17,7 @@ internal class MapElementAnalyzerTest {
 
         // Prepare stack.
         val map = LxmMap(analyzer.memory)
-        val mapRef = analyzer.memory.add(map)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, map)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

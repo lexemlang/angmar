@@ -26,8 +26,7 @@ internal object GroupHeaderLexemAnalyzer {
                 } else {
                     val patternUnion =
                             LxmPatternUnion(LxmQuantifier.AlternativePattern, LxmInteger.Num0, analyzer.memory)
-                    val patternUnionRef = analyzer.memory.add(patternUnion)
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnionRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnion)
                 }
 
                 if (node.identifier != null) {
@@ -43,8 +42,7 @@ internal object GroupHeaderLexemAnalyzer {
             signalEndQuantifier -> {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
                 val patternUnion = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
-                val patternUnionRef = analyzer.memory.add(patternUnion)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnionRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnion)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -93,8 +91,7 @@ internal object GroupHeaderLexemAnalyzer {
      */
     fun createNode(analyzer: LexemAnalyzer, name: String, isFilterCode: Boolean) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val lxmNodeRef = analyzer.createNewNode(name)
-        val lxmNode = lxmNodeRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!
+        val lxmNode = analyzer.createNewNode(name)
 
         if (isFilterCode) {
             lxmNode.applyDefaultPropertiesForFilterGroup(analyzer.memory)
@@ -102,6 +99,6 @@ internal object GroupHeaderLexemAnalyzer {
             lxmNode.applyDefaultPropertiesForGroup(analyzer.memory)
         }
 
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNodeRef, isConstant = true)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
     }
 }

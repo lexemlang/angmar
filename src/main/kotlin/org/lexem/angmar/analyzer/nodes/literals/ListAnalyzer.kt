@@ -20,8 +20,7 @@ internal object ListAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new list.
                 val list = LxmList(analyzer.memory)
-                val listRef = analyzer.memory.add(list)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, listRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, list)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])

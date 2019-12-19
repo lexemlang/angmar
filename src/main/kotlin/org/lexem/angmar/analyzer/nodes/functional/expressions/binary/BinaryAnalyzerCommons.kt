@@ -19,10 +19,10 @@ internal object BinaryAnalyzerCommons {
     /**
      * Gets the function of an operator.
      */
-    fun getOperatorFunction(analyzer: LexemAnalyzer, value: LexemPrimitive, expressionNode: ParserNode,
-            leftOperand: ParserNode, operator: String, operatorFunctionName: String): LexemPrimitive {
-        val derefValue = value.dereference(analyzer.memory, toWrite = false)
-        val prototype = derefValue.getObjectOrPrototype(analyzer.memory, toWrite = false)
+    fun getOperatorFunction(analyzer: LexemAnalyzer, valueRef: LexemPrimitive, expressionNode: ParserNode,
+            leftOperand: ParserNode, operator: String, operatorFunctionName: String): LxmFunction {
+        val value = valueRef.dereference(analyzer.memory, toWrite = false)
+        val prototype = value.getObjectOrPrototype(analyzer.memory, toWrite = false)
 
         val operatorFunctionRef = prototype.getPropertyValue(analyzer.memory, operatorFunctionName)
         val operatorFunction =
@@ -42,7 +42,7 @@ internal object BinaryAnalyzerCommons {
                     }
                 }
 
-        if (operatorFunction !is ExecutableValue) {
+        if (operatorFunction !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
                     "The operator $operator is associated to a function called '$operatorFunctionName' but the returned value is not callable, i.e. a function or expression. Current: $operatorFunction") {
                 val fullText = expressionNode.parser.reader.readAllText()
@@ -59,19 +59,19 @@ internal object BinaryAnalyzerCommons {
             }
         }
 
-        return operatorFunctionRef
+        return operatorFunction
     }
 
     /**
      * Creates an arguments object for an operator function.
      */
-    fun createArguments(analyzer: LexemAnalyzer, left: LexemPrimitive, right: LexemPrimitive): LxmReference {
+    fun createArguments(analyzer: LexemAnalyzer, left: LexemMemoryValue, right: LexemMemoryValue): LxmArguments {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addPositionalArgument(analyzer.memory, right)
 
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, left)
 
-        return analyzer.memory.add(arguments)
+        return arguments
     }
 
     /**
@@ -79,7 +79,7 @@ internal object BinaryAnalyzerCommons {
      */
     inline fun <reified T : LexemMemoryValue> executeUnitaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, thisTypeName: String, toWrite: Boolean,
-            processFunction: (LexemAnalyzer, T) -> LexemPrimitive): Boolean {
+            processFunction: (LexemAnalyzer, T) -> LexemMemoryValue): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue =
@@ -101,7 +101,8 @@ internal object BinaryAnalyzerCommons {
      */
     inline fun <reified T : LexemMemoryValue> executeBinaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, leftTypeName: String, typeNamesForRightOperand: List<String>, toWriteLeft: Boolean,
-            toWriteRight: Boolean, processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemPrimitive?): Boolean {
+            toWriteRight: Boolean,
+            processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemMemoryValue?): Boolean {
         val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         val left =

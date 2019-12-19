@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.stdlib.types
 
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 
@@ -16,11 +15,9 @@ internal object NilType {
     /**
      * Initiates the type.
      */
-    fun initType(memory: LexemMemory, prototype: LxmReference) {
+    fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)

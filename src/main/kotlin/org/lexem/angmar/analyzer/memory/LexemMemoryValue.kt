@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.memory
 
 import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.stdlib.types.*
@@ -10,6 +11,16 @@ import org.lexem.angmar.errors.*
  * The common part of every value in lexem.
  */
 internal interface LexemMemoryValue {
+    /**
+     * Gets the primitive associated to this memory value.
+     */
+    fun getPrimitive(): LexemPrimitive
+
+    /**
+     * Dereferences all indirect references until get a value that is not a [LxmReference] or [LexemSetter].
+     */
+    fun dereference(memory: LexemMemory, toWrite: Boolean): LexemMemoryValue = this
+
     /**
      * Gets the type of the value.
      */
@@ -50,4 +61,9 @@ internal interface LexemMemoryValue {
      * Returns the textual implementation of the value in Lexem.
      */
     fun toLexemString(memory: LexemMemory): LxmString = throw AngmarUnreachableException()
+
+    /**
+     * Collects all the garbage of the current big node.
+     */
+    fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) = Unit
 }

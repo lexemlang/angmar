@@ -30,7 +30,7 @@ internal class BinaryAnalyzerCommonsTest {
                         ?.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Prototype,
                                 toWrite = false)
                         ?.getPropertyValue(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
-        Assertions.assertEquals(directFunction, function, "The function is incorrect")
+        Assertions.assertEquals(directFunction, function.getPrimitive(), "The function is incorrect")
     }
 
     @Test
@@ -72,8 +72,7 @@ internal class BinaryAnalyzerCommonsTest {
         val left = LxmNil
         val right = LxmLogic.True
 
-        val argumentsRef = BinaryAnalyzerCommons.createArguments(analyzer, left, right)
-        val arguments = argumentsRef.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
+        val arguments = BinaryAnalyzerCommons.createArguments(analyzer, left, right)
         val map = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         Assertions.assertEquals(2, map.size, "The number of parameters is incorrect")

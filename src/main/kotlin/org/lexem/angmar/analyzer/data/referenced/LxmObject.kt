@@ -13,7 +13,6 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the Object type.
  */
 internal open class LxmObject : LexemReferenced {
-    val oldVersion: LxmObject?
     val prototypeReference: LxmReference?
     var isConstant = false
         private set
@@ -21,20 +20,22 @@ internal open class LxmObject : LexemReferenced {
         private set
     protected var properties = mutableMapOf<String, LxmObjectProperty>()
 
+    private val isFinalInHierarchy get() = this is LxmAnyPrototype || (this is LxmContext && prototypeReference == null)
+
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, oldVersion: LxmObject, toClone: Boolean = false) : super(memory) {
+    protected constructor(memory: LexemMemory, oldVersion: LxmObject, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
         if (toClone) {
-            this.oldVersion = null
             prototypeReference = oldVersion.prototypeReference
             isConstant = oldVersion.isConstant
             isWritable = oldVersion.isWritable
+            properties = oldVersion.getAllProperties()
 
-            for ((key, property) in oldVersion.getAllProperties()) {
+            for ((key, property) in properties) {
                 properties[key] = property.clone()
             }
         } else {
-            this.oldVersion = oldVersion
             prototypeReference = oldVersion.prototypeReference
             isConstant = oldVersion.isConstant
             isWritable = oldVersion.isWritable
@@ -45,16 +46,14 @@ internal open class LxmObject : LexemReferenced {
      * Creates an object without explicit prototype.
      */
     constructor(memory: LexemMemory) : super(memory) {
-        oldVersion = null
-        this.prototypeReference = null
+        prototypeReference = null
     }
 
     /**
      * Creates an object with explicit prototype.
      */
-    constructor(prototypeReference: LxmReference, memory: LexemMemory) : super(memory) {
-        oldVersion = null
-        this.prototypeReference = prototypeReference
+    constructor(memory: LexemMemory, prototype: LxmObject) : super(memory) {
+        prototypeReference = prototype.getPrimitive()
         prototypeReference.increaseReferences(memory)
     }
 
@@ -68,7 +67,7 @@ internal open class LxmObject : LexemReferenced {
 
         if (property == null) {
             // Avoid infinite loops.
-            if (this is LxmAnyPrototype || (this is LxmContext && this.prototypeReference == null)) {
+            if (isFinalInHierarchy) {
                 return null
             }
 
@@ -94,7 +93,7 @@ internal open class LxmObject : LexemReferenced {
                 return value
             }
 
-            obj = oldVersion
+            obj = obj.oldVersion as? LxmObject
         }
 
         return null
@@ -108,7 +107,7 @@ internal open class LxmObject : LexemReferenced {
 
         if (property == null) {
             // Avoid infinite loops.
-            if (this is LxmAnyPrototype) {
+            if (isFinalInHierarchy) {
                 return null
             }
 
@@ -131,7 +130,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Sets a new value to the property or creates a new property with the specified value.
      */
-    fun setProperty(memory: LexemMemory, identifier: String, value: LexemPrimitive, isConstant: Boolean = false,
+    fun setProperty(memory: LexemMemory, identifier: String, value: LexemMemoryValue, isConstant: Boolean = false,
             isIterable: Boolean = true, ignoringConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
@@ -149,15 +148,16 @@ internal open class LxmObject : LexemReferenced {
                     "The object is non writable therefore cannot be modified") {}
         }
 
+        val valuePrimitive = value.getPrimitive()
         val currentProperty = properties[identifier]
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // No property.
             currentProperty == null && lastProperty == null -> {
                 val property = LxmObjectProperty(isConstant, isIterable, false)
                 properties[identifier] = property
-                property.replaceValue(memory, value)
+                property.replaceValue(memory, valuePrimitive)
             }
 
             // Current property.
@@ -167,7 +167,7 @@ internal open class LxmObject : LexemReferenced {
                             "The object property called '$identifier' is constant therefore it cannot be modified") {}
                 }
 
-                currentProperty.replaceValue(memory, value)
+                currentProperty.replaceValue(memory, valuePrimitive)
                 currentProperty.isConstant = isConstant
                 currentProperty.isIterable = isIterable
                 currentProperty.isRemoved = false
@@ -182,7 +182,7 @@ internal open class LxmObject : LexemReferenced {
 
                 val property = lastProperty.clone(isConstant = isConstant, isIterable = isIterable, isRemoved = false)
                 properties[identifier] = property
-                property.replaceValue(memory, value)
+                property.replaceValue(memory, valuePrimitive)
             }
         }
     }
@@ -190,7 +190,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Sets a new value to the property in any of the prototypes that have that property.
      */
-    fun setPropertyAsContext(memory: LexemMemory, identifier: String, value: LexemPrimitive,
+    fun setPropertyAsContext(memory: LexemMemory, identifier: String, value: LexemMemoryValue,
             isConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
@@ -204,19 +204,33 @@ internal open class LxmObject : LexemReferenced {
         }
 
         // Avoid infinite loops.
-        if (this is LxmAnyPrototype) {
+        if (isFinalInHierarchy) {
             return setProperty(memory, identifier, value, isConstant)
         }
 
         // Check the current object and the prototype.
         val currentProperty = getOwnPropertyDescriptor(memory, identifier)
-        val prototype = getPrototypeAsObject(memory, toWrite = true)
-        val prototypeProperty = prototype.getPropertyValue(memory, identifier)
 
-        // Set in prototype.
-        if (currentProperty == null && prototypeProperty != null) {
-            return prototype.setPropertyAsContext(memory, identifier, value, isConstant)
+        if (currentProperty == null) {
+            var prototype = getPrototypeAsObject(memory, toWrite = false)
+            while (true) {
+                val prototypeProperty = prototype.getOwnPropertyDescriptor(memory, identifier)
+
+                // Set in prototype.
+                if (prototypeProperty != null) {
+                    prototype = prototype.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+                    return prototype.setProperty(memory, identifier, value, isConstant)
+                }
+
+                // Avoid infinite loops.
+                if (prototype.isFinalInHierarchy) {
+                    break
+                }
+
+                prototype = prototype.getPrototypeAsObject(memory, toWrite = false)
+            }
         }
+
 
         // Set in current.
         return setProperty(memory, identifier, value, isConstant)
@@ -246,7 +260,7 @@ internal open class LxmObject : LexemReferenced {
         }
 
         val currentProperty = properties[identifier]
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // Current property
@@ -324,7 +338,7 @@ internal open class LxmObject : LexemReferenced {
         }
 
         val currentProperty = properties[identifier]
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // No property
@@ -358,47 +372,31 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Gets all properties of the object.
      */
-    private fun getAllProperties(): Map<String, LxmObjectProperty> {
+    private fun getAllProperties(): MutableMap<String, LxmObjectProperty> {
+        val versions = getListOfVersions<LxmObject>()
+
+        // Iterate to get a list of versions.
         val result = mutableMapOf<String, LxmObjectProperty>()
 
-        var currentObject: LxmObject? = this
-        while (currentObject != null) {
-            for ((key, value) in currentObject.properties) {
-                result.putIfAbsent(key, value)
-            }
-
-            currentObject = currentObject.oldVersion
+        while (versions.isNotEmpty()) {
+            val element = versions.removeLast()
+            result.putAll(element.properties)
         }
 
         return result
     }
 
-    /**
-     * Counts the number of old versions of this object.
-     */
-    fun countOldVersions(): Int {
-        var count = 1
-
-        var version = oldVersion
-        while (version != null) {
-            count += 1
-            version = version.oldVersion
-        }
-
-        return count
-    }
-
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = if (!isWritable) {
+    override fun memoryShift(memory: LexemMemory) = if (!isWritable) {
         this
     } else {
         LxmObject(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        for (i in getAllProperties()) {
-            val reference = i.value.value
+        for ((key, property) in getAllProperties()) {
+            val reference = property.value
             if (reference is LxmReference) {
                 reference.decreaseReferences(memory)
             }
@@ -411,12 +409,12 @@ internal open class LxmObject : LexemReferenced {
         }
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        for ((key, _) in getAllProperties()) {
-            getPropertyValue(memory, key)!!.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        for ((_, property) in getAllProperties()) {
+            property.value.spatialGarbageCollect(memory, gcFifo)
         }
 
-        prototypeReference?.spatialGarbageCollect(memory)
+        prototypeReference?.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun getType(memory: LexemMemory): LxmReference {
@@ -472,7 +470,7 @@ internal open class LxmObject : LexemReferenced {
             val prop = LxmObjectProperty(isConstant = isConstant ?: this.isConstant,
                     isIterable = isIterable ?: this.isIterable, isRemoved = isRemoved ?: this.isRemoved)
 
-            prop.value = this.value
+            prop.value = value
             return prop
         }
 

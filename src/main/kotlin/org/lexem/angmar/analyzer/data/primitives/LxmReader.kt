@@ -24,5 +24,5 @@ internal class LxmReader(val primitive: IReader) : LexemPrimitive {
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Reader](primitive: $primitive)"
+    override fun toString() = "[Reader] (primitive: $primitive)"
 }

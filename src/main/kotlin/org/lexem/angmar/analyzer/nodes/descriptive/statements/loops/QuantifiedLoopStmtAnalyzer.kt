@@ -57,7 +57,7 @@ internal object QuantifiedLoopStmtAnalyzer {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
                 val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
 
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopUnion, analyzer.memory.add(union))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopUnion, union)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -258,7 +258,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode, count: Int = 1) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
                 toWrite = true) as LxmPatternUnion
 

@@ -27,7 +27,7 @@ internal object AccessExpressionAnalyzer {
                 // Performs the access if the element is an identifier.
                 if (node.element is IdentifierNode) {
                     val id = analyzer.memory.getLastFromStack() as LxmString
-                    val context = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
                     analyzer.memory.replaceLastStackCell(
                             LxmAccessSetter(analyzer.memory, context, id.primitive, node, node.element))

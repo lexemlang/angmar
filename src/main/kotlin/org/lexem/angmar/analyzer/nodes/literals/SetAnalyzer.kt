@@ -22,13 +22,12 @@ internal object SetAnalyzer {
             signalEndList -> {
                 val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmList
                 val set = LxmSet(analyzer.memory)
-                val setRef = analyzer.memory.add(set)
 
                 for (i in list.getAllCells()) {
                     set.addValue(analyzer.memory, i)
                 }
 
-                analyzer.memory.replaceLastStackCell(setRef)
+                analyzer.memory.replaceLastStackCell(set)
 
                 if (node.list.isConstant) {
                     set.makeConstant(analyzer.memory)

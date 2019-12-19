@@ -90,8 +90,7 @@ internal class FunctionCallAnalyzerTest {
                 LxmString.from("test"))
 
         var executed = false
-        val function = LxmFunction(analyzer.memory) { _, argumentsReference, _, _ ->
-            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
+        val function = LxmFunction(analyzer.memory) { _, arguments, _, _ ->
             executed = true
 
             val positionalArguments = arguments.getDereferencedProperty<LxmList>(analyzer.memory,
@@ -172,9 +171,8 @@ internal class FunctionCallAnalyzerTest {
             analyzer.memory.addToStackAsLast(LxmNil)
             return@LxmFunction true
         }
-        val functionRef = analyzer.memory.add(function)
 
-        analyzer.memory.addToStackAsLast(functionRef)
+        analyzer.memory.addToStackAsLast(function)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

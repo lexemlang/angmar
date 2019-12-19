@@ -13,15 +13,31 @@ import org.lexem.angmar.parser.literals.*
 /**
  * The Lexem value of the Set type.
  */
-internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClone: Boolean = false) :
-        LexemReferenced(memory) {
-    var isConstant: Boolean = oldVersion?.isConstant ?: false
+internal class LxmSet : LexemReferenced {
+    var isConstant = false
         private set
-    private var values: MutableMap<Int, MutableList<LxmSetProperty>> = if (toClone) {
-        oldVersion!!.getAllValues().mapValues { (_, list) -> list.map { it.clone(memory) }.toMutableList() }
-                .toMutableMap()
-    } else {
-        mutableMapOf()
+    private var values: MutableMap<Int, MutableList<LxmSetProperty>>
+
+    // CONSTRUCTORS -----------------------------------------------------------
+
+    constructor(memory: LexemMemory) : super(memory) {
+        values = mutableMapOf()
+    }
+
+    private constructor(memory: LexemMemory, oldVersion: LxmSet, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        isConstant = oldVersion.isConstant
+        values = if (toClone) {
+            val map = oldVersion.getAllValues()
+
+            for ((key, list) in map) {
+                map[key] = list.mapTo(mutableListOf()) { it.clone(memory) }
+            }
+
+            map
+        } else {
+            mutableMapOf()
+        }
     }
 
     // METHODS ----------------------------------------------------------------
@@ -29,7 +45,7 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     /**
      * Adds a new value to the set.
      */
-    fun addValue(memory: LexemMemory, value: LexemPrimitive) {
+    fun addValue(memory: LexemMemory, value: LexemMemoryValue) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -41,9 +57,10 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
                     "The set is constant therefore cannot be modified") {}
         }
 
-        val valueHash = value.getHashCode(memory)
-        val currentProperty = getOwnPropertyDescriptorInCurrent(value, valueHash)
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(value, valueHash)
+        val valuePrimitive = value.getPrimitive()
+        val valueHash = valuePrimitive.getHashCode(memory)
+        val currentProperty = getOwnPropertyDescriptorInCurrent(valuePrimitive, valueHash)
+        val lastProperty = (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(valuePrimitive, valueHash)
 
         when {
             // No property
@@ -51,12 +68,12 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
                 val property = LxmSetProperty(isRemoved = false)
                 values.putIfAbsent(valueHash, mutableListOf())
                 values[valueHash]!!.add(property)
-                property.replaceValue(memory, value)
+                property.replaceValue(memory, valuePrimitive)
             }
 
             // Current property
             currentProperty != null -> {
-                currentProperty.replaceValue(memory, value)
+                currentProperty.replaceValue(memory, valuePrimitive)
                 currentProperty.isRemoved = false
             }
 
@@ -71,15 +88,16 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     /**
      * Returns whether the set contains a property or not.
      */
-    fun containsValue(memory: LexemMemory, value: LexemPrimitive): Boolean {
-        val descriptor = getOwnPropertyDescriptor(value, value.getHashCode(memory))
+    fun containsValue(memory: LexemMemory, value: LexemMemoryValue): Boolean {
+        val valuePrimitive = value.getPrimitive()
+        val descriptor = getOwnPropertyDescriptor(valuePrimitive, valuePrimitive.getHashCode(memory))
         return descriptor != null && !descriptor.isRemoved
     }
 
     /**
      * Removes a value.
      */
-    fun removeValue(memory: LexemMemory, value: LexemPrimitive) {
+    fun removeValue(memory: LexemMemory, value: LexemMemoryValue) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -91,9 +109,10 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
                     "The set is constant therefore it cannot be modified") {}
         }
 
-        val valueHash = value.getHashCode(memory)
-        val currentProperty = getOwnPropertyDescriptorInCurrent(value, valueHash)
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(value, valueHash)
+        val valuePrimitive = value.getPrimitive()
+        val valueHash = valuePrimitive.getHashCode(memory)
+        val currentProperty = getOwnPropertyDescriptorInCurrent(valuePrimitive, valueHash)
+        val lastProperty = (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(valuePrimitive, valueHash)
 
         when {
             // Current property
@@ -151,7 +170,8 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
      * Gets the property descriptor of the specified property.
      */
     private fun getOwnPropertyDescriptor(value: LexemPrimitive, hash: Int): LxmSetProperty? =
-            getOwnPropertyDescriptorInCurrent(value, hash) ?: oldVersion?.getOwnPropertyDescriptor(value, hash)
+            getOwnPropertyDescriptorInCurrent(value, hash) ?: (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(value,
+                    hash)
 
     /**
      * Gets the size of the set.
@@ -172,7 +192,7 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
                 }
             }
 
-            currentObject = currentObject.oldVersion
+            currentObject = currentObject.oldVersion as? LxmSet
         }
 
         return result.map { it.value.size }.sum()
@@ -181,46 +201,23 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
     /**
      * Gets all value of the set.
      */
-    fun getAllValues(): Map<Int, List<LxmSetProperty>> {
+    fun getAllValues(): MutableMap<Int, MutableList<LxmSetProperty>> {
+        val versions = getListOfVersions<LxmSet>()
+
+        // Iterate to get a list of versions.
         val result = mutableMapOf<Int, MutableList<LxmSetProperty>>()
 
-        var currentObject: LxmSet? = this
-        while (currentObject != null) {
-            for (propList in currentObject.values) {
-                val list = result[propList.key] ?: mutableListOf()
-                result.putIfAbsent(propList.key, list)
-
-                for (prop in propList.value) {
-                    if (list.find { RelationalFunctions.identityEquals(it.value, prop.value) } == null) {
-                        list.add(prop)
-                    }
-                }
-            }
-
-            currentObject = currentObject.oldVersion
+        while (versions.isNotEmpty()) {
+            val element = versions.removeLast()
+            result.putAll(element.values)
         }
 
-        return result.mapValues { it.value.filter { !it.isRemoved } }
-    }
-
-    /**
-     * Counts the number of old versions of this set.
-     */
-    private fun countOldVersions(): Int {
-        var count = 1
-
-        var version = oldVersion
-        while (version != null) {
-            count += 1
-            version = version.oldVersion
-        }
-
-        return count
+        return result
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = if (isConstant) {
+    override fun memoryShift(memory: LexemMemory) = if (isConstant) {
         this
     } else {
         LxmSet(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
@@ -241,10 +238,10 @@ internal class LxmSet(memory: LexemMemory, val oldVersion: LxmSet? = null, toClo
         }
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        for ((_, list) in values) {
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        for ((_, list) in getAllValues()) {
             for (property in list) {
-                property.value.spatialGarbageCollect(memory)
+                property.value.spatialGarbageCollect(memory, gcFifo)
             }
         }
     }

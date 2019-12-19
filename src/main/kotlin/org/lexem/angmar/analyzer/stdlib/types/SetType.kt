@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.stdlib.types
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -25,38 +24,34 @@ internal object SetType {
     /**
      * Initiates the type.
      */
-    fun initType(memory: LexemMemory, prototype: LxmReference) {
+    fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, memory.add(LxmFunction(memory, ::newFromFunction)), isConstant = true)
-        type.setProperty(memory, Join, memory.add(LxmFunction(memory, ::joinFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
+        type.setProperty(memory, Join, LxmFunction(memory, ::joinFunction), isConstant = true)
     }
 
     /**
      * Creates a new set with the specified values.
      */
-    private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
-                emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val newSet = LxmSet(analyzer.memory)
-                val newSetRef = analyzer.memory.add(newSet)
                 for (i in spreadArguments) {
                     newSet.addValue(analyzer.memory, i)
                 }
 
-                analyzer.memory.addToStackAsLast(newSetRef)
+                analyzer.memory.addToStackAsLast(newSet)
             }
         }
 
@@ -66,16 +61,14 @@ internal object SetType {
     /**
      * Creates a new set with the values of all the specified sets.
      */
-    private fun joinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun joinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(analyzer.memory,
-                emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val newSet = LxmSet(analyzer.memory)
-                val newSetRef = analyzer.memory.add(newSet)
                 for (set in spreadArguments.map { it.dereference(analyzer.memory, toWrite = false) }) {
                     if (set !is LxmSet) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -89,7 +82,7 @@ internal object SetType {
                     }
                 }
 
-                analyzer.memory.addToStackAsLast(newSetRef)
+                analyzer.memory.addToStackAsLast(newSet)
             }
         }
 

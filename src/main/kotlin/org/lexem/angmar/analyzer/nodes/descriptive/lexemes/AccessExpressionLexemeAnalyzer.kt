@@ -6,7 +6,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.data.referenced.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
 
@@ -29,12 +28,12 @@ internal object AccessExpressionLexemeAnalyzer {
             signalEndElement -> {
                 // Performs the access if the element is an identifier.
                 val id = analyzer.memory.getLastFromStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
                 val setter = LxmAccessSetter(analyzer.memory, context, id.primitive, node, node.element)
                 analyzer.memory.replaceLastStackCell(setter)
 
-                val finalValueRef = setter.getPrimitive(analyzer.memory)
+                val finalValueRef = setter.getSetterPrimitive(analyzer.memory)
 
                 // Process the next operand.
                 if (node.modifiers.isNotEmpty()) {
@@ -42,16 +41,15 @@ internal object AccessExpressionLexemeAnalyzer {
                 } else {
                     // If the setter has a function execute it.
                     val finalValue = finalValueRef.dereference(analyzer.memory, toWrite = false)
-                    if (finalValue is ExecutableValue) {
-                        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
+                    if (finalValue is LxmFunction) {
+                        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
                         val arguments = LxmArguments(analyzer.memory)
-                        val argumentsRef = analyzer.memory.add(arguments)
                         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
 
                         // Remove Last from the stack.
                         analyzer.memory.removeLastFromStack()
 
-                        return AnalyzerNodesCommons.callFunction(analyzer, finalValueRef, argumentsRef, node,
+                        return AnalyzerNodesCommons.callFunction(analyzer, finalValue, arguments, node,
                                 LxmCodePoint(node, signalEndFunction, callerNode = node,
                                         callerContextName = contextName.primitive))
                     }
@@ -72,7 +70,7 @@ internal object AccessExpressionLexemeAnalyzer {
 
                 val result = analyzer.memory.getLastFromStack()
                 if (result is LexemSetter) {
-                    analyzer.memory.replaceLastStackCell(result.getPrimitive(analyzer.memory))
+                    analyzer.memory.replaceLastStackCell(result.getSetterPrimitive(analyzer.memory))
                 }
             }
         }

@@ -50,13 +50,12 @@ internal class NameSelectorAnalyzerTest {
 
         // Prepare context.
         val node = LxmNode(nodeName2, reader.saveCursor(), null, analyzer.memory)
-        val nodeRef = analyzer.memory.add(node)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, nodeRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node) as LxmReference
-        Assertions.assertEquals(nodeRef.position, result.position, "The node is incorrect")
+        Assertions.assertEquals(node.getPrimitive().position, result.position, "The node is incorrect")
         Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The result is incorrect")
 
         // Remove Node and Last from the stack.
@@ -81,13 +80,12 @@ internal class NameSelectorAnalyzerTest {
 
         // Prepare context.
         val node = LxmNode(actualNodeName, reader.saveCursor(), null, analyzer.memory)
-        val nodeRef = analyzer.memory.add(node)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, nodeRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node) as LxmReference
-        Assertions.assertEquals(nodeRef.position, result.position, "The node is incorrect")
+        Assertions.assertEquals(node.getPrimitive().position, result.position, "The node is incorrect")
         Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(), "The result is incorrect")
 
         // Remove Node and Last from the stack.
@@ -112,13 +110,12 @@ internal class NameSelectorAnalyzerTest {
 
         // Prepare context.
         val node = LxmNode(actualNodeName, reader.saveCursor(), null, analyzer.memory)
-        val nodeRef = analyzer.memory.add(node)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, nodeRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node) as LxmReference
-        Assertions.assertEquals(nodeRef.position, result.position, "The node is incorrect")
+        Assertions.assertEquals(node.getPrimitive().position, result.position, "The node is incorrect")
         Assertions.assertEquals(LxmLogic.True, analyzer.memory.getLastFromStack(), "The result is incorrect")
 
         // Remove Node and Last from the stack.
@@ -142,13 +139,12 @@ internal class NameSelectorAnalyzerTest {
 
         // Prepare context.
         val node = LxmNode(nodeName2, reader.saveCursor(), null, analyzer.memory)
-        val nodeRef = analyzer.memory.add(node)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, nodeRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node) as LxmReference
-        Assertions.assertEquals(nodeRef.position, result.position, "The node is incorrect")
+        Assertions.assertEquals(node.getPrimitive().position, result.position, "The node is incorrect")
         Assertions.assertEquals(LxmLogic.False, analyzer.memory.getLastFromStack(), "The result is incorrect")
 
         // Remove Node and Last from the stack.

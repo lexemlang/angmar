@@ -19,27 +19,16 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(element: LexemPrimitive, index: LexemPrimitive, node: IndexerNode, memory: LexemMemory) {
-        this.element = element
-        this.index = index
+    constructor(element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerNode, memory: LexemMemory) {
+        this.element = element.getPrimitive()
+        this.index = index.getPrimitive()
         this.node = node
 
-        if (element is LxmReference) {
-            element.increaseReferences(memory)
-        }
+        this.element.increaseReferences(memory)
+        this.index.increaseReferences(memory)
 
-        if (index is LxmReference) {
-            index.increaseReferences(memory)
-        }
-    }
-
-    // OVERRIDE METHODS -------------------------------------------------------
-
-    override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
-        val element = element.dereference(memory, toWrite = false)
-        val index = index
-
-        return when (element) {
+        // Check the types.
+        when (element) {
             is LxmString -> {
                 if (index !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -56,6 +45,81 @@ internal class LxmIndexerSetter : LexemSetter {
                         }
                     }
                 }
+            }
+            is LxmBitList -> {
+                if (index !is LxmInteger) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
+                            "${BitListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
+                        val fullText = node.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
+                        }
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
+                            message = "Review the returned value of this expression"
+                        }
+                    }
+                }
+            }
+            is LxmList -> {
+                if (index !is LxmInteger) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
+                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
+                        val fullText = node.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
+                        }
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
+                            message = "Review the returned value of this expression"
+                        }
+                    }
+                }
+            }
+            is LxmObject -> {
+                if (index !is LxmString) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
+                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}.") {
+                        val fullText = node.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
+                        }
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
+                            message = "Review the returned value of this expression"
+                        }
+                    }
+                }
+            }
+            is LxmMap -> {
+            }
+            else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedIndexer,
+                    "The indexer pattern is not applicable over the element.") {
+                val fullText = node.parser.reader.readAllText()
+                addSourceCode(fullText, node.parser.reader.getSource()) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(node.parent!!.from.position(), node.to.position() - 1)
+                    message = "Review the returned values of both expressions"
+                }
+            }
+        }
+    }
+
+    // OVERRIDE METHODS -------------------------------------------------------
+
+    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
+        val element = element.dereference(memory, toWrite = false)
+        val index = index
+
+        return when (element) {
+            is LxmString -> {
+                index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
                     element.primitive.length + index.primitive
@@ -83,21 +147,7 @@ internal class LxmIndexerSetter : LexemSetter {
                 LxmString.from("$char")
             }
             is LxmBitList -> {
-                if (index !is LxmInteger) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${BitListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
+                index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
                     element.primitive.size + index.primitive
@@ -124,21 +174,7 @@ internal class LxmIndexerSetter : LexemSetter {
                 LxmLogic.from(element.primitive[primitive])
             }
             is LxmList -> {
-                if (index !is LxmInteger) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
+                index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
                     element.actualListSize + index.primitive
@@ -165,60 +201,24 @@ internal class LxmIndexerSetter : LexemSetter {
                 element.getCell(memory, primitive)!!
             }
             is LxmObject -> {
-                if (index !is LxmString) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
+                index as LxmString
 
                 element.getPropertyValue(memory, index.primitive) ?: LxmNil
             }
             is LxmMap -> {
                 element.getPropertyValue(memory, index) ?: LxmNil
             }
-            else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedIndexer,
-                    "The indexer getter is not applicable over the element ($element) with the used index expression.") {
-                val fullText = node.parser.reader.readAllText()
-                addSourceCode(fullText, node.parser.reader.getSource()) {
-                    title = Consts.Logger.hintTitle
-                    highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                    message = "Review the returned values of both expressions"
-                }
-            }
+            else -> throw AngmarUnreachableException()
         }
     }
 
-    override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
+    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
         val element = element.dereference(memory, toWrite = true)
         val index = index
 
         when (element) {
             is LxmList -> {
-                if (index !is LxmInteger) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ListType.TypeName} indexers require the index expression be an ${IntegerType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
+                index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
                     element.actualListSize + index.primitive
@@ -245,36 +245,14 @@ internal class LxmIndexerSetter : LexemSetter {
                 element.setCell(memory, primitive, value)
             }
             is LxmObject -> {
-                if (index !is LxmString) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
-                            "${ObjectType.TypeName} indexers require the index expression be a ${StringType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                        }
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(node.expression.from.position(), node.expression.to.position() - 1)
-                            message = "Review the returned value of this expression"
-                        }
-                    }
-                }
+                index as LxmString
 
                 element.setProperty(memory, index.primitive, value)
             }
             is LxmMap -> {
                 element.setProperty(memory, index, value)
             }
-            else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedIndexer,
-                    "The indexer setter is not applicable over the element ($element) with the used index expression.") {
-                val fullText = node.parser.reader.readAllText()
-                addSourceCode(fullText, node.parser.reader.getSource()) {
-                    title = Consts.Logger.hintTitle
-                    highlightSection(node.parent!!.from.position(), node.to.position() - 1)
-                    message = "Review the returned values of both expressions"
-                }
-            }
+            else -> throw AngmarUnreachableException()
         }
     }
 
@@ -288,10 +266,10 @@ internal class LxmIndexerSetter : LexemSetter {
         index.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        element.spatialGarbageCollect(memory)
-        index.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        element.spatialGarbageCollect(memory, gcFifo)
+        index.spatialGarbageCollect(memory, gcFifo)
     }
 
-    override fun toString() = "LxmSetter(element: $element, index: $index)"
+    override fun toString() = "[Setter - Indexer] (element: $element, index: $index)"
 }

@@ -39,8 +39,8 @@ internal class LxmIntervalIterator : LexemIterator {
         return Pair(null, LxmInteger.from(currentValue))
     }
 
-    override fun clone(memory: LexemMemory) = LxmIntervalIterator(memory, this,
+    override fun memoryShift(memory: LexemMemory) = LxmIntervalIterator(memory, this,
             toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[ITERATOR - INTERVAL] (value: $value) - ${super.toString()}"
+    override fun toString() = "[Iterator - Interval] (value: $value) - ${super.toString()}"
 }

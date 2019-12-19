@@ -55,8 +55,7 @@ internal class AccessExpressionAnalyzerTest {
         }
 
         list.addCell(analyzer.memory, LxmInteger.from(left))
-        val listRef = analyzer.memory.add(list)
-        context.setProperty(analyzer.memory, varName, listRef)
+        context.setProperty(analyzer.memory, varName, list)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

@@ -33,11 +33,9 @@ internal object IntegerType {
     /**
      * Initiates the type.
      */
-    fun initType(memory: LexemMemory, prototype: LxmReference) {
+    fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
@@ -45,17 +43,15 @@ internal object IntegerType {
         type.setProperty(memory, MaxValue, LxmInteger.from(Int.MAX_VALUE), isConstant = true)
 
         // Methods
-        type.setProperty(memory, Parse, memory.add(LxmFunction(memory, ::parseFunction)), isConstant = true)
+        type.setProperty(memory, Parse, LxmFunction(memory, ::parseFunction), isConstant = true)
     }
 
     /**
      * Parses a float in a given radix.
      */
-    private fun parseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun parseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ParseArgs)
+        val parsedArguments = arguments.mapArguments(analyzer.memory, ParseArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

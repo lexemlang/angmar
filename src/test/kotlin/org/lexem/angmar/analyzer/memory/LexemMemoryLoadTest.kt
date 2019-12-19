@@ -148,7 +148,6 @@ internal class LexemMemoryLoadTest {
     //            // Add values.
     //            for (i in 0 until heapSizeSameRangeTest) {
     //                val value = LxmObject(memory)
-    //                memory.add(value)
     //            }
     //
     //            // Generate the next levels.
@@ -209,7 +208,6 @@ internal class LexemMemoryLoadTest {
     //            // Add values.
     //            for (i in 0 until heapSizePyramidTest) {
     //                val value = LxmObject(memory)
-    //                memory.add(value)
     //            }
     //
     //            // Generate the next levels.
@@ -222,7 +220,6 @@ internal class LexemMemoryLoadTest {
     //
     //                for (i in 0 until 100) {
     //                    val value = LxmObject(memory)
-    //                    memory.add(value)
     //                }
     //            }
     //        }

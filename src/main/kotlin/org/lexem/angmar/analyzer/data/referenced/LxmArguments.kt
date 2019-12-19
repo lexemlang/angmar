@@ -18,8 +18,8 @@ internal class LxmArguments : LxmObject {
         init(memory)
     }
 
-    constructor(memory: LexemMemory, oldArguments: LxmArguments, mustInit: Boolean, toClone: Boolean) : super(memory,
-            oldArguments, toClone) {
+    private constructor(memory: LexemMemory, oldVersion: LxmArguments, mustInit: Boolean, toClone: Boolean) : super(
+            memory, oldVersion, toClone) {
         if (mustInit) {
             init(memory)
         }
@@ -33,10 +33,8 @@ internal class LxmArguments : LxmObject {
     private fun init(memory: LexemMemory) {
         val positional = LxmList(memory)
         val named = LxmObject(memory)
-        val positionalReference = memory.add(positional)
-        val namedReference = memory.add(named)
-        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, positionalReference, isConstant = true)
-        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, namedReference, isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, positional, isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, named, isConstant = true)
     }
 
     /**
@@ -60,14 +58,14 @@ internal class LxmArguments : LxmObject {
     /**
      * Adds a positional argument.
      */
-    fun addPositionalArgument(memory: LexemMemory, value: LexemPrimitive) {
+    fun addPositionalArgument(memory: LexemMemory, value: LexemMemoryValue) {
         getPositionalList(memory, toWrite = true).addCell(memory, value)
     }
 
     /**
      * Adds a named argument.
      */
-    fun addNamedArgument(memory: LexemMemory, identifier: String, value: LexemPrimitive) {
+    fun addNamedArgument(memory: LexemMemory, identifier: String, value: LexemMemoryValue) {
         getNamedObject(memory, toWrite = true).setProperty(memory, identifier, value)
     }
 
@@ -159,19 +157,17 @@ internal class LxmArguments : LxmObject {
         // Add positional arguments to spread parameter.
         if (parameters.positionalSpread != null) {
             val list = LxmList(memory)
-            val listRef = memory.add(list)
 
             for (i in positionalArguments.drop(parameterNames.size)) {
                 list.addCell(memory, i)
             }
 
-            context.setProperty(memory, parameters.positionalSpread!!, listRef)
+            context.setProperty(memory, parameters.positionalSpread!!, list)
         }
 
         // Map named arguments.
         if (parameters.namedSpread != null) {
             val obj = LxmObject(memory)
-            val objRef = memory.add(obj)
 
             for ((key, argument) in namedArguments) {
                 val value = argument.value
@@ -185,7 +181,7 @@ internal class LxmArguments : LxmObject {
                 }
             }
 
-            context.setProperty(memory, parameters.namedSpread!!, objRef)
+            context.setProperty(memory, parameters.namedSpread!!, obj)
         } else {
             for ((key, argument) in namedArguments) {
                 val value = argument.value
@@ -204,7 +200,7 @@ internal class LxmArguments : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
+    override fun memoryShift(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
             toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun toString() = "[Arguments] ${super.toString()}"

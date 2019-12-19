@@ -44,7 +44,7 @@ internal object AssignOperatorAnalyzer {
         // Get operand values.
         val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
         val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LexemSetter
-        val leftFinal = left.getPrimitive(analyzer.memory)
+        val leftFinal = left.getSetterPrimitive(analyzer.memory)
 
         // Get operand function.
         val operatorFunctionName = when (node.operator) {
@@ -107,7 +107,8 @@ internal object AssignOperatorAnalyzer {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
         return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
                 LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
@@ -119,7 +120,7 @@ internal object AssignOperatorAnalyzer {
         val right = AnalyzerNodesCommons.resolveSetter(analyzer.memory, analyzer.memory.getLastFromStack())
         val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LexemSetter
 
-        left.setPrimitive(analyzer.memory, right)
+        left.setSetterValue(analyzer.memory, right)
 
         // Remove Left from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)

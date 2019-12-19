@@ -16,5 +16,5 @@ internal open class LxmCodePoint(val node: ParserNode, val signal: Int, val call
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
     override fun toString() =
-            "[Code Point](signal: $signal, node: $node, callerNode: $callerNode, callerContextName: $callerContextName)"
+            "[Code Point] (signal: $signal, node: $node, callerNode: $callerNode, callerContextName: $callerContextName)"
 }

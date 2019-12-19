@@ -44,20 +44,19 @@ internal class BigNodeTest {
     fun `test constructors`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val empty = LxmObject(memory)
         checkBigNode(bigNode)
 
         // Modify the first BigNode.
         val lastFreePosition = let {
-            bigNode.alloc(memory, empty)
+            val obj1 = LxmObject(memory)
+            val obj2 = LxmObject(memory)
+            val obj3 = LxmObject(memory)
 
-            val cell = bigNode.alloc(memory, empty)
-            bigNode.alloc(memory, empty)
-            bigNode.free(memory, cell.position)
+            bigNode.free(memory, obj3.getPrimitive().position)
 
             bigNode.addToStack("last", LxmNil, memory)
 
-            cell.position
+            obj3.getPrimitive().position
         }
 
         val bigNode2 = BigNode(bigNode, null)
@@ -217,18 +216,17 @@ internal class BigNodeTest {
         val bigNodeOld = memory.lastNode
 
         val obj = LxmObject(memory)
-        val ref = bigNodeOld.alloc(memory, obj).position
 
         for (i in 0 until Consts.Memory.maxDistanceToShift - 1) {
             memory.freezeCopy()
 
-            val obj2 = memory.lastNode.getCell(memory, ref, forceShift = false).value
+            val obj2 = memory.lastNode.getCell(memory, obj.getPrimitive().position, forceShift = false).value
             Assertions.assertEquals(obj, obj2, "The object has been shifted in [$i]")
         }
 
         memory.freezeCopy()
 
-        val obj2 = memory.lastNode.getCell(memory, ref, forceShift = false).value as LxmObject
+        val obj2 = memory.lastNode.getCell(memory, obj.getPrimitive().position, forceShift = true).value as LxmObject
         Assertions.assertNotEquals(obj, obj2, "The object has not been shifted")
         Assertions.assertEquals(obj, obj2.oldVersion, "The object has not been shifted")
     }
@@ -325,16 +323,14 @@ internal class BigNodeTest {
         val bigNode = memory.lastNode
         val obj1 = LxmObject(memory)
         val obj2 = LxmObject(memory)
-        val obj1Ref = bigNode.alloc(memory, obj1)
-        val obj2Ref = bigNode.alloc(memory, obj2)
 
         // Add obj1
-        bigNode.addToStack("a", LxmReference(obj1Ref.position), memory)
+        bigNode.addToStack("a", obj1.getPrimitive(), memory)
         checkBigNode(bigNode, heapSize = 2, actualHeapSize = 2, actualStackLevelSize = 1, stackLevelSize = 1,
                 actualStackSize = 1, stackSize = 1)
 
         // Replace obj2
-        bigNode.replaceStackCell("a", LxmReference(obj2Ref.position), memory)
+        bigNode.replaceStackCell("a", obj2.getPrimitive(), memory)
         checkBigNode(bigNode, heapSize = 2, actualHeapSize = 2, actualStackLevelSize = 1, stackLevelSize = 1,
                 actualStackSize = 1, stackSize = 1, actualUsedCellCount = 1, lastFreePosition = 0)
     }
@@ -370,19 +366,15 @@ internal class BigNodeTest {
     }
 
     @Test
-    fun `test heap alloc, get and set`() {
+    fun `test heap alloc and get`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val objects = List(size) { LxmObject(memory) }
 
         checkBigNode(bigNode)
 
         // Add cells
-        for (i in objects.withIndex()) {
-            bigNode.alloc(memory, i.value)
-
-            checkBigNode(bigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
+        val objects = List(size) { LxmObject(memory) }
+        checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
 
         // Get all cells
         for (i in objects.withIndex()) {
@@ -391,53 +383,31 @@ internal class BigNodeTest {
             BigNodeCellTest.checkCell(cell, i.index, i.value)
             checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
         }
-
-        // Set cells
-        val newObjects = List(size) { LxmList(memory) }
-        for (i in newObjects.withIndex()) {
-            bigNode.setCell(memory, i.index, i.value)
-
-            checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
-
-            val cell = bigNode.getCell(memory, i.index)
-
-            BigNodeCellTest.checkCell(cell, i.index, i.value)
-        }
     }
 
     @Test
-    fun `test heap alloc, get and set recursively`() {
+    fun `test heap alloc and get recursively`() {
         val memory = LexemMemory()
         val oldBigNode = memory.lastNode
-        val empty = LxmObject(memory)
-        val oldObjects = List(size) { empty }
 
         checkBigNode(oldBigNode)
 
         // Add cells
-        for (i in oldObjects.withIndex()) {
-            oldBigNode.alloc(memory, i.value)
-
-            checkBigNode(oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
-
+        val oldObjects = List(size) { LxmObject(memory) }
         checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
 
-        // Add new bigNode.
         memory.freezeCopy()
+
+        // Add new bigNode.
         val newBigNode = memory.lastNode
-        val newObjects = List(size) { LxmList(memory) }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, actualHeapSize = size)
         checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Add cells
-        for (i in newObjects.withIndex()) {
-            newBigNode.alloc(memory, i.value)
-
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1 + size)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
-        }
+        val newObjects = List(size) { LxmList(memory) }
+        checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Get cells
         for (i in oldObjects.withIndex()) {
@@ -454,20 +424,6 @@ internal class BigNodeTest {
             BigNodeCellTest.checkCell(cell, i.index + size, i.value)
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
-        }
-
-        // Set cells
-        val newObjects2 = List(size) { LxmList(memory) }
-        for (i in newObjects2.withIndex()) {
-            newBigNode.setCell(memory, i.index + size - 2, i.value)
-
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = minOf(size + i.index + 1, 2 * size - 2),
-                    actualHeapSize = 2 * size)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
-
-            val cell = newBigNode.getCell(memory, i.index + size - 2)
-
-            BigNodeCellTest.checkCell(cell, i.index + size - 2, i.value)
         }
 
         // Get all cells from old
@@ -490,30 +446,15 @@ internal class BigNodeTest {
     }
 
     @Test
-    @Incorrect
-    fun `test set forbidden cell`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
-            val memory = LexemMemory()
-            val bigNode = memory.lastNode
-            val empty = LxmObject(memory)
-            bigNode.setCell(memory, 55, empty)
-        }
-    }
-
-    @Test
     fun `test heap alloc and free`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val objects = List(size) { LxmObject(memory) }
 
         checkBigNode(bigNode)
 
         // Add cells
-        for (i in objects.withIndex()) {
-            bigNode.alloc(memory, i.value)
-
-            checkBigNode(bigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
+        val objects = List(size) { LxmObject(memory) }
+        checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
 
         // Free all cells
         for (i in objects.withIndex().reversed()) {
@@ -523,36 +464,26 @@ internal class BigNodeTest {
         }
 
         // Add cells
-        for (i in objects.withIndex()) {
-            bigNode.alloc(memory, i.value)
-
-            checkBigNode(bigNode, heapSize = size, actualHeapSize = size, actualUsedCellCount = i.index + 1,
-                    lastFreePosition = i.index + 1)
-        }
+        val objects2 = List(size) { LxmObject(memory) }
+        checkBigNode(bigNode, heapSize = size, actualHeapSize = size, actualUsedCellCount = size,
+                lastFreePosition = size)
     }
 
     @Test
     fun `test heap alloc and free recursively`() {
         val memory = LexemMemory()
         val oldBigNode = memory.lastNode
-        val empty = LxmObject(memory)
-        val oldObjects = List(size) { empty }
 
         checkBigNode(oldBigNode)
 
         // Add cells
-        for (i in oldObjects.withIndex()) {
-            oldBigNode.alloc(memory, i.value)
-
-            checkBigNode(oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
-
+        val oldObjects = List(size) { LxmObject(memory) }
         checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
 
-        // Add new bigNode
         memory.freezeCopy()
+
+        // Add new bigNode
         val newBigNode = memory.lastNode
-        val newObjects = List(size) { LxmList(memory) }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, actualHeapSize = size)
         checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
@@ -570,20 +501,9 @@ internal class BigNodeTest {
         checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Add cells
-        for (i in newObjects.withIndex().take(2)) {
-            newBigNode.alloc(memory, i.value)
-
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = 2, actualHeapSize = size,
-                    actualUsedCellCount = size - 1 + i.index, lastFreePosition = i.index + 1 + size - 2)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
-        }
-
-        for (i in newObjects.withIndex().drop(2)) {
-            newBigNode.alloc(memory, i.value)
-
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index - 1 + size)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
-        }
+        val newObjects = List(size) { LxmList(memory) }
+        checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size - 2)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
 
         // Get cells
         for (i in oldObjects.withIndex().take(2)) {
@@ -624,16 +544,12 @@ internal class BigNodeTest {
     fun `test destroy`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val objects = List(size) { LxmObject(memory) }
 
         checkBigNode(bigNode)
 
         // Add cells
-        for (i in objects.withIndex()) {
-            bigNode.alloc(memory, i.value)
-
-            checkBigNode(bigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
+        val objects = List(size) { LxmObject(memory) }
+        checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
 
         bigNode.addToStack("a", LxmString.Nil, memory)
         bigNode.addToStack("b", LxmString.Nil, memory)
@@ -652,17 +568,13 @@ internal class BigNodeTest {
     fun `test destroy recursively`() {
         val memory = LexemMemory()
         val oldBigNode = memory.lastNode
-        val oldObjects = List(size) { LxmObject(memory) }
         val stackName = "last"
 
         checkBigNode(oldBigNode)
 
         // Add cells and stack
-        for (i in oldObjects.withIndex()) {
-            oldBigNode.alloc(memory, i.value)
-
-            checkBigNode(oldBigNode, heapSize = i.index + 1, actualHeapSize = i.index + 1)
-        }
+        val oldObjects = List(size) { LxmObject(memory) }
+        checkBigNode(oldBigNode, heapSize = size, actualHeapSize = size)
 
         oldBigNode.addToStack(stackName, LxmString.Nil, memory)
 
@@ -672,7 +584,6 @@ internal class BigNodeTest {
         // Add new bigNode
         memory.freezeCopy()
         val newBigNode = memory.lastNode
-        val newObjects = List(size) { LxmList(memory) }
 
         checkBigNode(newBigNode, prevNode = oldBigNode, stackLevelSize = 0, actualStackLevelSize = 1,
                 actualHeapSize = size, actualStackSize = 1)
@@ -680,14 +591,11 @@ internal class BigNodeTest {
                 actualHeapSize = size, stackSize = 1, actualStackSize = 1)
 
         // Add cells and stack
-        for (i in newObjects.withIndex()) {
-            newBigNode.alloc(memory, i.value)
-
-            checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = i.index + 1, stackLevelSize = 0,
-                    actualStackLevelSize = 1, actualHeapSize = i.index + 1 + size, actualStackSize = 1)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, stackLevelSize = 1,
-                    actualStackLevelSize = 1, actualHeapSize = size, stackSize = 1, actualStackSize = 1)
-        }
+        val newObjects = List(size) { LxmList(memory) }
+        checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, stackLevelSize = 0, actualStackLevelSize = 1,
+                actualHeapSize = 2 * size, actualStackSize = 1)
+        checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, stackLevelSize = 1, actualStackLevelSize = 1,
+                actualHeapSize = size, stackSize = 1, actualStackSize = 1)
 
         newBigNode.addToStack(stackName, LxmString.Nil, memory)
 

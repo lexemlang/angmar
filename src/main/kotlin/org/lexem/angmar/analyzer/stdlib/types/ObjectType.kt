@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.stdlib.types
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -29,28 +28,24 @@ internal object ObjectType {
     /**
      * Initiates the type.
      */
-    fun initType(memory: LexemMemory, prototype: LxmReference) {
+    fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, memory.add(LxmFunction(memory, ::newFromFunction)), isConstant = true)
-        type.setProperty(memory, Assign, memory.add(LxmFunction(memory, ::assignFunction)), isConstant = true)
+        type.setProperty(memory, NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
+        type.setProperty(memory, Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
     }
 
     /**
      * Creates a new object with a specified prototype.
      */
-    private fun newFromFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AssignArgs)
+        val parsedArguments = arguments.mapArguments(analyzer.memory, AssignArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -62,10 +57,9 @@ internal object ObjectType {
                             "The '$TypeName${AccessExplicitMemberNode.accessToken}$NewFrom' method requires the parameter called '${NewFromArgs[0]}' be an $TypeName") {}
                 }
 
-                val newObject = LxmObject(prototypeRef as LxmReference, analyzer.memory)
-                val newObjectRef = analyzer.memory.add(newObject)
+                val newObject = LxmObject(analyzer.memory, prototype)
 
-                analyzer.memory.addToStackAsLast(newObjectRef)
+                analyzer.memory.addToStackAsLast(newObject)
             }
         }
 
@@ -75,12 +69,11 @@ internal object ObjectType {
     /**
      * Assigns all the sources to the target object.
      */
-    private fun assignFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun assignFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
+                arguments.mapArguments(analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

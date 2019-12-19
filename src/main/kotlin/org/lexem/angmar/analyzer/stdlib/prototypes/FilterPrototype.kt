@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.stdlib.prototypes
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -25,40 +24,38 @@ internal object FilterPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Wrap, memory.add(LxmFunction(memory, ::wrapFunction)), isConstant = true)
+        prototype.setProperty(memory, Wrap, LxmFunction(memory, ::wrapFunction), isConstant = true)
 
-        return memory.add(prototype)
+        return prototype
     }
 
     /**
      * Returns a new [LxmFunction] that when invoked it will call the current [LxmFilter] with the specified arguments.
      */
-    private fun wrapFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun wrapFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
         val parsedArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val thisValueRef = parsedArguments[AnalyzerCommons.Identifiers.This]!!
-                val thisValue = thisValueRef.dereference(analyzer.memory, toWrite = false)
+                val thisValue = parsedArguments[AnalyzerCommons.Identifiers.This]!!.dereference(analyzer.memory,
+                        toWrite = false)
 
                 if (thisValue !is LxmFilter) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                             "The '<${FilterType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Wrap' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${FilterType.TypeName}") {}
                 }
 
-                val fn = LxmFunction(analyzer.memory, argumentsReference, FunctionPrototype::wrapFunctionAux)
-                val fnRef = analyzer.memory.add(fn)
+                val fn = LxmFunction(analyzer.memory, arguments, FunctionPrototype::wrapFunctionAux)
 
                 // Add the function to be called.
-                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFunction, thisValueRef)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFunction, thisValue)
 
-                analyzer.memory.addToStackAsLast(fnRef)
+                analyzer.memory.addToStackAsLast(fn)
             }
         }
 

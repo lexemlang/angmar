@@ -32,69 +32,62 @@ internal object FloatPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, IntegerPart, memory.add(LxmFunction(memory, ::integerPartFunction)),
+        prototype.setProperty(memory, IntegerPart, LxmFunction(memory, ::integerPartFunction), isConstant = true)
+        prototype.setProperty(memory, DecimalPart, LxmFunction(memory, ::decimalPartFunction), isConstant = true)
+        prototype.setProperty(memory, ToExponential, LxmFunction(memory, ::toExponentialFunction), isConstant = true)
+        prototype.setProperty(memory, ToFixed, LxmFunction(memory, ::toFixedFunction), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
                 isConstant = true)
-        prototype.setProperty(memory, DecimalPart, memory.add(LxmFunction(memory, ::decimalPartFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, ToExponential, memory.add(LxmFunction(memory, ::toExponentialFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, ToFixed, memory.add(LxmFunction(memory, ::toFixedFunction)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString,
-                memory.add(LxmFunction(memory, ::toStringFunction)), isConstant = true)
 
         // Operators
         prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
-                memory.add(LxmFunction(memory, ::affirmation)), true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation,
-                memory.add(LxmFunction(memory, ::negation)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
+                LxmFunction(memory, ::affirmation), true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmFunction(memory, ::negation),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, memory.add(LxmFunction(memory, ::sub)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication, LxmFunction(memory, ::multiplication),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication,
-                memory.add(LxmFunction(memory, ::multiplication)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, memory.add(LxmFunction(memory, ::division)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, LxmFunction(memory, ::division),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision,
-                memory.add(LxmFunction(memory, ::integerDivision)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, memory.add(LxmFunction(memory, ::reminder)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision, LxmFunction(memory, ::integerDivision),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, LxmFunction(memory, ::reminder),
                 isConstant = true)
 
-        return memory.add(prototype)
+        return prototype
     }
 
     /**
      * Returns the integer part of the number.
      */
-    private fun integerPartFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IntegerPart, FloatType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
-        LxmInteger.from(truncate(thisValue.primitive).toInt())
-    }
+    private fun integerPartFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, IntegerPart, FloatType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
+                LxmInteger.from(truncate(thisValue.primitive).toInt())
+            }
 
     /**
      * Returns the decimal part of the number.
      */
-    private fun decimalPartFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, DecimalPart, FloatType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
-        LxmFloat.from(thisValue.primitive - truncate(thisValue.primitive))
-    }
+    private fun decimalPartFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, DecimalPart, FloatType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
+                LxmFloat.from(thisValue.primitive - truncate(thisValue.primitive))
+            }
 
     /**
      * Returns the textual representation of the 'this' value with the exponential precision.
      */
-    private fun toExponentialFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun toExponentialFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ToExponentialArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToExponentialArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val precision = parserArguments[ToExponentialArgs[0]] ?: LxmNil
@@ -128,11 +121,9 @@ internal object FloatPrototype {
     /**
      * Returns the textual representation of the 'this' value with the fixed precision.
      */
-    private fun toFixedFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun toFixedFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ToFixedArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToFixedArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val precision = parserArguments[ToFixedArgs[0]] ?: LxmNil
@@ -161,11 +152,9 @@ internal object FloatPrototype {
     /**
      * Returns the textual representation of the 'this' value in the specified radix.
      */
-    private fun toStringFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun toStringFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ToStringArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToStringArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val radix = parserArguments[ToStringArgs[0]] ?: LxmNil
@@ -199,31 +188,28 @@ internal object FloatPrototype {
     /**
      * Performs an affirmation.
      */
-    private fun affirmation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!,
-            AnalyzerCommons.Operators.ArithmeticAffirmation, FloatType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
-        thisValue
-    }
+    private fun affirmation(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+                    AnalyzerCommons.Operators.ArithmeticAffirmation, FloatType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
+                thisValue
+            }
 
     /**
      * Performs a negation.
      */
-    private fun negation(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!,
-            AnalyzerCommons.Operators.ArithmeticNegation, FloatType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
-        LxmFloat.from(-thisValue.primitive)
-    }
+    private fun negation(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments,
+                    AnalyzerCommons.Operators.ArithmeticNegation, FloatType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmFloat ->
+                LxmFloat.from(-thisValue.primitive)
+            }
 
     /**
      * Performs the addition of two values.
      */
-    private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Add,
+    private fun add(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Add,
                     FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName, StringType.TypeName),
                     toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
@@ -253,9 +239,8 @@ internal object FloatPrototype {
     /**
      * Performs the subtraction of two values.
      */
-    private fun sub(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Sub,
+    private fun sub(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Sub,
                     FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
                 when (right) {
@@ -278,102 +263,96 @@ internal object FloatPrototype {
     /**
      * Performs the multiplication of two values.
      */
-    private fun multiplication(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!,
-            AnalyzerCommons.Operators.Multiplication, FloatType.TypeName,
-            listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun multiplication(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Multiplication,
+                    FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue * rightValue)
-            }
-            is LxmFloat -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+                        LxmFloat.from(leftValue * rightValue)
+                    }
+                    is LxmFloat -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue * rightValue)
+                        LxmFloat.from(leftValue * rightValue)
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 
     /**
      * Performs the division of two values.
      */
-    private fun division(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Division,
-            FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun division(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Division,
+                    FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue / rightValue)
-            }
-            is LxmFloat -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+                        LxmFloat.from(leftValue / rightValue)
+                    }
+                    is LxmFloat -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue / rightValue)
+                        LxmFloat.from(leftValue / rightValue)
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 
     /**
      * Performs the integer division of two values.
      */
-    private fun integerDivision(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!,
-            AnalyzerCommons.Operators.IntegerDivision, FloatType.TypeName,
-            listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun integerDivision(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.IntegerDivision,
+                    FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmInteger.from(truncate(leftValue / rightValue).toInt())
-            }
-            is LxmFloat -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+                        LxmInteger.from(truncate(leftValue / rightValue).toInt())
+                    }
+                    is LxmFloat -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmInteger.from(truncate(leftValue / rightValue).toInt())
+                        LxmInteger.from(truncate(leftValue / rightValue).toInt())
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 
     /**
      * Performs the reminder of two values.
      */
-    private fun reminder(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Reminder,
-            FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun reminder(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Reminder,
+                    FloatType.TypeName, listOf(IntegerType.TypeName, FloatType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmFloat, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue % rightValue)
-            }
-            is LxmFloat -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+                        LxmFloat.from(leftValue % rightValue)
+                    }
+                    is LxmFloat -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmFloat.from(leftValue % rightValue)
+                        LxmFloat.from(leftValue % rightValue)
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 }

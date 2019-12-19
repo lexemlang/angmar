@@ -13,8 +13,8 @@ internal class LxmExpression : LxmFunction {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, node: ParserNode, name: String, contextReference: LxmReference) : super(memory,
-            node, contextReference) {
+    constructor(memory: LexemMemory, node: ParserNode, name: String, context: LxmContext) : super(memory, node,
+            context) {
         this.name = name
     }
 

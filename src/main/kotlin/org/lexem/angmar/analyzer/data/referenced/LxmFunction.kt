@@ -12,22 +12,25 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 /**
  * The Lexem value of the function type.
  */
-internal open class LxmFunction : LexemReferenced, ExecutableValue {
+internal open class LxmFunction : LexemReferenced {
     var name: String = "<Anonymous function>"
     val node: ParserNode
     val contextReference: LxmReference?
-    val internalFunction: ((LexemAnalyzer, LxmReference, LxmFunction, Int) -> Boolean)?
+    val internalFunction: ((LexemAnalyzer, LxmArguments, LxmFunction, Int) -> Boolean)?
 
     val isInternalFunction get() = internalFunction != null
+
+    val parserNode get() = node
+    val parentContextReference get() = contextReference
 
     // CONSTRUCTORS -----------------------------------------------------------
 
     /**
      * Builds a custom function.
      */
-    constructor(memory: LexemMemory, node: ParserNode, contextReference: LxmReference) : super(memory) {
+    constructor(memory: LexemMemory, node: ParserNode, context: LxmContext) : super(memory) {
         this.node = node
-        this.contextReference = contextReference
+        this.contextReference = context.getPrimitive()
         this.internalFunction = null
 
         contextReference.increaseReferences(memory)
@@ -37,7 +40,7 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
      * Builds a built-in function.
      */
     constructor(memory: LexemMemory,
-            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) : super(
+            internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
         this.node = InternalFunctionCallNode
         this.contextReference = null
@@ -47,30 +50,48 @@ internal open class LxmFunction : LexemReferenced, ExecutableValue {
     /**
      * Builds a built-in function with context.
      */
-    constructor(memory: LexemMemory, contextReference: LxmReference,
-            internalFunction: (analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) -> Boolean) : super(
+    constructor(memory: LexemMemory, context: LxmContext,
+            internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
         this.node = InternalFunctionCallNode
-        this.contextReference = contextReference
+        this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
 
         contextReference.increaseReferences(memory)
     }
 
+    /**
+     * Builds a built-in function with some arguments instead of a context.
+     * Used for wrap functions.
+     */
+    constructor(memory: LexemMemory, arguments: LxmArguments,
+            internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
+            memory) {
+        this.node = InternalFunctionCallNode
+        this.contextReference = arguments.getPrimitive()
+        this.internalFunction = internalFunction
+
+        contextReference.increaseReferences(memory)
+    }
+
+    // METHODS ----------------------------------------------------------------
+
+    /**
+     * Gets the dereferenced parent context.
+     */
+    fun getParentContext(memory: LexemMemory, toWrite: Boolean) =
+            parentContextReference?.dereferenceAs<LxmContext>(memory, toWrite)
+
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val parserNode get() = node
-
-    override val parentContext get() = contextReference
-
-    override fun clone(memory: LexemMemory) = this
+    override fun memoryShift(memory: LexemMemory) = this
 
     override fun memoryDealloc(memory: LexemMemory) {
         contextReference?.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        contextReference?.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        contextReference?.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun getType(memory: LexemMemory): LxmReference {

@@ -45,7 +45,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
 
     init {
         val stdLibContext = LxmContext(memory)
-        val stdLibContextReference = memory.add(stdLibContext)
+        val stdLibContextReference = stdLibContext.getPrimitive()
         stdLibContextReference.increaseReferences(memory)
 
         if (stdLibContextReference.position != LxmReference.StdLibContext.position) {
@@ -53,25 +53,23 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
             throw AngmarUnreachableException()
         }
 
-        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContextReference)
+        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContext)
 
         val fileMap = LxmObject(memory)
-        val fileMapReference = memory.add(fileMap)
-        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, fileMapReference)
+        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, fileMap)
 
         if (importMode == ImportMode.AllIn) {
             val parserMap = LxmObject(memory)
-            val parserMapReference = memory.add(parserMap)
 
             for ((name, parser) in parsers!!) {
                 parserMap.setProperty(memory, name, LxmParser(parser))
             }
 
-            stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMapReference)
+            stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
         }
 
-        StdlibCommons.initTypesAndPrototypes(this.memory)
-        StdlibCommons.initGlobals(this.memory)
+        StdlibCommons.initTypesAndPrototypes(memory)
+        StdlibCommons.initGlobals(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -211,7 +209,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
 
             throw e
         } catch (e: Throwable) {
-            Logger.debug("Unexpected error at $ticks ticks", e)
+            if (Consts.debug) {
+                Logger.debug("Unexpected error at $ticks ticks", e)
+            }
 
             throw e
         }
@@ -281,15 +281,15 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      * Sets the next node to execute.
      */
     internal fun nextNode(codePoint: LxmCodePoint) {
-        this.nextNode = codePoint.node
-        this.signal = codePoint.signal
+        nextNode = codePoint.node
+        signal = codePoint.signal
     }
 
     /**
      * Inits the backtracking.
      */
     internal fun initBacktracking() {
-        this.processStatus = ProcessStatus.Backward
+        processStatus = ProcessStatus.Backward
     }
 
     /**
@@ -346,38 +346,35 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Creates a new node.
      */
-    internal fun createNewNode(name: String): LxmReference {
+    internal fun createNewNode(name: String): LxmNode {
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
-        val parentNode = stdlibContext.getPropertyValue(memory,
-                AnalyzerCommons.Identifiers.HiddenLastResultNode) as? LxmReference
+        val parent =
+                stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                        toWrite = false)
 
-        val node = LxmNode(name, text.saveCursor(), parentNode, memory)
-        val nodeReference = memory.add(node)
+        val node = LxmNode(name, text.saveCursor(), parent, memory)
 
-        if (parentNode != null) {
-            val parent = parentNode.dereferenceAs<LxmNode>(memory, toWrite = false)!!
+        if (parent != null) {
             val parentChildren = parent.getChildren(memory, toWrite = true)
-            parentChildren.addCell(memory, nodeReference, ignoreConstant = true)
+            parentChildren.addCell(memory, node, ignoreConstant = true)
         }
 
-        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, nodeReference)
+        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
 
-        return nodeReference
+        return node
     }
 
     /**
      * Sets the upper node as current one.
      */
-    internal fun setUpperNode(): LxmReference {
+    internal fun setUpperNode() {
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
-        val nodeRef =
-                stdlibContext.getPropertyValue(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode) as LxmReference
-        val node = nodeRef.dereferenceAs<LxmNode>(memory, toWrite = false)!!
-        val parent = node.getParentReference(memory)!!
+        val node =
+                stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                        toWrite = false)!!
+        val parentRef = node.getParentReference(memory)!!
 
-        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, parent)
-
-        return parent
+        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, parentRef)
     }
 
     /**

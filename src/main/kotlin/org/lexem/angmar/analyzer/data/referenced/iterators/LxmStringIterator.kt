@@ -38,8 +38,8 @@ internal class LxmStringIterator : LexemIterator {
         return Pair(null, LxmString.from("$currentValue"))
     }
 
-    override fun clone(memory: LexemMemory) = LxmStringIterator(memory, this,
+    override fun memoryShift(memory: LexemMemory) = LxmStringIterator(memory, this,
             toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[ITERATOR - STRING] (value: $value) - ${super.toString()}"
+    override fun toString() = "[Iterator - String] (value: $value) - ${super.toString()}"
 }

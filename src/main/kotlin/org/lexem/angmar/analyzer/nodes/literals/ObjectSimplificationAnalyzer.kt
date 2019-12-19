@@ -51,11 +51,10 @@ internal object ObjectSimplificationAnalyzer {
 
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmObject
-                val ctxRef = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                val fn = LxmFunction(analyzer.memory, node, ctxRef)
-                val fnRef = analyzer.memory.add(fn)
+                val ctx = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                val fn = LxmFunction(analyzer.memory, node, ctx)
 
-                obj.setProperty(analyzer.memory, identifier.primitive, fnRef, isConstant = node.isConstant)
+                obj.setProperty(analyzer.memory, identifier.primitive, fn, isConstant = node.isConstant)
             }
             else -> {
                 return AnalyzerNodesCommons.functionExecutionController(analyzer, signal, node.parameterList,

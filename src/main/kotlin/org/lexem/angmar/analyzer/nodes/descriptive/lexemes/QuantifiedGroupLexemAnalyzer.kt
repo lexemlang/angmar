@@ -42,18 +42,16 @@ internal object QuantifiedGroupLexemAnalyzer {
                 }
 
                 val union = LxmPatternUnion(LxmQuantifier(-1, -1), LxmInteger.Num0, analyzer.memory)
-                val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory.add(union), analyzer.memory)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion,
-                        analyzer.memory.add(quantifiedGroup))
+                val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory, union)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, quantifiedGroup)
 
                 return callNextModifier(analyzer, quantifiedGroup, node, 0)
             }
             signalEndMainModifier -> {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
                 val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
-                val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory.add(union), analyzer.memory)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion,
-                        analyzer.memory.add(quantifiedGroup))
+                val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory, union)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, quantifiedGroup)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -68,7 +66,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                 val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = true) as LxmQuantifiedGroup
-                quantifiedGroup.addUnion(analyzer.memory, analyzer.memory.add(union))
+                quantifiedGroup.addUnion(analyzer.memory, union)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -110,7 +108,7 @@ internal object QuantifiedGroupLexemAnalyzer {
         for (i in node.modifiers.drop(from)) {
             if (i == null) {
                 val union = LxmPatternUnion(LxmQuantifier.AlternativePattern, LxmInteger.Num0, analyzer.memory)
-                quantifiedGroup.addUnion(analyzer.memory, analyzer.memory.add(union))
+                quantifiedGroup.addUnion(analyzer.memory, union)
             } else {
                 return analyzer.nextNode(i)
             }

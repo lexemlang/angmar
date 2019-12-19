@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data.primitives.setters
 
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
@@ -12,27 +11,25 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
  * A setter for a property.
  */
 internal class LxmPropertySetter : LexemSetter {
-    val obj: LexemPrimitive
+    val value: LexemPrimitive
     val property: String
     val node: AccessExplicitMemberNode
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(obj: LexemPrimitive, property: String, node: AccessExplicitMemberNode, memory: LexemMemory) {
-        this.obj = obj
+    constructor(value: LexemPrimitive, property: String, node: AccessExplicitMemberNode, memory: LexemMemory) {
+        this.value = value.getPrimitive()
         this.property = property
         this.node = node
 
-        if (obj is LxmReference) {
-            obj.increaseReferences(memory)
-        }
+        this.value.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
-        val objDeref = obj.dereference(memory, toWrite = false)
-        val obj = objDeref.getObjectOrPrototype(memory, toWrite = false)
+    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
+        val value = value.dereference(memory, toWrite = false)
+        val obj = value.getObjectOrPrototype(memory, toWrite = false)
 
         return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called \"$property\" in object.") {
@@ -45,8 +42,8 @@ internal class LxmPropertySetter : LexemSetter {
         }
     }
 
-    override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
-        val obj = obj.dereference(memory, toWrite = true)
+    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
+        val obj = this.value.dereference(memory, toWrite = true)
 
         if (obj !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -64,16 +61,16 @@ internal class LxmPropertySetter : LexemSetter {
     }
 
     override fun increaseReferences(memory: LexemMemory) {
-        obj.increaseReferences(memory)
+        value.increaseReferences(memory)
     }
 
     override fun decreaseReferences(memory: LexemMemory) {
-        obj.decreaseReferences(memory)
+        value.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        obj.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        value.spatialGarbageCollect(memory, gcFifo)
     }
 
-    override fun toString() = "LxmAccessSetter(obj: $obj, property: $property)"
+    override fun toString() = "[Setter - Property] (value: $value, property: $property)"
 }

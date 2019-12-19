@@ -26,8 +26,8 @@ internal object IndexerAnalyzer {
             }
             signalEndExpression -> {
                 val index = analyzer.memory.getLastFromStack()
-                val element = (analyzer.memory.getFromStack(
-                        AnalyzerCommons.Identifiers.Accumulator) as LexemSetter).getPrimitive(analyzer.memory)
+                val setter = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LexemSetter
+                val element = setter.dereference(analyzer.memory, toWrite = false)
 
                 analyzer.memory.replaceLastStackCell(LxmIndexerSetter(element, index, node, analyzer.memory))
 

@@ -27,20 +27,18 @@ internal object FunctionStmtAnalyzer {
                 // Create the function.
                 val name = analyzer.memory.getLastFromStack() as LxmString
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                val contextReference = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                val fn = LxmFunction(analyzer.memory, node, contextReference)
+                val fn = LxmFunction(analyzer.memory, node, context)
                 fn.name = name.primitive
-                val fnRef = analyzer.memory.add(fn)
 
                 // Add it to the exports if the parent is a public macro
                 if (node.parent is PublicMacroStmtNode) {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, fnRef)
+                    exports.setProperty(analyzer.memory, name.primitive, fn)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, fnRef)
+                context.setProperty(analyzer.memory, name.primitive, fn)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()

@@ -18,15 +18,14 @@ internal class FunctionCallNamedArgumentAnalyzerTest {
 
         // Prepare stack
         val args = LxmArguments(analyzer.memory)
-        val argsRef = analyzer.memory.add(args)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, argsRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, args)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val resultRef =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference ?: throw Error(
                         "The result must be a LxmReference")
-        Assertions.assertEquals(argsRef, resultRef, "The resultRef is incorrect")
+        Assertions.assertEquals(args.getPrimitive(), resultRef, "The resultRef is incorrect")
 
         val result = resultRef.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmArguments")

@@ -14,8 +14,11 @@ internal class LxmContext : LxmObject {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory) : super(memory)
-    constructor(memory: LexemMemory, oldContext: LxmContext, toClone: Boolean) : super(memory, oldContext, toClone)
-    constructor(higherContextReference: LxmReference, memory: LexemMemory) : super(higherContextReference, memory)
+
+    private constructor(memory: LexemMemory, oldContext: LxmContext, toClone: Boolean) : super(memory, oldContext,
+            toClone)
+
+    constructor(memory: LexemMemory, higherContextReference: LxmContext) : super(memory, higherContextReference)
 
     // METHODS ----------------------------------------------------------------
 
@@ -24,7 +27,7 @@ internal class LxmContext : LxmObject {
      */
     fun removePropertyIgnoringConstants(memory: LexemMemory, identifier: String) {
         val currentProperty = properties[identifier]
-        val lastProperty = oldVersion?.getOwnPropertyDescriptor(memory, identifier)
+        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
 
         when {
             // Current property
@@ -61,8 +64,8 @@ internal class LxmContext : LxmObject {
         return type.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype) as LxmReference
     }
 
-    override fun clone(memory: LexemMemory) =
+    override fun memoryShift(memory: LexemMemory) =
             LxmContext(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[CONTEXT] ${super.toString()}"
+    override fun toString() = "[Context] ${super.toString()}"
 }

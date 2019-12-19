@@ -74,7 +74,7 @@ internal object LexemePatternGroupAnalyzer {
                 }
 
                 // Add the union to the stack.
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, analyzer.memory.add(union))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, union)
 
                 if (union.canHaveANextPattern(analyzer.memory)) {
                     val pattern = node.patterns.first()

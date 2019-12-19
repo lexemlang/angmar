@@ -66,34 +66,31 @@ internal object StdlibCommons {
     /**
      * Calls a method with a list of positional arguments.
      */
-    fun callMethod(analyzer: LexemAnalyzer, function: LexemPrimitive, positionalArguments: List<LexemPrimitive>,
+    fun callMethod(analyzer: LexemAnalyzer, function: LxmFunction, positionalArguments: List<LexemPrimitive>,
             returnSignal: Int, functionName: String) {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
         positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
-        val argumentsRef = analyzer.memory.add(arguments)
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal,
-                        callerNode = (function.dereference(analyzer.memory, toWrite = false) as LxmFunction).node,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
+                LxmCodePoint(InternalFunctionCallNode, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 
     /**
      * Calls the toString method of a value.
      */
-    fun callToString(analyzer: LexemAnalyzer, value: LexemPrimitive, returnSignal: Int, functionName: String) {
+    fun callToString(analyzer: LexemAnalyzer, value: LexemMemoryValue, returnSignal: Int, functionName: String) {
         val prototype = value.dereference(analyzer.memory, toWrite = false)
                 .getPrototypeAsObject(analyzer.memory, toWrite = false)
-        val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
+        val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!.dereference(
+                analyzer.memory, toWrite = false) as LxmFunction
 
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
-        val argumentsRef = analyzer.memory.add(arguments)
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, argumentsRef, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal,
-                        callerNode = (function.dereference(analyzer.memory, toWrite = false) as LxmFunction).node,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
+                LxmCodePoint(InternalFunctionCallNode, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 }

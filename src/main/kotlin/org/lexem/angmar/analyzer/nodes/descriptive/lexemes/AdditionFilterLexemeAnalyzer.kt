@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -27,9 +26,9 @@ internal object AdditionFilterLexemeAnalyzer {
                 return analyzer.nextNode(node.selector)
             }
             signalEndSelector -> {
-                val lxmNodeRef = analyzer.memory.getLastFromStack()
-
                 if (node.nextAccess != null) {
+                    val lxmNodeRef = analyzer.memory.getLastFromStack()
+
                     // Save the result as the node to re-parse or filter.
                     val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                     context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
@@ -38,13 +37,15 @@ internal object AdditionFilterLexemeAnalyzer {
                     analyzer.memory.removeLastFromStack()
 
                     return analyzer.nextNode(node.nextAccess)
-                }
+                } else {
+                    val result =
+                            analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = true) as LxmNode
 
-                finalizeNode(analyzer, lxmNodeRef)
+                    finalizeNode(analyzer, result)
+                }
             }
             signalEndNextAccess -> {
-                val resultRef = analyzer.memory.getLastFromStack()
-                val result = resultRef.dereference(analyzer.memory, toWrite = false)
+                val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = true)
 
                 if (result !is LxmNode) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.AdditionLexemWithNextRequiresANode,
@@ -62,7 +63,7 @@ internal object AdditionFilterLexemeAnalyzer {
                     }
                 }
 
-                finalizeNode(analyzer, resultRef)
+                finalizeNode(analyzer, result)
 
                 // Remove HiddenNode2Filter.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -76,16 +77,15 @@ internal object AdditionFilterLexemeAnalyzer {
     /**
      * Set the parent relationship of the node.
      */
-    private fun finalizeNode(analyzer: LexemAnalyzer, lxmNodeRef: LexemPrimitive) {
+    private fun finalizeNode(analyzer: LexemAnalyzer, lxmNode: LxmNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
-        val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = true) as LxmNode
-        val parentRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Node) as LxmReference
-        val parent = parentRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
+        val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
+                toWrite = false)!!
         val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
 
-        parentChildren.insertCell(analyzer.memory, nodePosition.primitive, lxmNodeRef, ignoreConstant = true)
-        lxmNode.setParent(analyzer.memory, parentRef)
+        parentChildren.insertCell(analyzer.memory, nodePosition.primitive, lxmNode, ignoreConstant = true)
+        lxmNode.setParent(analyzer.memory, parent)
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)

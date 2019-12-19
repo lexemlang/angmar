@@ -29,9 +29,7 @@ internal object ExpressionStmtAnalyzer {
                 // Create the expression.
                 val name = analyzer.memory.getLastFromStack() as LxmString
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                val contextReference = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                val exp = LxmExpression(analyzer.memory, node, name.primitive, contextReference)
-                val expRef = analyzer.memory.add(exp)
+                val exp = LxmExpression(analyzer.memory, node, name.primitive, context)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -41,10 +39,10 @@ internal object ExpressionStmtAnalyzer {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, expRef)
+                    exports.setProperty(analyzer.memory, name.primitive, exp)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, expRef)
+                context.setProperty(analyzer.memory, name.primitive, exp)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,

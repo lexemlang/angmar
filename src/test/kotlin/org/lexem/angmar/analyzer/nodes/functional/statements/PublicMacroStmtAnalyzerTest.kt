@@ -19,9 +19,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -47,9 +46,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -74,9 +72,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -105,9 +102,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -136,9 +132,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -163,9 +158,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -191,9 +185,8 @@ internal class PublicMacroStmtAnalyzerTest {
 
         // Prepare context
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, objRef, isConstant = true)
+        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

@@ -25,7 +25,7 @@ internal object DataCapturingAccessLexemeAnalyzer {
             signalEndElement -> {
                 // Performs the access if the element is an identifier.
                 val id = analyzer.memory.getLastFromStack() as LxmString
-                val context = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
                 val setter = LxmAccessSetter(analyzer.memory, context, id.primitive, node, node.element)
                 analyzer.memory.replaceLastStackCell(setter)

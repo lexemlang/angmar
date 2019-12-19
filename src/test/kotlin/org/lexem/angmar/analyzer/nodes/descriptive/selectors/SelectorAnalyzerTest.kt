@@ -110,35 +110,31 @@ internal class SelectorAnalyzerTest {
         // Prepare stack.
         if (isOk) {
             val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
-            val lxmNodeRef = analyzer.memory.add(lxmNode)
 
             lxmNode.getProperties(analyzer.memory, toWrite = true)
                     .setProperty(analyzer.memory, propertyName, LxmLogic.True)
-            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
+            analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
         } else {
             when {
                 hasMethod -> {
                     val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
-                    val lxmNodeRef = analyzer.memory.add(lxmNode)
                     val lxmNodeAux = LxmNode("aux", analyzer.text.saveCursor(), null, analyzer.memory)
 
                     lxmNode.getChildren(analyzer.memory, toWrite = true)
-                            .addCell(analyzer.memory, analyzer.memory.add(lxmNodeAux), ignoreConstant = true)
+                            .addCell(analyzer.memory, lxmNodeAux, ignoreConstant = true)
                     lxmNode.getProperties(analyzer.memory, toWrite = true)
                             .setProperty(analyzer.memory, propertyName, LxmLogic.True)
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }
                 hasProperty -> {
                     val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
-                    val lxmNodeRef = analyzer.memory.add(lxmNode)
 
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }
                 else -> {
                     val lxmNode = LxmNode(nodeName + "x", analyzer.text.saveCursor(), null, analyzer.memory)
-                    val lxmNodeRef = analyzer.memory.add(lxmNode)
 
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNodeRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }
             }
         }

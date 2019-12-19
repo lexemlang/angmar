@@ -12,22 +12,36 @@ import org.lexem.angmar.parser.literals.*
 /**
  * The Lexem value of the List type.
  */
-internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toClone: Boolean = false) :
-        LexemReferenced(memory) {
-    var isConstant: Boolean = oldVersion?.isConstant ?: false
+internal class LxmList : LexemReferenced {
+    var isConstant = false
         private set
-    var isWritable: Boolean = oldVersion?.isWritable ?: true
+    var isWritable = true
         private set
-    var actualListSize: Int = oldVersion?.actualListSize ?: 0
+    var actualListSize = 0
         private set
 
-    private var cellList: MutableMap<Int, LexemPrimitive> = if (toClone) {
-        oldVersion!!.getAllCellsAsMap()
-    } else {
-        mutableMapOf()
-    }
+    private var cellList: MutableMap<Int, LexemPrimitive>
 
     val listSize get() = cellList.size
+
+    // CONSTRUCTORS -----------------------------------------------------------
+
+    constructor(memory: LexemMemory) : super(memory) {
+        cellList = mutableMapOf()
+    }
+
+    private constructor(memory: LexemMemory, oldVersion: LxmList, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        isConstant = oldVersion.isConstant
+        isWritable = oldVersion.isWritable
+        actualListSize = oldVersion.actualListSize
+
+        cellList = if (toClone) {
+            oldVersion.getAllCellsAsMap()
+        } else {
+            mutableMapOf()
+        }
+    }
 
     // METHODS ----------------------------------------------------------------
 
@@ -45,7 +59,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     /**
      * Sets a new value to a cell.
      */
-    fun setCell(memory: LexemMemory, index: Int, value: LexemPrimitive) {
+    fun setCell(memory: LexemMemory, index: Int, value: LexemMemoryValue) {
         // Prevent modifications if the list is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -62,19 +76,20 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
 
+        val valuePrimitive = value.getPrimitive()
         val currentCell = cellList[index]
-        val lastCell = oldVersion?.getCellRecursively(memory, index)
+        val lastCell = (oldVersion as? LxmList)?.getCellRecursively(memory, index)
 
         when {
             // Current cell
             currentCell != null -> {
-                replaceCell(memory, index, value)
+                replaceCell(memory, index, valuePrimitive)
             }
 
             // Cell in past version of the list
             lastCell != null -> {
                 cellList[index] = lastCell
-                replaceCell(memory, index, value)
+                replaceCell(memory, index, valuePrimitive)
             }
         }
     }
@@ -82,7 +97,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     /**
      * Adds a new cell to the list.
      */
-    fun addCell(memory: LexemMemory, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
+    fun addCell(memory: LexemMemory, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -100,7 +115,8 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         }
 
         for (value in values) {
-            replaceCell(memory, actualListSize, value)
+            val valuePrimitive = value.getPrimitive()
+            replaceCell(memory, actualListSize, valuePrimitive)
             actualListSize += 1
         }
     }
@@ -161,7 +177,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
     /**
      * Inserts a set of cells at the specified position.
      */
-    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemPrimitive, ignoreConstant: Boolean = false) {
+    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -197,8 +213,9 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
 
         // Add the new cells.
         for ((i, value) in values.withIndex()) {
-            memory.replacePrimitives(LxmNil, value)
-            cellList[index + i] = value
+            val valuePrimitive = value.getPrimitive()
+            memory.replacePrimitives(LxmNil, valuePrimitive)
+            cellList[index + i] = valuePrimitive
         }
 
         actualListSize += values.size
@@ -240,7 +257,7 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
                 return value
             }
 
-            list = oldVersion
+            list = list.oldVersion as? LxmList
         }
 
         return null
@@ -251,17 +268,14 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
      * Gets all cells of the list in order.
      */
     fun getAllCellsAsMap(): MutableMap<Int, LexemPrimitive> {
+        val versions = getListOfVersions<LxmList>()
+
+        // Iterate to get a list of versions.
         val result = HashMap<Int, LexemPrimitive>(actualListSize)
 
-        var currentList: LxmList? = this
-        while (currentList != null) {
-            currentList.cellList.filter { it.key < actualListSize }.forEach { (key, value) ->
-                if (key !in result) {
-                    result[key] = value
-                }
-            }
-
-            currentList = currentList.oldVersion
+        while (versions.isNotEmpty()) {
+            val element = versions.removeLast()
+            result.putAll(element.cellList)
         }
 
         return result
@@ -285,24 +299,9 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         memory.replacePrimitives(oldValue, newValue)
     }
 
-    /**
-     * Counts the number of old versions of this list.
-     */
-    private fun countOldVersions(): Int {
-        var count = 1
-
-        var version = oldVersion
-        while (version != null) {
-            count += 1
-            version = version.oldVersion
-        }
-
-        return count
-    }
-
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = if (!isWritable) {
+    override fun memoryShift(memory: LexemMemory) = if (!isWritable) {
         this
     } else {
         LxmList(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
@@ -321,9 +320,9 @@ internal class LxmList(memory: LexemMemory, val oldVersion: LxmList? = null, toC
         }
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        for (i in getAllCells()) {
-            i.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        for (cell in getAllCells()) {
+            cell.spatialGarbageCollect(memory, gcFifo)
         }
     }
 

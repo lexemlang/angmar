@@ -101,9 +101,8 @@ internal object MathGlobalObject {
      */
     fun initObject(memory: LexemMemory) {
         val objectValue = LxmObject(memory)
-        val reference = memory.add(objectValue)
         AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, ObjectName, reference, isConstant = true)
+                .setProperty(memory, ObjectName, objectValue, isConstant = true)
 
         // Properties
         objectValue.setProperty(memory, E, LxmFloat.fromOrNil(Math.E.toFloat()), isConstant = true)
@@ -120,47 +119,45 @@ internal object MathGlobalObject {
         objectValue.setProperty(memory, Deg2Rad, LxmFloat.fromOrNil(Math.PI.toFloat() / 180f), isConstant = true)
 
         // Methods
-        objectValue.setProperty(memory, Abs, memory.add(LxmFunction(memory, ::absFunction)), isConstant = true)
-        objectValue.setProperty(memory, Acos, memory.add(LxmFunction(memory, ::acosFunction)), isConstant = true)
-        objectValue.setProperty(memory, Acosh, memory.add(LxmFunction(memory, ::acoshFunction)), isConstant = true)
-        objectValue.setProperty(memory, Asin, memory.add(LxmFunction(memory, ::asinFunction)), isConstant = true)
-        objectValue.setProperty(memory, Asinh, memory.add(LxmFunction(memory, ::asinhFunction)), isConstant = true)
-        objectValue.setProperty(memory, Atan, memory.add(LxmFunction(memory, ::atanFunction)), isConstant = true)
-        objectValue.setProperty(memory, Atanh, memory.add(LxmFunction(memory, ::atanhFunction)), isConstant = true)
-        objectValue.setProperty(memory, Atan2, memory.add(LxmFunction(memory, ::atan2Function)), isConstant = true)
-        objectValue.setProperty(memory, Cbrt, memory.add(LxmFunction(memory, ::cbrtFunction)), isConstant = true)
-        objectValue.setProperty(memory, Ceil, memory.add(LxmFunction(memory, ::ceilFunction)), isConstant = true)
-        objectValue.setProperty(memory, Clz32, memory.add(LxmFunction(memory, ::clz32Function)), isConstant = true)
-        objectValue.setProperty(memory, Cos, memory.add(LxmFunction(memory, ::cosFunction)), isConstant = true)
-        objectValue.setProperty(memory, Cosh, memory.add(LxmFunction(memory, ::coshFunction)), isConstant = true)
-        objectValue.setProperty(memory, Exp, memory.add(LxmFunction(memory, ::expFunction)), isConstant = true)
-        objectValue.setProperty(memory, Floor, memory.add(LxmFunction(memory, ::floorFunction)), isConstant = true)
-        objectValue.setProperty(memory, Hypot, memory.add(LxmFunction(memory, ::hypotFunction)), isConstant = true)
-        objectValue.setProperty(memory, Ln, memory.add(LxmFunction(memory, ::lnFunction)), isConstant = true)
-        objectValue.setProperty(memory, Log10, memory.add(LxmFunction(memory, ::log10Function)), isConstant = true)
-        objectValue.setProperty(memory, Log2, memory.add(LxmFunction(memory, ::log2Function)), isConstant = true)
-        objectValue.setProperty(memory, Max, memory.add(LxmFunction(memory, ::maxFunction)), isConstant = true)
-        objectValue.setProperty(memory, Min, memory.add(LxmFunction(memory, ::minFunction)), isConstant = true)
-        objectValue.setProperty(memory, Pow, memory.add(LxmFunction(memory, ::powFunction)), isConstant = true)
-        objectValue.setProperty(memory, Random, memory.add(LxmFunction(memory, ::randomFunction)), isConstant = true)
-        objectValue.setProperty(memory, Round, memory.add(LxmFunction(memory, ::roundFunction)), isConstant = true)
-        objectValue.setProperty(memory, Sign, memory.add(LxmFunction(memory, ::signFunction)), isConstant = true)
-        objectValue.setProperty(memory, Sin, memory.add(LxmFunction(memory, ::sinFunction)), isConstant = true)
-        objectValue.setProperty(memory, Sinh, memory.add(LxmFunction(memory, ::sinhFunction)), isConstant = true)
-        objectValue.setProperty(memory, Sqrt, memory.add(LxmFunction(memory, ::sqrtFunction)), isConstant = true)
-        objectValue.setProperty(memory, Tan, memory.add(LxmFunction(memory, ::tanFunction)), isConstant = true)
-        objectValue.setProperty(memory, Tanh, memory.add(LxmFunction(memory, ::tanhFunction)), isConstant = true)
-        objectValue.setProperty(memory, Trunc, memory.add(LxmFunction(memory, ::truncFunction)), isConstant = true)
+        objectValue.setProperty(memory, Abs, LxmFunction(memory, ::absFunction), isConstant = true)
+        objectValue.setProperty(memory, Acos, LxmFunction(memory, ::acosFunction), isConstant = true)
+        objectValue.setProperty(memory, Acosh, LxmFunction(memory, ::acoshFunction), isConstant = true)
+        objectValue.setProperty(memory, Asin, LxmFunction(memory, ::asinFunction), isConstant = true)
+        objectValue.setProperty(memory, Asinh, LxmFunction(memory, ::asinhFunction), isConstant = true)
+        objectValue.setProperty(memory, Atan, LxmFunction(memory, ::atanFunction), isConstant = true)
+        objectValue.setProperty(memory, Atanh, LxmFunction(memory, ::atanhFunction), isConstant = true)
+        objectValue.setProperty(memory, Atan2, LxmFunction(memory, ::atan2Function), isConstant = true)
+        objectValue.setProperty(memory, Cbrt, LxmFunction(memory, ::cbrtFunction), isConstant = true)
+        objectValue.setProperty(memory, Ceil, LxmFunction(memory, ::ceilFunction), isConstant = true)
+        objectValue.setProperty(memory, Clz32, LxmFunction(memory, ::clz32Function), isConstant = true)
+        objectValue.setProperty(memory, Cos, LxmFunction(memory, ::cosFunction), isConstant = true)
+        objectValue.setProperty(memory, Cosh, LxmFunction(memory, ::coshFunction), isConstant = true)
+        objectValue.setProperty(memory, Exp, LxmFunction(memory, ::expFunction), isConstant = true)
+        objectValue.setProperty(memory, Floor, LxmFunction(memory, ::floorFunction), isConstant = true)
+        objectValue.setProperty(memory, Hypot, LxmFunction(memory, ::hypotFunction), isConstant = true)
+        objectValue.setProperty(memory, Ln, LxmFunction(memory, ::lnFunction), isConstant = true)
+        objectValue.setProperty(memory, Log10, LxmFunction(memory, ::log10Function), isConstant = true)
+        objectValue.setProperty(memory, Log2, LxmFunction(memory, ::log2Function), isConstant = true)
+        objectValue.setProperty(memory, Max, LxmFunction(memory, ::maxFunction), isConstant = true)
+        objectValue.setProperty(memory, Min, LxmFunction(memory, ::minFunction), isConstant = true)
+        objectValue.setProperty(memory, Pow, LxmFunction(memory, ::powFunction), isConstant = true)
+        objectValue.setProperty(memory, Random, LxmFunction(memory, ::randomFunction), isConstant = true)
+        objectValue.setProperty(memory, Round, LxmFunction(memory, ::roundFunction), isConstant = true)
+        objectValue.setProperty(memory, Sign, LxmFunction(memory, ::signFunction), isConstant = true)
+        objectValue.setProperty(memory, Sin, LxmFunction(memory, ::sinFunction), isConstant = true)
+        objectValue.setProperty(memory, Sinh, LxmFunction(memory, ::sinhFunction), isConstant = true)
+        objectValue.setProperty(memory, Sqrt, LxmFunction(memory, ::sqrtFunction), isConstant = true)
+        objectValue.setProperty(memory, Tan, LxmFunction(memory, ::tanFunction), isConstant = true)
+        objectValue.setProperty(memory, Tanh, LxmFunction(memory, ::tanhFunction), isConstant = true)
+        objectValue.setProperty(memory, Trunc, LxmFunction(memory, ::truncFunction), isConstant = true)
     }
 
     /**
      * Gets the integer part of a number.
      */
-    private fun absFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun absFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AbsArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AbsArgs)
 
         val number = parserArguments[AbsArgs[0]] ?: LxmNil
 
@@ -181,11 +178,9 @@ internal object MathGlobalObject {
     /**
      * Returns the acos function of the number.
      */
-    private fun acosFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun acosFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AcosArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AcosArgs)
 
         val number = parserArguments[AcosArgs[0]] ?: LxmNil
 
@@ -206,11 +201,9 @@ internal object MathGlobalObject {
     /**
      * Returns the acosh function of the number.
      */
-    private fun acoshFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun acoshFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AcoshArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AcoshArgs)
 
         val number = parserArguments[AcoshArgs[0]] ?: LxmNil
 
@@ -231,11 +224,9 @@ internal object MathGlobalObject {
     /**
      * Returns the asin function of the number.
      */
-    private fun asinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun asinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AsinArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AsinArgs)
 
         val number = parserArguments[AsinArgs[0]] ?: LxmNil
 
@@ -256,11 +247,9 @@ internal object MathGlobalObject {
     /**
      * Returns the asinh function of the number.
      */
-    private fun asinhFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun asinhFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AsinhArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AsinhArgs)
 
         val number = parserArguments[AsinhArgs[0]] ?: LxmNil
 
@@ -281,11 +270,9 @@ internal object MathGlobalObject {
     /**
      * Returns the atan function of the number.
      */
-    private fun atanFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun atanFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AtanArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AtanArgs)
 
         val number = parserArguments[AtanArgs[0]] ?: LxmNil
 
@@ -306,11 +293,9 @@ internal object MathGlobalObject {
     /**
      * Returns the atanh function of the number.
      */
-    private fun atanhFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun atanhFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AtanhArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AtanhArgs)
 
         val number = parserArguments[AtanhArgs[0]] ?: LxmNil
 
@@ -331,11 +316,9 @@ internal object MathGlobalObject {
     /**
      * Returns the atan2 function of the number.
      */
-    private fun atan2Function(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun atan2Function(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, Atan2Args)
+        val parserArguments = arguments.mapArguments(analyzer.memory, Atan2Args)
 
         val y = parserArguments[Atan2Args[0]] ?: LxmNil
         val x = parserArguments[Atan2Args[1]] ?: LxmNil
@@ -361,11 +344,9 @@ internal object MathGlobalObject {
     /**
      * Returns the cbrt function of the number.
      */
-    private fun cbrtFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun cbrtFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, CbrtArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, CbrtArgs)
 
         val number = parserArguments[CbrtArgs[0]] ?: LxmNil
 
@@ -386,11 +367,9 @@ internal object MathGlobalObject {
     /**
      * Rounds the number to the upper integer number.
      */
-    private fun ceilFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun ceilFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, CeilArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, CeilArgs)
 
         val number = parserArguments[CeilArgs[0]] ?: LxmNil
 
@@ -411,11 +390,9 @@ internal object MathGlobalObject {
     /**
      * Returns the clz32 function of the number.
      */
-    private fun clz32Function(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun clz32Function(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, Clz32Args)
+        val parserArguments = arguments.mapArguments(analyzer.memory, Clz32Args)
 
         val number = parserArguments[Clz32Args[0]] ?: LxmNil
 
@@ -443,11 +420,9 @@ internal object MathGlobalObject {
     /**
      * Returns the cos function of the number.
      */
-    private fun cosFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun cosFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, CosArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, CosArgs)
 
         val number = parserArguments[CosArgs[0]] ?: LxmNil
 
@@ -468,11 +443,9 @@ internal object MathGlobalObject {
     /**
      * Returns the cosh function of the number.
      */
-    private fun coshFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun coshFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, CoshArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, CoshArgs)
 
         val number = parserArguments[CoshArgs[0]] ?: LxmNil
 
@@ -493,11 +466,9 @@ internal object MathGlobalObject {
     /**
      * Returns the exp function of the number.
      */
-    private fun expFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun expFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ExpArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ExpArgs)
 
         val number = parserArguments[ExpArgs[0]] ?: LxmNil
 
@@ -518,11 +489,9 @@ internal object MathGlobalObject {
     /**
      * Rounds the number to the lower integer number.
      */
-    private fun floorFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun floorFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, FloorArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, FloorArgs)
 
         val number = parserArguments[FloorArgs[0]] ?: LxmNil
 
@@ -543,12 +512,10 @@ internal object MathGlobalObject {
     /**
      * Returns the hypot function of the number.
      */
-    private fun hypotFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun hypotFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         if (spreadPositional.isEmpty()) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -577,11 +544,9 @@ internal object MathGlobalObject {
     /**
      * Returns the ln function of the number.
      */
-    private fun lnFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun lnFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, LnArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, LnArgs)
 
         val number = parserArguments[LnArgs[0]] ?: LxmNil
 
@@ -602,11 +567,9 @@ internal object MathGlobalObject {
     /**
      * Returns the log10 function of the number.
      */
-    private fun log10Function(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun log10Function(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, Log10Args)
+        val parserArguments = arguments.mapArguments(analyzer.memory, Log10Args)
 
         val number = parserArguments[Log10Args[0]] ?: LxmNil
 
@@ -627,11 +590,9 @@ internal object MathGlobalObject {
     /**
      * Returns the log2 function of the number.
      */
-    private fun log2Function(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun log2Function(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, Log2Args)
+        val parserArguments = arguments.mapArguments(analyzer.memory, Log2Args)
 
         val number = parserArguments[Log2Args[0]] ?: LxmNil
 
@@ -652,12 +613,10 @@ internal object MathGlobalObject {
     /**
      * Returns the max function of all numbers.
      */
-    private fun maxFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun maxFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         if (spreadPositional.isEmpty()) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -693,12 +652,10 @@ internal object MathGlobalObject {
     /**
      * Returns the min function of all numbers.
      */
-    private fun minFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun minFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         if (spreadPositional.isEmpty()) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -734,11 +691,9 @@ internal object MathGlobalObject {
     /**
      * Returns the pow function of the number.
      */
-    private fun powFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun powFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, PowArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, PowArgs)
 
         val base = parserArguments[PowArgs[0]] ?: LxmNil
         val exponent = parserArguments[PowArgs[1]] ?: LxmNil
@@ -764,11 +719,9 @@ internal object MathGlobalObject {
     /**
      * Generates a random value.
      */
-    private fun randomFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun randomFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         analyzer.memory.addToStackAsLast(LxmFloat.fromOrNil(kotlin.random.Random.nextFloat()))
 
@@ -778,11 +731,9 @@ internal object MathGlobalObject {
     /**
      * Rounds the number to the near integer number.
      */
-    private fun roundFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun roundFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, RoundArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, RoundArgs)
 
         val number = parserArguments[RoundArgs[0]] ?: LxmNil
 
@@ -803,11 +754,9 @@ internal object MathGlobalObject {
     /**
      * Returns the sign of the number.
      */
-    private fun signFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun signFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, SignArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, SignArgs)
 
         val number = parserArguments[SignArgs[0]] ?: LxmNil
 
@@ -840,11 +789,9 @@ internal object MathGlobalObject {
     /**
      * Returns the sin function of the number.
      */
-    private fun sinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun sinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, SinArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, SinArgs)
 
         val number = parserArguments[SinArgs[0]] ?: LxmNil
 
@@ -865,11 +812,9 @@ internal object MathGlobalObject {
     /**
      * Returns the sinh function of the number.
      */
-    private fun sinhFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun sinhFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, SinhArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, SinhArgs)
 
         val number = parserArguments[SinhArgs[0]] ?: LxmNil
 
@@ -890,11 +835,9 @@ internal object MathGlobalObject {
     /**
      * Returns the sqrt function of the number.
      */
-    private fun sqrtFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun sqrtFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, SqrtArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, SqrtArgs)
 
         val number = parserArguments[SqrtArgs[0]] ?: LxmNil
 
@@ -915,11 +858,9 @@ internal object MathGlobalObject {
     /**
      * Returns the tan function of the number.
      */
-    private fun tanFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun tanFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, TanArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, TanArgs)
 
         val number = parserArguments[TanArgs[0]] ?: LxmNil
 
@@ -940,11 +881,9 @@ internal object MathGlobalObject {
     /**
      * Returns the tanh function of the number.
      */
-    private fun tanhFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun tanhFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, TanhArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, TanhArgs)
 
         val number = parserArguments[TanhArgs[0]] ?: LxmNil
 
@@ -965,11 +904,9 @@ internal object MathGlobalObject {
     /**
      * Gets the integer part of a number.
      */
-    private fun truncFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun truncFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, TruncArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, TruncArgs)
 
         val number = parserArguments[TruncArgs[0]] ?: LxmNil
 

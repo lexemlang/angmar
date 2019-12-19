@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.nodes.descriptive.lexemes
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -84,7 +83,9 @@ internal object FilterLexemeAnalyzer {
                         return analyzer.nextNode(node.nextAccess)
                     }
 
-                    finalizeNode(analyzer, lxmNodeRef)
+                    val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = true) as LxmNode
+
+                    finalizeNode(analyzer, lxmNode)
 
                     if (node.isNegated) {
                         // Restore the memory index of the start and continue.
@@ -95,7 +96,7 @@ internal object FilterLexemeAnalyzer {
                         return analyzer.initBacktracking()
                     }
 
-                    analyzer.memory.addToStackAsLast(lxmNodeRef)
+                    analyzer.memory.addToStackAsLast(lxmNode)
                 } else {
                     if (!node.isNegated) {
                         return analyzer.initBacktracking()
@@ -113,8 +114,7 @@ internal object FilterLexemeAnalyzer {
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
             }
             signalEndNextAccess -> {
-                val resultRef = analyzer.memory.getLastFromStack()
-                val result = resultRef.dereference(analyzer.memory, toWrite = false)
+                val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = true)
 
                 if (result !is LxmNode) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FilterLexemWithNextRequiresANode,
@@ -132,7 +132,7 @@ internal object FilterLexemeAnalyzer {
                     }
                 }
 
-                finalizeNode(analyzer, resultRef)
+                finalizeNode(analyzer, result)
 
                 if (node.isNegated) {
                     // Restore the memory index of the start and continue.
@@ -158,17 +158,16 @@ internal object FilterLexemeAnalyzer {
     /**
      * Set the parent relationship of the node.
      */
-    private fun finalizeNode(analyzer: LexemAnalyzer, lxmNodeRef: LexemPrimitive) {
-        val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = true) as LxmNode
+    private fun finalizeNode(analyzer: LexemAnalyzer, lxmNode: LxmNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val parentRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Node) as LxmReference
-        val parent = parentRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
+        val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
+                toWrite = false)!!
         val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
         val oldParent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
 
         // Link to the new parent.
-        parentChildren.addCell(analyzer.memory, lxmNodeRef, ignoreConstant = true)
-        lxmNode.setParent(analyzer.memory, parentRef)
+        parentChildren.addCell(analyzer.memory, lxmNode, ignoreConstant = true)
+        lxmNode.setParent(analyzer.memory, parent)
 
         // Unlink from the old parent.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)

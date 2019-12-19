@@ -16,10 +16,11 @@ internal object InternalFunctionCallAnalyzer {
     fun stateMachine(analyzer: LexemAnalyzer, signal: Int) {
         val function = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function).dereference(analyzer.memory,
                 toWrite = false) as LxmFunction
-        val argumentsReference = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as LxmReference
+        val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                toWrite = false) as LxmArguments
 
         // Call the function
-        val hasEnded = function.internalFunction!!(analyzer, argumentsReference, function, signal)
+        val hasEnded = function.internalFunction!!(analyzer, arguments, function, signal)
         if (hasEnded) {
             val lastCodePoint =
                     analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint) as LxmCodePoint

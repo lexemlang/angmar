@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.stdlib.types
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
@@ -27,29 +26,26 @@ internal object MapType {
     /**
      * Initiates the type.
      */
-    fun initType(memory: LexemMemory, prototype: LxmReference) {
+    fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        val reference = memory.add(type)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, TypeName, reference, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
         type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, Assign, memory.add(LxmFunction(memory, ::assignFunction)), isConstant = true)
+        type.setProperty(memory, Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
     }
 
 
     /**
      * Assigns all the sources to the target map.
      */
-    private fun assignFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun assignFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
+                arguments.mapArguments(analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

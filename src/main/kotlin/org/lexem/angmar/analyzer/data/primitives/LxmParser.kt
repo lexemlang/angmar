@@ -14,5 +14,5 @@ internal open class LxmParser(val parser: LexemParser) : LexemPrimitive {
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Parser](parser: $parser)"
+    override fun toString() = "[Parser] (parser: $parser)"
 }

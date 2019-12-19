@@ -68,8 +68,9 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                 }
                 signalEndName -> {
                     // Get the property.
-                    val lxmNodeRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node)
-                    val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
+                    val lxmNode =
+                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
+                                    toWrite = false) as LxmNode
                     val name = analyzer.memory.getLastFromStack() as LxmString
 
                     val prop: LexemPrimitive? = if (node.isAtIdentifier) {

@@ -28,5 +28,5 @@ internal class LxmRollbackCodePoint(node: ParserNode, signal: Int, val readerCur
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Rollback Code Point](cursor: $readerCursor, signal: $signal, node: $node)"
+    override fun toString() = "[Rollback Code Point] (cursor: $readerCursor, signal: $signal, node: $node)"
 }

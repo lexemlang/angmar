@@ -20,8 +20,7 @@ internal object ObjectAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new object.
                 val obj = LxmObject(analyzer.memory)
-                val objRef = analyzer.memory.add(obj)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, obj)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])

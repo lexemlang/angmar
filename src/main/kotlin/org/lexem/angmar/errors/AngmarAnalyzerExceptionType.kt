@@ -22,6 +22,7 @@ enum class AngmarAnalyzerExceptionType {
     // MEMORY -----------------------------------------------------------------
 
     StackNotFoundElement,
+    ValueShiftOverSameBigNode,
 
     HeapSegmentationFault,
     HeapBigNodeLinkFault,

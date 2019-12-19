@@ -28,7 +28,7 @@ internal class LexemePatternContentAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -50,7 +50,7 @@ internal class LexemePatternContentAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -73,7 +73,7 @@ internal class LexemePatternContentAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -95,7 +95,7 @@ internal class LexemePatternContentAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)

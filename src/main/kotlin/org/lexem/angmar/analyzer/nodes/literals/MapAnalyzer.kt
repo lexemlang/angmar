@@ -20,8 +20,7 @@ internal object MapAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new map.
                 val map = LxmMap(analyzer.memory)
-                val mapRef = analyzer.memory.add(map)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, mapRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, map)
 
                 if (node.elements.isNotEmpty()) {
                     return analyzer.nextNode(node.elements[0])

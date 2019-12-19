@@ -13,12 +13,11 @@ internal fun main(args: Array<String>) {
     } catch (e: UnsetValueException) {
         Logger.error("The configuration file is incorrect.\nThe required property '${e.name.replace("item ",
                 "")}' is missing.")
+    } catch (e: Throwable) {
+        Logger.error(e) {
+            showDate = true
+            showThread = true
+            showStackNumbers = true
+        }
     }
-    //    } catch (e: Throwable) {
-    //        Logger.error(e) {
-    //            showDate = true
-    //            showThread = true
-    //            showStackNumbers = true
-    //        }
-    //    }
 }

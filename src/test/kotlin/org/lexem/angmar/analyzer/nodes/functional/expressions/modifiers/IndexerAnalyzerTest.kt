@@ -23,14 +23,13 @@ internal class IndexerAnalyzerTest {
         list.addCell(analyzer.memory, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val listReference = analyzer.memory.add(list)
-        context.setProperty(analyzer.memory, varName, listReference)
+        context.setProperty(analyzer.memory, varName, list)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmIndexerSetter ?: throw Error(
                 "The result must be a LxmIndexerSetter")
-        Assertions.assertEquals(listReference, result.element, "The element property is incorrect")
+        Assertions.assertEquals(list.getPrimitive(), result.element, "The element property is incorrect")
         Assertions.assertEquals(LxmInteger.from(1), result.index, "The index property is incorrect")
         Assertions.assertEquals(value, result.dereference(analyzer.memory, toWrite = false),
                 "The value property is incorrect")
@@ -60,15 +59,14 @@ internal class IndexerAnalyzerTest {
         list.addCell(analyzer.memory, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val listReference = analyzer.memory.add(list)
-        context.setProperty(analyzer.memory, varName, listReference)
+        context.setProperty(analyzer.memory, varName, list)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmInteger ?: throw Error("The result must be a LxmInteger")
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
-        val finalList = listReference.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
+        val finalList = list.getPrimitive().dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                 "The result must be a LxmList")
         val cell =
                 finalList.getDereferencedCell<LxmInteger>(analyzer.memory, cellIndex, toWrite = false) ?: throw Error(

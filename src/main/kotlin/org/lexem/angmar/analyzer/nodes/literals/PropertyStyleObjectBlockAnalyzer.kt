@@ -24,7 +24,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 // Create object
                 val arguments = LxmObject(analyzer.memory)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, analyzer.memory.add(arguments))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, arguments)
 
                 // Call next element
                 if (node.positiveElements.isNotEmpty()) {

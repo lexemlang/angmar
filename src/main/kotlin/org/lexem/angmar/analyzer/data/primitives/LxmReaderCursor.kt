@@ -14,5 +14,5 @@ internal class LxmReaderCursor(val primitive: IReaderCursor) : LexemPrimitive {
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 
-    override fun toString() = "[Reader cursor](primitive: $primitive)"
+    override fun toString() = "[Reader cursor] (primitive: $primitive)"
 }

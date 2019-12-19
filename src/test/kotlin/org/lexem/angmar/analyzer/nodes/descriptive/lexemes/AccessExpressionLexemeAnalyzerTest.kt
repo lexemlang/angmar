@@ -39,8 +39,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = AccessExpressionLexemeNode.Companion::parse)
 
         // Prepare context.
-        val function = LxmFunction(analyzer.memory) { analyzer, argumentsReference, _, _ ->
-            val arguments = argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
+        val function = LxmFunction(analyzer.memory) { analyzer, arguments, _, _ ->
             val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
             val thisValue =
@@ -52,9 +51,9 @@ internal class AccessExpressionLexemeAnalyzerTest {
             analyzer.memory.addToStackAsLast(LxmInteger.from(returnValue))
             return@LxmFunction true
         }
-        val functionRef = analyzer.memory.add(function)
+
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, functionName, function)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
@@ -90,8 +89,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
         }
 
         list.addCell(analyzer.memory, LxmInteger.from(left))
-        val listRef = analyzer.memory.add(list)
-        context.setProperty(analyzer.memory, varName, listRef)
+        context.setProperty(analyzer.memory, varName, list)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

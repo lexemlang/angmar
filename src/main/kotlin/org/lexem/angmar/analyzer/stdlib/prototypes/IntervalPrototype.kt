@@ -22,138 +22,128 @@ internal object IntervalPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, IsEmpty, memory.add(LxmFunction(memory, ::isEmptyFunction)), isConstant = true)
-        prototype.setProperty(memory, PointCount, memory.add(LxmFunction(memory, ::pointCountFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, UnicodeNot, memory.add(LxmFunction(memory, ::unicodeNotFunction)),
-                isConstant = true)
+        prototype.setProperty(memory, IsEmpty, LxmFunction(memory, ::isEmptyFunction), isConstant = true)
+        prototype.setProperty(memory, PointCount, LxmFunction(memory, ::pointCountFunction), isConstant = true)
+        prototype.setProperty(memory, UnicodeNot, LxmFunction(memory, ::unicodeNotFunction), isConstant = true)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot,
-                memory.add(LxmFunction(memory, ::logicalNot)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd,
-                memory.add(LxmFunction(memory, ::logicalAnd)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, memory.add(LxmFunction(memory, ::logicalOr)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor,
-                memory.add(LxmFunction(memory, ::logicalXor)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, memory.add(LxmFunction(memory, ::sub)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
                 isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
 
-        return memory.add(prototype)
+        return prototype
     }
 
     /**
      * Performs a unicode logical NOT of the 'this' value.
      */
-    private fun isEmptyFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IsEmpty, IntervalType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
-        LxmLogic.from(thisValue.primitive.isEmpty)
-    }
+    private fun isEmptyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, IsEmpty, IntervalType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
+                LxmLogic.from(thisValue.primitive.isEmpty)
+            }
 
     /**
      * Performs a unicode logical NOT of the 'this' value.
      */
-    private fun pointCountFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, PointCount, IntervalType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
-        LxmInteger.from(thisValue.primitive.pointCount.toInt()) // Long to int can cause errors
-    }
+    private fun pointCountFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, PointCount, IntervalType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
+                LxmInteger.from(thisValue.primitive.pointCount.toInt()) // Long to int can cause errors
+            }
 
     /**
      * Performs a unicode logical NOT of the 'this' value.
      */
-    private fun unicodeNotFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, UnicodeNot, IntervalType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
-        LxmInterval.from(thisValue.primitive.unicodeNot())
-    }
+    private fun unicodeNotFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
+            signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, UnicodeNot, IntervalType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
+                LxmInterval.from(thisValue.primitive.unicodeNot())
+            }
 
     // OPERATORS --------------------------------------------------------------
 
     /**
      * Performs a logical NOT of the 'this' value.
      */
-    private fun logicalNot(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalNot,
-            IntervalType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
-        LxmInterval.from(thisValue.primitive.not())
-    }
+    private fun logicalNot(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalNot,
+                    IntervalType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmInterval ->
+                LxmInterval.from(thisValue.primitive.not())
+            }
 
     /**
      * Performs a logical AND between two values.
      */
-    private fun logicalAnd(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalAnd,
-            IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                LxmInterval.from(left.primitive.common(right.primitive))
+    private fun logicalAnd(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalAnd,
+                    IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        LxmInterval.from(left.primitive.common(right.primitive))
+                    }
+                    is LxmInterval -> {
+                        LxmInterval.from(left.primitive.common(right.primitive))
+                    }
+                    else -> null
+                }
             }
-            is LxmInterval -> {
-                LxmInterval.from(left.primitive.common(right.primitive))
-            }
-            else -> null
-        }
-    }
 
     /**
      * Performs a logical OR between two values.
      */
-    private fun logicalOr(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalOr,
-            IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                LxmInterval.from(left.primitive.plus(right.primitive))
+    private fun logicalOr(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalOr,
+                    IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        LxmInterval.from(left.primitive.plus(right.primitive))
+                    }
+                    is LxmInterval -> {
+                        LxmInterval.from(left.primitive.plus(right.primitive))
+                    }
+                    else -> null
+                }
             }
-            is LxmInterval -> {
-                LxmInterval.from(left.primitive.plus(right.primitive))
-            }
-            else -> null
-        }
-    }
 
     /**
      * Performs a logical XOR between two values.
      */
-    private fun logicalXor(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalXor,
-            IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
-        when (right) {
-            is LxmInteger -> {
-                LxmInterval.from(left.primitive.notCommon(right.primitive))
+    private fun logicalXor(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalXor,
+                    IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmInteger -> {
+                        LxmInterval.from(left.primitive.notCommon(right.primitive))
+                    }
+                    is LxmInterval -> {
+                        LxmInterval.from(left.primitive.notCommon(right.primitive))
+                    }
+                    else -> null
+                }
             }
-            is LxmInterval -> {
-                LxmInterval.from(left.primitive.notCommon(right.primitive))
-            }
-            else -> null
-        }
-    }
 
     /**
      * Performs the addition of two values.
      */
-    private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Add,
+    private fun add(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Add,
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
@@ -170,9 +160,8 @@ internal object IntervalPrototype {
     /**
      * Performs the subtraction of two values.
      */
-    private fun sub(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction, signal: Int) =
-            BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-                    argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.Sub,
+    private fun sub(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.Sub,
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {

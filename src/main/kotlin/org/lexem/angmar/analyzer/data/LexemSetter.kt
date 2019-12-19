@@ -8,19 +8,19 @@ import org.lexem.angmar.errors.*
  */
 internal interface LexemSetter : LexemPrimitive {
     /**
-     * Gets a direct reference to the element.
+     * Gets a direct reference to the value of the setter.
      */
-    fun getPrimitive(memory: LexemMemory): LexemPrimitive
+    fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive
 
     /**
      * Sets a value in the setter.
      */
-    fun setPrimitive(memory: LexemMemory, value: LexemPrimitive)
+    fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun dereference(memory: LexemMemory, toWrite: Boolean) =
-            getPrimitive(memory).dereference(memory, toWrite = true)
+            getSetterPrimitive(memory).dereference(memory, toWrite = true)
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
 }

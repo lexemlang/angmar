@@ -23,7 +23,7 @@ internal object RightExpressionAnalyzer {
                 // Check is not a setter.
                 val value = analyzer.memory.getLastFromStack()
                 if (value is LexemSetter) {
-                    analyzer.memory.replaceLastStackCell(value.getPrimitive(analyzer.memory))
+                    analyzer.memory.replaceLastStackCell(value.getSetterPrimitive(analyzer.memory))
                 }
             }
         }

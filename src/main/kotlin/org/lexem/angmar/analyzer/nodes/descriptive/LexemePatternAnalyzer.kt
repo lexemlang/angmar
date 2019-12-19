@@ -172,8 +172,7 @@ internal object LexemePatternAnalyzer {
      */
     private fun executePattern(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: LxmString,
             quantifier: LxmQuantifier? = null) {
-        val unionReference = getOrInitUnion(analyzer, node, unionName.primitive, quantifier)
-        val union = unionReference.dereferenceAs<LxmPatternUnion>(analyzer.memory, toWrite = false)!!
+        val union = getOrInitUnion(analyzer, node, unionName.primitive, quantifier)
 
         if (union.canHaveANextPattern(analyzer.memory)) {
             // On backwards skip.
@@ -201,18 +200,18 @@ internal object LexemePatternAnalyzer {
      * Gets or initializes a union from a quantifier.
      */
     private fun getOrInitUnion(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: String,
-            quantifier: LxmQuantifier?): LxmReference {
+            quantifier: LxmQuantifier?): LxmPatternUnion {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = true)
-        var unionRef = unions.getPropertyValue(analyzer.memory, unionName) as? LxmReference
+        var union = unions.getPropertyValue(analyzer.memory, unionName)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmPatternUnion
 
-        if (unionRef == null) {
+        if (union == null) {
             if (quantifier != null) {
                 // Create the union.
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
-                unionRef = analyzer.memory.add(union)
+                union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
 
-                unions.setProperty(analyzer.memory, unionName, unionRef)
+                unions.setProperty(analyzer.memory, unionName, union)
             } else {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.PatternUnionWithoutQuantifier,
                         "The union called '$unionName' cannot be initialized if there is no quantifier") {
@@ -226,7 +225,6 @@ internal object LexemePatternAnalyzer {
             }
         } else if (quantifier != null) {
             // Check the quantifier of the union match with the current one.
-            val union = unionRef.dereference(analyzer.memory, toWrite = false) as LxmPatternUnion
             if (!union.quantifierIsEqualsTo(quantifier)) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.PatternUnionAlreadyExists,
                         "The union called '$unionName' already exist with other bounds. Previous: ${union.quantifier}, Current: $quantifier") {
@@ -244,6 +242,6 @@ internal object LexemePatternAnalyzer {
             }
         }
 
-        return unionRef
+        return union
     }
 }

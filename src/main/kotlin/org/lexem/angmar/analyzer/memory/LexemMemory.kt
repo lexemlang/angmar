@@ -21,12 +21,13 @@ internal class LexemMemory {
     /**
      * Adds a new primitive into the stack.
      */
-    fun addToStack(name: String, primitive: LexemPrimitive) = lastNode.addToStack(name, primitive, this)
+    fun addToStack(name: String, primitive: LexemMemoryValue) =
+            lastNode.addToStack(name, primitive.getPrimitive(), this)
 
     /**
      * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
      */
-    fun addToStackAsLast(primitive: LexemPrimitive) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
+    fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
 
     /**
      * Gets the specified primitive from the stack.
@@ -74,23 +75,19 @@ internal class LexemMemory {
     /**
      * Replace the specified stack cell by another primitive.
      */
-    fun replaceStackCell(name: String, newValue: LexemPrimitive) = lastNode.replaceStackCell(name, newValue, this)
+    fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
+            lastNode.replaceStackCell(name, newValue.getPrimitive(), this)
 
     /**
      * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
      */
-    fun replaceLastStackCell(newValue: LexemPrimitive) = replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
+    fun replaceLastStackCell(newValue: LexemMemoryValue) = replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
 
     /**
      * Gets a value from the memory.
      */
     fun get(reference: LxmReference, toWrite: Boolean) =
             lastNode.getCell(this, reference.position, forceShift = toWrite).value
-
-    /**
-     * Sets a value in the memory.
-     */
-    fun set(reference: LxmReference, value: LexemReferenced) = lastNode.setCell(this, reference.position, value)
 
     /**
      * Adds a value in the memory returning the position in which it has been added.
@@ -101,15 +98,6 @@ internal class LexemMemory {
      * Removes a value in the memory.
      */
     fun remove(reference: LxmReference) = lastNode.free(this, reference.position)
-
-    /**
-     * Converts a [LexemMemoryValue] to a [LexemPrimitive].
-     */
-    fun valueToPrimitive(value: LexemMemoryValue) = when (value) {
-        is LexemReferenced -> add(value)
-        is LexemPrimitive -> value
-        else -> throw AngmarUnreachableException()
-    }
 
     /**
      * Replaces a primitive with a new one handling the pointer changes.

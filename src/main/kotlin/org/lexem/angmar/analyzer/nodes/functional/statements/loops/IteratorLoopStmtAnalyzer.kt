@@ -81,10 +81,11 @@ internal object IteratorLoopStmtAnalyzer {
             }
             signalEndCondition -> {
                 // Create the iterator.
-                val valueRef = analyzer.memory.getLastFromStack()
+                val value = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false)
 
-                val iterator = AnalyzerIteratorCommons.createIterator(analyzer.memory, valueRef)
-                        ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
+                val iterator =
+                        AnalyzerIteratorCommons.createIterator(analyzer.memory, value) ?: throw AngmarAnalyzerException(
+                                AngmarAnalyzerExceptionType.IncompatibleType,
                                 "The iterator loop cannot iterate over the returned value by the expression.") {
                             val fullText = node.parser.reader.readAllText()
                             addSourceCode(fullText, node.parser.reader.getSource()) {
@@ -97,10 +98,9 @@ internal object IteratorLoopStmtAnalyzer {
                                 message = "Review the returned value of this expression"
                             }
                         }
-                val iteratorRef = analyzer.memory.add(iterator)
 
                 // Save iterator.
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIterator, iteratorRef)
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopIterator, iterator)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -175,8 +175,8 @@ internal object IteratorLoopStmtAnalyzer {
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
 
                 // Start again the loop.
-                val iteratorRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator)
-                val iterator = iteratorRef.dereference(analyzer.memory, toWrite = true) as LexemIterator
+                val iterator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator).dereference(
+                        analyzer.memory, toWrite = true) as LexemIterator
                 iterator.restart(analyzer.memory)
 
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
@@ -216,8 +216,9 @@ internal object IteratorLoopStmtAnalyzer {
      * Advances the iterator assigning the next value.
      */
     private fun advanceIterator(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode, advance: Boolean = true) {
-        val iteratorRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator)
-        val iterator = iteratorRef.dereference(analyzer.memory, toWrite = true) as LexemIterator
+        val iterator =
+                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator).dereference(analyzer.memory,
+                        toWrite = true) as LexemIterator
         val variable = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopVariable)
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
 
@@ -249,23 +250,22 @@ internal object IteratorLoopStmtAnalyzer {
 
         val iteratorValue = iterator.getCurrent(analyzer.memory)!!
         val value = if (iteratorValue.first == null) {
-            iteratorValue.second
+            iteratorValue.second.dereference(analyzer.memory, toWrite = false)
         } else {
             val obj = LxmObject(analyzer.memory)
-            val objRef = analyzer.memory.add(obj)
             obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, iteratorValue.first!!)
             obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, iteratorValue.second)
 
-            objRef
+            obj
         }
 
         // Perform the destructuring.
         if (node.variable is DestructuringStmtNode) {
             variable as LxmDestructuring
 
-            when (val derefValue = value.dereference(analyzer.memory, toWrite = false)) {
-                is LxmObject -> variable.destructureObject(analyzer.memory, derefValue, context)
-                is LxmList -> variable.destructureList(analyzer.memory, derefValue, context)
+            when (value) {
+                is LxmObject -> variable.destructureObject(analyzer.memory, value, context)
+                is LxmList -> variable.destructureList(analyzer.memory, value, context)
                 else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
                         "Destructuring is only available for ${ObjectType.TypeName}s and ${ListType.TypeName}s.") {
                     val fullText = node.parser.reader.readAllText()

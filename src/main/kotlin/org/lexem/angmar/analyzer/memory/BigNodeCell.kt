@@ -9,8 +9,6 @@ import java.util.*
  * The representation of a memory cell.
  */
 internal class BigNodeCell private constructor(position: Int, value: LexemReferenced?) {
-    var isNotGarbage = false
-        private set
     var position = position
         private set
     var referenceCount = 0
@@ -23,18 +21,6 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
     val isFreed get() = value == null
 
     // METHODS ----------------------------------------------------------------
-
-    /**
-     * Sets a value to the cell.
-     */
-    fun setValue(value: LexemReferenced) {
-        if (isFreed) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
-                    "Cannot access to a freed memory segment") {}
-        }
-
-        this.value = value
-    }
 
     /**
      * Destroys the cell to be reused.
@@ -54,7 +40,7 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
      * Shifts the memory cell to a forward [BigNode].
      */
     fun shiftCell(memory: LexemMemory): BigNodeCell {
-        val newCell = new(position, value?.clone(memory))
+        val newCell = new(position, value?.memoryShift(memory))
         newCell.referenceCount = referenceCount
 
         return newCell
@@ -88,18 +74,10 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
                     "Cannot free a referenced memory cell") {}
         }
 
-        isNotGarbage = false
         val value = value!!
         this.value = null
         value.memoryDealloc(memory)
         referenceCount = memory.lastNode.lastFreePosition
-    }
-
-    /**
-     * Clears the garbage flag to reset it.
-     */
-    fun clearGarbageFlag(memory: LexemMemory) {
-        isNotGarbage = false
     }
 
     /**
@@ -140,30 +118,12 @@ internal class BigNodeCell private constructor(position: Int, value: LexemRefere
         }
     }
 
-    /**
-     * Collects all the garbage of the current big node.
-     */
-    fun spatialGarbageCollect(memory: LexemMemory) {
-        // Avoid to parse the cell if it is already parsed.
-        if (!this.isNotGarbage) {
-            // Mark as reached.
-            this.isNotGarbage = true
-
-            // Collect.
-            this.value!!.spatialGarbageCollect(memory)
-        }
-    }
-
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun toString() = when {
         referenceCount < 0 -> "<REMOVED>"
         isFreed -> "[$position] Free -> $referenceCount"
-        else -> "[$position]${if (isNotGarbage) {
-            "*"
-        } else {
-            ""
-        }} Refs<$referenceCount> = $value"
+        else -> "[$position] Refs<$referenceCount> = $value"
     }
 
     // STATIC -----------------------------------------------------------------

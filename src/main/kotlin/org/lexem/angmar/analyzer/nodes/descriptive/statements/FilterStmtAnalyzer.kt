@@ -29,9 +29,7 @@ internal object FilterStmtAnalyzer {
                 // Create the function.
                 val name = analyzer.memory.getLastFromStack() as LxmString
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                val contextReference = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                val filter = LxmFilter(analyzer.memory, node, name.primitive, contextReference)
-                val filterRef = analyzer.memory.add(filter)
+                val filter = LxmFilter(analyzer.memory, node, name.primitive, context)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -41,10 +39,10 @@ internal object FilterStmtAnalyzer {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, filterRef)
+                    exports.setProperty(analyzer.memory, name.primitive, filter)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, filterRef)
+                context.setProperty(analyzer.memory, name.primitive, filter)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,

@@ -26,10 +26,9 @@ internal class InternalFunctionCallAnalyzerTest {
             analyzer.memory.addToStackAsLast(LxmNil)
             return@LxmFunction true
         }
-        val functionRef = analyzer.memory.add(function)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, functionName, function)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
@@ -61,14 +60,14 @@ internal class InternalFunctionCallAnalyzerTest {
                     // Prepare stack to call toString over an integer.
                     val value = LxmInteger.Num10
                     val prototype = value.getPrototypeAsObject(analyzer.memory, toWrite = false)
-                    val functionRef =
-                            prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!
+                    val function = prototype.getPropertyValue(analyzer.memory,
+                            AnalyzerCommons.Identifiers.ToString)!!.dereference(analyzer.memory,
+                            toWrite = false) as LxmFunction
 
                     val arguments = LxmArguments(analyzer.memory)
                     arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
-                    val argumentsRef = analyzer.memory.add(arguments)
 
-                    AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, InternalFunctionCallNode,
+                    AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
                             LxmCodePoint(InternalFunctionCallNode, 1, ParserNode.Companion.EmptyParserNode, ""))
 
                     return@LxmFunction false
@@ -80,10 +79,9 @@ internal class InternalFunctionCallAnalyzerTest {
 
             return@LxmFunction true
         }
-        val functionRef = analyzer.memory.add(function)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, functionName, functionRef)
+        context.setProperty(analyzer.memory, functionName, function)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

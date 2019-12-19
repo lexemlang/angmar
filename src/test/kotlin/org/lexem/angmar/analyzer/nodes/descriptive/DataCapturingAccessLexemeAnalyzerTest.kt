@@ -27,7 +27,7 @@ internal class DataCapturingAccessLexemeAnalyzerTest {
         val result = analyzer.memory.getLastFromStack() as? LxmAccessSetter ?: throw Error(
                 "The result must be a LxmAccessSetter")
         Assertions.assertEquals(varName, result.variableName, "The context is incorrect")
-        Assertions.assertEquals(value, result.getPrimitive(analyzer.memory), "The final value is incorrect")
+        Assertions.assertEquals(value, result.getSetterPrimitive(analyzer.memory), "The final value is incorrect")
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
@@ -56,8 +56,7 @@ internal class DataCapturingAccessLexemeAnalyzerTest {
         }
 
         list.addCell(analyzer.memory, LxmInteger.from(left))
-        val listRef = analyzer.memory.add(list)
-        context.setProperty(analyzer.memory, varName, listRef)
+        context.setProperty(analyzer.memory, varName, list)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

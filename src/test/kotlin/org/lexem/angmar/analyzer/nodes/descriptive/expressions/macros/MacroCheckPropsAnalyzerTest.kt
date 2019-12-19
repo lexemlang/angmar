@@ -32,7 +32,7 @@ internal class MacroCheckPropsAnalyzerTest {
         props.setProperty(analyzer.memory, affirmativeVar, LxmLogic.True)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)
         props.setProperty(analyzer.memory, withValueVar, LxmInteger.from(withValueValue))
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -66,7 +66,7 @@ internal class MacroCheckPropsAnalyzerTest {
         props.setProperty(analyzer.memory, affirmativeVar, LxmNil)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)
         props.setProperty(analyzer.memory, withValueVar, LxmInteger.from(withValueValue))
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, analyzer.memory.add(node))
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

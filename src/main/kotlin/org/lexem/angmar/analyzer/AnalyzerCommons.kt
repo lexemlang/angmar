@@ -181,7 +181,7 @@ internal object AnalyzerCommons {
     /**
      * Gets the current context reference.
      */
-    fun getCurrentContextReference(memory: LexemMemory): LxmReference =
+    private fun getCurrentContextReference(memory: LexemMemory): LxmReference =
             getStdLibContext(memory, toWrite = false).getPropertyValue(memory,
                     Identifiers.HiddenCurrentContext) as LxmReference
 
@@ -195,7 +195,7 @@ internal object AnalyzerCommons {
     /**
      * Gets the name of the current context.
      */
-    fun getCurrentContextName(memory: LexemMemory) =
+    fun getContextName(memory: LexemMemory, context: LxmContext) =
             getCurrentContext(memory, toWrite = false).getDereferencedProperty<LxmString>(memory,
                     Identifiers.HiddenCurrentContextName, toWrite = false)!!
 
@@ -223,7 +223,6 @@ internal object AnalyzerCommons {
         return list
     }
 
-
     /**
      * Gets an element from the current context.
      */
@@ -236,11 +235,10 @@ internal object AnalyzerCommons {
      */
     fun createAndAssignNewContext(memory: LexemMemory) {
         val stdLibContext = getStdLibContext(memory, toWrite = true)
-        val lastContextReference = getCurrentContextReference(memory)
-        val newContext = LxmContext(lastContextReference, memory)
-        val newContextReference = memory.add(newContext)
+        val lastContext = getCurrentContext(memory, toWrite = false)
+        val newContext = LxmContext(memory, lastContext)
 
-        stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContextReference)
+        stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContext)
     }
 
     /**
@@ -256,15 +254,14 @@ internal object AnalyzerCommons {
     /**
      * Creates a new function context and assigns it as the current context.
      */
-    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmReference, contextName: String) {
+    fun createAndAssignNewFunctionContext(memory: LexemMemory, higherContext: LxmContext, contextName: String) {
         val stdLibContext = getStdLibContext(memory, toWrite = true)
         val lastContextReference = getCurrentContextReference(memory)
-        val newContext = LxmContext(higherContext, memory)
-        val newContextReference = memory.add(newContext)
+        val newContext = LxmContext(memory, higherContext)
 
         newContext.setProperty(memory, Identifiers.HiddenCurrentContextName, LxmString.from(contextName))
         newContext.setProperty(memory, Identifiers.HiddenCallerContext, lastContextReference, isConstant = true)
-        stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContextReference)
+        stdLibContext.setProperty(memory, Identifiers.HiddenCurrentContext, newContext)
     }
 
     /**
@@ -307,18 +304,16 @@ internal object AnalyzerCommons {
         val stdLibContext = getStdLibContext(analyzer.memory, toWrite = true)
         val lastContextReference = getCurrentContextReference(analyzer.memory)
 
-        val newContext = LxmContext(LxmReference.StdLibContext, analyzer.memory)
-        val newContextReference = analyzer.memory.add(newContext)
+        val newContext = LxmContext(analyzer.memory, getStdLibContext(analyzer.memory, toWrite = false))
         val fileMap = newContext.getDereferencedProperty<LxmObject>(analyzer.memory, Identifiers.HiddenFileMap,
                 toWrite = true)!!
         val exports = LxmObject(analyzer.memory)
-        val exportsRef = analyzer.memory.add(exports)
         newContext.setProperty(analyzer.memory, Identifiers.HiddenCallerContext, lastContextReference)
-        newContext.setProperty(analyzer.memory, Identifiers.Exports, exportsRef, isConstant = true)
+        newContext.setProperty(analyzer.memory, Identifiers.Exports, exports, isConstant = true)
         newContext.setProperty(analyzer.memory, Identifiers.HiddenFilePath, LxmString.from(source), isConstant = true)
         newContext.setProperty(analyzer.memory, Identifiers.HiddenCurrentContextName,
                 LxmString.from("<Root of Lexem file>"))
-        fileMap.setProperty(analyzer.memory, source, exportsRef)
+        fileMap.setProperty(analyzer.memory, source, exports)
 
         // Set the entryPoint variable.
         if (lastContextReference.position == LxmReference.StdLibContext.position) {
@@ -327,7 +322,7 @@ internal object AnalyzerCommons {
             newContext.setProperty(analyzer.memory, Identifiers.EntryPoint, LxmNil)
         }
 
-        stdLibContext.setProperty(analyzer.memory, Identifiers.HiddenCurrentContext, newContextReference)
+        stdLibContext.setProperty(analyzer.memory, Identifiers.HiddenCurrentContext, newContext)
     }
 
     /**

@@ -17,16 +17,16 @@ internal class LxmNode : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    // Only for the clone.
-    private constructor(memory: LexemMemory, oldNode: LxmNode, toClone: Boolean) : super(memory, oldNode, toClone) {
-        this.name = oldNode.name
+    private constructor(memory: LexemMemory, oldVersion: LxmNode, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        this.name = oldVersion.name
     }
 
-    constructor(name: String, from: IReaderCursor, parent: LxmReference?, memory: LexemMemory) : super(memory) {
+    constructor(name: String, from: IReaderCursor, parent: LxmNode?, memory: LexemMemory) : super(memory) {
         this.name = name
 
         if (parent != null) {
-            setProperty(memory, AnalyzerCommons.Identifiers.Parent, parent, isConstant = true)
+            setProperty(memory, AnalyzerCommons.Identifiers.Parent, parent.getPrimitive(), isConstant = true)
         }
 
         setProperty(memory, AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
@@ -43,10 +43,10 @@ internal class LxmNode : LxmObject {
     private fun init(memory: LexemMemory) {
         val children = LxmList(memory)
         children.makeConstant(memory)
-        setProperty(memory, AnalyzerCommons.Identifiers.Children, memory.add(children), isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.Children, children, isConstant = true)
 
         val properties = LxmObject(memory)
-        setProperty(memory, AnalyzerCommons.Identifiers.Properties, memory.add(properties), isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
     }
 
     /**
@@ -64,14 +64,8 @@ internal class LxmNode : LxmObject {
     /**
      * Sets the parent node.
      */
-    fun setParent(memory: LexemMemory, parent: LxmReference) =
+    fun setParent(memory: LexemMemory, parent: LxmNode) =
             setProperty(memory, AnalyzerCommons.Identifiers.Parent, parent, isConstant = true, ignoringConstant = true)
-
-    /**
-     * Gets the children reference.
-     */
-    fun getChildrenReference(memory: LexemMemory) =
-            getPropertyValue(memory, AnalyzerCommons.Identifiers.Children) as LxmReference
 
     /**
      * Gets the children.
@@ -81,6 +75,7 @@ internal class LxmNode : LxmObject {
 
     /**
      * Gets the children property value as a list.
+     * TODO convert this to sequence.
      */
     fun getChildrenAsList(memory: LexemMemory) = getChildren(memory, toWrite = false).getAllCells()
 
@@ -281,7 +276,7 @@ internal class LxmNode : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) =
+    override fun memoryShift(memory: LexemMemory) =
             LxmNode(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
     override fun getType(memory: LexemMemory): LxmReference {
@@ -289,5 +284,5 @@ internal class LxmNode : LxmObject {
         return context.getPropertyValue(memory, NodeType.TypeName) as LxmReference
     }
 
-    override fun toString() = "[NODE] $name = ${super.toString()}"
+    override fun toString() = "[Node] $name = ${super.toString()}"
 }

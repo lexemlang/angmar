@@ -17,8 +17,7 @@ internal class ObjectElementAnalyzerTest {
 
         // Prepare stack.
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -48,8 +47,7 @@ internal class ObjectElementAnalyzerTest {
 
         // Prepare stack.
         val obj = LxmObject(analyzer.memory)
-        val objRef = analyzer.memory.add(obj)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, objRef)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

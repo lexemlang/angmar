@@ -18,9 +18,9 @@ internal class LxmPatternUnion : LxmObject {
         setIndex(memory, index)
     }
 
-    private constructor(memory: LexemMemory, oldContext: LxmPatternUnion, toClone: Boolean) : super(memory, oldContext,
+    private constructor(memory: LexemMemory, oldVersion: LxmPatternUnion, toClone: Boolean) : super(memory, oldVersion,
             toClone) {
-        this.quantifier = oldContext.quantifier
+        this.quantifier = oldVersion.quantifier
     }
 
     // METHODS ----------------------------------------------------------------
@@ -81,8 +81,8 @@ internal class LxmPatternUnion : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun clone(memory: LexemMemory) = LxmPatternUnion(memory, this,
+    override fun memoryShift(memory: LexemMemory) = LxmPatternUnion(memory, this,
             toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[PATTERN UNION] Qtf$quantifier - ${super.toString()}"
+    override fun toString() = "[Pattern Union] (Qtf: $quantifier) - ${super.toString()}"
 }

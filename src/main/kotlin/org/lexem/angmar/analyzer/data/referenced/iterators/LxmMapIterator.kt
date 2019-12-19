@@ -14,9 +14,8 @@ internal class LxmMapIterator : LexemIterator {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
-        val map = value.dereferenceAs<LxmMap>(memory, toWrite = false)!!
-        setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
+    constructor(memory: LexemMemory, map: LxmMap) : super(memory) {
+        setProperty(memory, AnalyzerCommons.Identifiers.Value, map.getPrimitive())
 
         val list = LxmList(memory)
         val values = map.getAllProperties().flatMap { it.value.map { it.key } }
@@ -24,7 +23,7 @@ internal class LxmMapIterator : LexemIterator {
             list.addCell(memory, v)
         }
 
-        setProperty(memory, AnalyzerCommons.Identifiers.Keys, memory.add(list))
+        setProperty(memory, AnalyzerCommons.Identifiers.Keys, list)
 
         size = values.size.toLong()
     }
@@ -64,8 +63,8 @@ internal class LxmMapIterator : LexemIterator {
         return Pair(currentKey, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) =
+    override fun memoryShift(memory: LexemMemory) =
             LxmMapIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[ITERATOR - MAP] ${super.toString()}"
+    override fun toString() = "[Iterator - Map] ${super.toString()}"
 }

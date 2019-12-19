@@ -51,13 +51,13 @@ internal object PrefixOperatorAnalyzer {
         // Create argument values.
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, thisValue)
-        val argumentsRef = analyzer.memory.add(arguments)
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, argumentsRef, node,
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
                 LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
 }

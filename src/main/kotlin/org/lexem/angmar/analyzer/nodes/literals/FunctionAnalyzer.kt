@@ -20,11 +20,10 @@ internal object FunctionAnalyzer {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Create the function.
-                val ctxRef = AnalyzerCommons.getCurrentContextReference(analyzer.memory)
-                val fn = LxmFunction(analyzer.memory, node, ctxRef)
-                val fnRef = analyzer.memory.add(fn)
+                val ctx = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                val fn = LxmFunction(analyzer.memory, node, ctx)
 
-                analyzer.memory.addToStackAsLast(fnRef)
+                analyzer.memory.addToStackAsLast(fn)
             }
             else -> {
                 return AnalyzerNodesCommons.functionExecutionController(analyzer, signal, node.parameterList,

@@ -28,7 +28,7 @@ internal object FunctionCallAnalyzer {
 
                 // Create arguments
                 val arguments = LxmArguments(analyzer.memory)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, analyzer.memory.add(arguments))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
                 // Call next element
                 if (node.positionalArguments.isNotEmpty()) {
@@ -166,13 +166,13 @@ internal object FunctionCallAnalyzer {
     }
 
     private fun callFunction(analyzer: LexemAnalyzer, node: FunctionCallNode) {
-        val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as LxmReference
-        val arguments = argumentsRef.dereference(analyzer.memory, toWrite = true) as LxmArguments
-        var functionRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
+        val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
+                toWrite = true) as LxmArguments
+        val functionRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
 
         when (functionRef) {
             is LxmPropertySetter -> {
-                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.obj)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.value)
             }
             is LxmIndexerSetter -> {
                 arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.element)
@@ -182,15 +182,17 @@ internal object FunctionCallAnalyzer {
             }
         }
 
-        functionRef = AnalyzerNodesCommons.resolveSetter(analyzer.memory, functionRef)
+        val function = AnalyzerNodesCommons.resolveSetter(analyzer.memory, functionRef).dereference(analyzer.memory,
+                toWrite = false) as LxmFunction
 
         // Move Arguments and Function to Auxiliary from the stack.
         analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Arguments, AnalyzerCommons.Identifiers.Auxiliary)
         analyzer.memory.renameStackCell(AnalyzerCommons.Identifiers.Function, AnalyzerCommons.Identifiers.Auxiliary)
 
         // Call the function.
-        val contextName = AnalyzerCommons.getCurrentContextName(analyzer.memory)
-        AnalyzerNodesCommons.callFunction(analyzer, functionRef, argumentsRef, node,
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, node,
                 LxmCodePoint(node.parent!!, node.parentSignal, callerNode = node,
                         callerContextName = contextName.primitive))
 

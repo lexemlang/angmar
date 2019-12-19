@@ -2,7 +2,6 @@ package org.lexem.angmar.analyzer.data.referenced.iterators
 
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
@@ -14,9 +13,8 @@ internal class LxmSetIterator : LexemIterator {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, value: LxmReference) : super(memory) {
-        val set = value.dereferenceAs<LxmSet>(memory, toWrite = false)!!
-        setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
+    constructor(memory: LexemMemory, set: LxmSet) : super(memory) {
+        setProperty(memory, AnalyzerCommons.Identifiers.Value, set.getPrimitive())
 
         val list = LxmList(memory)
         val values = set.getAllValues().flatMap { it.value.map { it.value } }
@@ -24,7 +22,7 @@ internal class LxmSetIterator : LexemIterator {
             list.addCell(memory, v)
         }
 
-        setProperty(memory, AnalyzerCommons.Identifiers.Keys, memory.add(list))
+        setProperty(memory, AnalyzerCommons.Identifiers.Keys, list)
 
         size = values.size.toLong()
     }
@@ -57,8 +55,8 @@ internal class LxmSetIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun clone(memory: LexemMemory) =
+    override fun memoryShift(memory: LexemMemory) =
             LxmSetIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
 
-    override fun toString() = "[ITERATOR - SET] ${super.toString()}"
+    override fun toString() = "[Iterator - Set] ${super.toString()}"
 }

@@ -21,8 +21,8 @@ internal class LxmControl private constructor(val type: String, val tag: String?
         value?.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        value?.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        value?.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()

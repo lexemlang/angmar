@@ -1,6 +1,5 @@
 package org.lexem.angmar.analyzer.stdlib.prototypes
 
-import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 
@@ -11,8 +10,8 @@ internal object NodePrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
-        return memory.add(prototype)
+        return prototype
     }
 }

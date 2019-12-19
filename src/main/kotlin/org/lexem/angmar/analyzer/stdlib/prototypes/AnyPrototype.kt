@@ -28,32 +28,29 @@ internal object AnyPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmAnyPrototype {
         val prototype = LxmAnyPrototype(memory)
 
         // Methods
-        prototype.setProperty(memory, Is, memory.add(LxmFunction(memory, ::isFunction)), isConstant = true)
-        prototype.setProperty(memory, IsAny, memory.add(LxmFunction(memory, ::isAnyFunction)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString,
-                memory.add(LxmFunction(memory, ::toStringFunction)), isConstant = true)
-
-        // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot,
-                memory.add(LxmFunction(memory, ::logicalNot)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, memory.add(LxmFunction(memory, ::add)),
+        prototype.setProperty(memory, Is, LxmFunction(memory, ::isFunction), isConstant = true)
+        prototype.setProperty(memory, IsAny, LxmFunction(memory, ::isAnyFunction), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
                 isConstant = true)
 
-        return memory.add(prototype)
+        // Operators
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+
+        return prototype
     }
 
     /**
      * Checks whether the This element is of the specified type.
      */
-    private fun isFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun isFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, IsArgs)
+        val parsedArguments = arguments.mapArguments(analyzer.memory, IsArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -73,12 +70,11 @@ internal object AnyPrototype {
     /**
      * Checks whether the This element is of any of the specified types.
      */
-    private fun isAnyFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun isAnyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
         val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+                arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -104,11 +100,9 @@ internal object AnyPrototype {
     /**
      * Returns the textual representation of the 'this' value.
      */
-    private fun toStringFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun toStringFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList())
+        val parsedArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -127,11 +121,9 @@ internal object AnyPrototype {
     /**
      * Performs a logical NOT of the 'this' value.
      */
-    private fun logicalNot(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun logicalNot(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
 
@@ -141,22 +133,21 @@ internal object AnyPrototype {
             LxmLogic.True
         }
 
-        analyzer.memory.addToStackAsLast(analyzer.memory.valueToPrimitive(result))
+        analyzer.memory.addToStackAsLast(result)
         return true
     }
 
     /**
      * Performs the addition of this value and a String.
      */
-    private fun add(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AnalyzerCommons.Operators.ParameterList)
+    private fun add(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int): Boolean {
+        val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                val left = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
+                val left =
+                        parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
+                                ?: LxmNil
                 val right = parserArguments[AnalyzerCommons.Operators.RightParameterName] ?: LxmNil
 
                 if (right !is LxmString) {

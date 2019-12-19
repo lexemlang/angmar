@@ -19,19 +19,19 @@ internal class LxmAccessSetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(memory: LexemMemory, context: LxmReference, variableName: String, node: ParserNode,
+    constructor(memory: LexemMemory, context: LxmContext, variableName: String, node: ParserNode,
             nodeElement: ParserNode) {
-        this.context = context
+        this.context = context.getPrimitive()
         this.variableName = variableName
         this.node = node
         this.nodeElement = nodeElement
 
-        context.increaseReferences(memory)
+        this.context.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getPrimitive(memory: LexemMemory): LexemPrimitive {
+    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
         val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = false)!!
 
         return ctxObject.getPropertyValue(memory, variableName) ?: throw AngmarAnalyzerException(
@@ -50,7 +50,7 @@ internal class LxmAccessSetter : LexemSetter {
         }
     }
 
-    override fun setPrimitive(memory: LexemMemory, value: LexemPrimitive) {
+    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
         val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = true)!!
         ctxObject.setPropertyAsContext(memory, variableName, value)
     }
@@ -63,9 +63,9 @@ internal class LxmAccessSetter : LexemSetter {
         context.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        context.spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        context.spatialGarbageCollect(memory, gcFifo)
     }
 
-    override fun toString() = "LxmAccessSetter(context: $context, variableName: $variableName)"
+    override fun toString() = "[Setter - Access] (context: $context, variableName: $variableName)"
 }

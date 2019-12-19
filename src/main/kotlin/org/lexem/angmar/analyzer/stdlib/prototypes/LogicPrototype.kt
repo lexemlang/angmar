@@ -15,20 +15,20 @@ internal object LogicPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot,
-                memory.add(LxmFunction(memory, ::logicalNot)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd,
-                memory.add(LxmFunction(memory, ::logicalAnd)), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, memory.add(LxmFunction(memory, ::logicalOr)),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor,
-                memory.add(LxmFunction(memory, ::logicalXor)), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+                isConstant = true)
 
-        return memory.add(prototype)
+        return prototype
     }
 
     // OPERATORS --------------------------------------------------------------
@@ -36,71 +36,67 @@ internal object LogicPrototype {
     /**
      * Performs a logical NOT of the 'this' value.
      */
-    private fun logicalNot(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalNot,
-            LogicType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmLogic ->
-        if (thisValue.primitive) {
-            LxmLogic.False
-        } else {
-            LxmLogic.True
-        }
-    }
+    private fun logicalNot(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalNot,
+                    LogicType.TypeName, toWrite = false) { _: LexemAnalyzer, thisValue: LxmLogic ->
+                if (thisValue.primitive) {
+                    LxmLogic.False
+                } else {
+                    LxmLogic.True
+                }
+            }
 
     /**
      * Performs a logical AND between two logical values.
      */
-    private fun logicalAnd(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalAnd,
-            LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
-        when (right) {
-            is LxmLogic -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun logicalAnd(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalAnd,
+                    LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmLogic -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmLogic.from(leftValue.and(rightValue))
+                        LxmLogic.from(leftValue.and(rightValue))
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 
     /**
      * Performs a logical OR between two logical values.
      */
-    private fun logicalOr(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalOr,
-            LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
-        when (right) {
-            is LxmLogic -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun logicalOr(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalOr,
+                    LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmLogic -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmLogic.from(leftValue.or(rightValue))
+                        LxmLogic.from(leftValue.or(rightValue))
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 
     /**
      * Performs a logical XOR between two logical values.
      */
-    private fun logicalXor(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeBinaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, AnalyzerCommons.Operators.LogicalXor,
-            LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
-            toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
-        when (right) {
-            is LxmLogic -> {
-                val leftValue = left.primitive
-                val rightValue = right.primitive
+    private fun logicalXor(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeBinaryOperator(analyzer, arguments, AnalyzerCommons.Operators.LogicalXor,
+                    LogicType.TypeName, listOf(LogicType.TypeName), toWriteLeft = false,
+                    toWriteRight = false) { _: LexemAnalyzer, left: LxmLogic, right: LexemMemoryValue ->
+                when (right) {
+                    is LxmLogic -> {
+                        val leftValue = left.primitive
+                        val rightValue = right.primitive
 
-                LxmLogic.from(leftValue.xor(rightValue))
+                        LxmLogic.from(leftValue.xor(rightValue))
+                    }
+                    else -> null
+                }
             }
-            else -> null
-        }
-    }
 }

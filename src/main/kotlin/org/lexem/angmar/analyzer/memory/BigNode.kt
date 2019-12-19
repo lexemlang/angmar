@@ -305,25 +305,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     }
 
     /**
-     * Sets a new value to the cell at the specified position.
-     */
-    fun setCell(memory: LexemMemory, position: Int, value: LexemReferenced) {
-        if (position >= actualHeapSize) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
-                    "The analyzer is trying to access a forbidden memory position") {}
-        }
-
-        // Prevent errors regarding the BigNode link.
-        if (value.bigNode != this) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapBigNodeLinkFault,
-                    "The analyzer is trying to save a value in a different bigNode") {}
-        }
-
-        val cell = getCell(memory, position, forceShift = true)
-        cell.setValue(value)
-    }
-
-    /**
      * Adds a new cell (or reuses a free one) to hold the specified value
      * returning the cell itself.
      */
@@ -407,27 +388,31 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             return
         }
 
-        // Track from the main context.
-        val stdLibCell = LxmReference.StdLibContext.getCell(memory)
-        stdLibCell.spatialGarbageCollect(memory)
+        // Track from the main context and stack.
+        val gcFifo = GarbageCollectorFifo(actualHeapSize)
 
-        // Track from stack.
+        // Track the stdlib.
+        LxmReference.StdLibContext.spatialGarbageCollect(memory, gcFifo)
+
+        // Track the stack.
         for (i in actualStackLevelSize - 1 downTo 0) {
             val level = getStackLevelRecursively(i)!!
-            for ((_, cell) in level.cellValues) {
-                cell.spatialGarbageCollect(memory)
+            for ((_, value) in level.cellValues) {
+                value.spatialGarbageCollect(memory, gcFifo)
             }
         }
 
-        // Clean memory.
-        for (i in 0 until actualHeapSize) {
-            val cell = getCell(memory, i)
+        // Track.
+        var position = gcFifo.pop()
+        while (position != null) {
+            getCell(memory, position, false).value?.spatialGarbageCollect(memory, gcFifo)
 
-            if (!cell.isNotGarbage) {
-                free(memory, i)
-            } else {
-                cell.clearGarbageFlag(memory)
-            }
+            position = gcFifo.pop()
+        }
+
+        // Clean memory.
+        for (i in gcFifo) {
+            free(memory, i)
         }
 
         // Update the threshold only under the minimum quantity of free space.

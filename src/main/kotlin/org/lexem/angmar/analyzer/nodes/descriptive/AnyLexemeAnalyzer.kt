@@ -44,8 +44,7 @@ internal object AnyLexemeAnalyzer {
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LexemeDataCapturingName)
 
                 val list = LxmList(analyzer.memory)
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeDataCapturingList,
-                        analyzer.memory.add(list))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeDataCapturingList, list)
 
                 if (node.quantifier != null) {
                     return analyzer.nextNode(node.quantifier)
@@ -58,7 +57,7 @@ internal object AnyLexemeAnalyzer {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
                 val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
 
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, analyzer.memory.add(union))
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, union)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -211,9 +210,9 @@ internal object AnyLexemeAnalyzer {
         val list = listRef.dereference(analyzer.memory, toWrite = false) as LxmList
 
         if (node.quantifier == null) {
-            setter.setPrimitive(analyzer.memory, list.getCell(analyzer.memory, 0)!!)
+            setter.setSetterValue(analyzer.memory, list.getCell(analyzer.memory, 0)!!)
         } else {
-            setter.setPrimitive(analyzer.memory, listRef)
+            setter.setSetterValue(analyzer.memory, listRef)
         }
     }
 

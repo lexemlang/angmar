@@ -2,11 +2,18 @@ package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.errors.*
 
 /**
  * The Lexem reference value, i.e. a pointer.
  */
-internal class LxmReference(val position: Int) : LexemPrimitive {
+internal class LxmReference constructor(val position: Int) : LexemPrimitive {
+    init {
+        if (position < 0) {
+            throw AngmarException("The position of a reference cannot be negative")
+        }
+    }
+
     /**
      * Dereferences the value to the specified type.
      */
@@ -30,9 +37,13 @@ internal class LxmReference(val position: Int) : LexemPrimitive {
         memory.replacePrimitives(this, LxmNil)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory) {
-        getCell(memory).spatialGarbageCollect(memory)
+    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+        gcFifo.push(position)
     }
+
+    override fun getType(memory: LexemMemory) = throw AngmarUnreachableException()
+
+    override fun getPrototype(memory: LexemMemory) = throw AngmarUnreachableException()
 
     override fun getHashCode(memory: LexemMemory) = position.hashCode()
 

@@ -73,98 +73,88 @@ internal object ListPrototype {
     /**
      * Initiates the prototype.
      */
-    fun initPrototype(memory: LexemMemory): LxmReference {
+    fun initPrototype(memory: LexemMemory): LxmObject {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Size, memory.add(LxmFunction(memory, ::sizeFunction)), isConstant = true)
-        prototype.setProperty(memory, Freeze, memory.add(LxmFunction(memory, ::freezeFunction)), isConstant = true)
-        prototype.setProperty(memory, IsFrozen, memory.add(LxmFunction(memory, ::isFrozenFunction)), isConstant = true)
-        prototype.setProperty(memory, Every, memory.add(LxmFunction(memory, ::everyFunction)), isConstant = true)
-        prototype.setProperty(memory, Filter, memory.add(LxmFunction(memory, ::filterFunction)), isConstant = true)
-        prototype.setProperty(memory, ForEach, memory.add(LxmFunction(memory, ::forEachFunction)), isConstant = true)
-        prototype.setProperty(memory, Find, memory.add(LxmFunction(memory, ::findFunction)), isConstant = true)
-        prototype.setProperty(memory, FindLast, memory.add(LxmFunction(memory, ::findLastFunction)), isConstant = true)
-        prototype.setProperty(memory, IndexOf, memory.add(LxmFunction(memory, ::indexOfFunction)), isConstant = true)
-        prototype.setProperty(memory, LastIndexOf, memory.add(LxmFunction(memory, ::lastIndexOfFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, ContainsAny, memory.add(LxmFunction(memory, ::containsAnyFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, ContainsAll, memory.add(LxmFunction(memory, ::containsAllFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, Map, memory.add(LxmFunction(memory, ::mapFunction)), isConstant = true)
-        prototype.setProperty(memory, Reduce, memory.add(LxmFunction(memory, ::reduceFunction)), isConstant = true)
-        prototype.setProperty(memory, Any, memory.add(LxmFunction(memory, ::anyFunction)), isConstant = true)
-        prototype.setProperty(memory, Remove, memory.add(LxmFunction(memory, ::removeFunction)), isConstant = true)
-        prototype.setProperty(memory, RemoveAt, memory.add(LxmFunction(memory, ::removeAtFunction)), isConstant = true)
-        prototype.setProperty(memory, JoinToString, memory.add(LxmFunction(memory, ::joinToStringFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, CopyWithin, memory.add(LxmFunction(memory, ::copyWithinFunction)),
-                isConstant = true)
-        prototype.setProperty(memory, Push, memory.add(LxmFunction(memory, ::pushFunction)), isConstant = true)
-        prototype.setProperty(memory, Pop, memory.add(LxmFunction(memory, ::popFunction)), isConstant = true)
-        prototype.setProperty(memory, Unshift, memory.add(LxmFunction(memory, ::unshiftFunction)), isConstant = true)
-        prototype.setProperty(memory, Shift, memory.add(LxmFunction(memory, ::shiftFunction)), isConstant = true)
-        prototype.setProperty(memory, Insert, memory.add(LxmFunction(memory, ::insertFunction)), isConstant = true)
-        prototype.setProperty(memory, Replace, memory.add(LxmFunction(memory, ::replaceFunction)), isConstant = true)
-        prototype.setProperty(memory, Reverse, memory.add(LxmFunction(memory, ::reverseFunction)), isConstant = true)
-        prototype.setProperty(memory, Slice, memory.add(LxmFunction(memory, ::sliceFunction)), isConstant = true)
-        prototype.setProperty(memory, Clear, memory.add(LxmFunction(memory, ::clearFunction)), isConstant = true)
+        prototype.setProperty(memory, Size, LxmFunction(memory, ::sizeFunction), isConstant = true)
+        prototype.setProperty(memory, Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
+        prototype.setProperty(memory, IsFrozen, LxmFunction(memory, ::isFrozenFunction), isConstant = true)
+        prototype.setProperty(memory, Every, LxmFunction(memory, ::everyFunction), isConstant = true)
+        prototype.setProperty(memory, Filter, LxmFunction(memory, ::filterFunction), isConstant = true)
+        prototype.setProperty(memory, ForEach, LxmFunction(memory, ::forEachFunction), isConstant = true)
+        prototype.setProperty(memory, Find, LxmFunction(memory, ::findFunction), isConstant = true)
+        prototype.setProperty(memory, FindLast, LxmFunction(memory, ::findLastFunction), isConstant = true)
+        prototype.setProperty(memory, IndexOf, LxmFunction(memory, ::indexOfFunction), isConstant = true)
+        prototype.setProperty(memory, LastIndexOf, LxmFunction(memory, ::lastIndexOfFunction), isConstant = true)
+        prototype.setProperty(memory, ContainsAny, LxmFunction(memory, ::containsAnyFunction), isConstant = true)
+        prototype.setProperty(memory, ContainsAll, LxmFunction(memory, ::containsAllFunction), isConstant = true)
+        prototype.setProperty(memory, Map, LxmFunction(memory, ::mapFunction), isConstant = true)
+        prototype.setProperty(memory, Reduce, LxmFunction(memory, ::reduceFunction), isConstant = true)
+        prototype.setProperty(memory, Any, LxmFunction(memory, ::anyFunction), isConstant = true)
+        prototype.setProperty(memory, Remove, LxmFunction(memory, ::removeFunction), isConstant = true)
+        prototype.setProperty(memory, RemoveAt, LxmFunction(memory, ::removeAtFunction), isConstant = true)
+        prototype.setProperty(memory, JoinToString, LxmFunction(memory, ::joinToStringFunction), isConstant = true)
+        prototype.setProperty(memory, CopyWithin, LxmFunction(memory, ::copyWithinFunction), isConstant = true)
+        prototype.setProperty(memory, Push, LxmFunction(memory, ::pushFunction), isConstant = true)
+        prototype.setProperty(memory, Pop, LxmFunction(memory, ::popFunction), isConstant = true)
+        prototype.setProperty(memory, Unshift, LxmFunction(memory, ::unshiftFunction), isConstant = true)
+        prototype.setProperty(memory, Shift, LxmFunction(memory, ::shiftFunction), isConstant = true)
+        prototype.setProperty(memory, Insert, LxmFunction(memory, ::insertFunction), isConstant = true)
+        prototype.setProperty(memory, Replace, LxmFunction(memory, ::replaceFunction), isConstant = true)
+        prototype.setProperty(memory, Reverse, LxmFunction(memory, ::reverseFunction), isConstant = true)
+        prototype.setProperty(memory, Slice, LxmFunction(memory, ::sliceFunction), isConstant = true)
+        prototype.setProperty(memory, Clear, LxmFunction(memory, ::clearFunction), isConstant = true)
 
-        return memory.add(prototype)
+        return prototype
     }
 
     /**
      * Returns the size of the list.
      */
-    private fun sizeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Size, ListType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmList ->
-        LxmInteger.from(thisValue.actualListSize)
-    }
+    private fun sizeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Size, ListType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmList ->
+                LxmInteger.from(thisValue.actualListSize)
+            }
 
     /**
      * Makes the list constant.
      */
-    private fun freezeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Freeze, ListType.TypeName,
-            toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-        thisValue.makeConstantAndNotWritable(analyzer.memory)
-        LxmNil
-    }
+    private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, ListType.TypeName,
+                    toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
+                thisValue.makeConstantAndNotWritable(analyzer.memory)
+                LxmNil
+            }
 
     /**
      * Returns whether the list is constant or not.
      */
-    private fun isFrozenFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, IsFrozen, ListType.TypeName,
-            toWrite = false) { _: LexemAnalyzer, thisValue: LxmList ->
-        LxmLogic.from(thisValue.isConstant)
-    }
+    private fun isFrozenFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, IsFrozen, ListType.TypeName,
+                    toWrite = false) { _: LexemAnalyzer, thisValue: LxmList ->
+                LxmLogic.from(thisValue.isConstant)
+            }
 
     /**
      * Checks whether all the elements of the list match the condition.
      */
-    private fun everyFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun everyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, EveryArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, EveryArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[EveryArgs[0]] ?: LxmNil
+        val function = parserArguments[EveryArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Every' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Every' method requires the parameter called '${EveryArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -212,23 +202,21 @@ internal object ListPrototype {
     /**
      * Filters a list.
      */
-    private fun filterFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun filterFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, FilterArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, FilterArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[FilterArgs[0]] ?: LxmNil
+        val function = parserArguments[FilterArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Filter' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Filter' method requires the parameter called '${FilterArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -236,10 +224,9 @@ internal object ListPrototype {
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val list = LxmList(analyzer.memory)
-                val listRef = analyzer.memory.add(list)
 
                 if (thisValue.listSize > 0) {
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Filter)
@@ -247,7 +234,7 @@ internal object ListPrototype {
                     return false
                 }
 
-                analyzer.memory.addToStackAsLast(listRef)
+                analyzer.memory.addToStackAsLast(list)
             }
             in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -282,23 +269,21 @@ internal object ListPrototype {
     /**
      * Iterates of the elements of a list.
      */
-    private fun forEachFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun forEachFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ForEachArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ForEachArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[ForEachArgs[0]] ?: LxmNil
+        val function = parserArguments[ForEachArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ForEach' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ForEach' method requires the parameter called '${ForEachArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -337,23 +322,21 @@ internal object ListPrototype {
     /**
      * Returns the first index-value that match the condition.
      */
-    private fun findFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun findFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, FindArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, FindArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[FindArgs[0]] ?: LxmNil
+        val function = parserArguments[FindArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Find' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Find' method requires the parameter called '${FindArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -377,7 +360,6 @@ internal object ListPrototype {
 
                 if (resultTruthy) {
                     val obj = LxmObject(analyzer.memory)
-                    val objRef = analyzer.memory.add(obj)
 
                     obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Index, LxmInteger.from(position - 1))
                     obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value,
@@ -386,7 +368,7 @@ internal object ListPrototype {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
-                    analyzer.memory.addToStackAsLast(objRef)
+                    analyzer.memory.addToStackAsLast(obj)
                 } else {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -410,23 +392,21 @@ internal object ListPrototype {
     /**
      * Returns the last index-value that match the condition.
      */
-    private fun findLastFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun findLastFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, FindLastArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, FindLastArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[FindLastArgs[0]] ?: LxmNil
+        val function = parserArguments[FindLastArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$FindLast' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$FindLast' method requires the parameter called '${FindLastArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -452,7 +432,6 @@ internal object ListPrototype {
 
                 if (resultTruthy) {
                     val obj = LxmObject(analyzer.memory)
-                    val objRef = analyzer.memory.add(obj)
 
                     obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Index,
                             LxmInteger.from(positionFromLast + 1))
@@ -462,7 +441,7 @@ internal object ListPrototype {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
-                    analyzer.memory.addToStackAsLast(objRef)
+                    analyzer.memory.addToStackAsLast(obj)
                 } else {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -486,11 +465,9 @@ internal object ListPrototype {
     /**
      * Returns the first index of the specified value in the list.
      */
-    private fun indexOfFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun indexOfFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, IndexOfArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, IndexOfArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -517,11 +494,9 @@ internal object ListPrototype {
     /**
      * Returns the last index of the specified value in the list.
      */
-    private fun lastIndexOfFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun lastIndexOfFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, LastIndexOfArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, LastIndexOfArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -548,12 +523,10 @@ internal object ListPrototype {
     /**
      * Returns whether any of the specified values are contained in the list.
      */
-    private fun containsAnyFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun containsAnyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -578,12 +551,10 @@ internal object ListPrototype {
     /**
      * Returns whether all the specified values are contained in the list.
      */
-    private fun containsAllFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun containsAllFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -609,23 +580,21 @@ internal object ListPrototype {
     /**
      * Maps every element of the list into another one.
      */
-    private fun mapFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun mapFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, MapArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, MapArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[MapArgs[0]] ?: LxmNil
+        val function = parserArguments[MapArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Map' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Map' method requires the parameter called '${MapArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -633,10 +602,9 @@ internal object ListPrototype {
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val list = LxmList(analyzer.memory)
-                val listRef = analyzer.memory.add(list)
 
                 if (thisValue.listSize > 0) {
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, listRef)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Map)
@@ -644,7 +612,7 @@ internal object ListPrototype {
                     return false
                 }
 
-                analyzer.memory.addToStackAsLast(listRef)
+                analyzer.memory.addToStackAsLast(list)
             }
             in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
@@ -676,24 +644,22 @@ internal object ListPrototype {
     /**
      * Reduces a list of elements to an accumulator.
      */
-    private fun reduceFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun reduceFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ReduceArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ReduceArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
         val default = parserArguments[ReduceArgs[0]] ?: LxmNil
-        val function = parserArguments[ReduceArgs[1]] ?: LxmNil
+        val function = parserArguments[ReduceArgs[1]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Reduce' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Reduce' method requires the parameter called '${ReduceArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -733,23 +699,21 @@ internal object ListPrototype {
     /**
      * Checks whether any of the elements of the list match the condition.
      */
-    private fun anyFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun anyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, AnyArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AnyArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
-        val function = parserArguments[AnyArgs[0]] ?: LxmNil
+        val function = parserArguments[AnyArgs[0]]?.dereference(analyzer.memory, toWrite = false)
 
         if (thisValue !is LxmList) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadThisArgumentTypeError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Any' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        if (function.dereference(analyzer.memory, toWrite = false) !is LxmFunction) {
+        if (function !is LxmFunction) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Any' method requires the parameter called '${AnyArgs[0]}' be a ${FunctionType.TypeName}") {}
         }
@@ -797,12 +761,10 @@ internal object ListPrototype {
     /**
      * Removes some values from the list.
      */
-    private fun removeFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun removeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -833,11 +795,9 @@ internal object ListPrototype {
     /**
      * Removes elements of the list at the specified position.
      */
-    private fun removeAtFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun removeAtFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, RemoveAtArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, RemoveAtArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -887,12 +847,10 @@ internal object ListPrototype {
     /**
      * Joins all the elements of the list.
      */
-    private fun joinToStringFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun joinToStringFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, JoinToStringArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, JoinToStringArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -971,11 +929,9 @@ internal object ListPrototype {
     /**
      * Copies the content of this list inside another one.
      */
-    private fun copyWithinFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun copyWithinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, CopyWithinArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, CopyWithinArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -1058,12 +1014,10 @@ internal object ListPrototype {
     /**
      * Pushes new values to the end of the list.
      */
-    private fun pushFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun pushFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1083,11 +1037,9 @@ internal object ListPrototype {
     /**
      * Removes values from the end of the list.
      */
-    private fun popFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun popFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, PopArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, PopArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1116,7 +1068,6 @@ internal object ListPrototype {
                 }
 
                 val result = LxmList(analyzer.memory)
-                val resultRef = analyzer.memory.add(result)
                 val count2Pop = minOf(thisValue.actualListSize, count.primitive)
                 val cellsToKeep = (thisValue.actualListSize - 1 downTo 0).take(count.primitive).map {
                     thisValue.getCell(analyzer.memory, it)!!
@@ -1125,7 +1076,7 @@ internal object ListPrototype {
                 result.addCell(analyzer.memory, *cellsToKeep)
                 thisValue.removeCell(analyzer.memory, thisValue.actualListSize - count2Pop, count2Pop)
 
-                analyzer.memory.addToStackAsLast(resultRef)
+                analyzer.memory.addToStackAsLast(result)
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Pop' method requires the parameter called '${PopArgs[0]}' be a ${IntegerType.TypeName}") {}
@@ -1137,12 +1088,10 @@ internal object ListPrototype {
     /**
      * Pushes new values at the beginning of the list.
      */
-    private fun unshiftFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun unshiftFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1162,11 +1111,9 @@ internal object ListPrototype {
     /**
      * Removes values from the start of the list.
      */
-    private fun shiftFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun shiftFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ShiftArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ShiftArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1195,7 +1142,6 @@ internal object ListPrototype {
                 }
 
                 val result = LxmList(analyzer.memory)
-                val resultRef = analyzer.memory.add(result)
                 val count2Shift = minOf(thisValue.actualListSize, count.primitive)
                 val cellsToKeep = (0 until thisValue.actualListSize).take(count.primitive).map {
                     thisValue.getCell(analyzer.memory, it)!!
@@ -1204,7 +1150,7 @@ internal object ListPrototype {
                 result.addCell(analyzer.memory, *cellsToKeep)
                 thisValue.removeCell(analyzer.memory, 0, count2Shift)
 
-                analyzer.memory.addToStackAsLast(resultRef)
+                analyzer.memory.addToStackAsLast(result)
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Shift' method requires the parameter called '${ShiftArgs[0]}' be a ${IntegerType.TypeName}") {}
@@ -1216,12 +1162,10 @@ internal object ListPrototype {
     /**
      * Inserts new values at the specified position.
      */
-    private fun insertFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun insertFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, InsertArgs, spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, InsertArgs, spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1254,12 +1198,10 @@ internal object ListPrototype {
     /**
      * Replaces some values of the list for the specified ones.
      */
-    private fun replaceFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun replaceFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, ReplaceArgs, spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ReplaceArgs, spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -1309,42 +1251,39 @@ internal object ListPrototype {
     /**
      * Reverses the list.
      */
-    private fun reverseFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Reverse, ListType.TypeName,
-            toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-        if (thisValue.actualListSize < 2) {
-            return@executeUnitaryOperator LxmNil
-        }
+    private fun reverseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Reverse, ListType.TypeName,
+                    toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
+                if (thisValue.actualListSize < 2) {
+                    return@executeUnitaryOperator LxmNil
+                }
 
-        // Reverse the list.
-        for ((leftPos, rightPos) in (0 until thisValue.actualListSize / 2).map {
-            Pair(it, thisValue.actualListSize - 1 - it)
-        }) {
-            val left = thisValue.getCell(analyzer.memory, leftPos)!!
-            val right = thisValue.getCell(analyzer.memory, rightPos)!!
+                // Reverse the list.
+                for ((leftPos, rightPos) in (0 until thisValue.actualListSize / 2).map {
+                    Pair(it, thisValue.actualListSize - 1 - it)
+                }) {
+                    val left = thisValue.getCell(analyzer.memory, leftPos)!!
+                    val right = thisValue.getCell(analyzer.memory, rightPos)!!
 
-            // Add to the stack to not loose the reference.
-            analyzer.memory.addToStackAsLast(left)
+                    // Add to the stack to not loose the reference.
+                    analyzer.memory.addToStackAsLast(left)
 
-            thisValue.setCell(analyzer.memory, leftPos, right)
-            thisValue.setCell(analyzer.memory, rightPos, left)
+                    thisValue.setCell(analyzer.memory, leftPos, right)
+                    thisValue.setCell(analyzer.memory, rightPos, left)
 
-            // Remove Last from the stack.
-            analyzer.memory.removeLastFromStack()
-        }
+                    // Remove Last from the stack.
+                    analyzer.memory.removeLastFromStack()
+                }
 
-        LxmNil
-    }
+                LxmNil
+            }
 
     /**
      * Returns a new list with all the elements between the specified bounds.
      */
-    private fun sliceFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
+    private fun sliceFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments =
-                argumentsReference.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!.mapArguments(
-                        analyzer.memory, SliceArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, SliceArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -1369,13 +1308,12 @@ internal object ListPrototype {
         when (count) {
             is LxmNil -> {
                 val result = LxmList(analyzer.memory)
-                val resultRef = analyzer.memory.add(result)
 
                 result.addCell(analyzer.memory, *(from.primitive until thisValue.actualListSize).map {
                     thisValue.getCell(analyzer.memory, it)!!
                 }.toTypedArray())
 
-                analyzer.memory.addToStackAsLast(resultRef)
+                analyzer.memory.addToStackAsLast(result)
             }
             is LxmInteger -> {
                 if (count.primitive < 0) {
@@ -1384,14 +1322,13 @@ internal object ListPrototype {
                 }
 
                 val result = LxmList(analyzer.memory)
-                val resultRef = analyzer.memory.add(result)
 
                 result.addCell(analyzer.memory,
                         *(from.primitive until thisValue.actualListSize).take(count.primitive).map {
                             thisValue.getCell(analyzer.memory, it)!!
                         }.toTypedArray())
 
-                analyzer.memory.addToStackAsLast(resultRef)
+                analyzer.memory.addToStackAsLast(result)
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Slice' method requires the parameter called '${SliceArgs[1]}' be a ${IntegerType.TypeName}") {}
@@ -1403,14 +1340,13 @@ internal object ListPrototype {
     /**
      * Removes all the elements of the list.
      */
-    private fun clearFunction(analyzer: LexemAnalyzer, argumentsReference: LxmReference, function: LxmFunction,
-            signal: Int) = BinaryAnalyzerCommons.executeUnitaryOperator(analyzer,
-            argumentsReference.dereferenceAs(analyzer.memory, toWrite = false)!!, Clear, ListType.TypeName,
-            toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-        for (i in thisValue.actualListSize - 1 downTo 0) {
-            thisValue.removeCell(analyzer.memory, i)
-        }
+    private fun clearFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
+            BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Clear, ListType.TypeName,
+                    toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
+                for (i in thisValue.actualListSize - 1 downTo 0) {
+                    thisValue.removeCell(analyzer.memory, i)
+                }
 
-        LxmNil
-    }
+                LxmNil
+            }
 }
