@@ -223,9 +223,10 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val children = parent.getChildren(analyzer.memory, toWrite = true)
-        val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parent, analyzer.memory)
+        val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+        childNode.addToParent(analyzer.memory, parent)
         children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
@@ -256,7 +257,7 @@ internal class AccessLexemAnalyzerTest {
 
         // Remove the circular references of the nodes.
         childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
 
@@ -425,9 +426,10 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val children = parent.getChildren(analyzer.memory, toWrite = true)
-        val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parent, analyzer.memory)
+        val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+        childNode.addToParent(analyzer.memory, parent)
         children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
@@ -448,7 +450,7 @@ internal class AccessLexemAnalyzerTest {
 
         // Remove the circular references of the nodes.
         childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
@@ -533,9 +535,10 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val children = parent.getChildren(analyzer.memory, toWrite = true)
-        val childNode = LxmNode(nodeName + "x", analyzer.text.saveCursor(), parent, analyzer.memory)
+        val childNode = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
+        childNode.addToParent(analyzer.memory, parent)
         children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
@@ -555,7 +558,7 @@ internal class AccessLexemAnalyzerTest {
 
         // Remove the circular references of the nodes.
         childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
 
@@ -608,9 +611,10 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val children = parent.getChildren(analyzer.memory, toWrite = true)
-        val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parent, analyzer.memory)
+        val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+        childNode.addToParent(analyzer.memory, parent)
         children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
         context.setProperty(analyzer.memory, variableName, LxmNil)
@@ -641,7 +645,7 @@ internal class AccessLexemAnalyzerTest {
 
         // Remove the circular references of the nodes.
         childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
 

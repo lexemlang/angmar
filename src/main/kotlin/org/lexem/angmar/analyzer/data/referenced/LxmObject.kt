@@ -128,17 +128,17 @@ internal open class LxmObject : LexemReferenced {
     }
 
     /**
-     * Sets a new value to the property or creates a new property with the specified value.
+     * Sets a new value to the property or creates a new property with the specified value.p
      */
     fun setProperty(memory: LexemMemory, identifier: String, value: LexemMemoryValue, isConstant: Boolean = false,
-            isIterable: Boolean = true, ignoringConstant: Boolean = false) {
+            isIterable: Boolean = true, ignoreConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (!ignoringConstant && this.isConstant) {
+        if (!ignoreConstant && this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
         }
@@ -162,7 +162,7 @@ internal open class LxmObject : LexemReferenced {
 
             // Current property.
             currentProperty != null -> {
-                if (!ignoringConstant && currentProperty.isConstant) {
+                if (!ignoreConstant && currentProperty.isConstant) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
                             "The object property called '$identifier' is constant therefore it cannot be modified") {}
                 }
@@ -175,7 +175,7 @@ internal open class LxmObject : LexemReferenced {
 
             // Property in past version of the object.
             lastProperty != null -> {
-                if (!ignoringConstant && lastProperty.isConstant) {
+                if (!ignoreConstant && lastProperty.isConstant) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
                             "The object property called '$identifier' is constant therefore it cannot be modified") {}
                 }
@@ -247,14 +247,14 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Removes a property.
      */
-    fun removeProperty(memory: LexemMemory, identifier: String) {
+    fun removeProperty(memory: LexemMemory, identifier: String, ignoreConstant: Boolean = false) {
         // Prevent modifications if the object is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
         }
@@ -265,7 +265,7 @@ internal open class LxmObject : LexemReferenced {
         when {
             // Current property
             currentProperty != null -> {
-                if (currentProperty.isConstant) {
+                if (!ignoreConstant && currentProperty.isConstant) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
                             "The object property called '$identifier' is constant therefore it cannot be modified") {}
                 }
@@ -284,15 +284,15 @@ internal open class LxmObject : LexemReferenced {
 
             // Property in past version of the object
             lastProperty != null -> {
-                if (lastProperty.isConstant) {
+                if (!ignoreConstant && lastProperty.isConstant) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
                             "The object property called '$identifier' is constant therefore it cannot be modified") {}
                 }
 
                 // Set property to remove.
                 val cloned = lastProperty.clone(isIterable = false, isRemoved = true)
-                cloned.replaceValue(memory, LxmNil)
                 properties[identifier] = cloned
+                cloned.replaceValue(memory, LxmNil)
             }
         }
     }

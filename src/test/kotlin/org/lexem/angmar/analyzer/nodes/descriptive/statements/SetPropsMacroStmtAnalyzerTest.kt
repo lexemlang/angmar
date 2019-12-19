@@ -27,7 +27,7 @@ internal class SetPropsMacroStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)

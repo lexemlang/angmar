@@ -24,7 +24,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -46,7 +46,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -73,7 +73,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = text.length + 1)
@@ -105,7 +105,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 1)
@@ -137,7 +137,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
@@ -164,7 +164,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 3)
@@ -195,7 +195,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -221,7 +221,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
@@ -246,7 +246,7 @@ internal class AnyLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))

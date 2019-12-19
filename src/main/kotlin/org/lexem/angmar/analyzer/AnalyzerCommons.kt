@@ -40,6 +40,7 @@ internal object AnalyzerCommons {
         // Nodes
         const val Root = "root"
         const val Parent = "parent"
+        const val ParentIndex = "${HiddenPrefix}parentIndex"
         const val Children = "children"
         const val Node = "node"
         const val Properties = "properties"

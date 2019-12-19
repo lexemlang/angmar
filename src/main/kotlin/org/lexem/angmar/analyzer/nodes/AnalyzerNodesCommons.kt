@@ -390,41 +390,27 @@ internal object AnalyzerNodesCommons {
             val children = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Children) ?: LxmNil)
             if (!children) {
-                val childList = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                childList.removeCell(analyzer.memory, childList.actualListSize - 1, ignoreConstant = true)
+                lxmNode.clearChildren(analyzer.memory)
             }
 
             var returnValue: LexemMemoryValue = lxmNode
             val capture = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture) {
-                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
-                val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
-
-                // Find position in parent.
-                val index =
-                        parentChildren.getAllCells().indexOfFirst { RelationalFunctions.identityEquals(it, lxmNode) }
-                if (index < 0) {
-                    throw AngmarUnreachableException()
-                }
-
-                // Remove from parent.
-                parentChildren.removeCell(analyzer.memory, index, ignoreConstant = true)
-
-                // Add children to parent in the same position.
-                val childrenArray = lxmNode.getChildren(analyzer.memory, toWrite = false).getAllCells().toTypedArray()
-                parentChildren.insertCell(analyzer.memory, index, *childrenArray, ignoreConstant = true)
-
                 // Set the returned value.
-                if (children && childrenArray.isNotEmpty()) {
+                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                if (children && childrenList.actualListSize > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenArray)
+                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
                     returnValue = resultList
                 } else {
                     // Set a null value.
                     returnValue = LxmNil
                 }
+
+                // Replace the node in parent by its children.
+                lxmNode.replaceNodeInParentByChildren(analyzer.memory)
             }
 
             // Set the returned value.
@@ -473,7 +459,7 @@ internal object AnalyzerNodesCommons {
 
                     result.applyOffset(analyzer.memory, node2ReParse.getFrom(analyzer.memory).primitive)
 
-                    node2ReParse.memoryDeallocBranch(analyzer.memory)
+                    node2ReParse.removeFromParent(analyzer.memory)
                 }
                 is LxmList -> {
                     val node2ReParse = context.getPropertyValue(analyzer.memory,
@@ -487,7 +473,7 @@ internal object AnalyzerNodesCommons {
                         child.applyOffset(analyzer.memory, from)
                     }
 
-                    node2ReParse.memoryDeallocBranch(analyzer.memory)
+                    node2ReParse.removeFromParent(analyzer.memory)
                 }
             }
         }

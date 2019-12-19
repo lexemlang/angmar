@@ -27,7 +27,7 @@ internal class LexemePatternContentAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -49,7 +49,7 @@ internal class LexemePatternContentAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
@@ -72,7 +72,7 @@ internal class LexemePatternContentAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
@@ -94,7 +94,7 @@ internal class LexemePatternContentAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {

@@ -68,6 +68,11 @@ interface IReader {
     fun saveCursor(): IReaderCursor
 
     /**
+     * Saves the reader's status to recover at the specified position.
+     */
+    fun saveCursorAt(position: Int): IReaderCursor?
+
+    /**
      * Restarts the reader setting its position to the origin.
      */
     fun restart()

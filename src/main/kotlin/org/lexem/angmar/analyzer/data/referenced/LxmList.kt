@@ -59,14 +59,14 @@ internal class LxmList : LexemReferenced {
     /**
      * Sets a new value to a cell.
      */
-    fun setCell(memory: LexemMemory, index: Int, value: LexemMemoryValue) {
+    fun setCell(memory: LexemMemory, index: Int, value: LexemMemoryValue, ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
                     "The list is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
@@ -83,13 +83,13 @@ internal class LxmList : LexemReferenced {
         when {
             // Current cell
             currentCell != null -> {
-                replaceCell(memory, index, valuePrimitive)
+                replaceCellValue(memory, index, valuePrimitive)
             }
 
             // Cell in past version of the list
             lastCell != null -> {
                 cellList[index] = lastCell
-                replaceCell(memory, index, valuePrimitive)
+                replaceCellValue(memory, index, valuePrimitive)
             }
         }
     }
@@ -97,87 +97,14 @@ internal class LxmList : LexemReferenced {
     /**
      * Adds a new cell to the list.
      */
-    fun addCell(memory: LexemMemory, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) {
-        // Prevent modifications if the list is constant.
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
-        }
-
-        if (!ignoreConstant && isConstant) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
-                    "The list is constant therefore cannot be modified") {}
-        }
-
-        if (!isWritable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
-                    "The list is non writable therefore cannot be modified") {}
-        }
-
-        for (value in values) {
-            val valuePrimitive = value.getPrimitive()
-            replaceCell(memory, actualListSize, valuePrimitive)
-            actualListSize += 1
-        }
-    }
+    fun addCell(memory: LexemMemory, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
+            replaceCell(memory, actualListSize, 0, *values, ignoreConstant = ignoreConstant)
 
     /**
-     * Removes a cell.
+     * Replaces a set of cells removing a group and inserting another one.
      */
-    fun removeCell(memory: LexemMemory, index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
-        // Prevent modifications if the list is constant.
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
-        }
-
-        if (!ignoreConstant && isConstant) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
-                    "The list is constant therefore cannot be modified") {}
-        }
-
-        if (!isWritable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
-                    "The list is non writable therefore cannot be modified") {}
-        }
-
-        if (index >= actualListSize) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                    "The list's length is ${cellList.size} but the position '$index' was required") {}
-        }
-
-        val realCount = if (index + count > actualListSize) {
-            actualListSize - index
-        } else {
-            count
-        }
-
-        // Move to the start.
-        for (i in index + realCount until actualListSize) {
-            val oldIndex = i - count
-            val oldValue = getCellRecursively(memory, oldIndex)!!
-            val newValue = getCellRecursively(memory, i)!!
-
-            // Remove the cell and its value.
-            cellList[oldIndex] = newValue
-            memory.replacePrimitives(oldValue, newValue)
-        }
-
-        // Remove last count values.
-        for (i in actualListSize - realCount until actualListSize) {
-            val value = getCellRecursively(memory, i)!!
-            memory.replacePrimitives(value, LxmNil)
-
-            cellList.remove(i)
-        }
-
-        actualListSize -= realCount
-    }
-
-    /**
-     * Inserts a set of cells at the specified position.
-     */
-    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) {
+    fun replaceCell(memory: LexemMemory, index: Int, removeCount: Int = 0, vararg values2Add: LexemMemoryValue,
+            ignoreConstant: Boolean = false) {
         // Prevent modifications if the list is constant.
         if (isMemoryImmutable(memory)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
@@ -199,27 +126,100 @@ internal class LxmList : LexemReferenced {
                     "The list's length is ${cellList.size} but the position '$index' was required") {}
         }
 
+        val countToReplace = minOf(removeCount, values2Add.size, actualListSize - index)
+
+        // Replace cells.
+        for (i in 0 until countToReplace) {
+            setCell(memory, index + i, values2Add[i], ignoreConstant = true)
+        }
+
+        val removeCount = removeCount - countToReplace
+        val index = index + countToReplace
+        val values2AddSize = values2Add.size - countToReplace
+
+        // At the end.
         if (index == actualListSize) {
-            addCell(memory, *values, ignoreConstant = ignoreConstant)
+            // Add rest.
+            if (values2Add.isNotEmpty()) {
+                for (value in values2Add.drop(countToReplace)) {
+                    val valuePrimitive = value.getPrimitive()
+                    replaceCellValue(memory, actualListSize, valuePrimitive)
+                    actualListSize += 1
+                }
+            }
+
             return
         }
 
-        // Move the cells to create space.
-        val count = values.size
-        for (i in actualListSize - 1 downTo index) {
-            val value = getCellRecursively(memory, i)!!
-            cellList[i + count] = value
-        }
+        // Remove rest.
+        if (values2AddSize == 0) {
+            // Remove rest.
+            if (removeCount != 0) {
+                val realCount = minOf(removeCount, actualListSize - index)
 
-        // Add the new cells.
-        for ((i, value) in values.withIndex()) {
-            val valuePrimitive = value.getPrimitive()
-            memory.replacePrimitives(LxmNil, valuePrimitive)
-            cellList[index + i] = valuePrimitive
-        }
+                // Move backwards.
+                for (i in index + realCount until actualListSize) {
+                    val oldIndex = i - realCount
+                    val oldValue = getCellRecursively(memory, oldIndex)!!
+                    val newValue = getCellRecursively(memory, i)!!
 
-        actualListSize += values.size
+                    // Remove the cell and its value.
+                    cellList[oldIndex] = newValue
+                    memory.replacePrimitives(oldValue, newValue)
+                }
+
+                // Remove last count values.
+                for (i in actualListSize - realCount until actualListSize) {
+                    val value = getCellRecursively(memory, i)!!
+                    memory.replacePrimitives(value, LxmNil)
+
+                    cellList.remove(i)
+                }
+
+                actualListSize -= realCount
+            }
+        } else {
+            // Add rest values.
+            if (removeCount == 0) {
+                val values2Add = values2Add.drop(countToReplace)
+
+                // Move the cells to create space.
+                for (i in actualListSize - 1 downTo index) {
+                    val value = getCellRecursively(memory, i)!!
+                    cellList[i + values2Add.size] = value
+                }
+
+                // Add the new cells.
+                for ((i, value) in values2Add.withIndex()) {
+                    val valuePrimitive = value.getPrimitive()
+                    memory.replacePrimitives(LxmNil, valuePrimitive)
+                    cellList[index + i] = valuePrimitive
+                }
+
+                actualListSize += values2Add.size
+            } else {
+                throw AngmarUnreachableException()
+            }
+        }
     }
+
+    /**
+     * Removes a cell.
+     */
+    fun removeCell(memory: LexemMemory, index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
+        if (index >= actualListSize) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
+                    "The list's length is ${cellList.size} but the position '$index' was required") {}
+        }
+
+        replaceCell(memory, index, count, ignoreConstant = ignoreConstant)
+    }
+
+    /**
+     * Inserts a set of cells at the specified position.
+     */
+    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
+            replaceCell(memory, index, 0, *values, ignoreConstant = ignoreConstant)
 
     /**
      * Makes the list constant.
@@ -292,7 +292,7 @@ internal class LxmList : LexemReferenced {
     /**
      * Replaces the value of a cell.
      */
-    private fun replaceCell(memory: LexemMemory, index: Int, newValue: LexemPrimitive) {
+    private fun replaceCellValue(memory: LexemMemory, index: Int, newValue: LexemPrimitive) {
         // Keep this to replace the elements before possibly remove the references.
         val oldValue = cellList[index] ?: LxmNil
         cellList[index] = newValue

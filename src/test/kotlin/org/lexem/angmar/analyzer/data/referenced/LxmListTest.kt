@@ -105,6 +105,54 @@ internal class LxmListTest {
     }
 
     @Test
+    fun `test replace cells - removing less`() {
+        val memory = TestUtils.generateTestMemory()
+        val old = LxmList(memory)
+        old.replaceCell(memory, 0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
+
+        memory.freezeCopy()
+
+        val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
+        new.replaceCell(memory, 1, 1, LxmLogic.True, LxmLogic.False)
+        new.getAllCells()
+
+        Assertions.assertEquals(4, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(5, new.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num1, old.getCell(memory, 1), "The cell[1] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num2, old.getCell(memory, 2), "The cell[2] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, old.getCell(memory, 3), "The cell[3] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num0, new.getCell(memory, 0), "The cell[0] is incorrect")
+        Assertions.assertEquals(LxmLogic.True, new.getCell(memory, 1), "The cell[1] is incorrect")
+        Assertions.assertEquals(LxmLogic.False, new.getCell(memory, 2), "The cell[2] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num2, new.getCell(memory, 3), "The cell[3] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, new.getCell(memory, 4), "The cell[4] is incorrect")
+    }
+
+    @Test
+    fun `test replace cells - removing more`() {
+        val memory = TestUtils.generateTestMemory()
+        val old = LxmList(memory)
+        old.replaceCell(memory, 0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
+
+        memory.freezeCopy()
+
+        val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
+        new.replaceCell(memory, 1, 2, LxmLogic.True)
+        new.getAllCells()
+
+        Assertions.assertEquals(4, old.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(3, new.actualListSize, "The listSize is incorrect")
+        Assertions.assertEquals(LxmInteger.Num0, old.getCell(memory, 0), "The cell[0] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num1, old.getCell(memory, 1), "The cell[1] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num2, old.getCell(memory, 2), "The cell[2] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, old.getCell(memory, 3), "The cell[3] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num0, new.getCell(memory, 0), "The cell[0] is incorrect")
+        Assertions.assertEquals(LxmLogic.True, new.getCell(memory, 1), "The cell[1] is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, new.getCell(memory, 2), "The cell[2] is incorrect")
+    }
+
+    @Test
     fun `test set cell`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)

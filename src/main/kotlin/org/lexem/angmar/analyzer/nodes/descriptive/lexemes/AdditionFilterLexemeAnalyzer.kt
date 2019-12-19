@@ -82,10 +82,8 @@ internal object AdditionFilterLexemeAnalyzer {
         val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
         val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
                 toWrite = false)!!
-        val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
 
-        parentChildren.insertCell(analyzer.memory, nodePosition.primitive, lxmNode, ignoreConstant = true)
-        lxmNode.setParent(analyzer.memory, parent)
+        parent.insertChildren(analyzer.memory, listOf(lxmNode), nodePosition.primitive)
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)

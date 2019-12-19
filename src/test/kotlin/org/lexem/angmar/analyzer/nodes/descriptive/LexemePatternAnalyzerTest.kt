@@ -49,7 +49,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -70,7 +70,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
@@ -91,7 +91,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
@@ -112,7 +112,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -132,7 +132,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
@@ -153,7 +153,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -175,7 +175,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -220,7 +220,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -264,7 +264,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val quantifier = when (type) {
             LexemePatternNode.Companion.PatternType.Additive -> LxmQuantifier.AdditivePattern
             LexemePatternNode.Companion.PatternType.Selective -> LxmQuantifier.SelectivePattern
@@ -309,7 +309,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val quantifier = when (type) {
             LexemePatternNode.Companion.PatternType.Additive -> LxmQuantifier.AdditivePattern
             LexemePatternNode.Companion.PatternType.Selective -> LxmQuantifier.SelectivePattern
@@ -352,7 +352,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val quantifier = LxmQuantifier.AlternativePattern
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num1, analyzer.memory)
@@ -391,7 +391,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -428,7 +428,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -464,7 +464,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, union)
@@ -503,7 +503,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, union)
@@ -541,7 +541,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.from(quantifier.max), analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, union)
@@ -583,7 +583,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, union)
@@ -622,7 +622,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
         unions.setProperty(analyzer.memory, unionName, union)
@@ -661,7 +661,7 @@ internal class LexemePatternAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+            val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
             val unions = LxmObject(analyzer.memory)
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -684,7 +684,7 @@ internal class LexemePatternAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+            val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
             val unions = LxmObject(analyzer.memory)
             val quantifier2 = LxmQuantifier(3)
             val union = LxmPatternUnion(quantifier2, LxmInteger.Num0, analyzer.memory)
@@ -709,7 +709,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -749,7 +749,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -788,7 +788,7 @@ internal class LexemePatternAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)

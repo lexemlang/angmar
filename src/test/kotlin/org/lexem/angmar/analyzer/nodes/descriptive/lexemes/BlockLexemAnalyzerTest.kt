@@ -21,7 +21,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -49,7 +49,7 @@ internal class BlockLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
 
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -74,7 +74,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -101,7 +101,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -126,7 +126,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
@@ -156,7 +156,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
@@ -183,7 +183,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
@@ -213,7 +213,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
@@ -240,7 +240,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
@@ -259,7 +259,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
@@ -279,7 +279,7 @@ internal class BlockLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", textReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)

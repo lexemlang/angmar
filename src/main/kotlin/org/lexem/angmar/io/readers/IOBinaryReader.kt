@@ -71,7 +71,15 @@ class IOBinaryReader internal constructor(private val sourceFile: String, privat
         return true
     }
 
-    override fun saveCursor() = BinaryReaderCursor(this)
+    override fun saveCursor() = BinaryReaderCursor(this, currentPosition())
+
+    override fun saveCursorAt(position: Int): BinaryReaderCursor? {
+        if (position < 0 || position > getLength()) {
+            return null
+        }
+
+        return BinaryReaderCursor(this, position)
+    }
 
     /**
      * Restores a [BinaryReaderCursor] generated for this [IOBinaryReader].
@@ -118,9 +126,9 @@ class IOBinaryReader internal constructor(private val sourceFile: String, privat
     /**
      * Cursor for [IOBinaryReader]
      */
-    class BinaryReaderCursor constructor(private val reader: IOBinaryReader) : IBinaryReaderCursor {
-        private val position = reader.currentPosition()
-        private val bitValue = reader.currentBit()
+    class BinaryReaderCursor constructor(private val reader: IOBinaryReader, at: Int) : IBinaryReaderCursor {
+        private val position = at
+        private val bitValue = reader.content[at]
 
         override fun position() = position
         override fun bit() = bitValue

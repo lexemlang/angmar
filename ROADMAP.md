@@ -6,8 +6,6 @@ This is the plan to work towards a future release.
 
 ## TODO
 
-- Add reference to LexemReference.
-- Put in the node the index in the parent.
 - Make an `optimize` function in the ParserNode classes.
   - Intervals
   - Strings
@@ -36,3 +34,7 @@ This is the plan to work towards a future release.
 
 - Possibility of use an integer interval to see what cells are ok and what else not to only iterate at the end
 through those. 
+
+
+- The hidden properties are serializable?
+- Protect the indexer to access hidden properties.

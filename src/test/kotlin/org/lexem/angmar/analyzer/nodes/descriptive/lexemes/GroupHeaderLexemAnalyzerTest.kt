@@ -122,7 +122,7 @@ internal class GroupHeaderLexemAnalyzerTest {
             val parentChildren = parentNode.getChildren(analyzer.memory, toWrite = false)
             parentChildren.removeCell(analyzer.memory, parentChildren.actualListSize - 1, ignoreConstant = true)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node,
-                    lxmNode.getParentReference(analyzer.memory)!!, ignoringConstant = true)
+                    lxmNode.getParentReference(analyzer.memory)!!, ignoreConstant = true)
         }
     }
 

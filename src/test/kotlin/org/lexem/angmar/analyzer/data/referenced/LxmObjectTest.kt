@@ -274,7 +274,7 @@ internal class LxmObjectTest {
         val obj = LxmObject(memory)
         obj.makeConstant(memory)
 
-        obj.setProperty(memory, propName, LxmInteger.Num10, ignoringConstant = true)
+        obj.setProperty(memory, propName, LxmInteger.Num10, ignoreConstant = true)
 
         Assertions.assertEquals(LxmInteger.Num10, obj.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
@@ -715,7 +715,7 @@ internal class LxmObjectTest {
             val obj = LxmObject(memory)
 
             obj.makeConstantAndNotWritable(memory)
-            obj.setProperty(memory, "test", LxmNil, ignoringConstant = true)
+            obj.setProperty(memory, "test", LxmNil, ignoreConstant = true)
         }
     }
 }

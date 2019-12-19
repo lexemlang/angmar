@@ -109,7 +109,7 @@ internal class SelectorAnalyzerTest {
 
         // Prepare stack.
         if (isOk) {
-            val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
+            val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
 
             lxmNode.getProperties(analyzer.memory, toWrite = true)
                     .setProperty(analyzer.memory, propertyName, LxmLogic.True)
@@ -117,8 +117,8 @@ internal class SelectorAnalyzerTest {
         } else {
             when {
                 hasMethod -> {
-                    val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
-                    val lxmNodeAux = LxmNode("aux", analyzer.text.saveCursor(), null, analyzer.memory)
+                    val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+                    val lxmNodeAux = LxmNode(analyzer.memory, "aux", analyzer.text.saveCursor())
 
                     lxmNode.getChildren(analyzer.memory, toWrite = true)
                             .addCell(analyzer.memory, lxmNodeAux, ignoreConstant = true)
@@ -127,12 +127,12 @@ internal class SelectorAnalyzerTest {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }
                 hasProperty -> {
-                    val lxmNode = LxmNode(nodeName, analyzer.text.saveCursor(), null, analyzer.memory)
+                    val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
 
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }
                 else -> {
-                    val lxmNode = LxmNode(nodeName + "x", analyzer.text.saveCursor(), null, analyzer.memory)
+                    val lxmNode = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
 
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 }

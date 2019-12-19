@@ -7,7 +7,6 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
-import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
 
 
@@ -170,8 +169,7 @@ internal object GroupLexemAnalyzer {
             val children = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Children) ?: LxmNil)
             if (!children) {
-                val childList = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                childList.removeCell(analyzer.memory, childList.actualListSize - 1, ignoreConstant = true)
+                lxmNode.clearChildren(analyzer.memory)
             }
 
             var returnValue: LexemMemoryValue = if (lxmNode.name.isBlank()) {
@@ -181,41 +179,21 @@ internal object GroupLexemAnalyzer {
             }
             val capture = RelationalFunctions.isTruthy(
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
-            if (!capture) {
-                val parent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
-                val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
-
-                // Find position in parent.
-                var index = -1
-                val lxmNodeRef = lxmNode.getPrimitive()
-                for ((i, value) in parentChildren.getAllCells().withIndex().reversed()) {
-                    if (value == lxmNodeRef) {
-                        index = i
-                        break
-                    }
-                }
-
-                if (index == -1) {
-                    throw AngmarUnreachableException()
-                }
-
-                // Remove from parent.
-                parentChildren.removeCell(analyzer.memory, index, ignoreConstant = true)
-
-                // Add children to parent in the same position.
-                val childrenArray = lxmNode.getChildren(analyzer.memory, toWrite = true).getAllCells().toTypedArray()
-                parentChildren.insertCell(analyzer.memory, index, *childrenArray, ignoreConstant = true)
-
+            if (!capture && children) {
                 // Set the returned value.
-                if (children && childrenArray.isNotEmpty()) {
+                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                if (children && childrenList.actualListSize > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenArray)
+                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
                     returnValue = resultList
                 } else {
                     // Set a null value.
                     returnValue = LxmNil
                 }
+
+                // Replace the node in parent by its children.
+                lxmNode.replaceNodeInParentByChildren(analyzer.memory)
             }
 
             // Set the returned value.

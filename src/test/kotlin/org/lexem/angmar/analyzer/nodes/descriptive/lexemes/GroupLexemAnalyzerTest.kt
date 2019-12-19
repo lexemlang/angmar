@@ -375,15 +375,14 @@ internal class GroupLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val lxmNode = LxmNode("createdNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "createdNode", analyzer.text.saveCursor())
 
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
 
         // Prepare the node to filter.
-        val parent = LxmNode("processedNode", analyzer.text.saveCursor(), null, analyzer.memory)
-        val children = parent.getChildren(analyzer.memory, toWrite = true)
-        val childNode = LxmNode(nodeName, analyzer.text.saveCursor(), parent, analyzer.memory)
-        children.addCell(analyzer.memory, childNode, ignoreConstant = true)
+        val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
+        val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+        childNode.addToParent(analyzer.memory, parent)
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNode, parent)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
@@ -405,7 +404,7 @@ internal class GroupLexemAnalyzerTest {
 
         // Remove the circular references of the nodes.
         childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }

@@ -162,25 +162,9 @@ internal object FilterLexemeAnalyzer {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
                 toWrite = false)!!
-        val parentChildren = parent.getChildren(analyzer.memory, toWrite = true)
-        val oldParent = lxmNode.getParent(analyzer.memory, toWrite = false)!!
 
         // Link to the new parent.
-        parentChildren.addCell(analyzer.memory, lxmNode, ignoreConstant = true)
-        lxmNode.setParent(analyzer.memory, parent)
-
-        // Unlink from the old parent.
-        val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
-        val reverse = RelationalFunctions.isTruthy(
-                props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
-        val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
-        val oldParentIndex = if (reverse) {
-            nodePosition.primitive - 1
-        } else {
-            nodePosition.primitive
-        }
-        oldParent.getChildren(analyzer.memory, toWrite = true)
-                .removeCell(analyzer.memory, oldParentIndex, ignoreConstant = true)
+        lxmNode.addToParent(analyzer.memory, parent)
 
         // Update the node position.
         updatePosition(analyzer)

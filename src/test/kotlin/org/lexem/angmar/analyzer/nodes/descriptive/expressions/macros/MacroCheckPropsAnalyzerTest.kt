@@ -27,7 +27,7 @@ internal class MacroCheckPropsAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, affirmativeVar, LxmLogic.True)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)
@@ -61,7 +61,7 @@ internal class MacroCheckPropsAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", analyzer.text.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, affirmativeVar, LxmNil)
         props.setProperty(analyzer.memory, negativeVar, LxmLogic.False)

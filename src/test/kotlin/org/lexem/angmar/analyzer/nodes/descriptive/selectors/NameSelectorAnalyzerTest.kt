@@ -49,7 +49,7 @@ internal class NameSelectorAnalyzerTest {
         reader.setPosition(initialPosition)
 
         // Prepare context.
-        val node = LxmNode(nodeName2, reader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, nodeName2, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
@@ -79,7 +79,7 @@ internal class NameSelectorAnalyzerTest {
         reader.setPosition(initialPosition)
 
         // Prepare context.
-        val node = LxmNode(actualNodeName, reader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, actualNodeName, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
@@ -109,7 +109,7 @@ internal class NameSelectorAnalyzerTest {
         reader.setPosition(initialPosition)
 
         // Prepare context.
-        val node = LxmNode(actualNodeName, reader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, actualNodeName, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
@@ -138,7 +138,7 @@ internal class NameSelectorAnalyzerTest {
         reader.setPosition(initialPosition)
 
         // Prepare context.
-        val node = LxmNode(nodeName2, reader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, nodeName2, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)

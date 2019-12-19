@@ -247,8 +247,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         }
 
         // Return the correct result.
-        val rootNode =
-                getRootNode(toWrite = true) ?: LxmNode(AnalyzerCommons.Identifiers.Root, initialCursor, null, memory)
+        val rootNode = getRootNode(toWrite = true) ?: LxmNode(memory, AnalyzerCommons.Identifiers.Root, initialCursor)
         rootNode.setTo(memory, initialCursor)
 
         return LexemMatch(this, rootNode)
@@ -350,13 +349,11 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
         val parent =
                 stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                        toWrite = false)
+                        toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
 
-        val node = LxmNode(name, text.saveCursor(), parent, memory)
-
+        val node = LxmNode(memory, name, text.saveCursor())
         if (parent != null) {
-            val parentChildren = parent.getChildren(memory, toWrite = true)
-            parentChildren.addCell(memory, node, ignoreConstant = true)
+            node.addToParent(memory, parent)
         }
 
         stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, node)

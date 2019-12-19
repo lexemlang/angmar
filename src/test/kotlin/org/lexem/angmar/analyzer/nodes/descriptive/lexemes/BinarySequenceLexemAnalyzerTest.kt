@@ -22,7 +22,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, binaryReader)
@@ -53,7 +53,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, binaryReader)
@@ -82,7 +82,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
@@ -115,7 +115,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         val props = node.getProperties(analyzer.memory, toWrite = true)
         props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
@@ -147,7 +147,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, binaryReader, status = LexemAnalyzer.ProcessStatus.Backward,
@@ -167,7 +167,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, binaryReader, status = LexemAnalyzer.ProcessStatus.Backward,
@@ -190,7 +190,7 @@ internal class BinarySequenceLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", binaryReader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", binaryReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, binaryReader)

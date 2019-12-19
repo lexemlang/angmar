@@ -18,7 +18,7 @@ internal class PropertySelectorAnalyzerTest {
                 TestUtils.createAnalyzerFrom(grammar, parserFunction = PropertySelectorNode.Companion::parseForAddition)
 
         // Prepare stack.
-        val lxmNode = LxmNode("nodeName", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
@@ -44,7 +44,7 @@ internal class PropertySelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = PropertySelectorNode.Companion::parse)
 
         // Prepare stack.
-        val lxmNode = LxmNode("nodeName", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (isOk) {
             val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
             props.setProperty(analyzer.memory, propName, LxmLogic.True)
@@ -72,7 +72,7 @@ internal class PropertySelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = PropertySelectorNode.Companion::parse)
 
         // Prepare stack.
-        val lxmNode = LxmNode("nodeName", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (!isOk) {
             val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
             props.setProperty(analyzer.memory, propName, LxmLogic.True)

@@ -38,7 +38,7 @@ internal class ExpressionPrototypeTest {
             // Remove the function cyclic reference.
             val node = context.getDereferencedProperty<LxmNode>(analyzer.memory,
                     AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = true)!!
-            node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoringConstant = true)
+            node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
         }
     }
 }

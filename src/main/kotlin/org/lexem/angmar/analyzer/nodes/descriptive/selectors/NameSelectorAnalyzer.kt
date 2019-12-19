@@ -25,7 +25,7 @@ internal object NameSelectorAnalyzer {
                 signalEndFirstName -> {
                     val name = analyzer.memory.getLastFromStack() as LxmString
                     val cursor = analyzer.text.saveCursor()
-                    val lxmNode = LxmNode(name.primitive, cursor, null, analyzer.memory)
+                    val lxmNode = LxmNode(analyzer.memory, name.primitive, cursor)
                     lxmNode.setTo(analyzer.memory, cursor)
 
                     // Remove Last from the stack.

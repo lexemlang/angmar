@@ -60,7 +60,15 @@ class IOStringReader internal constructor(private val sourceFile: String, privat
         return true
     }
 
-    override fun saveCursor() = StringReaderCursor(this)
+    override fun saveCursor() = StringReaderCursor(this, currentPosition())
+
+    override fun saveCursorAt(position: Int): StringReaderCursor? {
+        if (position < 0 || position > getLength()) {
+            return null
+        }
+
+        return StringReaderCursor(this, position)
+    }
 
     /**
      * Restores a [StringReaderCursor] generated for this [IOStringReader].
@@ -103,9 +111,9 @@ class IOStringReader internal constructor(private val sourceFile: String, privat
     /**
      * Cursor for [IOStringReader]
      */
-    class StringReaderCursor constructor(private val reader: IOStringReader) : ITextReaderCursor {
-        private val position = reader.currentPosition()
-        private val character = reader.currentChar()
+    class StringReaderCursor internal constructor(private val reader: IOStringReader, at: Int) : ITextReaderCursor {
+        private val position = at
+        private val character = reader.text.getOrNull(at)
 
         override fun position() = position
         override fun char() = character

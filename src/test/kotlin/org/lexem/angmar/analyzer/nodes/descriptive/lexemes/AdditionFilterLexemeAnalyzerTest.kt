@@ -19,7 +19,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val lxmNode = LxmNode("rootNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
 
@@ -41,7 +41,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }
@@ -56,7 +56,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val lxmNode = LxmNode("rootNode", analyzer.text.saveCursor(), null, analyzer.memory)
+        val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
         var executed = false
 
@@ -90,7 +90,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoringConstant = true)
+        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(funName, AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))

@@ -122,7 +122,7 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val node = LxmNode("name", reader.saveCursor(), null, analyzer.memory)
+        val node = LxmNode(analyzer.memory, "name", reader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader, status = LexemAnalyzer.ProcessStatus.Backward,
