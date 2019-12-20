@@ -54,12 +54,6 @@ internal class IdentifierNode private constructor(parser: LexemParser, parent: P
          * Parses an identifier.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IdentifierNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), IdentifierNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = IdentifierNode(parser, parent, parentSignal)
 

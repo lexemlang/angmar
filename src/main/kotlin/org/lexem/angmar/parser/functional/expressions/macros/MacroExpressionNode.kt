@@ -42,12 +42,6 @@ internal class MacroExpressionNode private constructor(parser: LexemParser, pare
          * Parses a macro expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MacroExpressionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MacroExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = MacroExpressionNode(parser, parent, parentSignal)
 

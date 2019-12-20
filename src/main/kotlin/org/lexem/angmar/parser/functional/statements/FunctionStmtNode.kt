@@ -55,12 +55,6 @@ internal class FunctionStmtNode private constructor(parser: LexemParser, parent:
          * Parses a function statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionStmtNode(parser, parent, parentSignal)
 

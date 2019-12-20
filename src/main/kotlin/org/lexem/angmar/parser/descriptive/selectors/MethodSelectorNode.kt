@@ -58,12 +58,6 @@ internal class MethodSelectorNode private constructor(parser: LexemParser, paren
          * Parses a method of a selector.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MethodSelectorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MethodSelectorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = MethodSelectorNode(parser, parent, parentSignal)
 

@@ -50,12 +50,6 @@ internal class LogicalExpressionNode private constructor(parser: LexemParser, pa
          * Parses an logical expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LogicalExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = LogicalExpressionNode(parser, parent, parentSignal)
 

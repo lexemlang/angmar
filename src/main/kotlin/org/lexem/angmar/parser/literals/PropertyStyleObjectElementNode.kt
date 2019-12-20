@@ -40,12 +40,6 @@ internal class PropertyStyleObjectElementNode private constructor(parser: LexemP
          * Parses a property-style object element.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyStyleObjectElementNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PropertyStyleObjectElementNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PropertyStyleObjectElementNode(parser, parent, parentSignal)
 

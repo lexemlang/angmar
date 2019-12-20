@@ -51,12 +51,6 @@ internal class UnicodeIntervalAbbrNode private constructor(parser: LexemParser, 
          * Parses an abbreviated unicode interval literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalAbbrNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalAbbrNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = UnicodeIntervalAbbrNode(parser, parent, parentSignal)
 

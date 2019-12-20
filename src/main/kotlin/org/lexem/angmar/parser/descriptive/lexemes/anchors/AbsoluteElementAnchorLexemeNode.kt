@@ -47,12 +47,6 @@ internal class AbsoluteElementAnchorLexemeNode private constructor(parser: Lexem
          * Parses an absolute element of an anchor lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AbsoluteElementAnchorLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AbsoluteElementAnchorLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AbsoluteElementAnchorLexemeNode(parser, parent, parentSignal)
 

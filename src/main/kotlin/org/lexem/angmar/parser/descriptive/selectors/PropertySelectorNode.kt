@@ -55,12 +55,6 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
          * Parses a property of a selector.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertySelectorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PropertySelectorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PropertySelectorNode(parser, parent, parentSignal)
 
@@ -193,7 +187,7 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
 
             result.properties.add(property)
 
-            return parser.finalizeNodeNoBuffer(result, initCursor)
+            return parser.finalizeNode(result, initCursor)
         }
     }
 }

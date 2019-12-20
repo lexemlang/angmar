@@ -35,10 +35,6 @@ internal class LexemFileNode private constructor(parser: LexemParser) : ParserNo
          * Parses a Lexem file.
          */
         fun parse(parser: LexemParser): LexemFileNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LexemFileNode::class.java)?.let {
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.reader.isStart()) {

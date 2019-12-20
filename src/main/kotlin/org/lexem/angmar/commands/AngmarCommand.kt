@@ -23,9 +23,6 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
     private val debug by option(debugLongOption, help = "Allows the logger to print the debug level.").flag(
             default = false)
 
-    private val forwardBuffer by option(forwardBufferShortOption, forwardBufferLongOption,
-            help = "Disables the use of the forward buffer during parsing.").flag(default = true)
-
     private val entryPoint by option(entryPointLongOption, help = "The entry point of the grammar.").default(
             Consts.defaultEntryPoint)
 
@@ -59,10 +56,14 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
 
         // Parse the grammar.
         val grammarReader = IOStringReader.from(grammarSource)
-        val parser = LexemParser(grammarReader, forwardBuffer)
+        val parser = LexemParser(grammarReader)
 
         conditionalDebugLog(debug) {
             "Parsing main grammar file: ${grammarSource.canonicalPath}"
+        }
+
+        conditionalDebugLog(debug) {
+            "Parsing main grammar file: ${grammarSource.canonicalPath} - lines: ${grammarReader.readAllText().lines().size}"
         }
 
         var grammarRootNode: LexemFileNode? = null

@@ -424,10 +424,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     companion object {
         /**
          * Creates a new [LexemAnalyzer] parsing the specified input.
-         * @param forwardBuffer Whether to activate a buffer to accelerate the parsing.
          */
-        fun createParsing(text: ITextReader, forwardBuffer: Boolean = true): LexemAnalyzer? {
-            val parser = LexemParser(text, forwardBuffer)
+        fun createParsing(text: ITextReader): LexemAnalyzer? {
+            val parser = LexemParser(text)
             val parserNode = LexemFileNode.parse(parser) ?: return null
 
             return LexemAnalyzer(parserNode)

@@ -32,12 +32,6 @@ internal class RightExpressionNode private constructor(parser: LexemParser, pare
          * Parses a right expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): RightExpressionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), RightExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = RightExpressionNode(parser, parent, parentSignal)
 

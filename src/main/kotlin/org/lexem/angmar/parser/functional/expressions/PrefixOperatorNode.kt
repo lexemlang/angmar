@@ -39,12 +39,6 @@ internal class PrefixOperatorNode private constructor(parser: LexemParser, paren
          * Parses a prefix operator
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PrefixOperatorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PrefixOperatorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PrefixOperatorNode(parser, parent, parentSignal)
 

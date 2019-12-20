@@ -62,12 +62,6 @@ internal class QuantifiedGroupModifierNode private constructor(parser: LexemPars
          * Parses a quantified block modifier.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedGroupModifierNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), QuantifiedGroupModifierNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = QuantifiedGroupModifierNode(parser, parent, parentSignal)
 

@@ -41,12 +41,6 @@ internal class ExpressionPatternSelectiveStmtNode private constructor(parser: Le
          * Parses a expression pattern of the selective statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExpressionPatternSelectiveStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ExpressionPatternSelectiveStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ExpressionPatternSelectiveStmtNode(parser, parent, parentSignal)
 

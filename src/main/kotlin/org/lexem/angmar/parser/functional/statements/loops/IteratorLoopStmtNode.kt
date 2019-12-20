@@ -71,12 +71,6 @@ internal class IteratorLoopStmtNode private constructor(parser: LexemParser, par
          * Parses a iterator loop statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IteratorLoopStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), IteratorLoopStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = IteratorLoopStmtNode(parser, parent, parentSignal)
 

@@ -43,12 +43,6 @@ internal class LambdaStmtNode private constructor(parser: LexemParser, parent: P
          * Parses a lambda statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LambdaStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LambdaStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(token)) {

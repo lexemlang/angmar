@@ -51,12 +51,6 @@ internal class ObjectNode private constructor(parser: LexemParser, parent: Parse
          * Parses a object literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ObjectNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ObjectNode(parser, parent, parentSignal)
 

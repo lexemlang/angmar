@@ -39,12 +39,6 @@ internal class LogicNode private constructor(parser: LexemParser, parent: Parser
          * Parses a logical value.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LogicNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LogicNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = when {
                 Commons.parseKeyword(parser, trueLiteral) -> {

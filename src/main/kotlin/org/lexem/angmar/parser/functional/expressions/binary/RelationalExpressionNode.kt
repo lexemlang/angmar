@@ -56,12 +56,6 @@ internal class RelationalExpressionNode private constructor(parser: LexemParser,
          * Parses a relational expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), RelationalExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = RelationalExpressionNode(parser, parent, parentSignal)
 

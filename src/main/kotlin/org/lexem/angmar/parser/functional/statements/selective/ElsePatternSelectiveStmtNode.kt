@@ -28,12 +28,6 @@ internal class ElsePatternSelectiveStmtNode private constructor(parser: LexemPar
          * Parses an else pattern of the selective statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ElsePatternSelectiveStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ElsePatternSelectiveStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(elseKeyword)) {

@@ -43,12 +43,6 @@ internal class MacroCheckPropsNode private constructor(parser: LexemParser, pare
          * Parses a macro 'check props'.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MacroCheckPropsNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MacroCheckPropsNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = MacroCheckPropsNode(parser, parent, parentSignal)
 

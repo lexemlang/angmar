@@ -69,12 +69,6 @@ internal class FunctionParameterListNode private constructor(parser: LexemParser
          * Parses a function parameter list.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionParameterListNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionParameterListNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionParameterListNode(parser, parent, parentSignal)
 

@@ -40,12 +40,6 @@ internal class AccessExpressionNode private constructor(parser: LexemParser, par
          * Parses an access expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AccessExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AccessExpressionNode(parser, parent, parentSignal)
 

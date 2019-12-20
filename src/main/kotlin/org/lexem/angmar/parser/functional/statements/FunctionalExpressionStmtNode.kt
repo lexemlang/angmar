@@ -32,12 +32,6 @@ internal class FunctionalExpressionStmtNode private constructor(parser: LexemPar
          * Parses an expression statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionalExpressionStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionalExpressionStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionalExpressionStmtNode(parser, parent, parentSignal)
 

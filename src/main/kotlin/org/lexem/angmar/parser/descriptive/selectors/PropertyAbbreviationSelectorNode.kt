@@ -60,12 +60,6 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
          * Parses a property abbreviation of a selector.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyAbbreviationSelectorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PropertyAbbreviationSelectorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PropertyAbbreviationSelectorNode(parser, parent, parentSignal)
 
@@ -131,7 +125,7 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
                         PropertyAbbreviationSelectorAnalyzer.signalEndPropertyBlock)
             }
 
-            return parser.finalizeNodeNoBuffer(result, initCursor)
+            return parser.finalizeNode(result, initCursor)
         }
 
     }

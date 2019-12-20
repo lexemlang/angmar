@@ -65,12 +65,6 @@ internal class GroupLexemeNode private constructor(parser: LexemParser, parent: 
          * Parses a group lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): GroupLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), GroupLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = GroupLexemeNode(parser, parent, parentSignal)
 

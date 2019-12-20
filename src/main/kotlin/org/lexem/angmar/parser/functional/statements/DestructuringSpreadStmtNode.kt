@@ -49,12 +49,6 @@ internal class DestructuringSpreadStmtNode private constructor(parser: LexemPars
          * Parses for a spread element of destructuring.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DestructuringSpreadStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), DestructuringSpreadStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = DestructuringSpreadStmtNode(parser, parent, parentSignal)
 

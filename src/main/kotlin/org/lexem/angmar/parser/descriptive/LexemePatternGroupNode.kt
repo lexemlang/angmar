@@ -57,12 +57,6 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
          * Parses a lexeme pattern anonymous group.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemePatternGroupNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LexemePatternGroupNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = LexemePatternGroupNode(parser, parent, parentSignal)
 

@@ -40,12 +40,6 @@ internal class BitlistElementNode private constructor(parser: LexemParser, paren
          * Parses an element of the bitlist literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int): BitlistElementNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), BitlistElementNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = BitlistElementNode(parser, parent, parentSignal)
             result.radix = radix

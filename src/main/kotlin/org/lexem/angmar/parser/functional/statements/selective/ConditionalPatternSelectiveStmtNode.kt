@@ -52,12 +52,6 @@ internal class ConditionalPatternSelectiveStmtNode private constructor(parser: L
          * Parses a conditional pattern of the selective statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalPatternSelectiveStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ConditionalPatternSelectiveStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ConditionalPatternSelectiveStmtNode(parser, parent, parentSignal)
 

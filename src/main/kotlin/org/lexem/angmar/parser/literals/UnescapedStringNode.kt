@@ -53,12 +53,6 @@ internal class UnescapedStringNode private constructor(parser: LexemParser, pare
          * Parses a normal string literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnescapedStringNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), UnescapedStringNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = UnescapedStringNode(parser, parent, parentSignal)
 

@@ -72,12 +72,6 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
          * Parses a conditional loop statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalLoopStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ConditionalLoopStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ConditionalLoopStmtNode(parser, parent, parentSignal)
 

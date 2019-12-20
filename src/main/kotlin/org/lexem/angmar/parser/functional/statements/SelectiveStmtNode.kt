@@ -65,12 +65,6 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
          * Parses a selective statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectiveStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), SelectiveStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = SelectiveStmtNode(parser, parent, parentSignal)
 

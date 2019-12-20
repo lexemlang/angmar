@@ -22,12 +22,6 @@ internal class AnyFilterLexemeNode private constructor(parser: LexemParser, pare
          * Parses a lexemes.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AnyFilterLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AnyFilterLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AnyFilterLexemeNode(parser, parent, parentSignal)
 

@@ -67,12 +67,6 @@ internal class UnicodeIntervalElementNode private constructor(parser: LexemParse
          * Parses an element of unicode interval literals.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalElementNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalElementNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = UnicodeIntervalElementNode(parser, parent, parentSignal)
 

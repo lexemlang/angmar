@@ -52,12 +52,6 @@ internal class ListNode private constructor(parser: LexemParser, parent: ParserN
          * Parses a list literal
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ListNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ListNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ListNode(parser, parent, parentSignal)
 

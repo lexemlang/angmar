@@ -55,12 +55,6 @@ internal class DestructuringElementStmtNode private constructor(parser: LexemPar
          * Parses for an element of destructuring.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DestructuringElementStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), DestructuringElementStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = DestructuringElementStmtNode(parser, parent, parentSignal)
 

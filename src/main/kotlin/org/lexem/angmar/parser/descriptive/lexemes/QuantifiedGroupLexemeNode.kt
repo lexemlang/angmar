@@ -71,12 +71,6 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
          * Parses a quantified group lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedGroupLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), QuantifiedGroupLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = QuantifiedGroupLexemeNode(parser, parent, parentSignal)
 

@@ -61,12 +61,6 @@ internal class LoopClausesStmtNode private constructor(parser: LexemParser, pare
          * Parses last clauses of loop statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LoopClausesStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LoopClausesStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = LoopClausesStmtNode(parser, parent, parentSignal)
 

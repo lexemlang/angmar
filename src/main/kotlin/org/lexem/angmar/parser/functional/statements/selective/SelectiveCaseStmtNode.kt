@@ -47,12 +47,6 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
          * Parses a case of the selective statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectiveCaseStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), SelectiveCaseStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = SelectiveCaseStmtNode(parser, parent, parentSignal)
 

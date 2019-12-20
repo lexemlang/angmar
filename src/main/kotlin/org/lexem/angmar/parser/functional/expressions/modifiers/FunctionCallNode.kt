@@ -60,12 +60,6 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
          * Parses a function expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionCallNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionCallNode(parser, parent, parentSignal)
 

@@ -39,12 +39,6 @@ internal class ParenthesisExpressionNode private constructor(parser: LexemParser
          * Parses a parenthesis expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParenthesisExpressionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ParenthesisExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ParenthesisExpressionNode(parser, parent, parentSignal)
 

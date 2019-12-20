@@ -39,12 +39,6 @@ internal class DataCapturingAccessLexemeNode private constructor(parser: LexemPa
          * Parses an access expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DataCapturingAccessLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), DataCapturingAccessLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = DataCapturingAccessLexemeNode(parser, parent, parentSignal)
 

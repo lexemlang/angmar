@@ -49,12 +49,6 @@ internal class ConditionalExpressionNode private constructor(parser: LexemParser
          * Parses a conditional expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ConditionalExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ConditionalExpressionNode(parser, parent, parentSignal)
 

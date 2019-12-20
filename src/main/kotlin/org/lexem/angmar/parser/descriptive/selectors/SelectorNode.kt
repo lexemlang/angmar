@@ -42,12 +42,6 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
          * Parses a selector.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), SelectorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = SelectorNode(parser, parent, parentSignal)
 
@@ -137,7 +131,7 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
                 result.properties.add(property)
             }
 
-            return parser.finalizeNodeNoBuffer(result, initCursor)
+            return parser.finalizeNode(result, initCursor)
         }
     }
 }

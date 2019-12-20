@@ -35,12 +35,6 @@ internal class LexemePatternContentNode private constructor(parser: LexemParser,
          * Parses a Lexem pattern content.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemePatternContentNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), LexemePatternContentNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = LexemePatternContentNode(parser, parent, parentSignal)
 

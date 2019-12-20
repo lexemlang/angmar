@@ -26,7 +26,6 @@ This is the plan to work towards a future release.
   - Collapse all contiguous bigNodes that are already alive.
   - The object probably will need an index instead of a bigNode reference to avoid problems. If the index is greater than the
     current bigNode, it is ok.
-- Test forward buffer.
 - Check what is public of the library.
 
 

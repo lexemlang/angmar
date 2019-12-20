@@ -174,11 +174,6 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         private fun parseDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
                 prefixText: String, isPrefixCompulsory: Boolean, exponentSeparator: String,
                 integerParser: (LexemParser) -> String?): NumberNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), NumberNode::class.java)?.let {
-                it.to.restore()
-                return@parseDecimal it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = NumberNode(parser, parent, parentSignal)
             result.radix = radix
@@ -300,11 +295,6 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
 
         private fun parseInteger(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
                 prefixText: String, isPrefixCompulsory: Boolean, integerParser: (LexemParser) -> String?): NumberNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), NumberNode::class.java)?.let {
-                it.to.restore()
-                return@parseInteger it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = NumberNode(parser, parent, parentSignal)
             result.radix = radix

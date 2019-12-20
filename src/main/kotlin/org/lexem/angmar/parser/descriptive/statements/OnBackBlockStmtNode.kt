@@ -46,12 +46,6 @@ internal class OnBackBlockStmtNode private constructor(parser: LexemParser, pare
          * Parses an onBack block statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): OnBackBlockStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), OnBackBlockStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = OnBackBlockStmtNode(parser, parent, parentSignal)
 

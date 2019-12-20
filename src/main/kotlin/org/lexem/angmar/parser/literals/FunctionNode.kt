@@ -50,12 +50,6 @@ internal class FunctionNode private constructor(parser: LexemParser, parent: Par
          * Parses a function literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionNode(parser, parent, parentSignal)
 

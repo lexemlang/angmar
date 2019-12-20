@@ -38,12 +38,6 @@ internal class EscapedExpressionNode private constructor(parser: LexemParser, pa
          * Parses an escaped expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): EscapedExpressionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), EscapedExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = EscapedExpressionNode(parser, parent, parentSignal)
 

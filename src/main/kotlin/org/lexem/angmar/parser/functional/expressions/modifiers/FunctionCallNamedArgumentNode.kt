@@ -45,12 +45,6 @@ internal class FunctionCallNamedArgumentNode private constructor(parser: LexemPa
          * Parses a named argument of a function call.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallNamedArgumentNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionCallNamedArgumentNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionCallNamedArgumentNode(parser, parent, parentSignal)
 

@@ -61,12 +61,6 @@ internal class StringNode private constructor(parser: LexemParser, parent: Parse
          * Parses a normal string literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): StringNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), StringNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = StringNode(parser, parent, parentSignal)
 

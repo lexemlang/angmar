@@ -54,12 +54,6 @@ internal class MapNode private constructor(parser: LexemParser, parent: ParserNo
          * Parses a map literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MapNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MapNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(macroName)) {

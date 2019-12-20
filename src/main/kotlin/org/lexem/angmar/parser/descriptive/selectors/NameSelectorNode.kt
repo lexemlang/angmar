@@ -59,12 +59,6 @@ internal class NameSelectorNode private constructor(parser: LexemParser, parent:
          * Parses a name of a selector.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): NameSelectorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), NameSelectorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = NameSelectorNode(parser, parent, parentSignal)
 
@@ -161,7 +155,7 @@ internal class NameSelectorNode private constructor(parser: LexemParser, parent:
 
             result.names.add(name)
 
-            return parser.finalizeNodeNoBuffer(result, initCursor)
+            return parser.finalizeNode(result, initCursor)
         }
     }
 }

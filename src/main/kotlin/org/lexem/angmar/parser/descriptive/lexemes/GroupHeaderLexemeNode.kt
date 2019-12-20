@@ -50,12 +50,6 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
          * Parses a group header lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): GroupHeaderLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), GroupHeaderLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = GroupHeaderLexemeNode(parser, parent, parentSignal)
             result.isFilterCode = parser.isFilterCode

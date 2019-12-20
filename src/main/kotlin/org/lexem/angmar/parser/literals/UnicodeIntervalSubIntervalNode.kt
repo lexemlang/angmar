@@ -53,12 +53,6 @@ internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemP
          * Parses a sub-interval of unicode interval literals.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalSubIntervalNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), UnicodeIntervalSubIntervalNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = UnicodeIntervalSubIntervalNode(parser, parent, parentSignal)
 

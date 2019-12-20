@@ -40,12 +40,6 @@ internal class AssignOperatorNode private constructor(parser: LexemParser, paren
          * Parses an assign operator.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AssignOperatorNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AssignOperatorNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AssignOperatorNode(parser, parent, parentSignal)
 

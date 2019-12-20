@@ -42,12 +42,6 @@ internal class MacroBacktrackNode private constructor(parser: LexemParser, paren
          * Parses a macro 'backtrack'.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MacroBacktrackNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MacroBacktrackNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(macroName)) {

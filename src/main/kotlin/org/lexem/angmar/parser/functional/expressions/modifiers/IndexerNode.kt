@@ -39,12 +39,6 @@ internal class IndexerNode private constructor(parser: LexemParser, parent: Pars
          * Parses an indexer expression
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IndexerNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), IndexerNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = IndexerNode(parser, parent, parentSignal)
 

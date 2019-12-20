@@ -50,12 +50,6 @@ internal class BlockLexemeNode private constructor(parser: LexemParser, parent: 
          * Parses a block lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BlockLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), BlockLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = BlockLexemeNode(parser, parent, parentSignal)
 

@@ -41,12 +41,6 @@ internal class FunctionCallExpressionPropertiesNode private constructor(parser: 
          * Parses an expression properties of function calls.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallExpressionPropertiesNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FunctionCallExpressionPropertiesNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FunctionCallExpressionPropertiesNode(parser, parent, parentSignal)
 

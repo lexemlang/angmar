@@ -54,12 +54,6 @@ internal class ControlWithExpressionStmtNode private constructor(parser: LexemPa
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int, keyword: String,
                 captureTag: Boolean = true): ControlWithExpressionStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ControlWithExpressionStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ControlWithExpressionStmtNode(parser, parent, parentSignal)
             result.keyword = keyword

@@ -57,12 +57,6 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
          * Parses a lexemes.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AnyLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AnyLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AnyLexemeNode(parser, parent, parentSignal)
 

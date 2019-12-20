@@ -52,12 +52,6 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
          * Parses a block statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BlockStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), BlockStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(startToken)) {

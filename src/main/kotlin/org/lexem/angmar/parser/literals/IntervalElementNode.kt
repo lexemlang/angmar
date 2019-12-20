@@ -47,12 +47,6 @@ internal class IntervalElementNode private constructor(parser: LexemParser, pare
          * Parses an element of interval literals.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalElementNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), IntervalElementNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = IntervalElementNode(parser, parent, parentSignal)
 

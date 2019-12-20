@@ -49,12 +49,6 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
          * Parses an additive expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AdditiveExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AdditiveExpressionNode(parser, parent, parentSignal)
 

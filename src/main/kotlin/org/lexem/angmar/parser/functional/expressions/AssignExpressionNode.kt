@@ -44,12 +44,6 @@ internal class AssignExpressionNode private constructor(parser: LexemParser, par
          * Parses an assign expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AssignExpressionNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AssignExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AssignExpressionNode(parser, parent, parentSignal)
 

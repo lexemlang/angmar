@@ -63,12 +63,6 @@ internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser,
          * Parses a relative anchor lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): RelativeAnchorLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), RelativeAnchorLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = RelativeAnchorLexemeNode(parser, parent, parentSignal)
 

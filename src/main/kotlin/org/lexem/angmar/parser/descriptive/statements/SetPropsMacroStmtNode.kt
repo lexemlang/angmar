@@ -43,12 +43,6 @@ internal class SetPropsMacroStmtNode private constructor(parser: LexemParser, pa
          * Parses a set properties macro statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SetPropsMacroStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), SetPropsMacroStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = SetPropsMacroStmtNode(parser, parent, parentSignal)
 

@@ -35,12 +35,6 @@ internal class EscapeNode private constructor(parser: LexemParser, parent: Parse
          * Parses an escape.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): EscapeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), EscapeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = EscapeNode(parser, parent, parentSignal)
 

@@ -24,12 +24,6 @@ internal class NilNode private constructor(parser: LexemParser, parent: ParserNo
          * Parses a nil value.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): NilNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), NilNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = if (Commons.parseKeyword(parser, nilLiteral)) {
                 NilNode(parser, parent, parentSignal)

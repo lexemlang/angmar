@@ -57,12 +57,6 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
          * Parses an infinite loop statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): InfiniteLoopStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), InfiniteLoopStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = InfiniteLoopStmtNode(parser, parent, parentSignal)
 

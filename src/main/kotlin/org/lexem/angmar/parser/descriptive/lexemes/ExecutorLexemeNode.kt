@@ -55,12 +55,6 @@ internal class ExecutorLexemeNode private constructor(parser: LexemParser, paren
          * Parses an executor lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExecutorLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ExecutorLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ExecutorLexemeNode(parser, parent, parentSignal)
 

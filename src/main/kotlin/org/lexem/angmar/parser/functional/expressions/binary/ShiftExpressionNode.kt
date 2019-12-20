@@ -51,12 +51,6 @@ internal class ShiftExpressionNode private constructor(parser: LexemParser, pare
          * Parses an shift expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ShiftExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ShiftExpressionNode(parser, parent, parentSignal)
 

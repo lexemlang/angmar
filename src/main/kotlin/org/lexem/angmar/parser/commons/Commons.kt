@@ -53,9 +53,7 @@ internal object Commons {
      */
     fun parseAnyKeyword(parser: LexemParser): String? {
         val initCursor = parser.reader.saveCursor()
-        val identifier =
-                parser.fromBuffer(parser.reader.currentPosition(), IdentifierNode::class.java) ?: IdentifierNode.parse(
-                        parser, ParserNode.Companion.EmptyParserNode, 0) ?: return null
+        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0) ?: return null
 
         if (identifier.isQuotedIdentifier || identifier.simpleIdentifiers.size > 1) {
             initCursor.restore()

@@ -65,12 +65,6 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
          * Parses a quantified loop statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedLoopStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), QuantifiedLoopStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = QuantifiedLoopStmtNode(parser, parent, parentSignal)
 

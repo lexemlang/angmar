@@ -46,12 +46,6 @@ internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent
          * Parses a unicode escape.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeEscapeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), UnicodeEscapeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = UnicodeEscapeNode(parser, parent, parentSignal)
 

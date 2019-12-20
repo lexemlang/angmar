@@ -56,12 +56,6 @@ internal class QuantifierLexemeNode private constructor(parser: LexemParser, par
          * Parses a quantifier lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifierLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), QuantifierLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = QuantifierLexemeNode(parser, parent, parentSignal)
 

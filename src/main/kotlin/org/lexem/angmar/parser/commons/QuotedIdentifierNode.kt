@@ -51,12 +51,6 @@ internal class QuotedIdentifierNode private constructor(parser: LexemParser, par
          * Parses a quoted identifier.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuotedIdentifierNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), QuotedIdentifierNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = QuotedIdentifierNode(parser, parent, parentSignal)
 

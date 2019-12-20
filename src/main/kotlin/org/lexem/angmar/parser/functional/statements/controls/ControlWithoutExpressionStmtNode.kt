@@ -49,12 +49,6 @@ internal class ControlWithoutExpressionStmtNode private constructor(parser: Lexe
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int,
                 keyword: String): ControlWithoutExpressionStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ControlWithoutExpressionStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ControlWithoutExpressionStmtNode(parser, parent, parentSignal)
             result.keyword = keyword

@@ -59,12 +59,6 @@ internal class VarPatternSelectiveStmtNode private constructor(parser: LexemPars
          * Parses a variable patterns of the selective statements.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): VarPatternSelectiveStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), VarPatternSelectiveStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = VarPatternSelectiveStmtNode(parser, parent, parentSignal)
 

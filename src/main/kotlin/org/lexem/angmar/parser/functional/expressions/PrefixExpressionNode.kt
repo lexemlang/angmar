@@ -38,12 +38,6 @@ internal class PrefixExpressionNode private constructor(parser: LexemParser, par
          * Parses a prefix expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PrefixExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PrefixExpressionNode(parser, parent, parentSignal)
 

@@ -50,12 +50,6 @@ internal class TextLexemeNode private constructor(parser: LexemParser, parent: P
          * Parses a text lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): TextLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), TextLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = TextLexemeNode(parser, parent, parentSignal)
 

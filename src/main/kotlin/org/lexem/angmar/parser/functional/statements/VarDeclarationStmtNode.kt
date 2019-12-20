@@ -56,12 +56,6 @@ internal class VarDeclarationStmtNode private constructor(parser: LexemParser, p
          * Parses a variable declaration.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): VarDeclarationStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), VarDeclarationStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = VarDeclarationStmtNode(parser, parent, parentSignal)
 

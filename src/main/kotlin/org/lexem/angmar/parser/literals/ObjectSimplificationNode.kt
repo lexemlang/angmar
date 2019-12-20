@@ -56,12 +56,6 @@ internal class ObjectSimplificationNode private constructor(parser: LexemParser,
          * Parses a simplification element of object literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectSimplificationNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), ObjectSimplificationNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = ObjectSimplificationNode(parser, parent, parentSignal)
 

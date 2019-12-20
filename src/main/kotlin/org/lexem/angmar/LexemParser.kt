@@ -6,13 +6,7 @@ import org.lexem.angmar.parser.*
 /**
  * Lexer and parser for the Lexem language.
  */
-class LexemParser constructor(val reader: ITextReader, forwardBuffer: Boolean = true) {
-    private val forwardBuffer = if (forwardBuffer) {
-        ForwardBuffer()
-    } else {
-        null
-    }
-
+class LexemParser constructor(val reader: ITextReader) {
     internal var isDescriptiveCode = false
     internal var isFilterCode = false
 
@@ -219,32 +213,9 @@ class LexemParser constructor(val reader: ITextReader, forwardBuffer: Boolean = 
     }
 
     /**
-     * Adds a node in the buffer.
-     */
-    internal fun addInBuffer(node: ParserNode) = forwardBuffer?.add(node)
-
-    /**
-     * Gets a value from the buffer and executes an action.
-     */
-    fun <T : ParserNode> fromBuffer(position: Int, type: Class<T>): T? {
-        val res = forwardBuffer?.find(position, type) ?: return null
-        res.to.restore()
-        return res
-    }
-
-    /**
-     * Finalize a node, setting its bounds and adding it to the forward buffer.
+     * Finalize a node, setting its bounds.
      */
     internal fun <T : ParserNode> finalizeNode(node: T, initCursor: ITextReaderCursor): T {
-        finalizeNodeNoBuffer(node, initCursor)
-        addInBuffer(node)
-        return node
-    }
-
-    /**
-     * Finalize a node setting its bounds.
-     */
-    internal fun <T : ParserNode> finalizeNodeNoBuffer(node: T, initCursor: ITextReaderCursor): T {
         val finalCursor = reader.saveCursor()
 
         node.from = initCursor

@@ -52,12 +52,6 @@ internal class MultiplicativeExpressionNode private constructor(parser: LexemPar
          * Parses a multiplicative expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MultiplicativeExpressionNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = MultiplicativeExpressionNode(parser, parent, parentSignal)
 

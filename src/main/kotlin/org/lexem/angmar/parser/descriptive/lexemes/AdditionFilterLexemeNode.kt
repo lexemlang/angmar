@@ -54,12 +54,6 @@ internal class AdditionFilterLexemeNode private constructor(parser: LexemParser,
          * Parses an addition filter lexeme.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AdditionFilterLexemeNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AdditionFilterLexemeNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AdditionFilterLexemeNode(parser, parent, parentSignal)
 

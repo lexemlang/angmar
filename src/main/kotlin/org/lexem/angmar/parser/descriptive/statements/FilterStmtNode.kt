@@ -64,12 +64,6 @@ internal class FilterStmtNode private constructor(parser: LexemParser, parent: P
          * Parses a filter statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FilterStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), FilterStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = FilterStmtNode(parser, parent, parentSignal)
 

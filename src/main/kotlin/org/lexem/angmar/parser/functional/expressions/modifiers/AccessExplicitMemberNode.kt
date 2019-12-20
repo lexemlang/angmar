@@ -36,12 +36,6 @@ internal class AccessExplicitMemberNode private constructor(parser: LexemParser,
          * Parses an access expression.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AccessExplicitMemberNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), AccessExplicitMemberNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = AccessExplicitMemberNode(parser, parent, parentSignal)
 

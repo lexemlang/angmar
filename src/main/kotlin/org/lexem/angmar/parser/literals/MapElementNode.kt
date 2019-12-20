@@ -46,12 +46,6 @@ internal class MapElementNode private constructor(parser: LexemParser, parent: P
          * Parses a key-value pair of map literal.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MapElementNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), MapElementNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = MapElementNode(parser, parent, parentSignal)
             result.key =

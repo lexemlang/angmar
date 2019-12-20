@@ -44,12 +44,6 @@ internal class PublicMacroStmtNode private constructor(parser: LexemParser, pare
          * Parses a public macro statement.
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PublicMacroStmtNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), PublicMacroStmtNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = PublicMacroStmtNode(parser, parent, parentSignal)
 

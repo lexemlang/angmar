@@ -37,12 +37,6 @@ internal class SetNode private constructor(parser: LexemParser, parent: ParserNo
          * Parses a set literal
          */
         fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SetNode? {
-            parser.fromBuffer(parser.reader.currentPosition(), SetNode::class.java)?.let {
-                it.parent = parent
-                it.parentSignal = parentSignal
-                return@parse it
-            }
-
             val initCursor = parser.reader.saveCursor()
             val result = SetNode(parser, parent, parentSignal)
 
