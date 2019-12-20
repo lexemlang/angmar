@@ -236,13 +236,12 @@ internal object AnalyzerNodesCommons {
                 } else {
                     expression.name
                 }
-                val lxmNode = analyzer.createNewNode(name)
-
-                if (node is FilterStmtNode) {
-                    lxmNode.applyDefaultPropertiesForFilter(analyzer.memory)
+                val type = if (node is FilterStmtNode) {
+                    LxmNode.LxmNodeType.Filter
                 } else {
-                    lxmNode.applyDefaultPropertiesForExpression(analyzer.memory)
+                    LxmNode.LxmNodeType.Expression
                 }
+                val lxmNode = analyzer.createNewNode(name, type)
 
                 context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
 

@@ -14,22 +14,26 @@ import java.util.*
  */
 internal class LxmNode : LxmObject {
     val name: String
+    val type: LxmNodeType
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    private constructor(memory: LexemMemory, oldVersion: LxmNode, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
-        name = oldVersion.name
-    }
-
-    constructor(memory: LexemMemory, name: String, from: IReaderCursor) : super(memory) {
+    constructor(memory: LexemMemory, name: String, from: IReaderCursor, type: LxmNodeType = LxmNodeType.Custom) : super(
+            memory) {
         this.name = name
+        this.type = type
 
         setProperty(memory, AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
         setFrom(memory, from)
         setParentIndex(memory, -1)
 
         init(memory)
+    }
+
+    private constructor(memory: LexemMemory, oldVersion: LxmNode, toClone: Boolean) : super(memory, oldVersion,
+            toClone) {
+        name = oldVersion.name
+        type = oldVersion.type
     }
 
     // METHODS ----------------------------------------------------------------
@@ -44,6 +48,11 @@ internal class LxmNode : LxmObject {
 
         val properties = LxmObject(memory)
         setProperty(memory, AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
+
+        val defaultProperties = AnalyzerCommons.getDefaultPropertiesByType(type)
+        for ((key, value) in defaultProperties) {
+            properties.setProperty(memory, key, value)
+        }
     }
 
     /**
@@ -228,57 +237,6 @@ internal class LxmNode : LxmObject {
     }
 
     /**
-     * Applies the default properties for expressions.
-     */
-    fun applyDefaultPropertiesForExpression(memory: LexemMemory) {
-        val props = getProperties(memory, toWrite = true)
-        props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Property, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Insensible, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-    }
-
-    /**
-     * Applies the default properties for filters.
-     */
-    fun applyDefaultPropertiesForFilter(memory: LexemMemory) {
-        val props = getProperties(memory, toWrite = true)
-        props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-    }
-
-    /**
-     * Applies the default properties for groups.
-     */
-    fun applyDefaultPropertiesForGroup(memory: LexemMemory) {
-        val props = getProperties(memory, toWrite = true)
-        props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Property, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Insensible, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-    }
-
-    /**
-     * Applies the default properties for filter groups.
-     */
-    fun applyDefaultPropertiesForFilterGroup(memory: LexemMemory) {
-        val props = getProperties(memory, toWrite = true)
-        props.setProperty(memory, AnalyzerCommons.Properties.Children, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Backtrack, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Consume, LxmLogic.True)
-        props.setProperty(memory, AnalyzerCommons.Properties.Capture, LxmLogic.False)
-        props.setProperty(memory, AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-    }
-
-    /**
      * Applies an offset to the current node and its children.
      */
     fun applyOffset(memory: LexemMemory, offset: IReaderCursor) {
@@ -311,4 +269,18 @@ internal class LxmNode : LxmObject {
     }
 
     override fun toString() = "[Node] $name = ${super.toString()}"
+
+    // STATIC -----------------------------------------------------------------
+
+    /**
+     * The types of contexts.
+     */
+    enum class LxmNodeType {
+        Root,
+        Expression,
+        ExpressionGroup,
+        Filter,
+        FilterGroup,
+        Custom,
+    }
 }

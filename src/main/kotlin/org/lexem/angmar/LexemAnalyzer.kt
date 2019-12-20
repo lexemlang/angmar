@@ -241,16 +241,17 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Gets the results of the analyzer.
      */
-    fun getResult(): LexemMatch {
+    fun getResult(removeDefaultProperties: Boolean): LexemMatch {
         if (status != Status.Ended) {
             throw AngmarException("Cannot get the results of a running Analyzer.")
         }
 
         // Return the correct result.
-        val rootNode = getRootNode(toWrite = true) ?: LxmNode(memory, AnalyzerCommons.Identifiers.Root, initialCursor)
+        val rootNode = getRootNode(toWrite = true) ?: LxmNode(memory, AnalyzerCommons.Identifiers.Root, initialCursor,
+                LxmNode.LxmNodeType.Root)
         rootNode.setTo(memory, initialCursor)
 
-        return LexemMatch(this, rootNode)
+        return LexemMatch(this, rootNode, removeDefaultProperties)
     }
 
     /**
@@ -336,7 +337,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
      * Creates the root node.
      */
     private fun initRootNode() {
-        val nodeReference = createNewNode(AnalyzerCommons.Identifiers.Root)
+        val nodeReference = createNewNode(AnalyzerCommons.Identifiers.Root, LxmNode.LxmNodeType.Root)
         val analyzerObject = AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
                 toWrite = true)
         analyzerObject.setProperty(memory, AnalyzerGlobalObject.RootNode, nodeReference)
@@ -345,13 +346,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Creates a new node.
      */
-    internal fun createNewNode(name: String): LxmNode {
+    internal fun createNewNode(name: String, type: LxmNode.LxmNodeType): LxmNode {
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
         val parent =
                 stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
                         toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
 
-        val node = LxmNode(memory, name, text.saveCursor())
+        val node = LxmNode(memory, name, text.saveCursor(), type)
         if (parent != null) {
             node.addToParent(memory, parent)
         }

@@ -91,13 +91,14 @@ internal object GroupHeaderLexemAnalyzer {
      */
     fun createNode(analyzer: LexemAnalyzer, name: String, isFilterCode: Boolean) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        val lxmNode = analyzer.createNewNode(name)
 
-        if (isFilterCode) {
-            lxmNode.applyDefaultPropertiesForFilterGroup(analyzer.memory)
+        val type = if (isFilterCode) {
+            LxmNode.LxmNodeType.FilterGroup
         } else {
-            lxmNode.applyDefaultPropertiesForGroup(analyzer.memory)
+            LxmNode.LxmNodeType.ExpressionGroup
         }
+
+        val lxmNode = analyzer.createNewNode(name, type)
 
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
     }

@@ -1,5 +1,8 @@
 package org.lexem.angmar.config
 
+import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.primitives.*
+
 /**
  * Constants of the project.
  */
@@ -40,5 +43,34 @@ internal object Consts {
     object Float {
         const val exponentialDefaultPrecision = 5
         const val maxStepsDuringToString = 7
+    }
+
+    object Node {
+        val defaultPropertiesForExpression = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
+                AnalyzerCommons.Properties.Children to LxmLogic.True,
+                AnalyzerCommons.Properties.Consume to LxmLogic.True,
+                AnalyzerCommons.Properties.Property to LxmLogic.False,
+                AnalyzerCommons.Properties.Insensible to LxmLogic.False,
+                AnalyzerCommons.Properties.Backtrack to LxmLogic.False,
+                AnalyzerCommons.Properties.Reverse to LxmLogic.False)
+
+        val defaultPropertiesForExpressionGroup = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
+                AnalyzerCommons.Properties.Children to LxmLogic.True,
+                AnalyzerCommons.Properties.Consume to LxmLogic.True,
+                AnalyzerCommons.Properties.Property to LxmLogic.False,
+                AnalyzerCommons.Properties.Insensible to LxmLogic.False,
+                AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
+                AnalyzerCommons.Properties.Reverse to LxmLogic.False)
+
+        val defaultPropertiesForFilter = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
+                AnalyzerCommons.Properties.Children to LxmLogic.True,
+                AnalyzerCommons.Properties.Backtrack to LxmLogic.False,
+                AnalyzerCommons.Properties.Reverse to LxmLogic.False)
+
+        val defaultPropertiesForFilterGroup = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
+                AnalyzerCommons.Properties.Children to LxmLogic.True,
+                AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
+                AnalyzerCommons.Properties.Consume to LxmLogic.True,
+                AnalyzerCommons.Properties.Reverse to LxmLogic.False)
     }
 }

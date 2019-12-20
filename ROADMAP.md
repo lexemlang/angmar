@@ -6,8 +6,6 @@ This is the plan to work towards a future release.
 
 ## TODO
 
-- Put type to nodes.
-  - Remove in the serialization the default values of the nodes. Add an optional property.
 - Optimize stack. Use a model like objects with differential copies of the levels.
   - ShiftLevel
   - RemoveFromStack

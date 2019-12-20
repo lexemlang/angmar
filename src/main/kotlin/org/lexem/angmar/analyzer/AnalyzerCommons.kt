@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
@@ -454,5 +455,16 @@ internal object AnalyzerCommons {
         else -> {
             throw AngmarException("Angmar only accept textual or binary readers.")
         }
+    }
+
+    /**
+     * Return the default properties for a specific node type.
+     */
+    fun getDefaultPropertiesByType(type: LxmNode.LxmNodeType) = when (type) {
+        LxmNode.LxmNodeType.Expression -> Consts.Node.defaultPropertiesForExpression
+        LxmNode.LxmNodeType.ExpressionGroup -> Consts.Node.defaultPropertiesForExpressionGroup
+        LxmNode.LxmNodeType.Filter -> Consts.Node.defaultPropertiesForFilter
+        LxmNode.LxmNodeType.FilterGroup -> Consts.Node.defaultPropertiesForFilterGroup
+        else -> emptyMap()
     }
 }
