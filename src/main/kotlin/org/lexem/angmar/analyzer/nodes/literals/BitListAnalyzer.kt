@@ -4,7 +4,10 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.literals.*
+import org.lexem.angmar.config.*
+import org.lexem.angmar.errors.*
 
 
 /**
@@ -15,21 +18,37 @@ internal object BitListAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BitlistNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BitlistCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                if (node.elements.isNotEmpty()) {
-                    // Empty bitlist.
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList.Empty)
+                // Empty bitlist.
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmBitList.Empty)
 
-                    return analyzer.nextNode(node.elements[0])
+                return analyzer.nextNode(node.elements.first())
+            }
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
+                val position = (signal - signalEndFirstElement) + 1
+
+                // Add the values.
+                val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmBitList
+                val right = analyzer.memory.getLastFromStack() as? LxmBitList ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.IncompatibleType,
+                        "${BitListType.TypeName} literals require that internal escaped expressions return a ${BitListType.TypeName}.") {
+                    val expression = node.elements[position - 1]
+                    val fullText = expression.parser.reader.readAllText()
+                    addSourceCode(fullText, expression.parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(expression.from.position(), expression.to.position() - 1)
+                        addNote(Consts.Logger.hintTitle,
+                                "The value returned by this expression must be a ${BitListType.TypeName}")
+                    }
                 }
 
-                // Empty bitlist.
-                analyzer.memory.addToStackAsLast(LxmBitList.Empty)
-            }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
-                val position = (signal - signalEndFirstElement) + 1
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
+
+                val newAccumulator = LxmBitList(BitlistCompiled.addTwoBitLists(accumulator.primitive, right.primitive))
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, newAccumulator)
 
                 // Evaluate the next operand if it exist.
                 if (position < node.elements.size) {

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.commons
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.commons.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.commons.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -10,8 +11,7 @@ import org.lexem.angmar.parser.*
 /**
  * Parser for escaped characters.
  */
-internal class EscapeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class EscapeNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     lateinit var value: String
 
     override fun toString() = "$startToken$value"
@@ -24,7 +24,7 @@ internal class EscapeNode private constructor(parser: LexemParser, parent: Parse
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = EscapeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = EscapeCompiler.compile(parent, parentSignal, this)
 
     companion object {
         internal const val startToken = "\\"
@@ -34,9 +34,9 @@ internal class EscapeNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses an escape.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): EscapeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): EscapeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = EscapeNode(parser, parent, parentSignal)
+            val result = EscapeNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null

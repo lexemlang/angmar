@@ -3,7 +3,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive.selectors
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.selectors.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 
 
 /**
@@ -14,7 +14,7 @@ internal object PropertySelectorAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertySelectorNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertySelectorCompiled) {
         if (node.isAddition) {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {
@@ -26,7 +26,7 @@ internal object PropertySelectorAnalyzer {
                 AnalyzerNodesCommons.signalStart -> {
                     return analyzer.nextNode(node.properties.first())
                 }
-                in signalEndFirstProperty until signalEndFirstProperty + node.properties.size -> {
+                in signalEndFirstProperty..signalEndFirstProperty + node.properties.size -> {
                     val position = (signal - signalEndFirstProperty) + 1
 
                     val result = analyzer.memory.getLastFromStack() as LxmLogic

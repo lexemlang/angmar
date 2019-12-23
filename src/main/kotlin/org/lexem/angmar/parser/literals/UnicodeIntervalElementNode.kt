@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for elements of unicode interval literals.
  */
-internal class UnicodeIntervalElementNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class UnicodeIntervalElementNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var left: ParserNode? = null
     var right: ParserNode? = null
     var leftChar = ' ' // The whitespace ' ' is forbidden here so it is used as control char
@@ -54,8 +55,8 @@ internal class UnicodeIntervalElementNode private constructor(parser: LexemParse
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            UnicodeIntervalElementAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            UnicodeIntervalElementCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val rangeToken = IntervalElementNode.rangeToken
@@ -66,17 +67,17 @@ internal class UnicodeIntervalElementNode private constructor(parser: LexemParse
         /**
          * Parses an element of unicode interval literals.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): UnicodeIntervalElementNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeIntervalElementNode(parser, parent, parentSignal)
+            val result = UnicodeIntervalElementNode(parser, parent)
 
-            result.left = Commons.parseAnyEscape(parser, result, UnicodeIntervalElementAnalyzer.signalEndLeft)
+            result.left = Commons.parseAnyEscape(parser, result)
             if (result.left == null) {
                 result.leftChar = readIntervalChar(parser) ?: return null
             }
 
             if (parser.readText(rangeToken)) {
-                result.right = Commons.parseAnyEscape(parser, result, UnicodeIntervalElementAnalyzer.signalEndRight)
+                result.right = Commons.parseAnyEscape(parser, result)
                 if (result.right == null) {
                     result.rightChar = readIntervalChar(parser) ?: throw AngmarParserException(
                             AngmarParserExceptionType.UnicodeIntervalElementWithoutElementAfterRangeOperator,

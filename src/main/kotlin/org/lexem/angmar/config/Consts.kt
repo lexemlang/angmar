@@ -8,7 +8,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
  */
 internal object Consts {
     // Flag to specify the system is under test.
-    const val debug = false
+    const val debug = true
 
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"

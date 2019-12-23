@@ -80,7 +80,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     fun `parse correct variable pattern`(text: String, isConst: Boolean, isDestructuring: Boolean,
             hasConditional: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as VarPatternSelectiveStmtNode
@@ -109,7 +109,7 @@ internal class VarPatternSelectiveStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.VarPatternSelectiveStatementWithoutIdentifier) {
             val text = VarPatternSelectiveStmtNode.variableKeyword
             val parser = LexemParser(IOStringReader.from(text))
-            VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -117,7 +117,7 @@ internal class VarPatternSelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = VarPatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

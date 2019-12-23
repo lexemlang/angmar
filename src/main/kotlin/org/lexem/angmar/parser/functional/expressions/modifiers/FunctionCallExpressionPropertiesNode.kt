@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.modifiers
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for expression properties of function calls.
  */
-internal class FunctionCallExpressionPropertiesNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class FunctionCallExpressionPropertiesNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var value: PropertyStyleObjectBlockNode
 
     override fun toString() = StringBuilder().apply {
@@ -29,8 +30,8 @@ internal class FunctionCallExpressionPropertiesNode private constructor(parser: 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            FunctionCallExpressionPropertiesAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            FunctionCallExpressionPropertiesCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val relationalToken = GlobalCommons.relationalToken
@@ -40,16 +41,15 @@ internal class FunctionCallExpressionPropertiesNode private constructor(parser: 
         /**
          * Parses an expression properties of function calls.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallExpressionPropertiesNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): FunctionCallExpressionPropertiesNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionCallExpressionPropertiesNode(parser, parent, parentSignal)
+            val result = FunctionCallExpressionPropertiesNode(parser, parent)
 
             if (!parser.readText(relationalToken)) {
                 return null
             }
 
-            result.value = PropertyStyleObjectBlockNode.parse(parser, result,
-                    FunctionCallExpressionPropertiesAnalyzer.signalEndValue) ?: throw AngmarParserException(
+            result.value = PropertyStyleObjectBlockNode.parse(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.FunctionCallExpressionPropertiesWithoutPropertyStyleBlockAfterRelationalToken,
                     "A property-style block was expected after the relational token '$relationalToken'.") {
                 val fullText = parser.reader.readAllText()

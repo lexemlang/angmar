@@ -9,6 +9,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
@@ -156,8 +157,8 @@ internal object AnyPrototype {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, left, AnalyzerNodesCommons.signalStart + 1,
-                        AnalyzerCommons.Operators.Add)
+                StdlibCommons.callToString(analyzer, left, InternalFunctionCallCompiled,
+                        AnalyzerNodesCommons.signalStart + 1, AnalyzerCommons.Operators.Add)
 
                 return false
             }

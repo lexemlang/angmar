@@ -5,8 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.commons.*
-import org.lexem.angmar.parser.functional.expressions.*
+import org.lexem.angmar.compiler.functional.expressions.*
 
 
 /**
@@ -18,14 +17,14 @@ internal object AccessExpressionAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AccessExpressionNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AccessExpressionCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.element)
             }
             signalEndElement -> {
                 // Performs the access if the element is an identifier.
-                if (node.element is IdentifierNode) {
+                if (node.isIdentifier) {
                     val id = analyzer.memory.getLastFromStack() as LxmString
                     val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
@@ -35,10 +34,10 @@ internal object AccessExpressionAnalyzer {
 
                 // Process the next operand.
                 if (node.modifiers.isNotEmpty()) {
-                    return analyzer.nextNode(node.modifiers[0])
+                    return analyzer.nextNode(node.modifiers.first())
                 }
             }
-            in signalEndFirstModifier until signalEndFirstModifier + node.modifiers.size -> {
+            in signalEndFirstModifier..signalEndFirstModifier + node.modifiers.size -> {
                 val position = (signal - signalEndFirstModifier) + 1
 
                 // Process the next operand

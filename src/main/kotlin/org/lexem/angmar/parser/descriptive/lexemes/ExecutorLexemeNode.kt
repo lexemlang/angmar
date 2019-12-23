@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,10 +15,10 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for executor lexemes.
  */
-internal class ExecutorLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
-    var isConditional = false
+internal class ExecutorLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val expressions = mutableListOf<ParserNode>()
+    var isConditional = false
 
     override fun toString() = StringBuilder().apply {
         append(startToken)
@@ -40,8 +41,8 @@ internal class ExecutorLexemeNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ExecutorLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ExecutorLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "\\("
@@ -54,9 +55,9 @@ internal class ExecutorLexemeNode private constructor(parser: LexemParser, paren
         /**
          * Parses an executor lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExecutorLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ExecutorLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ExecutorLexemeNode(parser, parent, parentSignal)
+            val result = ExecutorLexemeNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -76,8 +77,7 @@ internal class ExecutorLexemeNode private constructor(parser: LexemParser, paren
                     WhitespaceNode.parse(parser)
                 }
 
-                val expression = ExpressionsCommons.parseExpression(parser, result,
-                        result.expressions.size + ExecutorLexemAnalyzer.signalEndFirstExpression)
+                val expression = ExpressionsCommons.parseExpression(parser, result)
                 if (expression == null) {
                     val expressionCursor = parser.reader.saveCursor()
 

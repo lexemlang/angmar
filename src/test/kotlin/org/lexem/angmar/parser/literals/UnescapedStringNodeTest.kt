@@ -37,7 +37,7 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
@@ -57,7 +57,7 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter$additionalDelimiter"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
@@ -78,7 +78,7 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}$additionalDelimiter"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
@@ -97,7 +97,7 @@ internal class UnescapedStringNodeTest {
             val text =
                     "${UnescapedStringNode.macroName}$additionalDelimiter${UnescapedStringNode.startToken} this is a test"
             val parser = LexemParser(IOStringReader.from(text))
-            UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -107,7 +107,7 @@ internal class UnescapedStringNodeTest {
         val text =
                 "${UnescapedStringNode.macroName}${UnescapedStringNode.startToken}$textContent${UnescapedStringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
@@ -128,7 +128,7 @@ internal class UnescapedStringNodeTest {
             strings = ["", "3", UnescapedStringNode.macroName, "${UnescapedStringNode.macroName}$additionalDelimiter"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnescapedStringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

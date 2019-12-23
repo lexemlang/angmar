@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes.anchors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 /**
  * Parser for absolute elements of anchor lexemes.
  */
-internal class AbsoluteElementAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class AbsoluteElementAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var type: AbsoluteAnchorType
     lateinit var expression: ParserNode
 
@@ -33,8 +34,8 @@ internal class AbsoluteElementAnchorLexemeNode private constructor(parser: Lexem
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AbsoluteElementAnchorLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AbsoluteElementAnchorLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val fromStartIdentifier = "from_start"
@@ -46,9 +47,9 @@ internal class AbsoluteElementAnchorLexemeNode private constructor(parser: Lexem
         /**
          * Parses an absolute element of an anchor lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AbsoluteElementAnchorLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AbsoluteElementAnchorLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AbsoluteElementAnchorLexemeNode(parser, parent, parentSignal)
+            val result = AbsoluteElementAnchorLexemeNode(parser, parent)
 
             when {
                 parser.readText(fromStartIdentifier) -> result.type = AbsoluteAnchorType.FromStart
@@ -57,29 +58,28 @@ internal class AbsoluteElementAnchorLexemeNode private constructor(parser: Lexem
                 else -> return null
             }
 
-            val indexer = IndexerNode.parse(parser, result, AbsoluteElementAnchorLexemeAnalyzer.signalEndExpression)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.AbsoluteAnchorElementWithoutValue,
-                            "An open square bracket '${IndexerNode.startToken}' was expected to init the block of the value of the absolute anchor.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message = "Try adding here the open square bracket '${IndexerNode.startToken}'"
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            message = "Try removing the '${result.type.identifier}' anchor"
-                        }
-                    }
+            val indexer = IndexerNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.AbsoluteAnchorElementWithoutValue,
+                    "An open square bracket '${IndexerNode.startToken}' was expected to init the block of the value of the absolute anchor.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding here the open square bracket '${IndexerNode.startToken}'"
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    message = "Try removing the '${result.type.identifier}' anchor"
+                }
+            }
 
             result.expression = indexer.expression
             result.expression.parent = result
-            result.expression.parentSignal = AbsoluteElementAnchorLexemeAnalyzer.signalEndExpression
 
             return parser.finalizeNode(result, initCursor)
         }

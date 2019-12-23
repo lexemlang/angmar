@@ -63,7 +63,7 @@ internal class AssignExpressionNodeTest {
     @MethodSource("provideAssignCorrectExpression")
     fun `parse correct assign expression`(text: String, operator: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AssignExpressionNode
@@ -81,7 +81,7 @@ internal class AssignExpressionNodeTest {
                 AngmarParserExceptionType.AssignExpressionWithoutExpressionAfterAssignOperator) {
             val text = "${ExpressionsCommonsTest.testLeftExpression} ${AssignOperatorNode.assignOperator} "
             val parser = LexemParser(IOStringReader.from(text))
-            AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -89,7 +89,7 @@ internal class AssignExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AssignExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

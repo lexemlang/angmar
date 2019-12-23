@@ -31,7 +31,7 @@ internal class PublicMacroStmtNodeTest {
     @ValueSource(strings = ["${PublicMacroStmtNode.macroName} ${StatementCommonsTest.testAnyPublicMacroStmt}"])
     fun `parse correct public macro statement`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PublicMacroStmtNode
@@ -47,7 +47,7 @@ internal class PublicMacroStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.PublicMacroStatementWithoutValidStatement) {
             val text = PublicMacroStmtNode.macroName
             val parser = LexemParser(IOStringReader.from(text))
-            PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -55,7 +55,7 @@ internal class PublicMacroStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PublicMacroStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

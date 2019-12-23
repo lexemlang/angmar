@@ -6,9 +6,9 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.TextLexemAnalyzer.signalEndText
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
 
 
 /**
@@ -20,7 +20,7 @@ internal object QuantifiedGroupModifierAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedGroupModifierNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedGroupModifierCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.minimum != null) {
@@ -105,6 +105,22 @@ internal object QuantifiedGroupModifierAnalyzer {
                 }
 
                 val minimum = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmInteger
+
+                if (maximum.primitive < 0) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds,
+                            "The maximum value cannot be lower than 0. Actual: $maximum") {
+                        val fullText = node.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(node.from.position(), node.to.position() - 1)
+                        }
+                        addSourceCode(fullText) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(node.maximum!!.from.position(), node.maximum!!.to.position() - 1)
+                            message = "Review the returned value of this expression"
+                        }
+                    }
+                }
 
                 if (maximum.primitive < minimum.primitive) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds,

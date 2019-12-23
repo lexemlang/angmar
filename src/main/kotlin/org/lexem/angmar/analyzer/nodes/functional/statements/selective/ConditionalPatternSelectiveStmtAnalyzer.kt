@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
-import org.lexem.angmar.parser.functional.statements.selective.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object ConditionalPatternSelectiveStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ConditionalPatternSelectiveStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ConditionalPatternSelectiveStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.condition)

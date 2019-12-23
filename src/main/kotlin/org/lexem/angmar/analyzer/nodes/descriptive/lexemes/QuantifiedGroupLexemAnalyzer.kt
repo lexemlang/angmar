@@ -5,9 +5,9 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
 
 
 /**
@@ -20,7 +20,7 @@ internal object QuantifiedGroupLexemAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedGroupLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedGroupLexemeCompiled) {
         val signalEndFirstModifier = signalEndFirstPattern + node.patterns.size
         val signalBadEndFirstPattern = signalEndFirstModifier + node.patterns.size
 
@@ -41,7 +41,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                     return analyzer.nextNode(node.mainModifier)
                 }
 
-                val union = LxmPatternUnion(LxmQuantifier(-1, -1), LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, LxmQuantifier(-1, -1), LxmInteger.Num0)
                 val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory, union)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, quantifiedGroup)
 
@@ -49,7 +49,7 @@ internal object QuantifiedGroupLexemAnalyzer {
             }
             signalEndMainModifier -> {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
                 val quantifiedGroup = LxmQuantifiedGroup(analyzer.memory, union)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, quantifiedGroup)
 
@@ -63,7 +63,7 @@ internal object QuantifiedGroupLexemAnalyzer {
 
                 // Adds the union.
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = true) as LxmQuantifiedGroup
                 quantifiedGroup.addUnion(analyzer.memory, union)
@@ -83,7 +83,7 @@ internal object QuantifiedGroupLexemAnalyzer {
 
                 return callNextPattern(analyzer, quantifiedGroup, node, 0)
             }
-            in signalBadEndFirstPattern until signalBadEndFirstPattern + node.patterns.size -> {
+            in signalBadEndFirstPattern..signalBadEndFirstPattern + node.patterns.size -> {
                 val position = (signal - signalBadEndFirstPattern) + 1
 
                 // Skip the pattern.
@@ -104,10 +104,10 @@ internal object QuantifiedGroupLexemAnalyzer {
      * Calls the next available modifier.
      */
     private fun callNextModifier(analyzer: LexemAnalyzer, quantifiedGroup: LxmQuantifiedGroup,
-            node: QuantifiedGroupLexemeNode, from: Int) {
+            node: QuantifiedGroupLexemeCompiled, from: Int) {
         for (i in node.modifiers.drop(from)) {
             if (i == null) {
-                val union = LxmPatternUnion(LxmQuantifier.AlternativePattern, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, LxmQuantifier.AlternativePattern, LxmInteger.Num0)
                 quantifiedGroup.addUnion(analyzer.memory, union)
             } else {
                 return analyzer.nextNode(i)
@@ -133,8 +133,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                     oldMainQuantifier.min < 0 -> {
                         addSourceCode(fullText, "") {
                             title = Consts.Logger.codeTitle
-                            highlightSection(node.mainModifier!!.maximum!!.from.position(),
-                                    node.mainModifier!!.maximum!!.to.position() - 1)
+                            highlightSection(node.mainModifier!!.from.position(), node.mainModifier!!.to.position() - 1)
                             message =
                                     "Review the returned value of the maximum expression is greater or equal than the calculated minimum (${mainQuantifier.min})"
                         }
@@ -142,8 +141,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                     oldMainQuantifier.max < 0 -> {
                         addSourceCode(fullText, "") {
                             title = Consts.Logger.codeTitle
-                            highlightSection(node.mainModifier!!.minimum!!.from.position(),
-                                    node.mainModifier!!.minimum!!.to.position() - 1)
+                            highlightSection(node.mainModifier!!.from.position(), node.mainModifier!!.to.position() - 1)
                             message =
                                     "Review the returned value of the minimum expression is lower or equal than the calculated maximum (${mainQuantifier.max})"
                         }
@@ -159,7 +157,7 @@ internal object QuantifiedGroupLexemAnalyzer {
      * Calls the next pattern that can be repeated.
      */
     private fun callNextPattern(analyzer: LexemAnalyzer, quantifiedGroup: LxmQuantifiedGroup,
-            node: QuantifiedGroupLexemeNode, from: Int) {
+            node: QuantifiedGroupLexemeCompiled, from: Int) {
         val signalBadEndFirstPattern = signalEndFirstPattern + 2 * node.patterns.size
 
         for ((index, pattern) in node.patterns.withIndex().drop(from)) {

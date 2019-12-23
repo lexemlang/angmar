@@ -81,7 +81,7 @@ internal class FunctionParameterListNodeTest {
     fun `parse correct parameter list`(parameters: String, size: Int) {
         val text = "${FunctionParameterListNode.startToken}$parameters${FunctionParameterListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -102,7 +102,7 @@ internal class FunctionParameterListNodeTest {
     fun `parse correct parameter list with values`(parameters: String, size: Int) {
         val text = "${FunctionParameterListNode.startToken}$parameters${FunctionParameterListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -123,7 +123,7 @@ internal class FunctionParameterListNodeTest {
     fun `parse correct parameter list with whitespaces`(parameters: String, size: Int) {
         val text = "${FunctionParameterListNode.startToken} $parameters ${FunctionParameterListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -145,7 +145,7 @@ internal class FunctionParameterListNodeTest {
         val text =
                 "${FunctionParameterListNode.startToken}$parameters${FunctionParameterListNode.parameterSeparator}${FunctionParameterListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -170,7 +170,7 @@ internal class FunctionParameterListNodeTest {
             "${FunctionParameterListNode.startToken}${FunctionParameterListNode.positionalSpreadOperator}${IdentifierNodeTest.testExpression}${FunctionParameterListNode.endToken}"
         }
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -196,7 +196,7 @@ internal class FunctionParameterListNodeTest {
             "${FunctionParameterListNode.startToken}${FunctionParameterListNode.namedSpreadOperator}${IdentifierNodeTest.testExpression}${FunctionParameterListNode.endToken}"
         }
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -222,7 +222,7 @@ internal class FunctionParameterListNodeTest {
             "${FunctionParameterListNode.startToken}${FunctionParameterListNode.positionalSpreadOperator}${IdentifierNodeTest.testExpression}${FunctionParameterListNode.parameterSeparator}${FunctionParameterListNode.namedSpreadOperator}${IdentifierNodeTest.testExpression}${FunctionParameterListNode.endToken}"
         }
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterListNode
@@ -247,7 +247,7 @@ internal class FunctionParameterListNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.FunctionParameterListWithoutEndToken) {
             val text = "${FunctionParameterListNode.startToken}$expression"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -259,7 +259,7 @@ internal class FunctionParameterListNodeTest {
             val text =
                     "${FunctionParameterListNode.startToken}${FunctionParameterListNode.positionalSpreadOperator}${FunctionParameterListNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -271,7 +271,7 @@ internal class FunctionParameterListNodeTest {
             val text =
                     "${FunctionParameterListNode.startToken}${FunctionParameterListNode.namedSpreadOperator}${FunctionParameterListNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -279,7 +279,7 @@ internal class FunctionParameterListNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

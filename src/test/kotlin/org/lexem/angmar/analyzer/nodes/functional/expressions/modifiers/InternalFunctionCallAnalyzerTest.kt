@@ -5,7 +5,8 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.utils.*
@@ -67,8 +68,8 @@ internal class InternalFunctionCallAnalyzerTest {
                     val arguments = LxmArguments(analyzer.memory)
                     arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
 
-                    AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
-                            LxmCodePoint(InternalFunctionCallNode, 1, ParserNode.Companion.EmptyParserNode, ""))
+                    AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+                            LxmCodePoint(InternalFunctionCallCompiled, 1, CompiledNode.Companion.EmptyCompiledNode, ""))
 
                     return@LxmFunction false
                 }

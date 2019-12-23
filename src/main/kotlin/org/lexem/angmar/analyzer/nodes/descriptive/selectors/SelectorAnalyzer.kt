@@ -4,8 +4,8 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.descriptive.selectors.*
 
 
 /**
@@ -17,7 +17,7 @@ internal object SelectorAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectorNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectorCompiled) {
         if (node.isAddition) {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {
@@ -31,7 +31,7 @@ internal object SelectorAnalyzer {
                     // Move Node to Last in the stack.
                     analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Node)
                 }
-                in signalEndFirstProperty until signalEndFirstProperty + node.properties.size -> {
+                in signalEndFirstProperty..signalEndFirstProperty + node.properties.size -> {
                     val position = (signal - signalEndFirstProperty) + 1
 
                     if (position < node.properties.size) {
@@ -79,7 +79,7 @@ internal object SelectorAnalyzer {
                         }
                     }
                 }
-                in signalEndFirstProperty until signalEndFirstProperty + node.properties.size -> {
+                in signalEndFirstProperty..signalEndFirstProperty + node.properties.size -> {
                     val position = (signal - signalEndFirstProperty) + 1
 
                     val result = analyzer.memory.getLastFromStack() as LxmLogic
@@ -100,7 +100,7 @@ internal object SelectorAnalyzer {
                         }
                     }
                 }
-                in signalEndFirstMethod until signalEndFirstMethod + node.methods.size -> {
+                in signalEndFirstMethod..signalEndFirstMethod + node.methods.size -> {
                     val position = (signal - signalEndFirstMethod) + 1
 
                     val result = analyzer.memory.getLastFromStack() as LxmLogic

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
-import org.lexem.angmar.parser.functional.statements.loops.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 
 
 /**
@@ -19,7 +19,7 @@ internal object ConditionalLoopStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ConditionalLoopStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ConditionalLoopStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
@@ -145,7 +145,7 @@ internal object ConditionalLoopStmtAnalyzer {
     /**
      * Performs the next iteration of a loop.
      */
-    private fun evaluateCondition(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode) {
+    private fun evaluateCondition(analyzer: LexemAnalyzer, node: ConditionalLoopStmtCompiled) {
         // Evaluate the condition.
         val condition = analyzer.memory.getLastFromStack()
         var conditionTruthy = RelationalFunctions.isTruthy(condition)
@@ -163,16 +163,18 @@ internal object ConditionalLoopStmtAnalyzer {
 
         val indexValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
 
-        if (indexValue.primitive == 0 && node.lastClauses?.elseBlock != null) {
-            return analyzer.nextNode(node.lastClauses!!.elseBlock)
-        }
+        if (node.lastClauses != null) {
+            return if (indexValue.primitive == 0) {
+                analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForElse)
+                analyzer.nextNode(node.lastClauses)
+            } else {
+                // Remove the name of the intermediate statement.
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
-        if (indexValue.primitive != 0 && node.lastClauses?.lastBlock != null) {
-            // Remove the name of the intermediate statement.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
-
-            return analyzer.nextNode(node.lastClauses!!.lastBlock)
+                analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForLast)
+                analyzer.nextNode(node.lastClauses)
+            }
         }
 
         finish(analyzer, node)
@@ -183,7 +185,7 @@ internal object ConditionalLoopStmtAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode, count: Int = 1) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: ConditionalLoopStmtCompiled, count: Int = 1) {
         val lastIndex = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
         val newIndex = LxmInteger.from(lastIndex.primitive + count)
 
@@ -201,7 +203,7 @@ internal object ConditionalLoopStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: ConditionalLoopStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: ConditionalLoopStmtCompiled) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
 

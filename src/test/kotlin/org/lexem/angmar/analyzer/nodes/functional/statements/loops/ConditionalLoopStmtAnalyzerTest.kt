@@ -270,12 +270,12 @@ internal class ConditionalLoopStmtAnalyzerTest {
         val varName = "test"
         val lastBlock = "${ControlWithoutExpressionStmtNode.exitKeyword}${BlockStmtNode.tagPrefix}$tagName"
         val text =
-                "${ConditionalLoopStmtNode.whileKeyword} $varName ${BlockStmtNode.startToken} $varName ${AdditiveExpressionNode.additionOperator} ${LogicNode.trueLiteral} ${BlockStmtNode.endToken} ${LoopClausesStmtNode.lastKeyword} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName $lastBlock ${BlockStmtNode.endToken}"
+                "${ConditionalLoopStmtNode.whileKeyword} $varName ${BlockStmtNode.startToken} $varName ${AssignOperatorNode.assignOperator} ${LogicNode.falseLiteral} ${BlockStmtNode.endToken} ${LoopClausesStmtNode.lastKeyword} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName $lastBlock ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = ConditionalLoopStmtNode.Companion::parse)
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmLogic.False)
+        context.setProperty(analyzer.memory, varName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))

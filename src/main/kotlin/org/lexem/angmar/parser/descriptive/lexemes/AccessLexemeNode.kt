@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for access lexemes.
  */
-internal class AccessLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class AccessLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var nextAccess: AccessLexemeNode? = null
     lateinit var expression: AccessExpressionLexemeNode
@@ -42,8 +43,8 @@ internal class AccessLexemeNode private constructor(parser: LexemParser, parent:
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AccessLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AccessLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -54,13 +55,13 @@ internal class AccessLexemeNode private constructor(parser: LexemParser, parent:
         /**
          * Parses an access lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AccessLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AccessLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AccessLexemeNode(parser, parent, parentSignal)
+            val result = AccessLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
-            val expression = AccessExpressionLexemeNode.parse(parser, result, AccessLexemAnalyzer.signalEndExpression)
+            val expression = AccessExpressionLexemeNode.parse(parser, result)
             if (expression == null) {
                 initCursor.restore()
                 return null
@@ -73,23 +74,38 @@ internal class AccessLexemeNode private constructor(parser: LexemParser, parent:
             WhitespaceNoEOLNode.parse(parser)
 
             if (parser.readText(nextAccessToken)) {
+                if (result.isNegated) {
+                    throw AngmarParserException(AngmarParserExceptionType.NegatedAccessWithNextAccess,
+                            "Access lexemes that have a next access cannot be negative.") {
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        }
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(initCursor.position(), initCursor.position() + notOperator.length - 1)
+                            message = "Try removing the negation token '$notOperator'"
+                        }
+                    }
+                }
+
                 WhitespaceNode.parse(parser)
 
-                result.nextAccess =
-                        parse(parser, result, AccessLexemAnalyzer.signalEndNextAccess) ?: throw AngmarParserException(
-                                AngmarParserExceptionType.AccessWithoutNextAccessAfterToken,
-                                "Access lexemes require another Access lexeme after the relational token '$nextAccessToken'.") {
-                            val fullText = parser.reader.readAllText()
-                            addSourceCode(fullText, parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightSection(parser.reader.currentPosition() - 1)
-                                message = "Try removing the relational token '$nextAccessToken'"
-                            }
-                        }
+                result.nextAccess = parse(parser, result) ?: throw AngmarParserException(
+                        AngmarParserExceptionType.AccessWithoutNextAccessAfterToken,
+                        "Access lexemes require another Access lexeme after the relational token '$nextAccessToken'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(parser.reader.currentPosition() - 1)
+                        message = "Try removing the relational token '$nextAccessToken'"
+                    }
+                }
             } else {
                 preNextAccessCursor.restore()
             }

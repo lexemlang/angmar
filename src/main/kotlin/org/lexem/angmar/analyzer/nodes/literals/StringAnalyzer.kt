@@ -4,46 +4,50 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.commons.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.analyzer.stdlib.*
+import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.literals.*
+import org.lexem.angmar.config.*
+import org.lexem.angmar.errors.*
 
 
 /**
  * Analyzer for normal string literals.
  */
 internal object StringAnalyzer {
-    const val signalEndFirstEscape = AnalyzerNodesCommons.signalStart + 1
+    const val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: StringNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: StringCompiled) {
+        val signalEndFirstCallToString = signalEndFirstElement + node.elements.size
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the first string.
-                val accumulator = LxmString.from(node.texts[0])
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmString.Empty)
 
-                if (node.escapes.isNotEmpty()) {
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, accumulator)
-
-                    return analyzer.nextNode(node.escapes[0])
-                }
-
-                analyzer.memory.addToStackAsLast(accumulator)
+                return analyzer.nextNode(node.elements.first())
             }
-            in signalEndFirstEscape..signalEndFirstEscape + node.escapes.size -> {
-                val position = (signal - signalEndFirstEscape) + 1
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
+                val position = (signal - signalEndFirstElement) + 1
 
-                // Combine the strings depending on the type of escape.
-                val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
-                val concatenation = if (node.escapes[position - 1] is EscapedExpressionNode) {
-                    val escape = analyzer.memory.getLastFromStack() as LxmString
+                // Combine the strings or call the toString.
+                val result = analyzer.memory.getLastFromStack()
 
-                    accumulator.primitive + escape.primitive + node.texts[position]
-                } else {
-                    val escape = analyzer.memory.getLastFromStack() as LxmInteger
+                if (result !is LxmString) {
+                    val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                    val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
+                    StdlibCommons.callToString(analyzer, result, node, signalEndFirstCallToString + position,
+                            contextName.primitive)
 
-                    accumulator.primitive + Character.toChars(escape.primitive).joinToString("") + node.texts[position]
+                    // Remove Last from the stack.
+                    analyzer.memory.removeLastFromStack()
+
+                    return
                 }
+
+                val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
+                val concatenation = accumulator.primitive + result.primitive
 
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmString.from(concatenation))
 
@@ -51,8 +55,44 @@ internal object StringAnalyzer {
                 analyzer.memory.removeLastFromStack()
 
                 // Evaluate the next operand.
-                if (position < node.escapes.size) {
-                    return analyzer.nextNode(node.escapes[position])
+                if (position < node.elements.size) {
+                    return analyzer.nextNode(node.elements[position])
+                }
+
+                // Move Accumulator to Last in the stack.
+                analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
+            }
+            in signalEndFirstCallToString..signalEndFirstCallToString + node.elements.size -> {
+                val position = (signal - signalEndFirstCallToString) + 1
+
+                // Combine the strings or call the toString.
+                val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw AngmarAnalyzerException(
+                        AngmarAnalyzerExceptionType.ToStringMethodNotReturningString,
+                        "The ${AnalyzerCommons.Identifiers.ToString} method must always return a ${StringType.TypeName}") {
+                    val fullText = node.parser.reader.readAllText()
+                    addSourceCode(fullText, node.parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(node.from.position(), node.to.position() - 1)
+                    }
+                    addSourceCode(fullText, node.parser.reader.getSource()) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(node.elements[position - 1].from.position(),
+                                node.elements[position - 1].to.position() - 1)
+                        message = "Review this expression"
+                    }
+                }
+
+                val accumulator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmString
+                val concatenation = accumulator.primitive + result.primitive
+
+                analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmString.from(concatenation))
+
+                // Remove Last from the stack.
+                analyzer.memory.removeLastFromStack()
+
+                // Evaluate the next operand.
+                if (position < node.elements.size) {
+                    return analyzer.nextNode(node.elements[position])
                 }
 
                 // Move Accumulator to Last in the stack.

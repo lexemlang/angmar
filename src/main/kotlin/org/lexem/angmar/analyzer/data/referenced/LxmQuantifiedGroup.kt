@@ -99,9 +99,9 @@ internal class LxmQuantifiedGroup : LxmObject {
             }
 
             mainUnion = if (isInfinite) {
-                LxmPatternUnion(LxmQuantifier(min, isInfinite = isInfinite), LxmInteger.Num0, memory)
+                LxmPatternUnion(memory, LxmQuantifier(min, isInfinite = isInfinite), LxmInteger.Num0)
             } else {
-                LxmPatternUnion(LxmQuantifier(min, max), LxmInteger.Num0, memory)
+                LxmPatternUnion(memory, LxmQuantifier(min, max), LxmInteger.Num0)
             }
 
             setMainUnion(memory, mainUnion)

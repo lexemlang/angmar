@@ -61,7 +61,7 @@ internal class NameSelectorNodeTest {
     fun `parse correct affirmative simple name`() {
         val text = IdentifierNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NameSelectorNode
@@ -79,7 +79,7 @@ internal class NameSelectorNodeTest {
     fun `parse correct affirmative simple name - for additive`() {
         val text = IdentifierNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NameSelectorNode
@@ -97,7 +97,7 @@ internal class NameSelectorNodeTest {
     fun `parse correct negative simple name`() {
         val text = "${NameSelectorNode.notOperator}${IdentifierNodeTest.testExpression}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NameSelectorNode
@@ -115,7 +115,7 @@ internal class NameSelectorNodeTest {
     @MethodSource("provideNameGroups")
     fun `parse correct affirmative group of names`(text: String, nameCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NameSelectorNode
@@ -136,7 +136,7 @@ internal class NameSelectorNodeTest {
     fun `parse correct negative group of names`(groupNames: String, nameCount: Int) {
         val text = "${NameSelectorNode.notOperator}$groupNames"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NameSelectorNode
@@ -158,7 +158,7 @@ internal class NameSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorNameGroupWithoutNames) {
             val text = "${NameSelectorNode.groupStartToken}${NameSelectorNode.groupEndToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -168,7 +168,7 @@ internal class NameSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorNameGroupWithoutEndToken) {
             val text = "${NameSelectorNode.groupStartToken}${IdentifierNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -176,7 +176,7 @@ internal class NameSelectorNodeTest {
     @ValueSource(strings = ["", NameSelectorNode.notOperator])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NameSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

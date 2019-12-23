@@ -93,12 +93,8 @@ internal object IntervalPrototype {
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmInteger -> {
-                        LxmInterval.from(left.primitive.common(right.primitive))
-                    }
-                    is LxmInterval -> {
-                        LxmInterval.from(left.primitive.common(right.primitive))
-                    }
+                    is LxmInteger -> LxmInterval.from(left.primitive.common(right.primitive))
+                    is LxmInterval -> LxmInterval.from(left.primitive.common(right.primitive))
                     else -> null
                 }
             }
@@ -111,12 +107,8 @@ internal object IntervalPrototype {
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmInteger -> {
-                        LxmInterval.from(left.primitive.plus(right.primitive))
-                    }
-                    is LxmInterval -> {
-                        LxmInterval.from(left.primitive.plus(right.primitive))
-                    }
+                    is LxmInteger -> LxmInterval.from(left.primitive.plus(right.primitive))
+                    is LxmInterval -> LxmInterval.from(left.primitive.plus(right.primitive))
                     else -> null
                 }
             }
@@ -129,12 +121,8 @@ internal object IntervalPrototype {
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmInteger -> {
-                        LxmInterval.from(left.primitive.notCommon(right.primitive))
-                    }
-                    is LxmInterval -> {
-                        LxmInterval.from(left.primitive.notCommon(right.primitive))
-                    }
+                    is LxmInteger -> LxmInterval.from(left.primitive.notCommon(right.primitive))
+                    is LxmInterval -> LxmInterval.from(left.primitive.notCommon(right.primitive))
                     else -> null
                 }
             }
@@ -147,12 +135,8 @@ internal object IntervalPrototype {
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmInteger -> {
-                        LxmInterval.from(left.primitive.plus(right.primitive))
-                    }
-                    is LxmInterval -> {
-                        LxmInterval.from(left.primitive.plus(right.primitive))
-                    }
+                    is LxmInteger -> LxmInterval.from(left.primitive.plus(right.primitive))
+                    is LxmInterval -> LxmInterval.from(left.primitive.plus(right.primitive))
                     else -> null
                 }
             }
@@ -165,12 +149,8 @@ internal object IntervalPrototype {
                     IntervalType.TypeName, listOf(IntervalType.TypeName, IntegerType.TypeName), toWriteLeft = false,
                     toWriteRight = false) { _: LexemAnalyzer, left: LxmInterval, right: LexemMemoryValue ->
                 when (right) {
-                    is LxmInteger -> {
-                        LxmInterval.from(left.primitive.minus(right.primitive))
-                    }
-                    is LxmInterval -> {
-                        LxmInterval.from(left.primitive.minus(right.primitive))
-                    }
+                    is LxmInteger -> LxmInterval.from(left.primitive.minus(right.primitive))
+                    is LxmInterval -> LxmInterval.from(left.primitive.minus(right.primitive))
                     else -> null
                 }
             }

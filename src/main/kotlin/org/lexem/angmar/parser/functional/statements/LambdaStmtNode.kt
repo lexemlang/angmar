@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,25 +15,26 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for lambda statements.
  */
-internal class LambdaStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
-    lateinit var statement: ParserNode
+internal class LambdaStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
+    lateinit var expression: ParserNode
     var isFilterCode = false
 
     override fun toString() = StringBuilder().apply {
-        append("$token $statement")
+        append("$token $expression")
     }.toString()
 
     override fun toTree(): JsonObject {
         val result = super.toTree()
 
-        result.add("statement", statement.toTree())
+        result.add("expression", expression.toTree())
         result.addProperty("isFilterCode", isFilterCode)
 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = LambdaStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LambdaStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val token = "="
@@ -42,24 +44,24 @@ internal class LambdaStmtNode private constructor(parser: LexemParser, parent: P
         /**
          * Parses a lambda statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LambdaStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LambdaStmtNode? {
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(token)) {
                 return null
             }
 
-            val result = LambdaStmtNode(parser, parent, parentSignal)
+            val result = LambdaStmtNode(parser, parent)
             result.isFilterCode = parser.isFilterCode
 
             WhitespaceNode.parse(parser)
 
             val statement = if (parser.isDescriptiveCode) {
                 // Descriptive code
-                LexemePatternContentNode.parse(parser, result, LambdaStmtAnalyzer.signalEndExpression)
+                LexemePatternContentNode.parse(parser, result)
             } else {
                 // Functional code
-                ExpressionsCommons.parseExpression(parser, result, LambdaStmtAnalyzer.signalEndExpression)
+                ExpressionsCommons.parseExpression(parser, result)
             }
             if (statement == null) {
                 val mainMessage = if (parser.isDescriptiveCode) {
@@ -89,7 +91,7 @@ internal class LambdaStmtNode private constructor(parser: LexemParser, parent: P
                     }
                 }
             }
-            result.statement = statement
+            result.expression = statement
 
             return parser.finalizeNode(result, initCursor)
         }

@@ -11,21 +11,20 @@ internal object Commons {
     /**
      * Parses any escape.
      */
-    fun parseAnyEscape(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            EscapedExpressionNode.parse(parser, parent, parentSignal) ?: parseSimpleEscape(parser, parent, parentSignal)
+    fun parseAnyEscape(parser: LexemParser, parent: ParserNode) =
+            EscapedExpressionNode.parse(parser, parent) ?: parseSimpleEscape(parser, parent)
 
     /**
      * Parses any simple escape.
      */
-    fun parseSimpleEscape(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            UnicodeEscapeNode.parse(parser, parent, parentSignal) ?: EscapeNode.parse(parser, parent, parentSignal)
+    fun parseSimpleEscape(parser: LexemParser, parent: ParserNode) =
+            UnicodeEscapeNode.parse(parser, parent) ?: EscapeNode.parse(parser, parent)
 
     /**
      * Parses a dynamic identifier.
      */
-    fun parseDynamicIdentifier(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? =
-            EscapedExpressionNode.parse(parser, parent, parentSignal) ?: IdentifierNode.parse(parser, parent,
-                    parentSignal)
+    fun parseDynamicIdentifier(parser: LexemParser, parent: ParserNode): ParserNode? =
+            EscapedExpressionNode.parse(parser, parent) ?: IdentifierNode.parse(parser, parent)
 
 
     /**
@@ -38,7 +37,7 @@ internal object Commons {
      */
     fun parseKeyword(parser: LexemParser, keyword: String): Boolean {
         val initCursor = parser.reader.saveCursor()
-        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0) ?: return false
+        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode) ?: return false
 
         if (identifier.simpleIdentifiers.size > 1 || keyword != identifier.simpleIdentifiers.first()) {
             initCursor.restore()
@@ -53,7 +52,7 @@ internal object Commons {
      */
     fun parseAnyKeyword(parser: LexemParser): String? {
         val initCursor = parser.reader.saveCursor()
-        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0) ?: return null
+        val identifier = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode) ?: return null
 
         if (identifier.isQuotedIdentifier || identifier.simpleIdentifiers.size > 1) {
             initCursor.restore()

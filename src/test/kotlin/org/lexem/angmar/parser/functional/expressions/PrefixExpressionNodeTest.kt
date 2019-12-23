@@ -37,7 +37,7 @@ internal class PrefixExpressionNodeTest {
             node as PrefixExpressionNode
 
             PrefixOperatorNodeTest.checkTestExpression(node.prefix)
-            AccessExpressionNodeTest.checkTestExpression(node.element)
+            AccessExpressionNodeTest.checkTestExpression(node.expression)
         }
     }
 
@@ -48,7 +48,7 @@ internal class PrefixExpressionNodeTest {
     @MethodSource("provideCorrectPrefixExpressions")
     fun `parse correct prefix expression`(text: String, hasPrefix: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -60,7 +60,7 @@ internal class PrefixExpressionNodeTest {
             res as PrefixExpressionNode
 
             PrefixOperatorNodeTest.checkTestExpression(res.prefix)
-            AccessExpressionNodeTest.checkTestExpression(res.element)
+            AccessExpressionNodeTest.checkTestExpression(res.expression)
         }
     }
 
@@ -71,7 +71,7 @@ internal class PrefixExpressionNodeTest {
                 AngmarParserExceptionType.PrefixExpressionWithoutExpressionAfterThePrefixOperator) {
             val text = PrefixOperatorNodeTest.testExpression
             val parser = LexemParser(IOStringReader.from(text))
-            PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PrefixExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -79,7 +79,7 @@ internal class PrefixExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AccessExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

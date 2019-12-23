@@ -3,9 +3,9 @@ package org.lexem.angmar.analyzer.nodes
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 
 
 /**
@@ -16,19 +16,19 @@ internal object LexemFileAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemFileNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemFileCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate a new module context.
                 AnalyzerCommons.createAndAssignNewModuleContext(analyzer, node.parser.reader.getSource())
 
                 if (node.statements.isNotEmpty()) {
-                    return analyzer.nextNode(node.statements[0])
+                    return analyzer.nextNode(node.statements.first())
                 }
 
                 return finalizeFile(analyzer, node)
             }
-            in signalEndFirstStatement until signalEndFirstStatement + node.statements.size -> {
+            in signalEndFirstStatement..signalEndFirstStatement + node.statements.size -> {
                 val position = (signal - signalEndFirstStatement) + 1
 
                 // Process the next node.
@@ -45,8 +45,8 @@ internal object LexemFileAnalyzer {
 
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal,
                         "The ${control.type} control signal has not reached any valid statement.") {
-                    val fullText = node.parser.reader.readAllText()
-                    addSourceCode(fullText, node.parser.reader.getSource()) {
+                    val fullText = node.parserNode!!.parser.reader.readAllText()
+                    addSourceCode(fullText, node.parserNode!!.parser.reader.getSource()) {
                         title = Consts.Logger.hintTitle
                         highlightSection(control.node.from.position(), control.node.to.position() - 1)
                         message = "Review that this control statement has a matching statement."
@@ -71,7 +71,7 @@ internal object LexemFileAnalyzer {
     /**
      * Finalizes the file node.
      */
-    private fun finalizeFile(analyzer: LexemAnalyzer, node: LexemFileNode) {
+    private fun finalizeFile(analyzer: LexemAnalyzer, node: LexemFileCompiled) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val exports = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Exports) as LxmReference
 

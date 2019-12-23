@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeIntervalSubIntervalNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeIntervalSubIntervalCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Copy accumulator to parent.
@@ -25,10 +25,10 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
 
                 if (node.elements.isNotEmpty()) {
-                    return analyzer.nextNode(node.elements[0])
+                    return analyzer.nextNode(node.elements.first())
                 }
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - ListAnalyzer.signalEndFirstElement) + 1
 
                 // Process the next node.
@@ -46,22 +46,16 @@ internal object UnicodeIntervalSubIntervalAnalyzer {
     /**
      * Operates the sub-interval.
      */
-    private fun operate(analyzer: LexemAnalyzer, node: UnicodeIntervalSubIntervalNode) {
+    private fun operate(analyzer: LexemAnalyzer, node: UnicodeIntervalSubIntervalCompiled) {
         val subInterval = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
         val interval = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parent) as LxmInterval
-
         var finalValue = if (node.reversed) {
             subInterval.primitive.unicodeNot()
         } else {
             subInterval.primitive
         }
 
-        finalValue = when (node.operator) {
-            IntervalSubIntervalNode.Operator.Add -> interval.primitive.plus(finalValue)
-            IntervalSubIntervalNode.Operator.Sub -> interval.primitive.minus(finalValue)
-            IntervalSubIntervalNode.Operator.Common -> interval.primitive.common(finalValue)
-            IntervalSubIntervalNode.Operator.NotCommon -> interval.primitive.notCommon(finalValue)
-        }
+        finalValue = IntervalSubIntervalCompiled.operateInterval(node.operator, interval.primitive, finalValue)
 
         // Remove Parent and set the Accumulator.
         analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(finalValue))

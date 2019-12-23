@@ -6,20 +6,23 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.literals.*
 
 
 /**
  * Analyzer for property-style object blocks.
  */
 internal object PropertyStyleObjectBlockAnalyzer {
-    const val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
+    const val signalEndFirstPositiveElement = AnalyzerNodesCommons.signalStart + 1
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyStyleObjectBlockNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyStyleObjectBlockCompiled) {
+        val signalEndFirstNegativeElement = signalEndFirstPositiveElement + node.positiveElements.size
+        val signalEndFirstSetElement = signalEndFirstNegativeElement + node.negativeElements.size
+
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Create object
@@ -28,23 +31,23 @@ internal object PropertyStyleObjectBlockAnalyzer {
 
                 // Call next element
                 if (node.positiveElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.positiveElements[0])
+                    return analyzer.nextNode(node.positiveElements.first())
                 }
 
                 if (node.negativeElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.negativeElements[0])
+                    return analyzer.nextNode(node.negativeElements.first())
                 }
 
                 if (node.setElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.setElements[0])
+                    return analyzer.nextNode(node.setElements.first())
                 }
 
                 // Move accumulator to last.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Positives
-            in signalEndFirstElement until signalEndFirstElement + node.positiveElements.size -> {
-                val position = (signal - signalEndFirstElement) + 1
+            in signalEndFirstPositiveElement until signalEndFirstPositiveElement + node.positiveElements.size -> {
+                val position = (signal - signalEndFirstPositiveElement) + 1
 
                 val identifier = analyzer.memory.getLastFromStack()
 
@@ -79,19 +82,19 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 }
 
                 if (node.negativeElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.negativeElements[0])
+                    return analyzer.nextNode(node.negativeElements.first())
                 }
 
                 if (node.setElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.setElements[0])
+                    return analyzer.nextNode(node.setElements.first())
                 }
 
                 // Move accumulator to last.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Negatives
-            in signalEndFirstElement + node.positiveElements.size until signalEndFirstElement + node.positiveElements.size + node.negativeElements.size -> {
-                val position = (signal - (signalEndFirstElement + node.positiveElements.size)) + 1
+            in signalEndFirstNegativeElement until signalEndFirstNegativeElement + node.negativeElements.size -> {
+                val position = (signal - signalEndFirstNegativeElement) + 1
 
                 val identifier = analyzer.memory.getLastFromStack()
 
@@ -126,16 +129,15 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 }
 
                 if (node.setElements.isNotEmpty()) {
-                    return analyzer.nextNode(node.setElements[0])
+                    return analyzer.nextNode(node.setElements.first())
                 }
 
                 // Move accumulator to last.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
             // Sets
-            in signalEndFirstElement + node.positiveElements.size + node.negativeElements.size until signalEndFirstElement + node.positiveElements.size + node.negativeElements.size + node.setElements.size -> {
-                val position =
-                        (signal - (signalEndFirstElement + node.positiveElements.size + node.negativeElements.size)) + 1
+            in signalEndFirstSetElement until signalEndFirstSetElement + node.setElements.size -> {
+                val position = (signal - signalEndFirstSetElement) + 1
 
                 // Call next element
                 if (position < node.setElements.size) {

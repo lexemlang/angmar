@@ -2,15 +2,16 @@ package org.lexem.angmar.parser.functional.expressions.macros
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.macros.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.macros.*
 import org.lexem.angmar.parser.*
 
 
 /**
  * Parser for macro expressions.
  */
-internal class MacroExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class MacroExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var macroName: String
 
     override fun toString() = StringBuilder().apply {
@@ -25,8 +26,8 @@ internal class MacroExpressionNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            MacroExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            MacroExpressionCompiler.compile(parent, parentSignal, this)
 
     companion object {
         const val macroSuffix = "!"
@@ -41,9 +42,9 @@ internal class MacroExpressionNode private constructor(parser: LexemParser, pare
         /**
          * Parses a macro expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MacroExpressionNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): MacroExpressionNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = MacroExpressionNode(parser, parent, parentSignal)
+            val result = MacroExpressionNode(parser, parent)
 
             result.macroName = parser.readAnyText(macroNames.asSequence()) ?: return null
 

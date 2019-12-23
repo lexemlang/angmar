@@ -1,7 +1,6 @@
 package org.lexem.angmar.parser.descriptive
 
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.descriptive.expressions.macros.*
@@ -13,20 +12,20 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for filter lexemes.
  */
-internal class AnyFilterLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        AnyLexemeNode(parser, parent, parentSignal) {
+internal class AnyFilterLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        AnyLexemeNode(parser, parent) {
 
     companion object {
 
         /**
          * Parses a lexemes.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AnyFilterLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AnyFilterLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AnyFilterLexemeNode(parser, parent, parentSignal)
+            val result = AnyFilterLexemeNode(parser, parent)
 
-            var lexeme: ParserNode? = MacroCheckPropsNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: MacroBacktrackNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
+            var lexeme: ParserNode? =
+                    CheckPropsMacroNode.parse(parser, result) ?: MacroBacktrackNode.parse(parser, result)
 
             if (lexeme != null) {
                 result.lexeme = lexeme
@@ -34,20 +33,16 @@ internal class AnyFilterLexemeNode private constructor(parser: LexemParser, pare
             }
 
             // Data capturing
-            result.dataCapturing =
-                    AnyLexemeNode.parseDataCapturing(parser, result, AnyLexemeAnalyzer.signalEndDataCapturing)
+            result.dataCapturing = AnyLexemeNode.parseDataCapturing(parser, result)
             if (result.dataCapturing != null) {
                 WhitespaceNoEOLNode.parse(parser)
             }
 
             // Lexeme
-            lexeme = AdditionFilterLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: FilterLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: QuantifiedGroupLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: ExecutorLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: BlockStmtNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: AccessLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: GroupLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
+            lexeme = AdditionFilterLexemeNode.parse(parser, result) ?: FilterLexemeNode.parse(parser, result)
+                    ?: QuantifiedGroupLexemeNode.parse(parser, result) ?: ExecutorLexemeNode.parse(parser, result)
+                    ?: BlockStmtNode.parse(parser, result) ?: AccessLexemeNode.parse(parser, result)
+                    ?: GroupLexemeNode.parse(parser, result)
 
             if (lexeme == null) {
                 initCursor.restore()
@@ -57,7 +52,7 @@ internal class AnyFilterLexemeNode private constructor(parser: LexemParser, pare
             result.lexeme = lexeme
 
             // Quantifier
-            result.quantifier = QuantifierLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndQuantifier)
+            result.quantifier = QuantifierLexemeNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

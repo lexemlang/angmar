@@ -4,6 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.functional.statements.controls.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 
@@ -16,7 +17,7 @@ internal object ControlWithoutExpressionStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ControlWithoutExpressionStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ControlWithoutExpressionStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.tag != null) {
@@ -36,7 +37,7 @@ internal object ControlWithoutExpressionStmtAnalyzer {
     /**
      * Creates the control value and throws the control signal.
      */
-    fun operate(analyzer: LexemAnalyzer, node: ControlWithoutExpressionStmtNode) {
+    fun operate(analyzer: LexemAnalyzer, node: ControlWithoutExpressionStmtCompiled) {
         if (node.tag != null) {
             val tag = analyzer.memory.getLastFromStack() as LxmString
 

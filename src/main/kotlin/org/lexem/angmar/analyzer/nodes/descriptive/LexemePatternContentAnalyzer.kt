@@ -2,7 +2,7 @@ package org.lexem.angmar.analyzer.nodes.descriptive
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.*
+import org.lexem.angmar.compiler.descriptive.*
 
 
 /**
@@ -13,12 +13,12 @@ internal object LexemePatternContentAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternContentNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternContentCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.lexemes.first())
             }
-            in signalEndFirstLexeme until signalEndFirstLexeme + node.lexemes.size -> {
+            in signalEndFirstLexeme..signalEndFirstLexeme + node.lexemes.size -> {
                 val position = (signal - signalEndFirstLexeme) + 1
 
                 // Evaluate the next lexeme.

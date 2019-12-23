@@ -62,7 +62,7 @@ internal class AdditiveExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct additive expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -90,7 +90,7 @@ internal class AdditiveExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.AdditiveExpressionWithoutExpressionAfterOperator) {
             val text = "${MultiplicativeExpressionNodeTest.testExpression}${AdditiveExpressionNode.additionOperator}"
             val parser = LexemParser(IOStringReader.from(text))
-            AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -98,7 +98,7 @@ internal class AdditiveExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AdditiveExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

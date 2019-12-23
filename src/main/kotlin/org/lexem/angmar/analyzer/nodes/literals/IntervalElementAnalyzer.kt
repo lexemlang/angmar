@@ -5,10 +5,10 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.literals.*
 
 
 /**
@@ -20,10 +20,12 @@ internal object IntervalElementAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IntervalElementNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IntervalElementCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                return analyzer.nextNode(node.left)
+                val constantValue = node.constantValue ?: return analyzer.nextNode(node.left)
+
+                operate(analyzer, constantValue.from, constantValue.to)
             }
             signalEndLeft -> {
                 // Check value.
@@ -37,14 +39,15 @@ internal object IntervalElementAnalyzer {
                     }
 
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType, msg) {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                        val fullText = node.parserNode.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parserNode.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
-                            highlightSection(node.from.position(), node.to.position() - 1)
+                            highlightSection(node.parserNode.from.position(), node.parserNode.to.position() - 1)
                         }
                         addSourceCode(fullText) {
                             title = Consts.Logger.hintTitle
-                            highlightSection(node.left.from.position(), node.left.to.position() - 1)
+                            highlightSection(node.left.parserNode.from.position(),
+                                    node.left.parserNode.to.position() - 1)
                             message = "Review the returned value of this expression"
                         }
                     }
@@ -71,14 +74,15 @@ internal object IntervalElementAnalyzer {
                 if (right !is LxmInteger) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
                             "The returned value by the right expression must be an ${IntegerType.TypeName}.") {
-                        val fullText = node.parser.reader.readAllText()
-                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                        val fullText = node.parserNode.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parserNode.parser.reader.getSource()) {
                             title = Consts.Logger.codeTitle
-                            highlightSection(node.from.position(), node.to.position() - 1)
+                            highlightSection(node.parserNode.from.position(), node.parserNode.to.position() - 1)
                         }
                         addSourceCode(fullText) {
                             title = Consts.Logger.hintTitle
-                            highlightSection(node.right!!.from.position(), node.right!!.to.position() - 1)
+                            highlightSection(node.right!!.parserNode.from.position(),
+                                    node.right!!.parserNode.to.position() - 1)
                             message = "Review the returned value of this expression"
                         }
                     }
@@ -86,17 +90,8 @@ internal object IntervalElementAnalyzer {
 
                 // Add the value to the interval.
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmInteger
-                val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
 
-                try {
-                    val range = IntegerRange.new(left.primitive, right.primitive)
-                    val resInterval = itv.primitive.plus(range)
-
-                    analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator,
-                            LxmInterval.from(resInterval))
-                    analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
-                    analyzer.memory.removeLastFromStack()
-                } catch (e: AngmarException) {
+                if (left.primitive > right.primitive) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
                             "The left value must be lower or equal than the right value. Actual left: $left, actual right: $right") {
                         val fullText = node.parser.reader.readAllText()
@@ -106,9 +101,26 @@ internal object IntervalElementAnalyzer {
                         }
                     }
                 }
+
+                operate(analyzer, left.primitive, right.primitive)
+
+                // Remove Left and Last from the stack.
+                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
+                analyzer.memory.removeLastFromStack()
             }
         }
 
         return analyzer.nextNode(node.parent, node.parentSignal)
+    }
+
+    /**
+     * Adds the range to the accumulator.
+     */
+    private fun operate(analyzer: LexemAnalyzer, left: Int, right: Int) {
+        val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
+        val range = IntegerRange.new(left, right)
+        val resInterval = itv.primitive.plus(range)
+
+        analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))
     }
 }

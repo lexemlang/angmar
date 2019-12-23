@@ -79,7 +79,7 @@ internal class QuantifiedLoopStmtNodeTest {
     @MethodSource("provideCorrectStatement")
     fun `parse correct loop statement`(text: String, hasClauses: Boolean, hasIndex: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuantifiedLoopStmtNode
@@ -110,7 +110,7 @@ internal class QuantifiedLoopStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifiedLoopStatementWithoutQuantifier) {
             val text = QuantifiedLoopStmtNode.keyword
             val parser = LexemParser(IOStringReader.from(text))
-            QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -120,7 +120,7 @@ internal class QuantifiedLoopStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifiedLoopStatementWithoutBlock) {
             val text = "${QuantifiedLoopStmtNode.keyword} ${QuantifierLexemeNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -128,7 +128,7 @@ internal class QuantifiedLoopStmtNodeTest {
     @ValueSource(strings = ["", "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression}"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifiedLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

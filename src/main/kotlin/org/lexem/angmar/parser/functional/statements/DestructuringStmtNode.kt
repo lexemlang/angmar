@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for destructuring.
  */
-internal class DestructuringStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class DestructuringStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var alias: IdentifierNode? = null
     val elements = mutableListOf<DestructuringElementStmtNode>()
     var spread: DestructuringSpreadStmtNode? = null
@@ -45,8 +46,8 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            DestructuringStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            DestructuringStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "("
@@ -59,11 +60,11 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
         /**
          * Parses a destructuring.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DestructuringStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): DestructuringStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = DestructuringStmtNode(parser, parent, parentSignal)
+            val result = DestructuringStmtNode(parser, parent)
 
-            result.alias = IdentifierNode.parse(parser, result, DestructuringStmtAnalyzer.signalEndAlias)
+            result.alias = IdentifierNode.parse(parser, result)
 
             if (result.alias != null) {
                 WhitespaceNode.parse(parser)
@@ -83,8 +84,7 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
 
             WhitespaceNode.parse(parser)
 
-            var element = DestructuringElementStmtNode.parse(parser, result,
-                    result.elements.size + DestructuringStmtAnalyzer.signalEndFirstElement)
+            var element = DestructuringElementStmtNode.parse(parser, result)
             if (element != null) {
                 result.elements.add(element)
 
@@ -100,8 +100,7 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
 
                     WhitespaceNode.parse(parser)
 
-                    element = DestructuringElementStmtNode.parse(parser, result,
-                            result.elements.size + DestructuringStmtAnalyzer.signalEndFirstElement)
+                    element = DestructuringElementStmtNode.parse(parser, result)
                     if (element == null) {
                         initLoopCursor.restore()
                         break
@@ -126,8 +125,7 @@ internal class DestructuringStmtNode private constructor(parser: LexemParser, pa
                     WhitespaceNode.parse(parser)
                 }
 
-                result.spread =
-                        DestructuringSpreadStmtNode.parse(parser, result, DestructuringStmtAnalyzer.signalEndSpread)
+                result.spread = DestructuringSpreadStmtNode.parse(parser, result)
                 if (result.spread == null) {
                     initSpreadCursor.restore()
                 }

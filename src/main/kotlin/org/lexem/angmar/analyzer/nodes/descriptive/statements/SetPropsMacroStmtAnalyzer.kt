@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.statements.*
+import org.lexem.angmar.compiler.descriptive.statements.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object SetPropsMacroStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SetPropsMacroStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SetPropsMacroStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.properties)

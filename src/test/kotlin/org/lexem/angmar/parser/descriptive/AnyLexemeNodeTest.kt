@@ -25,7 +25,7 @@ internal class AnyLexemeNodeTest {
         @JvmStatic
         private fun provideMacros(): Stream<Arguments> {
             val sequence = sequence {
-                yield(Arguments.of(MacroCheckPropsNodeTest.testExpression, 0))
+                yield(Arguments.of(CheckPropsMacroNodeTest.testExpression, 0))
                 yield(Arguments.of(MacroBacktrackNodeTest.testExpression, 1))
                 yield(Arguments.of(SetPropsMacroStmtNodeTest.testExpression, 2))
                 yield(Arguments.of(LexemeCommonsTest.testAnchors, 3))
@@ -108,7 +108,7 @@ internal class AnyLexemeNodeTest {
     fun `parse correct macros`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = AnyLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AnyLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AnyLexemeNode
@@ -117,7 +117,7 @@ internal class AnyLexemeNodeTest {
         Assertions.assertNull(res.quantifier, "The quantifier property must be null")
 
         when (type) {
-            0 -> MacroCheckPropsNodeTest.checkTestExpression(res.lexeme)
+            0 -> CheckPropsMacroNodeTest.checkTestExpression(res.lexeme)
             1 -> MacroBacktrackNodeTest.checkTestExpression(res.lexeme)
             2 -> SetPropsMacroStmtNodeTest.checkTestExpression(res.lexeme)
             3 -> LexemeCommonsTest.checkTestAnchors(res.lexeme)
@@ -133,7 +133,7 @@ internal class AnyLexemeNodeTest {
             hasQuantifier: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = AnyLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AnyLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AnyLexemeNode

@@ -78,7 +78,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
     fun `parse correct unicode sub interval element`(text: String, operator: IntervalSubIntervalNode.Operator,
             reversed: Boolean, numElements: Int, areElementsOfSubIntervals: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeIntervalSubIntervalNode
@@ -104,7 +104,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.UnicodeIntervalSubIntervalWithoutEndToken) {
             val text = "${UnicodeIntervalSubIntervalNode.startToken}a"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeIntervalSubIntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class UnicodeIntervalSubIntervalNodeTest {
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -7,8 +7,8 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.functional.statements.*
 import org.lexem.angmar.analyzer.nodes.literals.*
-import org.lexem.angmar.parser.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
 
@@ -22,9 +22,9 @@ internal class AnalyzerNodesCommonsTest {
         val function = LxmFunction(analyzer.memory) { _, _, _, _ -> true }
 
         val returnSignal = 45
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, ParserNode.Companion.EmptyParserNode,
-                LxmCodePoint(ParserNode.Companion.EmptyParserNode, returnSignal, ParserNode.Companion.EmptyParserNode,
-                        ""))
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, CompiledNode.Companion.EmptyCompiledNode,
+                LxmCodePoint(CompiledNode.Companion.EmptyCompiledNode, returnSignal,
+                        CompiledNode.Companion.EmptyCompiledNode, ""))
 
         // Assert status of the analyzer.
         val stackFunction = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)
@@ -35,12 +35,12 @@ internal class AnalyzerNodesCommonsTest {
 
         Assertions.assertEquals(function.getPrimitive(), stackFunction, "The stackFunction is incorrect")
         Assertions.assertEquals(arguments, stackArguments, "The stackArguments is incorrect")
-        Assertions.assertEquals(ParserNode.Companion.EmptyParserNode, stackReturnPosition.node,
+        Assertions.assertEquals(CompiledNode.Companion.EmptyCompiledNode, stackReturnPosition.node,
                 "The stackReturnPosition.node is incorrect")
         Assertions.assertEquals(returnSignal, stackReturnPosition.signal, "The stackReturnPosition.signal is incorrect")
 
         Assertions.assertEquals(LexemAnalyzer.ProcessStatus.Forward, analyzer.processStatus, "The status is incorrect")
-        Assertions.assertEquals(InternalFunctionCallNode, analyzer.nextNode, "The next node is incorrect")
+        Assertions.assertEquals(InternalFunctionCallCompiled, analyzer.nextNode, "The next node is incorrect")
         Assertions.assertEquals(AnalyzerNodesCommons.signalCallFunction, analyzer.signal, "The signal is incorrect")
 
         // Remove Function, Arguments and ReturnCodePoint from the stack.

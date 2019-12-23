@@ -32,7 +32,7 @@ internal class UnicodeEscapeNodeTest {
     fun `parse correct unicode escape without brackets`(number: String) {
         val text = "${UnicodeEscapeNode.escapeStart}$number"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
@@ -49,7 +49,7 @@ internal class UnicodeEscapeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.UnicodeEscapeWithoutValue) {
             val text = "${UnicodeEscapeNode.escapeStart}$number"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -60,7 +60,7 @@ internal class UnicodeEscapeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.UnicodeEscapeWithFewerDigitsThanAllowed) {
             val text = "${UnicodeEscapeNode.escapeStart}$number"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -70,7 +70,7 @@ internal class UnicodeEscapeNodeTest {
         val text =
                 "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}$number${UnicodeEscapeNode.endBracket}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
@@ -86,7 +86,7 @@ internal class UnicodeEscapeNodeTest {
         val text =
                 "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}${WhitespaceNoEOLNodeTest.allWhiteCharsTest}$number${WhitespaceNoEOLNodeTest.allWhiteCharsTest}${UnicodeEscapeNode.endBracket}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
@@ -104,7 +104,7 @@ internal class UnicodeEscapeNodeTest {
             val text =
                     "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}$number${UnicodeEscapeNode.endBracket}"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -115,7 +115,7 @@ internal class UnicodeEscapeNodeTest {
             val text =
                     "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}${UnicodeEscapeNode.endBracket}"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -125,7 +125,7 @@ internal class UnicodeEscapeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.UnicodeEscapeWithBracketsWithoutEndToken) {
             val text = "${UnicodeEscapeNode.escapeStart}${UnicodeEscapeNode.startBracket}0"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -133,7 +133,7 @@ internal class UnicodeEscapeNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeEscapeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

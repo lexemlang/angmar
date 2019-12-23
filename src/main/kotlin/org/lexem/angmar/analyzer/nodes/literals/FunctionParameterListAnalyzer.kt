@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -18,14 +18,14 @@ internal object FunctionParameterListAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionParameterListNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionParameterListCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add a parameters object.
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Parameters, LxmParameters())
 
                 if (node.parameters.isNotEmpty()) {
-                    return analyzer.nextNode(node.parameters[0])
+                    return analyzer.nextNode(node.parameters.first())
                 }
 
                 if (node.positionalSpread != null) {
@@ -38,7 +38,7 @@ internal object FunctionParameterListAnalyzer {
 
                 processParameters(analyzer, node)
             }
-            in signalEndFirstParameter until signalEndFirstParameter + node.parameters.size -> {
+            in signalEndFirstParameter..signalEndFirstParameter + node.parameters.size -> {
                 val position = (signal - signalEndFirstParameter) + 1
 
                 if (position < node.parameters.size) {
@@ -89,7 +89,7 @@ internal object FunctionParameterListAnalyzer {
     /**
      * Process the parameters.
      */
-    private fun processParameters(analyzer: LexemAnalyzer, node: FunctionParameterListNode) {
+    private fun processParameters(analyzer: LexemAnalyzer, node: FunctionParameterListCompiled) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parameters = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters) as LxmParameters
         val argumentsRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments)

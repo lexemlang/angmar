@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.loops
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.loops.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for last clauses of loop statements.
  */
-internal class LoopClausesStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class LoopClausesStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var lastBlock: ParserNode? = null
     var elseBlock: ParserNode? = null
 
@@ -44,11 +45,8 @@ internal class LoopClausesStmtNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    /**
-     * THIS METHOD CANNOT BE CALLED.
-     */
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            LoopClausesStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LoopClausesStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val lastKeyword = "last"
@@ -60,9 +58,9 @@ internal class LoopClausesStmtNode private constructor(parser: LexemParser, pare
         /**
          * Parses last clauses of loop statements.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LoopClausesStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LoopClausesStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = LoopClausesStmtNode(parser, parent, parentSignal)
+            val result = LoopClausesStmtNode(parser, parent)
 
             var anyValue = false
 
@@ -74,26 +72,26 @@ internal class LoopClausesStmtNode private constructor(parser: LexemParser, pare
 
                 WhitespaceNode.parse(parser)
 
-                result.lastBlock = BlockStmtNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndLastClause)
-                        ?: throw AngmarParserException(AngmarParserExceptionType.LastLoopClauseWithoutBlock,
-                                "A block was expected after the loop clause keyword '$lastKeyword'.") {
-                            val fullText = parser.reader.readAllText()
-                            addSourceCode(fullText, parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightCursorAt(parser.reader.currentPosition())
-                                message =
-                                        "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                message = "Try removing the '$lastKeyword' keyword"
-                            }
-                        }
+                result.lastBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                        AngmarParserExceptionType.LastLoopClauseWithoutBlock,
+                        "A block was expected after the loop clause keyword '$lastKeyword'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(parser.reader.currentPosition())
+                        message =
+                                "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        message = "Try removing the '$lastKeyword' keyword"
+                    }
+                }
 
                 anyValue = true
             }
@@ -113,26 +111,26 @@ internal class LoopClausesStmtNode private constructor(parser: LexemParser, pare
 
                 WhitespaceNode.parse(parser)
 
-                result.elseBlock = BlockStmtNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndLastClause)
-                        ?: throw AngmarParserException(AngmarParserExceptionType.ElseLoopClauseWithoutBlock,
-                                "A block was expected after the loop clause keyword '$elseKeyword'.") {
-                            val fullText = parser.reader.readAllText()
-                            addSourceCode(fullText, parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightCursorAt(parser.reader.currentPosition())
-                                message =
-                                        "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                message = "Try removing the '$elseKeyword' keyword"
-                            }
-                        }
+                result.elseBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                        AngmarParserExceptionType.ElseLoopClauseWithoutBlock,
+                        "A block was expected after the loop clause keyword '$elseKeyword'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(parser.reader.currentPosition())
+                        message =
+                                "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        message = "Try removing the '$elseKeyword' keyword"
+                    }
+                }
 
                 anyValue = true
             }

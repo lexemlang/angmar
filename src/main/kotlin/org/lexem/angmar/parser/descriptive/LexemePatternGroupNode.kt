@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.descriptive.lexemes.*
 /**
  * Parser for lexeme pattern anonymous groups.
  */
-internal class LexemePatternGroupNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class LexemePatternGroupNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var type = LexemePatternNode.Companion.PatternType.Alternative
     var quantifier: ExplicitQuantifierLexemeNode? = null
     val patterns = mutableListOf<LexemePatternContentNode?>()
@@ -46,8 +47,8 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            LexemePatternGroupAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LexemePatternGroupCompiled.compile(parent, parentSignal, this)
 
     companion object {
 
@@ -56,12 +57,11 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
         /**
          * Parses a lexeme pattern anonymous group.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemePatternGroupNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LexemePatternGroupNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = LexemePatternGroupNode(parser, parent, parentSignal)
+            val result = LexemePatternGroupNode(parser, parent)
 
-            val pattern = LexemePatternNode.parse(parser, result, LexemePatternGroupAnalyzer.signalEndFirstPattern)
-                    ?: return null
+            val pattern = LexemePatternNode.parse(parser, result) ?: return null
 
             // Only get anonymous of those type that accept surrogates.
             if (pattern.unionName != null || pattern.type in LexemePatternNode.singlePatterns) {
@@ -73,7 +73,7 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
             result.patterns.add(pattern.patternContent)
 
             if (pattern.patternContent != null) {
-                relinkNode(pattern.patternContent!!, result, LexemePatternGroupAnalyzer.signalEndFirstPattern)
+                relinkNode(pattern.patternContent!!, result)
             }
 
             // Handle dangling quantified patterns.
@@ -90,7 +90,7 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
                     }
                 } else {
                     result.quantifier = pattern.quantifier
-                    relinkNode(pattern.quantifier!!, result, LexemePatternGroupAnalyzer.signalEndQuantifier)
+                    relinkNode(pattern.quantifier!!, result)
                 }
             }
 
@@ -100,8 +100,7 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
 
                 WhitespaceNode.parse(parser)
 
-                val pattern = LexemePatternNode.parse(parser, result,
-                        result.patterns.size + LexemePatternGroupAnalyzer.signalEndFirstPattern)
+                val pattern = LexemePatternNode.parse(parser, result)
                 if (pattern == null || result.type != pattern.type || pattern.unionName != null || pattern.quantifier != null) {
                     initLoopCursor.restore()
                     break
@@ -110,7 +109,7 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
                 result.patterns.add(pattern.patternContent)
 
                 if (pattern.patternContent != null) {
-                    relinkNode(pattern.patternContent!!, result, pattern.parentSignal)
+                    relinkNode(pattern.patternContent!!, result)
                 }
             }
 
@@ -120,9 +119,8 @@ internal class LexemePatternGroupNode private constructor(parser: LexemParser, p
         /**
          * Relinks a node to a new parent.
          */
-        private fun relinkNode(node: ParserNode, newParent: LexemePatternGroupNode, signal: Int) {
+        private fun relinkNode(node: ParserNode, newParent: LexemePatternGroupNode) {
             node.parent = newParent
-            node.parentSignal = signal
         }
     }
 }

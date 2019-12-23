@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object DestructuringSpreadStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DestructuringSpreadStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DestructuringSpreadStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.identifier)

@@ -94,7 +94,7 @@ internal class LexemPropertyPostfixNodeTest {
     fun `parse correct properties`(text: String, hasPositives: Boolean, hasNegatives: Boolean, hasReversed: Boolean,
             properties: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LexemPropertyPostfixNode
@@ -141,7 +141,7 @@ internal class LexemPropertyPostfixNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.InlinePropertyPostfixWithBadEnd) {
             val text = "${LexemPropertyPostfixNode.properties}a"
             val parser = LexemParser(IOStringReader.from(text))
-            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -151,7 +151,7 @@ internal class LexemPropertyPostfixNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.InlinePropertyPostfixWithoutProperty) {
             val text = LexemPropertyPostfixNode.negativeToken
             val parser = LexemParser(IOStringReader.from(text))
-            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -161,7 +161,7 @@ internal class LexemPropertyPostfixNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.InlinePropertyPostfixWithoutProperty) {
             val text = LexemPropertyPostfixNode.reversedToken
             val parser = LexemParser(IOStringReader.from(text))
-            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -169,7 +169,7 @@ internal class LexemPropertyPostfixNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemPropertyPostfixNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

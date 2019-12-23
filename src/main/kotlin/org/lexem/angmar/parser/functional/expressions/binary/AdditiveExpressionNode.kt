@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.binary
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for additive expressions.
  */
-internal class AdditiveExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class AdditiveExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val expressions = mutableListOf<ParserNode>()
     val operators = mutableListOf<String>()
 
@@ -35,8 +36,8 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AdditiveExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AdditiveExpressionCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val additionOperator = "+"
@@ -48,12 +49,11 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
         /**
          * Parses an additive expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ParserNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AdditiveExpressionNode(parser, parent, parentSignal)
+            val result = AdditiveExpressionNode(parser, parent)
 
-            result.expressions.add(MultiplicativeExpressionNode.parse(parser, result,
-                    result.expressions.size + AdditiveExpressionAnalyzer.signalEndFirstExpression) ?: return null)
+            result.expressions.add(MultiplicativeExpressionNode.parse(parser, result) ?: return null)
 
             while (true) {
                 val initLoopCursor = parser.reader.saveCursor()
@@ -72,8 +72,7 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
 
                 WhitespaceNode.parse(parser)
 
-                val expression = MultiplicativeExpressionNode.parse(parser, result,
-                        result.expressions.size + AdditiveExpressionAnalyzer.signalEndFirstExpression) ?: let {
+                val expression = MultiplicativeExpressionNode.parse(parser, result) ?: let {
                     throw AngmarParserException(
                             AngmarParserExceptionType.AdditiveExpressionWithoutExpressionAfterOperator,
                             "An expression was expected after the operator '$operator'") {
@@ -97,7 +96,6 @@ internal class AdditiveExpressionNode private constructor(parser: LexemParser, p
             if (result.expressions.size == 1) {
                 val newResult = result.expressions.first()
                 newResult.parent = parent
-                newResult.parentSignal = parentSignal
                 return newResult
             }
 

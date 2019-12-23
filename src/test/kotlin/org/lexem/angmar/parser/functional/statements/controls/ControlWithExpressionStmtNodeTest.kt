@@ -50,7 +50,7 @@ internal class ControlWithExpressionStmtNodeTest {
     @MethodSource("provideCorrectControlWithExpression")
     fun `parse correct destructuring spread statement`(text: String, hasTag: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
+        val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode,
                 ControlWithExpressionStmtNode.returnKeyword, false)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
@@ -70,7 +70,7 @@ internal class ControlWithExpressionStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ControlWithExpressionStatementWithoutExpression) {
             val text = ControlWithExpressionStmtNode.returnKeyword
             val parser = LexemParser(IOStringReader.from(text))
-            ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
+            ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode,
                     ControlWithExpressionStmtNode.returnKeyword)
         }
     }
@@ -79,7 +79,7 @@ internal class ControlWithExpressionStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
+        val res = ControlWithExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode,
                 ControlWithExpressionStmtNode.returnKeyword)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")

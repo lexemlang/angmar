@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.controls.*
@@ -16,9 +15,7 @@ internal class LexemFileAnalyzerTest {
     @Test
     fun `test empty`() {
         val text = ""
-        val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-            LexemFileNode.parse(parser)
-        }
+        val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -30,9 +27,7 @@ internal class LexemFileAnalyzerTest {
         val varName = "test"
         val value = LxmInteger.Num10
         val text = "$varName ${AssignOperatorNode.assignOperator} $value"
-        val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-            LexemFileNode.parse(parser)
-        }
+        val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -53,9 +48,7 @@ internal class LexemFileAnalyzerTest {
     fun `test control signals without expression`(keyword: String) {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val text = keyword
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -68,9 +61,7 @@ internal class LexemFileAnalyzerTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val tagName = "tag"
             val text = "$keyword${BlockStmtNode.tagPrefix}$tagName"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -82,9 +73,7 @@ internal class LexemFileAnalyzerTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal) {
             val value = LxmInteger.Num10
             val text = "$keyword $value"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

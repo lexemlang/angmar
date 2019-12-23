@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 /**
  * Parser for accesses expression for data capturing.
  */
-internal class DataCapturingAccessLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class DataCapturingAccessLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var element: IdentifierNode
     var modifiers = mutableListOf<ParserNode>()
 
@@ -31,28 +32,22 @@ internal class DataCapturingAccessLexemeNode private constructor(parser: LexemPa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            DataCapturingAccessLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            DataCapturingAccessLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses an access expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): DataCapturingAccessLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): DataCapturingAccessLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = DataCapturingAccessLexemeNode(parser, parent, parentSignal)
+            val result = DataCapturingAccessLexemeNode(parser, parent)
 
-            result.element = IdentifierNode.parse(parser, result, DataCapturingAccessLexemeAnalyzer.signalEndElement)
-                    ?: return null
+            result.element = IdentifierNode.parse(parser, result) ?: return null
 
             while (true) {
-                result.modifiers.add(AccessExplicitMemberNode.parse(parser, result,
-                        result.modifiers.size + DataCapturingAccessLexemeAnalyzer.signalEndFirstModifier)
-                        ?: IndexerNode.parse(parser, result,
-                                result.modifiers.size + DataCapturingAccessLexemeAnalyzer.signalEndFirstModifier)
-                        ?: FunctionCallNode.parse(parser, result,
-                                result.modifiers.size + DataCapturingAccessLexemeAnalyzer.signalEndFirstModifier)
-                        ?: break)
+                result.modifiers.add(AccessExplicitMemberNode.parse(parser, result) ?: IndexerNode.parse(parser, result)
+                ?: FunctionCallNode.parse(parser, result) ?: break)
             }
 
             return parser.finalizeNode(result, initCursor)

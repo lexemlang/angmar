@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.controls
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.controls.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.controls.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 
@@ -10,10 +11,10 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for control statements without a expression.
  */
-internal class ControlWithoutExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
-    lateinit var keyword: String
+internal class ControlWithoutExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var tag: IdentifierNode? = null
+    lateinit var keyword: String
 
     override fun toString() = StringBuilder().apply {
         append(keyword)
@@ -32,8 +33,8 @@ internal class ControlWithoutExpressionStmtNode private constructor(parser: Lexe
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ControlWithoutExpressionStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ControlWithoutExpressionStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val exitKeyword = "exit"
@@ -47,10 +48,9 @@ internal class ControlWithoutExpressionStmtNode private constructor(parser: Lexe
         /**
          * Parses a control statement without a expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int,
-                keyword: String): ControlWithoutExpressionStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, keyword: String): ControlWithoutExpressionStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ControlWithoutExpressionStmtNode(parser, parent, parentSignal)
+            val result = ControlWithoutExpressionStmtNode(parser, parent)
             result.keyword = keyword
 
             if (!Commons.parseKeyword(parser, keyword)) {
@@ -65,7 +65,7 @@ internal class ControlWithoutExpressionStmtNode private constructor(parser: Lexe
                     return@let
                 }
 
-                result.tag = IdentifierNode.parse(parser, result, ControlWithoutExpressionStmtAnalyzer.signalEndTag)
+                result.tag = IdentifierNode.parse(parser, result)
                 if (result.tag == null) {
                     initTagCursor.restore()
                 }

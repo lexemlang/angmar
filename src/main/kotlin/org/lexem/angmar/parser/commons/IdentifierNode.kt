@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.commons
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.commons.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.commons.*
 import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for identifiers.
  */
-internal class IdentifierNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class IdentifierNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val simpleIdentifiers = mutableListOf<String>()
     var quotedIdentifier: QuotedIdentifierNode? = null
 
@@ -33,7 +34,8 @@ internal class IdentifierNode private constructor(parser: LexemParser, parent: P
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = IdentifierAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            IdentifierCompiler.compile(parent, parentSignal, this)
 
     companion object {
         val headChars = listOf('\u0041'..'\u005A', '\u005F'..'\u005F', '\u0061'..'\u007A', '\u00A8'..'\u00A8',
@@ -53,12 +55,11 @@ internal class IdentifierNode private constructor(parser: LexemParser, parent: P
         /**
          * Parses an identifier.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IdentifierNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): IdentifierNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = IdentifierNode(parser, parent, parentSignal)
+            val result = IdentifierNode(parser, parent)
 
-            result.quotedIdentifier =
-                    QuotedIdentifierNode.parse(parser, result, IdentifierAnalyzer.signalEndQuotedIdentifier)
+            result.quotedIdentifier = QuotedIdentifierNode.parse(parser, result)
             if (result.quotedIdentifier != null) {
                 return parser.finalizeNode(result, initCursor)
             }

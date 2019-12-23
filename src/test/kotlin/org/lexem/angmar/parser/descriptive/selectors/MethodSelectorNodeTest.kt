@@ -67,7 +67,7 @@ internal class MethodSelectorNodeTest {
     @MethodSource("provideMethods")
     fun `parse correct method`(text: String, isNegated: Boolean, argsType: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MethodSelectorNode
@@ -98,7 +98,7 @@ internal class MethodSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorMethodWithoutName) {
             val text = MethodSelectorNode.relationalToken
             val parser = LexemParser(IOStringReader.from(text))
-            MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -106,7 +106,7 @@ internal class MethodSelectorNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MethodSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

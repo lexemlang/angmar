@@ -8,29 +8,30 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.globals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 
 /**
  * Analyzer for the Lexem language.
  */
-class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNode,
-        parsers: Map<String, LexemParser>? = null) {
+class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledNode,
+        grammars: Map<String, CompiledNode>? = null) {
     var text: IReader = IOStringReader.from("")
         internal set
     internal var rootFilePath = ""
     internal val memory = LexemMemory()
     internal var processStatus = ProcessStatus.Forward
-    internal var nextNode: ParserNode? = null
+    internal var nextNode: CompiledNode? = null
     internal var signal = 0
     internal var backtrackingData: LxmBacktrackingData? = null
     internal var initialCursor: IReaderCursor = text.saveCursor()
-    internal val importMode = if (parsers == null) {
+    internal val importMode = if (grammars == null) {
         ImportMode.Normal
     } else {
         ImportMode.AllIn
@@ -61,8 +62,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         if (importMode == ImportMode.AllIn) {
             val parserMap = LxmObject(memory)
 
-            for ((name, parser) in parsers!!) {
-                parserMap.setProperty(memory, name, LxmParser(parser))
+            for ((name, grammarRootNode) in grammars!!) {
+                parserMap.setProperty(memory, name, LxmGrammarRootNode(grammarRootNode))
             }
 
             stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
@@ -102,7 +103,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         initialCursor = text.saveCursor()
 
         // Set the main file path.
-        rootFilePath = grammarRootNode.parser.reader.getSource()
+        rootFilePath = grammarRootNode.parserNode!!.parser.reader.getSource()
 
         // Set the entry point. It will be added to the context in AnalyzerCommons.createAndAssignNewModuleContext.
         this.entryPoint = entryPoint ?: Consts.defaultEntryPoint
@@ -180,13 +181,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
                 e.logger.apply {
                     setStack {
                         for (i in callHierarchy) {
-                            if (i.callerNode is InternalFunctionCallNode) {
+                            if (i.callerNode is InternalFunctionCallCompiled) {
                                 addStackTrace("<native code>") {
                                     methodName = i.callerContextName
                                 }
                             } else {
-                                val (line, column) = i.callerNode.from.lineColumn()
-                                addStackTrace(i.callerNode.parser.reader.getSource(), line, column) {
+                                val (line, column) = i.callerNode.parserNode!!.from.lineColumn()
+                                addStackTrace(i.callerNode.parserNode!!.parser.reader.getSource(), line, column) {
                                     methodName = i.callerContextName
                                 }
                             }
@@ -272,7 +273,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Sets the next node to execute.
      */
-    internal fun nextNode(nextNode: ParserNode?, signal: Int = AnalyzerNodesCommons.signalStart) {
+    internal fun nextNode(nextNode: CompiledNode?, signal: Int = AnalyzerNodesCommons.signalStart) {
         this.nextNode = nextNode
         this.signal = signal
     }
@@ -309,7 +310,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
     /**
      * Freezes a new copy of the memory.
      */
-    internal fun freezeMemoryCopy(node: ParserNode, signal: Int) {
+    internal fun freezeMemoryCopy(node: CompiledNode, signal: Int) {
         setLastRollbackCodePoint(LxmRollbackCodePoint(node, signal, text.saveCursor()))
         memory.freezeCopy()
     }
@@ -425,22 +426,31 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: ParserNod
         /**
          * Creates a new [LexemAnalyzer] parsing the specified input.
          */
-        fun createParsing(text: ITextReader): LexemAnalyzer? {
-            val parser = LexemParser(text)
+        fun createParsing(input: ITextReader): LexemAnalyzer? {
+            val parser = LexemParser(input)
             val parserNode = LexemFileNode.parse(parser) ?: return null
+            val compiledNode = LexemFileCompiled.compile(parserNode)
 
-            return LexemAnalyzer(parserNode)
+            return LexemAnalyzer(compiledNode)
         }
 
         /**
-         * Creates a new [LexemAnalyzer] using a set of named [LexemParser]s. It is
+         * Creates a new [LexemAnalyzer] using a set of named inputs.
          */
-        fun createFrom(parsers: Map<String, LexemParser>, mainParserName: String): LexemAnalyzer? {
-            val mainParser =
-                    parsers[mainParserName] ?: throw AngmarException("Undefined parser called '$mainParserName'")
-            val parserNode = LexemFileNode.parse(mainParser) ?: return null
+        fun createFrom(inputs: Map<String, ITextReader>, mainParserName: String): LexemAnalyzer? {
+            if (mainParserName !in inputs) {
+                throw AngmarException("Undefined parser called '$mainParserName'")
+            }
 
-            return LexemAnalyzer(parserNode, parsers)
+            val grammars = inputs.mapValues { (key, input) ->
+                val parser = LexemParser(input)
+                val parserNode = LexemFileNode.parse(parser) ?: throw AngmarException(
+                        "The '$key' input is not a correct Lexem file.")
+                LexemFileCompiled.compile(parserNode)
+            }
+
+            val mainGrammarNode = grammars[mainParserName]!!
+            return LexemAnalyzer(mainGrammarNode, grammars)
         }
     }
 }

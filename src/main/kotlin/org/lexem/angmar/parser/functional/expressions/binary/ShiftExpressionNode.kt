@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.binary
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for shift expressions.
  */
-internal class ShiftExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ShiftExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val expressions = mutableListOf<ParserNode>()
     val operators = mutableListOf<String>()
 
@@ -35,8 +36,8 @@ internal class ShiftExpressionNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ShiftExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ShiftExpressionCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val leftShiftOperator = "<<"
@@ -50,12 +51,11 @@ internal class ShiftExpressionNode private constructor(parser: LexemParser, pare
         /**
          * Parses an shift expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ParserNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ShiftExpressionNode(parser, parent, parentSignal)
+            val result = ShiftExpressionNode(parser, parent)
 
-            result.expressions.add(AdditiveExpressionNode.parse(parser, result,
-                    result.expressions.size + ShiftExpressionAnalyzer.signalEndFirstExpression) ?: return null)
+            result.expressions.add(AdditiveExpressionNode.parse(parser, result) ?: return null)
 
             while (true) {
                 val initLoopCursor = parser.reader.saveCursor()
@@ -74,8 +74,7 @@ internal class ShiftExpressionNode private constructor(parser: LexemParser, pare
 
                 WhitespaceNode.parse(parser)
 
-                val expression = AdditiveExpressionNode.parse(parser, result,
-                        result.expressions.size + ShiftExpressionAnalyzer.signalEndFirstExpression) ?: let {
+                val expression = AdditiveExpressionNode.parse(parser, result) ?: let {
                     throw AngmarParserException(AngmarParserExceptionType.ShiftExpressionWithoutExpressionAfterOperator,
                             "An expression was expected after the operator '$operator'") {
                         val fullText = parser.reader.readAllText()
@@ -98,7 +97,6 @@ internal class ShiftExpressionNode private constructor(parser: LexemParser, pare
             if (result.expressions.size == 1) {
                 val newResult = result.expressions.first()
                 newResult.parent = parent
-                newResult.parentSignal = parentSignal
                 return newResult
             }
 

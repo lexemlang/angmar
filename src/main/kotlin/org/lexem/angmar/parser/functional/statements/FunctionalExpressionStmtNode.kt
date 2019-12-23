@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 
@@ -10,8 +11,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for functional expression statements.
  */
-internal class FunctionalExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class FunctionalExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var expression: ParserNode
 
     override fun toString() = expression.toString()
@@ -24,19 +25,18 @@ internal class FunctionalExpressionStmtNode private constructor(parser: LexemPar
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            FunctionalExpressionStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            FunctionalExpressionStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses an expression statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionalExpressionStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): FunctionalExpressionStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionalExpressionStmtNode(parser, parent, parentSignal)
+            val result = FunctionalExpressionStmtNode(parser, parent)
 
-            result.expression = ExpressionsCommons.parseExpression(parser, result,
-                    FunctionalExpressionStmtAnalyzer.signalEndExpression) ?: return null
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: return null
 
             return parser.finalizeNode(result, initCursor)
         }

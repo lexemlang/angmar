@@ -33,7 +33,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     fun `parse correct text element`() {
         val text = RelativeElementAnchorLexemeNode.textIdentifier
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as RelativeElementAnchorLexemeNode
@@ -49,7 +49,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     fun `parse correct line element`() {
         val text = RelativeElementAnchorLexemeNode.lineIdentifier
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as RelativeElementAnchorLexemeNode
@@ -65,7 +65,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     fun `parse correct string element`() {
         val text = LiteralCommonsTest.testAnyString
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as RelativeElementAnchorLexemeNode
@@ -82,7 +82,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     fun `parse correct bitlist element`() {
         val text = BitlistNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as RelativeElementAnchorLexemeNode
@@ -99,7 +99,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     fun `parse correct interval element`() {
         val text = LiteralCommonsTest.testAnyIntervalForLexem
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as RelativeElementAnchorLexemeNode
@@ -116,7 +116,7 @@ internal class RelativeElementAnchorLexemeNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelativeElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

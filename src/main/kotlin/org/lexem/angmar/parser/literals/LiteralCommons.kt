@@ -11,26 +11,25 @@ internal object LiteralCommons {
     /**
      * Parses any string literal.
      */
-    fun parseAnyString(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            UnescapedStringNode.parse(parser, parent, parentSignal) ?: StringNode.parse(parser, parent, parentSignal)
+    fun parseAnyString(parser: LexemParser, parent: ParserNode) =
+            UnescapedStringNode.parse(parser, parent) ?: StringNode.parse(parser, parent)
 
     /**
      * Parses any object literal.
      */
-    fun parseAnyObject(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            ObjectNode.parse(parser, parent, parentSignal) ?: PropertyStyleObjectNode.parse(parser, parent,
-                    parentSignal)
+    fun parseAnyObject(parser: LexemParser, parent: ParserNode) =
+            ObjectNode.parse(parser, parent) ?: PropertyStyleObjectNode.parse(parser, parent)
 
     /**
      * Parses any interval literal.
      */
-    fun parseAnyInterval(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            UnicodeIntervalNode.parse(parser, parent, parentSignal) ?: IntervalNode.parse(parser, parent, parentSignal)
+    fun parseAnyInterval(parser: LexemParser, parent: ParserNode) =
+            UnicodeIntervalNode.parse(parser, parent) ?: IntervalNode.parse(parser, parent)
 
     /**
      * Parses any interval literal and the unicode interval without prefix.
      */
-    fun parseAnyIntervalForLexem(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            UnicodeIntervalAbbrNode.parse(parser, parent, parentSignal) ?: UnicodeIntervalNode.parse(parser, parent,
-                    parentSignal) ?: IntervalNode.parse(parser, parent, parentSignal)
+    fun parseAnyIntervalForLexem(parser: LexemParser, parent: ParserNode) =
+            UnicodeIntervalAbbrNode.parse(parser, parent) ?: UnicodeIntervalNode.parse(parser, parent)
+            ?: IntervalNode.parse(parser, parent)
 }

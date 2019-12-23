@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,7 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for set literals
  */
-internal class SetNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class SetNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     lateinit var list: ListNode
 
     override fun toString() = list.toString()
@@ -26,7 +26,7 @@ internal class SetNode private constructor(parser: LexemParser, parent: ParserNo
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = SetAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = SetCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val macroName = "set${MacroExpressionNode.macroSuffix}"
@@ -36,15 +36,15 @@ internal class SetNode private constructor(parser: LexemParser, parent: ParserNo
         /**
          * Parses a set literal
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SetNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): SetNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = SetNode(parser, parent, parentSignal)
+            val result = SetNode(parser, parent)
 
             if (!parser.readText(macroName)) {
                 return null
             }
 
-            result.list = ListNode.parse(parser, result, SetAnalyzer.signalEndList) ?: throw AngmarParserException(
+            result.list = ListNode.parse(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.SetWithoutStartToken,
                     "The open square bracket was expected '${ListNode.startToken}' after the macro name '$macroName'.") {
                 val fullText = parser.reader.readAllText()

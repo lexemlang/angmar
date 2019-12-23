@@ -62,7 +62,7 @@ internal class ShiftExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct shift expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -90,7 +90,7 @@ internal class ShiftExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ShiftExpressionWithoutExpressionAfterOperator) {
             val text = "${AdditiveExpressionNodeTest.testExpression}${ShiftExpressionNode.leftShiftOperator}"
             val parser = LexemParser(IOStringReader.from(text))
-            ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -98,7 +98,7 @@ internal class ShiftExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ShiftExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

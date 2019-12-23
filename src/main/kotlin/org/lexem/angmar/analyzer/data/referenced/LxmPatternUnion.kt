@@ -13,7 +13,7 @@ internal class LxmPatternUnion : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(quantifier: LxmQuantifier, index: LxmInteger, memory: LexemMemory) : super(memory) {
+    constructor(memory: LexemMemory, quantifier: LxmQuantifier, index: LxmInteger) : super(memory) {
         this.quantifier = quantifier
         setIndex(memory, index)
     }

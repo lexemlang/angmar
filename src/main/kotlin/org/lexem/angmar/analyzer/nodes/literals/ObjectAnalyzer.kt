@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object ObjectAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ObjectNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ObjectCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new object.
@@ -23,7 +23,7 @@ internal object ObjectAnalyzer {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, obj)
 
                 if (node.elements.isNotEmpty()) {
-                    return analyzer.nextNode(node.elements[0])
+                    return analyzer.nextNode(node.elements.first())
                 }
 
                 if (node.isConstant) {
@@ -33,7 +33,7 @@ internal object ObjectAnalyzer {
                 // Move accumulator to last.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 // Process the next node.

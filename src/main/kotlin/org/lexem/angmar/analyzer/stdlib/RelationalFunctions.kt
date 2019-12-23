@@ -1,8 +1,10 @@
 package org.lexem.angmar.analyzer.stdlib
 
+import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.errors.*
 
 /**
  * Relational functions for Lexem values.
@@ -12,7 +14,11 @@ internal object RelationalFunctions {
     /**
      * Checks whether an object is truthy or not.
      */
-    fun isTruthy(value: LexemMemoryValue) = value != LxmNil && value != LxmLogic.False
+    fun isTruthy(value: LexemMemoryValue) = if (value is LexemSetter) {
+        throw AngmarUnreachableException()
+    } else {
+        value != LxmNil && value != LxmLogic.False
+    }
 
     /**
      * Compares the equality of both values.
@@ -143,6 +149,10 @@ internal object RelationalFunctions {
      * Compares the equality of the identity of both values.
      */
     fun identityEquals(leftValue: LexemMemoryValue, rightValue: LexemMemoryValue): Boolean {
+        if (leftValue is LexemSetter || rightValue is LexemSetter) {
+            throw AngmarUnreachableException()
+        }
+
         val left = leftValue.getPrimitive()
         val right = rightValue.getPrimitive()
 
@@ -165,36 +175,45 @@ internal object RelationalFunctions {
     /**
      * Compares whether left is lower than right.
      */
-    fun lowerThan(left: LexemMemoryValue, right: LexemMemoryValue) = when (left) {
-        is LxmInteger -> when (right) {
-            is LxmInteger -> left.primitive < right.primitive
-            is LxmFloat -> left.primitive < right.primitive
+    fun lowerThan(left: LexemMemoryValue, right: LexemMemoryValue) = if (left is LexemSetter || right is LexemSetter) {
+        throw AngmarUnreachableException()
+    } else {
+        when (left) {
+            is LxmInteger -> when (right) {
+                is LxmInteger -> left.primitive < right.primitive
+                is LxmFloat -> left.primitive < right.primitive
+                else -> false
+            }
+            is LxmFloat -> when (right) {
+                is LxmInteger -> left.primitive < right.primitive
+                is LxmFloat -> left.primitive < right.primitive
+                else -> false
+            }
             else -> false
         }
-        is LxmFloat -> when (right) {
-            is LxmInteger -> left.primitive < right.primitive
-            is LxmFloat -> left.primitive < right.primitive
-            else -> false
-        }
-        else -> false
     }
 
     /**
      * Compares whether left is greater than right.
      */
-    fun greaterThan(left: LexemMemoryValue, right: LexemMemoryValue) = when (left) {
-        is LxmInteger -> when (right) {
-            is LxmInteger -> left.primitive > right.primitive
-            is LxmFloat -> left.primitive > right.primitive
-            else -> false
-        }
-        is LxmFloat -> when (right) {
-            is LxmInteger -> left.primitive > right.primitive
-            is LxmFloat -> left.primitive > right.primitive
-            else -> false
-        }
-        else -> false
-    }
+    fun greaterThan(left: LexemMemoryValue, right: LexemMemoryValue) =
+            if (left is LexemSetter || right is LexemSetter) {
+                throw AngmarUnreachableException()
+            } else {
+                when (left) {
+                    is LxmInteger -> when (right) {
+                        is LxmInteger -> left.primitive > right.primitive
+                        is LxmFloat -> left.primitive > right.primitive
+                        else -> false
+                    }
+                    is LxmFloat -> when (right) {
+                        is LxmInteger -> left.primitive > right.primitive
+                        is LxmFloat -> left.primitive > right.primitive
+                        else -> false
+                    }
+                    else -> false
+                }
+            }
 
 
     /**

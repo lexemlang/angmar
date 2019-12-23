@@ -34,7 +34,7 @@ internal class PropertyStyleObjectNodeTest {
     fun `parse correct prop-style object`() {
         val text = "${PropertyStyleObjectNode.startToken}${PropertyStyleObjectBlockNodeTest.testExpression}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyStyleObjectNode
@@ -50,7 +50,7 @@ internal class PropertyStyleObjectNodeTest {
         val text =
                 "${PropertyStyleObjectNode.startToken}${PropertyStyleObjectNode.constantToken}${PropertyStyleObjectBlockNodeTest.testExpression}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyStyleObjectNode
@@ -67,7 +67,7 @@ internal class PropertyStyleObjectNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.PropertyStyleObjectWithoutStartToken) {
             val text = PropertyStyleObjectNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -75,7 +75,7 @@ internal class PropertyStyleObjectNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyStyleObjectNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

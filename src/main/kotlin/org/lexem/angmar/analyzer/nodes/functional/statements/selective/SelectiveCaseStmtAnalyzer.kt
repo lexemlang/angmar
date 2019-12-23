@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.selective.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 
 
 /**
@@ -16,16 +16,16 @@ internal object SelectiveCaseStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectiveCaseStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectiveCaseStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
-                return analyzer.nextNode(node.patterns[0])
+                return analyzer.nextNode(node.patterns.first())
             }
-            in signalEndFirstPattern until signalEndFirstPattern + node.patterns.size -> {
+            in signalEndFirstPattern..signalEndFirstPattern + node.patterns.size -> {
                 // Check the result.
                 val result = analyzer.memory.getLastFromStack() as LxmLogic
                 if (result.primitive) {
@@ -43,13 +43,13 @@ internal object SelectiveCaseStmtAnalyzer {
                     return analyzer.nextNode(node.patterns[position])
                 }
 
-                finish(analyzer, node)
+                finish(analyzer)
 
                 // Set the nok flag.
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
             }
             signalEndBlock -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 // Set the ok flag.
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
@@ -59,7 +59,7 @@ internal object SelectiveCaseStmtAnalyzer {
                 val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                finish(analyzer, node)
+                finish(analyzer)
 
                 // Propagate the control signal.
                 if (contextTag == null || control.tag != contextTag) {
@@ -74,12 +74,12 @@ internal object SelectiveCaseStmtAnalyzer {
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
             AnalyzerNodesCommons.signalRestartControl, AnalyzerNodesCommons.signalReturnControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
@@ -91,7 +91,7 @@ internal object SelectiveCaseStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: SelectiveCaseStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
     }

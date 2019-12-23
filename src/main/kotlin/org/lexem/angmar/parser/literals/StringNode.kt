@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,7 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for normal string literals.
  */
-internal class StringNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class StringNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val texts = mutableListOf<String>()
     val escapes = mutableListOf<ParserNode>()
 
@@ -46,7 +46,7 @@ internal class StringNode private constructor(parser: LexemParser, parent: Parse
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = StringAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = StringCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val additionalDelimiter = "$"
@@ -60,9 +60,9 @@ internal class StringNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses a normal string literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): StringNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): StringNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = StringNode(parser, parent, parentSignal)
+            val result = StringNode(parser, parent)
 
             var ending = ""
 
@@ -80,8 +80,7 @@ internal class StringNode private constructor(parser: LexemParser, parent: Parse
             result.texts.add(readStringSection(parser, ending) ?: "")
 
             while (!parser.readText(ending)) {
-                val escape = Commons.parseAnyEscape(parser, result,
-                        result.escapes.size + StringAnalyzer.signalEndFirstEscape) ?: throw AngmarParserException(
+                val escape = Commons.parseAnyEscape(parser, result) ?: throw AngmarParserException(
                         AngmarParserExceptionType.StringWithoutEndQuote,
                         "String literals require the end quote '$ending' to finish the literal.") {
                     val fullText = parser.reader.readAllText()

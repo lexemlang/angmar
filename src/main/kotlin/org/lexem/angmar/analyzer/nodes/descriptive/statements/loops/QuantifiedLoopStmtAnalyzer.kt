@@ -6,7 +6,8 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.statements.loops.*
+import org.lexem.angmar.analyzer.nodes.functional.statements.loops.*
+import org.lexem.angmar.compiler.descriptive.statements.loops.*
 
 
 /**
@@ -22,7 +23,7 @@ internal object QuantifiedLoopStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedLoopStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: QuantifiedLoopStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
@@ -56,7 +57,7 @@ internal object QuantifiedLoopStmtAnalyzer {
             signalEndQuantifier -> {
                 // Set the quantifier.
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LoopUnion, union)
 
@@ -188,7 +189,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Performs the next iteration of a loop.
      */
-    private fun evaluateCondition(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
+    private fun evaluateCondition(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
         // Evaluate the condition.
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
                 toWrite = false) as LxmPatternUnion
@@ -238,17 +239,19 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Evaluates the end of the end of the loop, including the end statements.
      */
-    private fun evaluateLoopEnd(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode, indexValue: Int = 1) {
-        if (indexValue == 0 && node.lastClauses?.elseBlock != null) {
-            return analyzer.nextNode(node.lastClauses!!.elseBlock)
-        }
+    private fun evaluateLoopEnd(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled, indexValue: Int = 1) {
+        if (node.lastClauses != null) {
+            return if (indexValue == 0) {
+                analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForElse)
+                analyzer.nextNode(node.lastClauses)
+            } else {
+                // Remove the name of the intermediate statement.
+                val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
-        if (indexValue != 0 && node.lastClauses?.lastBlock != null) {
-            // Remove the name of the intermediate statement.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
-
-            return analyzer.nextNode(node.lastClauses!!.lastBlock)
+                analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForLast)
+                analyzer.nextNode(node.lastClauses)
+            }
         }
 
         finish(analyzer, node)
@@ -259,7 +262,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
                 toWrite = true) as LxmPatternUnion
 
@@ -278,7 +281,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Collapses the intermediate [BigNode]s.
      */
-    private fun collapseBigNodes(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
+    private fun collapseBigNodes(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
                 toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
@@ -294,7 +297,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
         collapseBigNodes(analyzer, node)
 
         // Remove the intermediate context.

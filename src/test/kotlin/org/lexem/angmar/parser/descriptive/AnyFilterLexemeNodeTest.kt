@@ -23,7 +23,7 @@ internal class AnyFilterLexemeNodeTest {
         @JvmStatic
         private fun provideMacros(): Stream<Arguments> {
             val sequence = sequence {
-                yield(Arguments.of(MacroCheckPropsNodeTest.testExpression, 0))
+                yield(Arguments.of(CheckPropsMacroNodeTest.testExpression, 0))
                 yield(Arguments.of(MacroBacktrackNodeTest.testExpression, 1))
             }
 
@@ -95,7 +95,7 @@ internal class AnyFilterLexemeNodeTest {
     fun `parse correct macros`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = AnyFilterLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AnyFilterLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AnyFilterLexemeNode
@@ -104,7 +104,7 @@ internal class AnyFilterLexemeNodeTest {
         Assertions.assertNull(res.quantifier, "The quantifier property must be null")
 
         when (type) {
-            0 -> MacroCheckPropsNodeTest.checkTestExpression(res.lexeme)
+            0 -> CheckPropsMacroNodeTest.checkTestExpression(res.lexeme)
             1 -> MacroBacktrackNodeTest.checkTestExpression(res.lexeme)
             else -> throw AngmarUnreachableException()
         }
@@ -118,7 +118,7 @@ internal class AnyFilterLexemeNodeTest {
             hasQuantifier: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = AnyFilterLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AnyFilterLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AnyFilterLexemeNode

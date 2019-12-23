@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.statements.loops
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.statements.loops.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.statements.loops.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -15,8 +16,8 @@ import org.lexem.angmar.parser.functional.statements.loops.*
 /**
  * Parser for quantified loop statements.
  */
-internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var quantifier: QuantifierLexemeNode
     lateinit var thenBlock: ParserNode
     var index: IdentifierNode? = null
@@ -52,8 +53,8 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            QuantifiedLoopStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            QuantifiedLoopStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val keyword = "for"
@@ -64,9 +65,9 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
         /**
          * Parses a quantified loop statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedLoopStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): QuantifiedLoopStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = QuantifiedLoopStmtNode(parser, parent, parentSignal)
+            val result = QuantifiedLoopStmtNode(parser, parent)
 
             // index
             let {
@@ -76,7 +77,7 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
 
                 WhitespaceNode.parse(parser)
 
-                result.index = IdentifierNode.parse(parser, result, QuantifiedLoopStmtAnalyzer.signalEndIndex)
+                result.index = IdentifierNode.parse(parser, result)
                 if (result.index == null) {
                     initCursor.restore()
                     return null
@@ -92,45 +93,42 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
 
             WhitespaceNode.parse(parser)
 
-            result.quantifier =
-                    QuantifierLexemeNode.parse(parser, result, QuantifiedLoopStmtAnalyzer.signalEndQuantifier)
-                            ?: throw AngmarParserException(
-                                    AngmarParserExceptionType.QuantifiedLoopStatementWithoutQuantifier,
-                                    "An expression was expected after the loop keyword '$keyword' to act as the condition.") {
-                                val fullText = parser.reader.readAllText()
-                                addSourceCode(fullText, parser.reader.getSource()) {
-                                    title = Consts.Logger.codeTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightCursorAt(parser.reader.currentPosition())
-                                    message = "Try adding a quantifier here"
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    message = "Try removing the loop keyword '$keyword'"
-                                }
-                            }
+            result.quantifier = QuantifierLexemeNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.QuantifiedLoopStatementWithoutQuantifier,
+                    "An expression was expected after the loop keyword '$keyword' to act as the condition.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding a quantifier here"
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    message = "Try removing the loop keyword '$keyword'"
+                }
+            }
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = BlockStmtNode.parse(parser, result, QuantifiedLoopStmtAnalyzer.signalEndThenBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.QuantifiedLoopStatementWithoutBlock,
-                            "A block was expected to be the body of the quantified loop.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                    }
+            result.thenBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.QuantifiedLoopStatementWithoutBlock,
+                    "A block was expected to be the body of the quantified loop.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+            }
 
             // last clauses
             let {
@@ -138,8 +136,7 @@ internal class QuantifiedLoopStmtNode private constructor(parser: LexemParser, p
 
                 WhitespaceNode.parse(parser)
 
-                val lastClauses =
-                        LoopClausesStmtNode.parse(parser, result, QuantifiedLoopStmtAnalyzer.signalEndLastClause)
+                val lastClauses = LoopClausesStmtNode.parse(parser, result)
                 if (lastClauses == null) {
                     initLastClausesCursor.restore()
                 }

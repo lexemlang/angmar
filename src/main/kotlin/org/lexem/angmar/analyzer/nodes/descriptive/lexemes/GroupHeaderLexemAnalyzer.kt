@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 
 
 /**
@@ -18,14 +18,14 @@ internal object GroupHeaderLexemAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: GroupHeaderLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: GroupHeaderLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.quantifier != null) {
                     return analyzer.nextNode(node.quantifier)
                 } else {
                     val patternUnion =
-                            LxmPatternUnion(LxmQuantifier.AlternativePattern, LxmInteger.Num0, analyzer.memory)
+                            LxmPatternUnion(analyzer.memory, LxmQuantifier.AlternativePattern, LxmInteger.Num0)
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnion)
                 }
 
@@ -41,7 +41,7 @@ internal object GroupHeaderLexemAnalyzer {
             }
             signalEndQuantifier -> {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val patternUnion = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val patternUnion = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnion)
 
                 // Remove Last from the stack.

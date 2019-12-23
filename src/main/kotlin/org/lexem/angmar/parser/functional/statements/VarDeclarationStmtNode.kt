@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for variable declaration.
  */
-internal class VarDeclarationStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class VarDeclarationStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var identifier: ParserNode
     lateinit var value: ParserNode
     var isConstant = false
@@ -41,8 +42,8 @@ internal class VarDeclarationStmtNode private constructor(parser: LexemParser, p
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            VarDeclarationStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            VarDeclarationStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val constKeyword = "let"
@@ -55,9 +56,9 @@ internal class VarDeclarationStmtNode private constructor(parser: LexemParser, p
         /**
          * Parses a variable declaration.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): VarDeclarationStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): VarDeclarationStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = VarDeclarationStmtNode(parser, parent, parentSignal)
+            val result = VarDeclarationStmtNode(parser, parent)
 
             var keywordType = "variable"
             var declarationKeyword = variableKeyword
@@ -74,23 +75,22 @@ internal class VarDeclarationStmtNode private constructor(parser: LexemParser, p
             WhitespaceNode.parse(parser)
 
             result.identifier =
-                    DestructuringStmtNode.parse(parser, result, VarDeclarationStmtAnalyzer.signalEndIdentifier)
-                            ?: Commons.parseDynamicIdentifier(parser, result,
-                                    VarDeclarationStmtAnalyzer.signalEndIdentifier) ?: throw AngmarParserException(
-                                    AngmarParserExceptionType.VarDeclarationStatementWithoutIdentifier,
-                                    "An identifier or destructuring was expected after the $keywordType declaration keyword '$declarationKeyword'.") {
-                                val fullText = parser.reader.readAllText()
-                                addSourceCode(fullText, parser.reader.getSource()) {
-                                    title = Consts.Logger.codeTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightCursorAt(parser.reader.currentPosition())
-                                    message =
-                                            "Try adding a whitespace followed by an identifier here, e.g. ' ${GlobalCommons.wildcardVariable}'"
-                                }
-                            }
+                    DestructuringStmtNode.parse(parser, result) ?: Commons.parseDynamicIdentifier(parser, result)
+                            ?: throw AngmarParserException(
+                            AngmarParserExceptionType.VarDeclarationStatementWithoutIdentifier,
+                            "An identifier or destructuring was expected after the $keywordType declaration keyword '$declarationKeyword'.") {
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        }
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightCursorAt(parser.reader.currentPosition())
+                            message =
+                                    "Try adding a whitespace followed by an identifier here, e.g. ' ${GlobalCommons.wildcardVariable}'"
+                        }
+                    }
 
             WhitespaceNode.parse(parser)
 
@@ -112,21 +112,20 @@ internal class VarDeclarationStmtNode private constructor(parser: LexemParser, p
 
             WhitespaceNode.parse(parser)
 
-            result.value = ExpressionsCommons.parseExpression(parser, result, VarDeclarationStmtAnalyzer.signalEndValue)
-                    ?: throw AngmarParserException(
-                            AngmarParserExceptionType.VarDeclarationStatementWithoutExpressionAfterAssignOperator,
-                            "An expression was expected after assign operator '$assignOperator'.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message = "Try adding an expression here"
-                        }
-                    }
+            result.value = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.VarDeclarationStatementWithoutExpressionAfterAssignOperator,
+                    "An expression was expected after assign operator '$assignOperator'.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an expression here"
+                }
+            }
 
             return parser.finalizeNode(result, initCursor)
         }

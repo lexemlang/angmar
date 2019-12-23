@@ -4,9 +4,9 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
 
 
 /**
@@ -19,7 +19,7 @@ internal object BinarySequenceLexemAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BinarySequenceLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BinarySequenceLexemeCompiled) {
         val reader = analyzer.text as? IBinaryReader ?: throw AngmarException(
                 "The binary sequence lexemes require the analyzed content is a binary reader.")
 

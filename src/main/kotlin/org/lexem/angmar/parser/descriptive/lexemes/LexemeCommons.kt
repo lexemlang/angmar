@@ -12,7 +12,6 @@ internal object LexemeCommons {
     /**
      * Parses both [RelativeAnchorLexemeNode] and [AbsoluteAnchorLexemeNode].
      */
-    fun parseAnyAnchorLexeme(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            RelativeAnchorLexemeNode.parse(parser, parent, parentSignal) ?: AbsoluteAnchorLexemeNode.parse(parser,
-                    parent, parentSignal)
+    fun parseAnyAnchorLexeme(parser: LexemParser, parent: ParserNode) =
+            RelativeAnchorLexemeNode.parse(parser, parent) ?: AbsoluteAnchorLexemeNode.parse(parser, parent)
 }

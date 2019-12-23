@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for sub-intervals of unicode interval literals.
  */
-internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var operator = IntervalSubIntervalNode.Operator.Add
     var reversed = false
     val elements = mutableListOf<ParserNode>()
@@ -38,8 +39,8 @@ internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemP
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            UnicodeIntervalSubIntervalAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            UnicodeIntervalSubIntervalCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "["
@@ -52,9 +53,9 @@ internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemP
         /**
          * Parses a sub-interval of unicode interval literals.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeIntervalSubIntervalNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): UnicodeIntervalSubIntervalNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeIntervalSubIntervalNode(parser, parent, parentSignal)
+            val result = UnicodeIntervalSubIntervalNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -80,10 +81,7 @@ internal class UnicodeIntervalSubIntervalNode private constructor(parser: LexemP
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = parse(parser, result,
-                        result.elements.size + UnicodeIntervalSubIntervalAnalyzer.signalEndFirstElement)
-                        ?: UnicodeIntervalElementNode.parse(parser, result,
-                                result.elements.size + UnicodeIntervalSubIntervalAnalyzer.signalEndFirstElement)
+                val node = parse(parser, result) ?: UnicodeIntervalElementNode.parse(parser, result)
                 if (node == null) {
                     initLoopCursor.restore()
                     break

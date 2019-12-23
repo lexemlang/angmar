@@ -38,7 +38,7 @@ internal class FunctionCallNamedArgumentNodeTest {
             strings = ["${CommonsTest.testDynamicIdentifier}${FunctionCallNamedArgumentNode.relationalToken}${ExpressionsCommonsTest.testExpression}", "${CommonsTest.testDynamicIdentifier}  ${FunctionCallNamedArgumentNode.relationalToken}  ${ExpressionsCommonsTest.testExpression}"])
     fun `parse correct function call named argument`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionCallNamedArgumentNode
@@ -55,7 +55,7 @@ internal class FunctionCallNamedArgumentNodeTest {
         TestUtils.assertParserException(
                 AngmarParserExceptionType.FunctionCallMiddleArgumentWithoutExpressionAfterRelationalToken) {
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -63,7 +63,7 @@ internal class FunctionCallNamedArgumentNodeTest {
     @ValueSource(strings = ["", "3", CommonsTest.testDynamicIdentifier])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionCallNamedArgumentNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

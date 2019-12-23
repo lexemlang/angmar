@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -11,18 +12,18 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for block lexemes.
  */
-internal class BlockLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class BlockLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var propertyPostfix: LexemPropertyPostfixNode? = null
-    lateinit var block: ParserNode
+    lateinit var interval: ParserNode
 
     override fun toString() = StringBuilder().apply {
         if (isNegated) {
             append(notOperator)
         }
 
-        append(block)
+        append(interval)
 
         if (propertyPostfix != null) {
             append(propertyPostfix)
@@ -34,12 +35,13 @@ internal class BlockLexemeNode private constructor(parser: LexemParser, parent: 
 
         result.addProperty("isNegated", isNegated)
         result.add("propertyPostfix", propertyPostfix?.toTree())
-        result.add("block", block.toTree())
+        result.add("interval", interval.toTree())
 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = BlockLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            BlockLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -49,22 +51,21 @@ internal class BlockLexemeNode private constructor(parser: LexemParser, parent: 
         /**
          * Parses a block lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BlockLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): BlockLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = BlockLexemeNode(parser, parent, parentSignal)
+            val result = BlockLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
-            val block = LiteralCommons.parseAnyIntervalForLexem(parser, result, BlockLexemAnalyzer.signalEndInterval)
+            val block = LiteralCommons.parseAnyIntervalForLexem(parser, result)
             if (block == null) {
                 initCursor.restore()
                 return null
             }
 
-            result.block = block
+            result.interval = block
 
-            result.propertyPostfix =
-                    LexemPropertyPostfixNode.parse(parser, result, BlockLexemAnalyzer.signalEndPropertyPostfix)
+            result.propertyPostfix = LexemPropertyPostfixNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.selective
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for expression patterns of the selective statements.
  */
-internal class ExpressionPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class ExpressionPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var expression: ParserNode
     var conditional: ConditionalPatternSelectiveStmtNode? = null
 
@@ -33,19 +34,18 @@ internal class ExpressionPatternSelectiveStmtNode private constructor(parser: Le
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ExpressionPatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ExpressionPatternSelectiveStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses a expression pattern of the selective statements.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExpressionPatternSelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ExpressionPatternSelectiveStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ExpressionPatternSelectiveStmtNode(parser, parent, parentSignal)
+            val result = ExpressionPatternSelectiveStmtNode(parser, parent)
 
-            result.expression = ExpressionsCommons.parseExpression(parser, result,
-                    ExpressionPatternSelectiveStmtAnalyzer.signalEndExpression) ?: return null
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: return null
 
             // conditional
             let {
@@ -53,8 +53,7 @@ internal class ExpressionPatternSelectiveStmtNode private constructor(parser: Le
 
                 WhitespaceNode.parse(parser)
 
-                result.conditional = ConditionalPatternSelectiveStmtNode.parse(parser, result,
-                        ExpressionPatternSelectiveStmtAnalyzer.signalEndConditional)
+                result.conditional = ConditionalPatternSelectiveStmtNode.parse(parser, result)
                 if (result.conditional == null) {
                     initConditionalCursor.restore()
                 }

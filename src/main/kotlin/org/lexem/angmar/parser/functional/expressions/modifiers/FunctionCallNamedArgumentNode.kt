@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.modifiers
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for named arguments of function calls.
  */
-internal class FunctionCallNamedArgumentNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class FunctionCallNamedArgumentNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var identifier: ParserNode
     lateinit var expression: ParserNode
 
@@ -33,8 +34,8 @@ internal class FunctionCallNamedArgumentNode private constructor(parser: LexemPa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            FunctionCallNamedArgumentAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            FunctionCallNamedArgumentCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val relationalToken = GlobalCommons.relationalToken
@@ -44,12 +45,11 @@ internal class FunctionCallNamedArgumentNode private constructor(parser: LexemPa
         /**
          * Parses a named argument of a function call.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallNamedArgumentNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): FunctionCallNamedArgumentNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionCallNamedArgumentNode(parser, parent, parentSignal)
+            val result = FunctionCallNamedArgumentNode(parser, parent)
 
-            result.identifier = Commons.parseDynamicIdentifier(parser, result,
-                    FunctionCallNamedArgumentAnalyzer.signalEndIdentifier) ?: return null
+            result.identifier = Commons.parseDynamicIdentifier(parser, result) ?: return null
 
             WhitespaceNode.parse(parser)
 
@@ -60,8 +60,7 @@ internal class FunctionCallNamedArgumentNode private constructor(parser: LexemPa
 
             WhitespaceNode.parse(parser)
 
-            result.expression = ExpressionsCommons.parseExpression(parser, result,
-                    FunctionCallNamedArgumentAnalyzer.signalEndExpression) ?: throw AngmarParserException(
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.FunctionCallMiddleArgumentWithoutExpressionAfterRelationalToken,
                     "An expression was expected after the relational token '$relationalToken'.") {
                 val fullText = parser.reader.readAllText()

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,7 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for interval literals.
  */
-internal class IntervalNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class IntervalNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val elements = mutableListOf<ParserNode>()
     var reversed = false
 
@@ -38,7 +38,7 @@ internal class IntervalNode private constructor(parser: LexemParser, parent: Par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = IntervalAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = IntervalCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val macroName = "itv${MacroExpressionNode.macroSuffix}"
@@ -52,9 +52,9 @@ internal class IntervalNode private constructor(parser: LexemParser, parent: Par
         /**
          * Parses an interval literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): IntervalNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = IntervalNode(parser, parent, parentSignal)
+            val result = IntervalNode(parser, parent)
 
             if (!parser.readText(macroName)) {
                 return null
@@ -88,9 +88,7 @@ internal class IntervalNode private constructor(parser: LexemParser, parent: Par
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = IntervalSubIntervalNode.parse(parser, result,
-                        result.elements.size + IntervalAnalyzer.signalEndFirstElement) ?: IntervalElementNode.parse(
-                        parser, result, result.elements.size + IntervalAnalyzer.signalEndFirstElement)
+                val node = IntervalSubIntervalNode.parse(parser, result) ?: IntervalElementNode.parse(parser, result)
                 if (node == null) {
                     initLoopCursor.restore()
                     break

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.descriptive.expressions.macros.*
@@ -16,8 +17,8 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for lexemes.
  */
-internal open class AnyLexemeNode protected constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal open class AnyLexemeNode protected constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var dataCapturing: DataCapturingAccessLexemeNode? = null
     lateinit var lexeme: ParserNode
     var quantifier: QuantifierLexemeNode? = null
@@ -45,7 +46,8 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = AnyLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AnyLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val dataCapturingRelationalToken = AssignOperatorNode.assignOperator
@@ -56,14 +58,13 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
         /**
          * Parses a lexemes.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AnyLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AnyLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AnyLexemeNode(parser, parent, parentSignal)
+            val result = AnyLexemeNode(parser, parent)
 
-            var lexeme: ParserNode? = MacroCheckPropsNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: MacroBacktrackNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: SetPropsMacroStmtNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: LexemeCommons.parseAnyAnchorLexeme(parser, result, AnyLexemeAnalyzer.signalEndLexem)
+            var lexeme: ParserNode? =
+                    CheckPropsMacroNode.parse(parser, result) ?: MacroBacktrackNode.parse(parser, result)
+                    ?: SetPropsMacroStmtNode.parse(parser, result) ?: LexemeCommons.parseAnyAnchorLexeme(parser, result)
 
             if (lexeme != null) {
                 result.lexeme = lexeme
@@ -71,20 +72,16 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
             }
 
             // Data capturing
-            result.dataCapturing = parseDataCapturing(parser, result, AnyLexemeAnalyzer.signalEndDataCapturing)
+            result.dataCapturing = parseDataCapturing(parser, result)
             if (result.dataCapturing != null) {
                 WhitespaceNoEOLNode.parse(parser)
             }
 
             // Lexeme
-            lexeme = TextLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                    ?: BinarySequenceLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: BlockLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: QuantifiedGroupLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: ExecutorLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: BlockStmtNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: AccessLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
-                            ?: GroupLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndLexem)
+            lexeme = TextLexemeNode.parse(parser, result) ?: BinarySequenceLexemeNode.parse(parser, result)
+                    ?: BlockLexemeNode.parse(parser, result) ?: QuantifiedGroupLexemeNode.parse(parser, result)
+                    ?: ExecutorLexemeNode.parse(parser, result) ?: BlockStmtNode.parse(parser, result)
+                    ?: AccessLexemeNode.parse(parser, result) ?: GroupLexemeNode.parse(parser, result)
 
             if (lexeme == null) {
                 initCursor.restore()
@@ -94,7 +91,7 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
             result.lexeme = lexeme
 
             // Quantifier
-            result.quantifier = QuantifierLexemeNode.parse(parser, result, AnyLexemeAnalyzer.signalEndQuantifier)
+            result.quantifier = QuantifierLexemeNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }
@@ -102,10 +99,9 @@ internal open class AnyLexemeNode protected constructor(parser: LexemParser, par
         /**
          * Parses a data capturing pattern.
          */
-        fun parseDataCapturing(parser: LexemParser, parent: ParserNode,
-                parentSignal: Int): DataCapturingAccessLexemeNode? {
+        fun parseDataCapturing(parser: LexemParser, parent: ParserNode): DataCapturingAccessLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val dataCapturing = DataCapturingAccessLexemeNode.parse(parser, parent, parentSignal) ?: return null
+            val dataCapturing = DataCapturingAccessLexemeNode.parse(parser, parent) ?: return null
 
             WhitespaceNoEOLNode.parse(parser)
 

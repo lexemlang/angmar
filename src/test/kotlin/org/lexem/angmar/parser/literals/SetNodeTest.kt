@@ -40,7 +40,7 @@ internal class SetNodeTest {
     fun `parse correct set literal`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -64,7 +64,7 @@ internal class SetNodeTest {
     fun `parse correct constant set literal`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.constantToken}${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -88,7 +88,7 @@ internal class SetNodeTest {
     fun `parse correct set literal with whitespaces`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken} $list ${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -112,7 +112,7 @@ internal class SetNodeTest {
     fun `parse correct set literal with trailing comma`(list: String, size: Int) {
         val text = "${SetNode.macroName}${ListNode.startToken}$list${ListNode.elementSeparator}${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SetNode
@@ -137,7 +137,7 @@ internal class SetNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SetWithoutStartToken) {
             val text = SetNode.macroName
             val parser = LexemParser(IOStringReader.from(text))
-            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -147,7 +147,7 @@ internal class SetNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = "${SetNode.macroName}${ListNode.startToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -157,7 +157,7 @@ internal class SetNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = "${SetNode.macroName}${ListNode.startToken}${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -165,7 +165,7 @@ internal class SetNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SetNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

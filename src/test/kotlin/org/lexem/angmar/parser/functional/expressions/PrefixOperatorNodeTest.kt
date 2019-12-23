@@ -57,7 +57,7 @@ internal class PrefixOperatorNodeTest {
     @MethodSource("provideCorrectOperators")
     fun `parse correct prefix operator`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PrefixOperatorNode
@@ -71,7 +71,7 @@ internal class PrefixOperatorNodeTest {
     fun `parse correct prefix operator with value`(operator: String) {
         val text = "${operator}125"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PrefixOperatorNode
@@ -86,7 +86,7 @@ internal class PrefixOperatorNodeTest {
     fun `parse incorrect assign operator`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.PrefixOperatorFollowedByAnotherOperator) {
             val parser = LexemParser(IOStringReader.from(text))
-            PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -94,7 +94,7 @@ internal class PrefixOperatorNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PrefixOperatorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

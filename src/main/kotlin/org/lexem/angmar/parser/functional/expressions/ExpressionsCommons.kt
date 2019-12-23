@@ -18,34 +18,30 @@ internal object ExpressionsCommons {
     /**
      * Parses an expression.
      */
-    fun parseExpression(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            AssignExpressionNode.parse(parser, parent, parentSignal) ?: RightExpressionNode.parse(parser, parent,
-                    parentSignal)
+    fun parseExpression(parser: LexemParser, parent: ParserNode) =
+            AssignExpressionNode.parse(parser, parent) ?: RightExpressionNode.parse(parser, parent)
 
     /**
      * Parses a macro.
      */
-    fun parseMacro(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            MacroCheckPropsNode.parse(parser, parent, parentSignal) ?: MacroBacktrackNode.parse(parser, parent,
-                    parentSignal) ?: MacroExpressionNode.parse(parser, parent, parentSignal)
+    fun parseMacro(parser: LexemParser, parent: ParserNode) =
+            CheckPropsMacroNode.parse(parser, parent) ?: MacroBacktrackNode.parse(parser, parent)
+            ?: MacroExpressionNode.parse(parser, parent)
 
     /**
      * Parses any literal.
      */
-    fun parseLiteral(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            NilNode.parse(parser, parent, parentSignal) ?: LogicNode.parse(parser, parent, parentSignal)
-            ?: LiteralCommons.parseAnyString(parser, parent, parentSignal) ?: LiteralCommons.parseAnyInterval(parser,
-                    parent, parentSignal) ?: BitlistNode.parse(parser, parent, parentSignal)
-            ?: NumberNode.parseAnyNumberDefaultDecimal(parser, parent, parentSignal) ?: ListNode.parse(parser, parent,
-                    parentSignal) ?: SetNode.parse(parser, parent, parentSignal) ?: LiteralCommons.parseAnyObject(
-                    parser, parent, parentSignal) ?: MapNode.parse(parser, parent, parentSignal) ?: FunctionNode.parse(
-                    parser, parent, parentSignal)
+    fun parseLiteral(parser: LexemParser, parent: ParserNode) =
+            NilNode.parse(parser, parent) ?: LogicNode.parse(parser, parent) ?: LiteralCommons.parseAnyString(parser,
+                    parent) ?: LiteralCommons.parseAnyInterval(parser, parent) ?: BitlistNode.parse(parser, parent)
+            ?: NumberNode.parseAnyNumberDefaultDecimal(parser, parent) ?: ListNode.parse(parser, parent)
+            ?: SetNode.parse(parser, parent) ?: LiteralCommons.parseAnyObject(parser, parent) ?: MapNode.parse(parser,
+                    parent) ?: FunctionNode.parse(parser, parent)
 
     /**
      * Parses a left expression.
      */
-    fun parseLeftExpression(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            AccessExpressionNode.parse(parser, parent, parentSignal)
+    fun parseLeftExpression(parser: LexemParser, parent: ParserNode) = AccessExpressionNode.parse(parser, parent)
 
     /**
      * Reads a valid operator.

@@ -80,7 +80,7 @@ internal class FunctionStmtNodeTest {
     @MethodSource("provideCorrectFunctionStmt")
     fun `parse correct function statement`(text: String, hasArguments: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionStmtNode
@@ -110,7 +110,7 @@ internal class FunctionStmtNodeTest {
             val text =
                     "${FunctionStmtNode.keyword} ${IdentifierNodeTest.testExpression} ${FunctionParameterListNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -118,7 +118,7 @@ internal class FunctionStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

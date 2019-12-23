@@ -6,9 +6,9 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.statements.*
 
 
 /**
@@ -20,14 +20,14 @@ internal object VarDeclarationStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: VarDeclarationStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: VarDeclarationStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.identifier)
             }
             signalEndIdentifier -> {
                 // Check identifier if it is not a destructuring.
-                if (node.identifier !is DestructuringStmtNode) {
+                if (node.mustBeIdentifier) {
                     val identifier = analyzer.memory.getLastFromStack()
 
                     if (identifier !is LxmString) {
@@ -58,7 +58,7 @@ internal object VarDeclarationStmtAnalyzer {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
 
                 // Perform the destructuring.
-                if (node.identifier is DestructuringStmtNode) {
+                if (!node.mustBeIdentifier) {
                     identifier as LxmDestructuring
 
                     val varNames = when (val derefValue = value.dereference(analyzer.memory, toWrite = false)) {
@@ -81,7 +81,7 @@ internal object VarDeclarationStmtAnalyzer {
                     }
 
                     // Add it to the exports if the parent is a public macro
-                    if (node.parent is PublicMacroStmtNode) {
+                    if (node.parent is PublicMacroStmtCompiled) {
                         val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                                 AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
@@ -98,7 +98,7 @@ internal object VarDeclarationStmtAnalyzer {
                             isConstant = node.isConstant)
 
                     // Add it to the exports if the parent is a public macro.
-                    if (node.parent is PublicMacroStmtNode) {
+                    if (node.parent is PublicMacroStmtCompiled) {
                         val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                                 AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 

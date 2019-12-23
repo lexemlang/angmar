@@ -64,7 +64,7 @@ internal class BitlistNodeTest {
     @MethodSource("provideCorrectElements")
     fun `parse correct bitlist literal`(text: String, radix: Int, numElements: Int, textNumber: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistNode
@@ -86,7 +86,7 @@ internal class BitlistNodeTest {
             val text =
                     "${BitlistNode.hexadecimalPrefix}${BitlistNode.startToken}${BitlistElementNodeTest.testHexadecimalExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -94,7 +94,7 @@ internal class BitlistNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = BitlistNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

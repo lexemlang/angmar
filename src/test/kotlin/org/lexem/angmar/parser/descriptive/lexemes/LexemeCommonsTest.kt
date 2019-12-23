@@ -38,7 +38,7 @@ internal class LexemeCommonsTest {
     @MethodSource("provideAnchors")
     fun `parse correct anchor lexemes`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LexemeCommons.parseAnyAnchorLexeme(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemeCommons.parseAnyAnchorLexeme(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode

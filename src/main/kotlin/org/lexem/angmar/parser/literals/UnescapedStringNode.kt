@@ -2,7 +2,9 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -11,8 +13,8 @@ import org.lexem.angmar.parser.*
 /**
  * Parser for unescaped string literals.
  */
-internal class UnescapedStringNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class UnescapedStringNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var text: String = ""
 
     val minAdditionalDelimiterRequired
@@ -37,8 +39,8 @@ internal class UnescapedStringNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            UnescapedStringAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ConstantCompiled(parent, parentSignal, this, LxmString.from(text))
 
     companion object {
         const val macroName = "lit!"
@@ -52,9 +54,9 @@ internal class UnescapedStringNode private constructor(parser: LexemParser, pare
         /**
          * Parses a normal string literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnescapedStringNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): UnescapedStringNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = UnescapedStringNode(parser, parent, parentSignal)
+            val result = UnescapedStringNode(parser, parent)
 
             if (!parser.readText(macroName)) {
                 return null

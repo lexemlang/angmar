@@ -2,14 +2,14 @@ package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 
 /**
  * The Lexem values of a control statement.
  */
 internal class LxmControl private constructor(val type: String, val tag: String?, val value: LexemPrimitive?,
-        val node: ParserNode) : LexemPrimitive {
+        val node: CompiledNode) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -46,7 +46,7 @@ internal class LxmControl private constructor(val type: String, val tag: String?
         /**
          * Returns a new [LxmControl].
          */
-        fun from(type: String, tag: String?, value: LexemPrimitive?, node: ParserNode) =
+        fun from(type: String, tag: String?, value: LexemPrimitive?, node: CompiledNode) =
                 LxmControl(type, tag, value, node)
     }
 }

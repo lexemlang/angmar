@@ -2,8 +2,8 @@ package org.lexem.angmar.parser.descriptive.selectors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.SelectorAnalyzer.signalEndFirstProperty
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -12,8 +12,7 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for selectors.
  */
-internal class SelectorNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class SelectorNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     var isAddition = false
     var name: NameSelectorNode? = null
     val properties = mutableListOf<PropertySelectorNode>()
@@ -34,21 +33,21 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = SelectorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = SelectorCompiled.compile(parent, parentSignal, this)
 
     companion object {
 
         /**
          * Parses a selector.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): SelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = SelectorNode(parser, parent, parentSignal)
+            val result = SelectorNode(parser, parent)
 
             var prev = false
 
             // Name
-            result.name = NameSelectorNode.parse(parser, result, SelectorAnalyzer.signalEndName)
+            result.name = NameSelectorNode.parse(parser, result)
             if (result.name != null) {
                 prev = true
             }
@@ -61,8 +60,7 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
                     WhitespaceNode.parse(parser)
                 }
 
-                val property =
-                        PropertySelectorNode.parse(parser, result, result.properties.size + signalEndFirstProperty)
+                val property = PropertySelectorNode.parse(parser, result)
 
                 if (property == null) {
                     initIterationCursor.restore()
@@ -82,8 +80,7 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
                     WhitespaceNode.parse(parser)
                 }
 
-                val method = MethodSelectorNode.parse(parser, result,
-                        result.properties.size + result.methods.size + signalEndFirstProperty)
+                val method = MethodSelectorNode.parse(parser, result)
 
                 if (method == null) {
                     initIterationCursor.restore()
@@ -105,14 +102,13 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
         /**
          * Parses a selector for an Addition.
          */
-        fun parseForAddition(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectorNode? {
+        fun parseForAddition(parser: LexemParser, parent: ParserNode): SelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = SelectorNode(parser, parent, parentSignal)
+            val result = SelectorNode(parser, parent)
             result.isAddition = true
 
             // Name
-            result.name =
-                    NameSelectorNode.parseForAddition(parser, result, SelectorAnalyzer.signalEndName) ?: return null
+            result.name = NameSelectorNode.parseForAddition(parser, result) ?: return null
 
             // Properties
             while (true) {
@@ -120,8 +116,7 @@ internal class SelectorNode private constructor(parser: LexemParser, parent: Par
 
                 WhitespaceNode.parse(parser)
 
-                val property = PropertySelectorNode.parseForAddition(parser, result,
-                        result.properties.size + signalEndFirstProperty)
+                val property = PropertySelectorNode.parseForAddition(parser, result)
 
                 if (property == null) {
                     initIterationCursor.restore()

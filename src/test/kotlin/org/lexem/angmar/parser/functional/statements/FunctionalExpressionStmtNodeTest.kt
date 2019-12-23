@@ -31,7 +31,7 @@ internal class FunctionalExpressionStmtNodeTest {
     fun `parse correct`() {
         val text = NumberNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionalExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionalExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionalExpressionStmtNode

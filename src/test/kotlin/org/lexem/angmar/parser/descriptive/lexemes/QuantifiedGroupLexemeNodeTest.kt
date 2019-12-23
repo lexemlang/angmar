@@ -115,7 +115,7 @@ internal class QuantifiedGroupLexemeNodeTest {
             patternCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuantifiedGroupLexemeNode
@@ -155,7 +155,7 @@ internal class QuantifiedGroupLexemeNodeTest {
                     "${QuantifiedGroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
-            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -167,7 +167,7 @@ internal class QuantifiedGroupLexemeNodeTest {
                     "${QuantifiedGroupLexemeNode.startToken}${LexemePatternContentNodeTest.testExpression}${QuantifiedGroupLexemeNode.patternToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
-            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -178,7 +178,7 @@ internal class QuantifiedGroupLexemeNodeTest {
             val text = "${QuantifiedGroupLexemeNode.startToken}${QuantifiedGroupLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
-            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -187,7 +187,7 @@ internal class QuantifiedGroupLexemeNodeTest {
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifiedGroupLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -2,6 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +16,8 @@ import org.lexem.angmar.parser.functional.expressions.binary.*
 /**
  * Parser for property postfix of lexemes.
  */
-internal class LexemPropertyPostfixNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class LexemPropertyPostfixNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val positiveElements = mutableListOf<String>()
     val negativeElements = mutableListOf<String>()
     val reversedElements = mutableListOf<String>()
@@ -48,7 +50,8 @@ internal class LexemPropertyPostfixNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = throw AngmarUnreachableException()
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LexemePropertyPostfixCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val negativeToken = AdditiveExpressionNode.subtractionOperator
@@ -63,9 +66,9 @@ internal class LexemPropertyPostfixNode private constructor(parser: LexemParser,
         /**
          * Parses a property-style object blocks
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemPropertyPostfixNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LexemPropertyPostfixNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = LexemPropertyPostfixNode(parser, parent, parentSignal)
+            val result = LexemPropertyPostfixNode(parser, parent)
 
             var hasParsedAnything = false
 

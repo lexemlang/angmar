@@ -76,7 +76,7 @@ internal class SelectiveCaseStmtNodeTest {
     @MethodSource("provideCorrectCaseStatement")
     fun `parse correct case statement`(text: String, pattern1Type: Int, pattern2Type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SelectiveCaseStmtNode
@@ -116,7 +116,7 @@ internal class SelectiveCaseStmtNodeTest {
             val text =
                     "${ConditionalPatternSelectiveStmtNodeTest.testExpression} ${SelectiveCaseStmtNode.patternSeparator}"
             val parser = LexemParser(IOStringReader.from(text))
-            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -126,7 +126,7 @@ internal class SelectiveCaseStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectiveCaseStatementWithoutBlock) {
             val text = ConditionalPatternSelectiveStmtNodeTest.testExpression
             val parser = LexemParser(IOStringReader.from(text))
-            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -134,7 +134,7 @@ internal class SelectiveCaseStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SelectiveCaseStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

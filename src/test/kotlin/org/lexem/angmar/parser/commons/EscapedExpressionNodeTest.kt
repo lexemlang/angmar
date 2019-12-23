@@ -34,7 +34,7 @@ internal class EscapedExpressionNodeTest {
     fun `parse correct escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapedExpressionNode
@@ -50,7 +50,7 @@ internal class EscapedExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.EscapedExpressionWithoutExpression) {
             val text = EscapedExpressionNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -61,7 +61,7 @@ internal class EscapedExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.EscapedExpressionWithoutEndToken) {
             val text = "${EscapedExpressionNode.startToken}$expression"
             val parser = LexemParser(IOStringReader.from(text))
-            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -69,7 +69,7 @@ internal class EscapedExpressionNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = EscapedExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

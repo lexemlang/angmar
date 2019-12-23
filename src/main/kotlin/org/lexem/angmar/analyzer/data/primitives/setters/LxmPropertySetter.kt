@@ -3,9 +3,9 @@ package org.lexem.angmar.analyzer.data.primitives.setters
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 /**
  * A setter for a property.
@@ -13,11 +13,11 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 internal class LxmPropertySetter : LexemSetter {
     val value: LexemPrimitive
     val property: String
-    val node: AccessExplicitMemberNode
+    val node: CompiledNode
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(value: LexemPrimitive, property: String, node: AccessExplicitMemberNode, memory: LexemMemory) {
+    constructor(value: LexemPrimitive, property: String, node: CompiledNode, memory: LexemMemory) {
         this.value = value.getPrimitive()
         this.property = property
         this.node = node

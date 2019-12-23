@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,8 +16,8 @@ import org.lexem.angmar.parser.functional.statements.selective.*
 /**
  * Parser for selective statements.
  */
-internal class SelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class SelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var condition: ParserNode? = null
     var tag: IdentifierNode? = null
     val cases = mutableListOf<ParserNode>()
@@ -50,8 +51,8 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            SelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            SelectiveStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val keyword = "when"
@@ -64,9 +65,9 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
         /**
          * Parses a selective statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): SelectiveStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = SelectiveStmtNode(parser, parent, parentSignal)
+            val result = SelectiveStmtNode(parser, parent)
 
             if (!Commons.parseKeyword(parser, keyword)) {
                 return null
@@ -75,7 +76,7 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
             WhitespaceNode.parse(parser)
 
             // condition
-            result.condition = ParenthesisExpressionNode.parse(parser, result, SelectiveStmtAnalyzer.signalEndCondition)
+            result.condition = ParenthesisExpressionNode.parse(parser, result)
             if (result.condition != null) {
                 WhitespaceNode.parse(parser)
             }
@@ -104,7 +105,7 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
                     return@let
                 }
 
-                result.tag = IdentifierNode.parse(parser, result, SelectiveStmtAnalyzer.signalEndTag)
+                result.tag = IdentifierNode.parse(parser, result)
                 if (result.tag == null) {
                     initTagCursor.restore()
                 }
@@ -115,8 +116,7 @@ internal class SelectiveStmtNode private constructor(parser: LexemParser, parent
 
                 WhitespaceNode.parse(parser)
 
-                val case = SelectiveCaseStmtNode.parse(parser, result,
-                        result.cases.size + SelectiveStmtAnalyzer.signalEndFirstCase)
+                val case = SelectiveCaseStmtNode.parse(parser, result)
                 if (case == null) {
                     initLoopCursor.restore()
                     break

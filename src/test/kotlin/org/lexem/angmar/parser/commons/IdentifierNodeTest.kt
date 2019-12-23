@@ -129,7 +129,7 @@ internal class IdentifierNodeTest {
     @MethodSource("provideCorrectSimpleIdentifiers")
     fun `parse simple identifier`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode
@@ -157,7 +157,7 @@ internal class IdentifierNodeTest {
     fun `parse quoted identifier`(identifier: String) {
         val text = "${QuotedIdentifierNode.startQuote}$identifier${QuotedIdentifierNode.endQuote}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode
@@ -172,7 +172,7 @@ internal class IdentifierNodeTest {
     @MethodSource("provideBadIdentifiers")
     fun `not parse the node`(identifier: String) {
         val parser = LexemParser(IOStringReader.from(identifier))
-        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The parser must not capture anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser has advanced the cursor")

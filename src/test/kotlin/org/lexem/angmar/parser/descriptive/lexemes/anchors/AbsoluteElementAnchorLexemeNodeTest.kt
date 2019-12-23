@@ -36,7 +36,7 @@ internal class AbsoluteElementAnchorLexemeNodeTest {
     fun `parse correct from start element`() {
         val text = AbsoluteElementAnchorLexemeNode.fromStartIdentifier + IndexerNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AbsoluteElementAnchorLexemeNode
@@ -52,7 +52,7 @@ internal class AbsoluteElementAnchorLexemeNodeTest {
     fun `parse correct from end element`() {
         val text = AbsoluteElementAnchorLexemeNode.fromEndIdentifier + IndexerNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AbsoluteElementAnchorLexemeNode
@@ -68,7 +68,7 @@ internal class AbsoluteElementAnchorLexemeNodeTest {
     fun `parse correct from analysis beginning element`() {
         val text = AbsoluteElementAnchorLexemeNode.analysisBeginningIdentifier + IndexerNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AbsoluteElementAnchorLexemeNode
@@ -86,7 +86,7 @@ internal class AbsoluteElementAnchorLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.AbsoluteAnchorElementWithoutValue) {
             val text = AbsoluteElementAnchorLexemeNode.analysisBeginningIdentifier
             val parser = LexemParser(IOStringReader.from(text))
-            AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -94,7 +94,7 @@ internal class AbsoluteElementAnchorLexemeNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteElementAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

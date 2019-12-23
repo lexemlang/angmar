@@ -35,10 +35,6 @@ enum class AngmarAnalyzerExceptionType {
     LastBigNodeTemporalGarbageCollection,
     CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
 
-    // NUMBERS ----------------------------------------------------------------
-
-    NumberOverflow,
-
     // INTERVALS --------------------------------------------------------------
 
     IncorrectRangeBounds,

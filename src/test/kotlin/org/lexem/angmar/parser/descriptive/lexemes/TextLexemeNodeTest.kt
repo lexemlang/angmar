@@ -60,7 +60,7 @@ internal class TextLexemeNodeTest {
     @MethodSource("provideNodes")
     fun `parse correct node`(text: String, isNegative: Boolean, hasPropertyPostfix: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = TextLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = TextLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as TextLexemeNode
@@ -83,7 +83,7 @@ internal class TextLexemeNodeTest {
     @ValueSource(strings = ["", TextLexemeNode.notOperator])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = TextLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = TextLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

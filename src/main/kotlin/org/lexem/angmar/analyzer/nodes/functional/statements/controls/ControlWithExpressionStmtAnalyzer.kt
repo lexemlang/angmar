@@ -4,6 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.functional.statements.controls.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 
@@ -17,7 +18,7 @@ internal object ControlWithExpressionStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ControlWithExpressionStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ControlWithExpressionStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.tag != null) {

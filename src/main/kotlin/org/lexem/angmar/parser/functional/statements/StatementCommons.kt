@@ -16,42 +16,36 @@ internal object StatementCommons {
     /**
      * Parses a statement.
      */
-    fun parseAnyStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            BlockStmtNode.parse(parser, parent, parentSignal) ?: ConditionalStmtNode.parse(parser, parent, parentSignal)
-            ?: SelectiveStmtNode.parse(parser, parent, parentSignal) ?: ConditionalLoopStmtNode.parse(parser, parent,
-                    parentSignal) ?: IteratorLoopStmtNode.parse(parser, parent, parentSignal)
-            ?: InfiniteLoopStmtNode.parse(parser, parent, parentSignal) ?: parseAnyPublicMacroStatement(parser, parent,
-                    parentSignal) ?: PublicMacroStmtNode.parse(parser, parent, parentSignal)
-            ?: parseAnyControlStatement(parser, parent, parentSignal) ?: FunctionalExpressionStmtNode.parse(parser,
-                    parent, parentSignal)
+    fun parseAnyStatement(parser: LexemParser, parent: ParserNode) =
+            BlockStmtNode.parse(parser, parent) ?: ConditionalStmtNode.parse(parser, parent) ?: SelectiveStmtNode.parse(
+                    parser, parent) ?: ConditionalLoopStmtNode.parse(parser, parent) ?: IteratorLoopStmtNode.parse(
+                    parser, parent) ?: InfiniteLoopStmtNode.parse(parser, parent) ?: parseAnyPublicMacroStatement(
+                    parser, parent) ?: PublicMacroStmtNode.parse(parser, parent) ?: parseAnyControlStatement(parser,
+                    parent) ?: FunctionalExpressionStmtNode.parse(parser, parent)
 
     /**
      * Parses a descriptive statement.
      */
-    fun parseAnyDescriptiveStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            LexemePatternGroupNode.parse(parser, parent, parentSignal) ?: LexemePatternNode.parse(parser, parent,
-                    parentSignal) ?: OnBackBlockStmtNode.parse(parser, parent, parentSignal)
-            ?: QuantifiedLoopStmtNode.parse(parser, parent, parentSignal) ?: SetPropsMacroStmtNode.parse(parser, parent,
-                    parentSignal) ?: parseAnyStatement(parser, parent, parentSignal)
+    fun parseAnyDescriptiveStatement(parser: LexemParser, parent: ParserNode) =
+            LexemePatternGroupNode.parse(parser, parent) ?: LexemePatternNode.parse(parser, parent)
+            ?: OnBackBlockStmtNode.parse(parser, parent) ?: QuantifiedLoopStmtNode.parse(parser, parent)
+            ?: SetPropsMacroStmtNode.parse(parser, parent) ?: parseAnyStatement(parser, parent)
 
     /**
      * Parses a valid statement for the public macro.
      */
-    fun parseAnyPublicMacroStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            VarDeclarationStmtNode.parse(parser, parent, parentSignal) ?: FunctionStmtNode.parse(parser, parent,
-                    parentSignal) ?: ExpressionStmtNode.parse(parser, parent, parentSignal) ?: FilterStmtNode.parse(
-                    parser, parent, parentSignal)
+    fun parseAnyPublicMacroStatement(parser: LexemParser, parent: ParserNode) =
+            VarDeclarationStmtNode.parse(parser, parent) ?: FunctionStmtNode.parse(parser, parent)
+            ?: ExpressionStmtNode.parse(parser, parent) ?: FilterStmtNode.parse(parser, parent)
 
     /**
      * Parses a control statement.
      */
-    fun parseAnyControlStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            ControlWithExpressionStmtNode.parse(parser, parent, parentSignal,
-                    ControlWithExpressionStmtNode.returnKeyword, captureTag = false)
-                    ?: ControlWithoutExpressionStmtNode.parse(parser, parent, parentSignal,
-                            ControlWithoutExpressionStmtNode.exitKeyword) ?: ControlWithoutExpressionStmtNode.parse(
-                            parser, parent, parentSignal, ControlWithoutExpressionStmtNode.nextKeyword)
-                    ?: ControlWithoutExpressionStmtNode.parse(parser, parent, parentSignal,
-                            ControlWithoutExpressionStmtNode.redoKeyword) ?: ControlWithoutExpressionStmtNode.parse(
-                            parser, parent, parentSignal, ControlWithoutExpressionStmtNode.restartKeyword)
+    fun parseAnyControlStatement(parser: LexemParser, parent: ParserNode) =
+            ControlWithExpressionStmtNode.parse(parser, parent, ControlWithExpressionStmtNode.returnKeyword,
+                    captureTag = false) ?: ControlWithoutExpressionStmtNode.parse(parser, parent,
+                    ControlWithoutExpressionStmtNode.exitKeyword) ?: ControlWithoutExpressionStmtNode.parse(parser,
+                    parent, ControlWithoutExpressionStmtNode.nextKeyword) ?: ControlWithoutExpressionStmtNode.parse(
+                    parser, parent, ControlWithoutExpressionStmtNode.redoKeyword)
+            ?: ControlWithoutExpressionStmtNode.parse(parser, parent, ControlWithoutExpressionStmtNode.restartKeyword)
 }

@@ -6,7 +6,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.parser.literals.*
@@ -19,9 +18,7 @@ internal class DebugGlobalObjectTest {
         val varStmt = "$varName ${AssignOperatorNode.assignOperator} 5"
         val fnCall = "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Pause}"
         val grammar = "$fnCall${FunctionCallNode.startToken}${FunctionCallNode.endToken} \n $varStmt"
-        val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
-        }
+        val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -44,9 +41,7 @@ internal class DebugGlobalObjectTest {
                     "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -67,9 +62,7 @@ internal class DebugGlobalObjectTest {
             val fnArgs =
                     "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -90,9 +83,7 @@ internal class DebugGlobalObjectTest {
                     "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -110,9 +101,7 @@ internal class DebugGlobalObjectTest {
             val fnArgs =
                     "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -130,9 +119,7 @@ internal class DebugGlobalObjectTest {
                     "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}$tag"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
-            val analyzer = TestUtils.createAnalyzerFrom(grammar) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
             TestUtils.processAndCheckEmpty(analyzer)
 

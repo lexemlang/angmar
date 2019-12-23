@@ -2,7 +2,7 @@ package org.lexem.angmar.parser.commons
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.commons.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -11,8 +11,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for escaped expressions.
  */
-internal class EscapedExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class EscapedExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var expression: ParserNode
 
     override fun toString() = "$startToken$expression$endToken"
@@ -25,8 +25,7 @@ internal class EscapedExpressionNode private constructor(parser: LexemParser, pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            EscapedExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = expression.compile(parent, parentSignal)
 
     companion object {
         internal const val startToken = "\\("
@@ -37,9 +36,9 @@ internal class EscapedExpressionNode private constructor(parser: LexemParser, pa
         /**
          * Parses an escaped expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): EscapedExpressionNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): EscapedExpressionNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = EscapedExpressionNode(parser, parent, parentSignal)
+            val result = EscapedExpressionNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -47,21 +46,20 @@ internal class EscapedExpressionNode private constructor(parser: LexemParser, pa
 
             WhitespaceNoEOLNode.parse(parser)
 
-            result.expression =
-                    ExpressionsCommons.parseExpression(parser, result, EscapedExpressionAnalyzer.signalEndExpression)
-                            ?: throw AngmarParserException(AngmarParserExceptionType.EscapedExpressionWithoutExpression,
-                                    "Escaped expression require an expression as its value.") {
-                                val fullText = parser.reader.readAllText()
-                                addSourceCode(fullText, parser.reader.getSource()) {
-                                    title = Consts.Logger.codeTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightCursorAt(parser.reader.currentPosition())
-                                    message = "Try adding an expression here"
-                                }
-                            }
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.EscapedExpressionWithoutExpression,
+                    "Escaped expression require an expression as its value.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an expression here"
+                }
+            }
 
             WhitespaceNoEOLNode.parse(parser)
 

@@ -34,7 +34,7 @@ internal class ParenthesisExpressionNodeTest {
     fun `parse correct parenthesis expression`(expression: String) {
         val text = "${ParenthesisExpressionNode.startToken}$expression${ParenthesisExpressionNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParenthesisExpressionNode
@@ -49,7 +49,7 @@ internal class ParenthesisExpressionNodeTest {
     fun `parse correct parenthesis expression with whites`(expression: String) {
         val text = "${ParenthesisExpressionNode.startToken}  $expression  ${ParenthesisExpressionNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParenthesisExpressionNode
@@ -65,7 +65,7 @@ internal class ParenthesisExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ParenthesisExpressionWithoutExpression) {
             val text = ParenthesisExpressionNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -76,7 +76,7 @@ internal class ParenthesisExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ParenthesisExpressionWithoutEndToken) {
             val text = "${ParenthesisExpressionNode.startToken}$expression"
             val parser = LexemParser(IOStringReader.from(text))
-            ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -84,7 +84,7 @@ internal class ParenthesisExpressionNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ParenthesisExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

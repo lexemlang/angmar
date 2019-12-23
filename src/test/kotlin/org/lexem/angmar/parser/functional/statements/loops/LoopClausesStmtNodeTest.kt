@@ -77,7 +77,7 @@ internal class LoopClausesStmtNodeTest {
     @MethodSource("provideCorrectLoopClauses")
     fun `parse correct loop clauses`(text: String, hasLast: Boolean, hasElse: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LoopClausesStmtNode
@@ -105,7 +105,7 @@ internal class LoopClausesStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.LastLoopClauseWithoutBlock) {
             val text = LoopClausesStmtNode.lastKeyword
             val parser = LexemParser(IOStringReader.from(text))
-            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -115,7 +115,7 @@ internal class LoopClausesStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ElseLoopClauseWithoutBlock) {
             val text = LoopClausesStmtNode.elseKeyword
             val parser = LexemParser(IOStringReader.from(text))
-            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -123,7 +123,7 @@ internal class LoopClausesStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LoopClausesStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

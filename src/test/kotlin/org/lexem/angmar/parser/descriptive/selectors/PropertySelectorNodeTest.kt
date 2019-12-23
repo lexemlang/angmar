@@ -62,7 +62,7 @@ internal class PropertySelectorNodeTest {
     fun `parse correct simple property`() {
         val text = "${PropertySelectorNode.token}${PropertyAbbreviationSelectorNodeTest.testExpression}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertySelectorNode
@@ -80,7 +80,7 @@ internal class PropertySelectorNodeTest {
     fun `parse correct simple property - for addition`() {
         val text = "${PropertySelectorNode.token}${PropertyAbbreviationSelectorNodeTest.testExpression}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertySelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertySelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertySelectorNode
@@ -98,7 +98,7 @@ internal class PropertySelectorNodeTest {
     @MethodSource("providePropertyGroups")
     fun `parse correct group of properties`(text: String, propCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertySelectorNode
@@ -118,7 +118,7 @@ internal class PropertySelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyWithoutIdentifier) {
             val text = PropertySelectorNode.token
             val parser = LexemParser(IOStringReader.from(text))
-            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -128,7 +128,7 @@ internal class PropertySelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyWithoutIdentifier) {
             val text = PropertySelectorNode.token
             val parser = LexemParser(IOStringReader.from(text))
-            PropertySelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertySelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -136,7 +136,7 @@ internal class PropertySelectorNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")
@@ -149,7 +149,7 @@ internal class PropertySelectorNodeTest {
             val text =
                     "${PropertySelectorNode.token}${PropertySelectorNode.groupStartToken}${PropertySelectorNode.groupEndToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -160,7 +160,7 @@ internal class PropertySelectorNodeTest {
             val text =
                     "${PropertySelectorNode.token}${PropertySelectorNode.groupStartToken}${PropertyAbbreviationSelectorNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertySelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 }

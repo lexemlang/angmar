@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.selectors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for methods of selectors.
  */
-internal class MethodSelectorNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class MethodSelectorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var argument: ParserNode? = null
     lateinit var name: IdentifierNode
@@ -43,8 +44,8 @@ internal class MethodSelectorNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            MethodSelectorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            MethodSelectorCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -57,9 +58,9 @@ internal class MethodSelectorNode private constructor(parser: LexemParser, paren
         /**
          * Parses a method of a selector.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MethodSelectorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): MethodSelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = MethodSelectorNode(parser, parent, parentSignal)
+            val result = MethodSelectorNode(parser, parent)
 
             if (!parser.readText(relationalToken)) {
                 initCursor.restore()
@@ -68,32 +69,31 @@ internal class MethodSelectorNode private constructor(parser: LexemParser, paren
 
             result.isNegated = parser.readText(notOperator)
 
-            result.name = IdentifierNode.parse(parser, result, MethodSelectorAnalyzer.signalEndName)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.SelectorMethodWithoutName,
-                            "Selector methods require a name to to identify the action to execute.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message = "Try adding an identifier here"
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            message = "Try removing the start token '$relationalToken'"
-                        }
-                    }
+            result.name = IdentifierNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.SelectorMethodWithoutName,
+                    "Selector methods require a name to to identify the action to execute.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an identifier here"
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    message = "Try removing the start token '$relationalToken'"
+                }
+            }
 
-            var argument: ParserNode? =
-                    PropertyBlockSelectorNode.parse(parser, result, MethodSelectorAnalyzer.signalEndArgument)
+            var argument: ParserNode? = PropertyBlockSelectorNode.parse(parser, result)
             if (argument == null && parser.readText(selectorStartToken)) {
                 WhitespaceNode.parse(parser)
 
-                argument = SelectorNode.parse(parser, result, MethodSelectorAnalyzer.signalEndArgument) ?: let {
+                argument = SelectorNode.parse(parser, result) ?: let {
                     val expressionCursor = parser.reader.saveCursor()
 
                     // To show the end token in the message if it exists.

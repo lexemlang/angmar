@@ -12,9 +12,15 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
     @Test
     fun `test quantifier with only minimum`() {
         val minimum = 5
-        val text = "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.endToken}"
+        val minimumVariable = "minVar"
+        val text = "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.endToken}"
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmQuantifier ?: throw Error(
@@ -28,17 +34,25 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(minimumVariable))
     }
 
     @Test
     fun `test quantifier with minimum and maximum`() {
         val minimum = 5
         val maximum = 10
+        val minimumVariable = "minVar"
+        val maximumVariable = "maxVar"
         val text =
-                "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.elementSeparator}$maximum${ExplicitQuantifierLexemeNode.endToken}"
+                "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.elementSeparator}$maximumVariable${ExplicitQuantifierLexemeNode.endToken}"
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
+        context.setProperty(analyzer.memory, maximumVariable, LxmInteger.from(maximum))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmQuantifier ?: throw Error(
@@ -52,16 +66,22 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(minimumVariable, maximumVariable))
     }
 
     @Test
     fun `test quantifier to infinite`() {
         val minimum = 5
+        val minimumVariable = "minVar"
         val text =
-                "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken}"
+                "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken}"
         val analyzer =
                 TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
+
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack() as? LxmQuantifier ?: throw Error(
@@ -75,7 +95,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(minimumVariable))
     }
 
     @Test
@@ -83,9 +103,16 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
     fun `test quantifier with non integer minimum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
             val minimum = LxmLogic.False
-            val text = "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.endToken}"
+            val minimumVariable = "minVar"
+            val text =
+                    "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }
@@ -94,15 +121,16 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
     @Incorrect
     fun `test quantifier with minimum lower than zero`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds) {
-            val minimum = -1
-            val text = "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.endToken}"
+            val minimum = LxmInteger.Num_1
+            val minimumVariable = "minVar"
+            val text =
+                    "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                    LxmString.from("test"))
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -112,12 +140,18 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
     @Incorrect
     fun `test quantifier with non integer maximum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
-            val minimum = 5
+            val minimum = LxmInteger.Num10
             val maximum = LxmNil
+            val minimumVariable = "minVar"
             val text =
-                    "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.elementSeparator}$maximum${ExplicitQuantifierLexemeNode.endToken}"
+                    "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.elementSeparator}$maximum${ExplicitQuantifierLexemeNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }
@@ -126,12 +160,18 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
     @Incorrect
     fun `test quantifier with maximum lower than minimum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds) {
-            val minimum = 5
+            val minimum = LxmInteger.Num10
             val maximum = 1
+            val minimumVariable = "minVar"
             val text =
-                    "${ExplicitQuantifierLexemeNode.startToken}$minimum${ExplicitQuantifierLexemeNode.elementSeparator}$maximum${ExplicitQuantifierLexemeNode.endToken}"
+                    "${ExplicitQuantifierLexemeNode.startToken}$minimumVariable${ExplicitQuantifierLexemeNode.elementSeparator}$maximum${ExplicitQuantifierLexemeNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = ExplicitQuantifierLexemeNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }

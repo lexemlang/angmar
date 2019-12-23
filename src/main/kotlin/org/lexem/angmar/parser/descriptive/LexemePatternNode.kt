@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.descriptive.lexemes.*
 /**
  * Parser for lexeme pattern.
  */
-internal class LexemePatternNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class LexemePatternNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var type = PatternType.Alternative
     var quantifier: ExplicitQuantifierLexemeNode? = null
     var unionName: IdentifierNode? = null
@@ -50,8 +51,8 @@ internal class LexemePatternNode private constructor(parser: LexemParser, parent
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            LexemePatternAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LexemePatternCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val patternToken = "|"
@@ -73,9 +74,9 @@ internal class LexemePatternNode private constructor(parser: LexemParser, parent
         /**
          * Parses a lexeme pattern.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemePatternNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LexemePatternNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = LexemePatternNode(parser, parent, parentSignal)
+            val result = LexemePatternNode(parser, parent)
 
             if (!parser.readText(patternToken)) {
                 return null
@@ -91,8 +92,7 @@ internal class LexemePatternNode private constructor(parser: LexemParser, parent
                         parser.readText(selectiveTypeToken) -> result.type = PatternType.Selective
                         parser.readText(quantifierSlaveToken) -> result.type = PatternType.Quantified
                         else -> {
-                            result.quantifier = ExplicitQuantifierLexemeNode.parse(parser, result,
-                                    LexemePatternAnalyzer.signalEndType)
+                            result.quantifier = ExplicitQuantifierLexemeNode.parse(parser, result)
 
                             if (result.quantifier != null) {
                                 result.type = PatternType.Quantified
@@ -106,8 +106,7 @@ internal class LexemePatternNode private constructor(parser: LexemParser, parent
 
                         WhitespaceNoEOLNode.parse(parser)
 
-                        val unionName = IdentifierNode.parse(parser, result, LexemePatternAnalyzer.signalEndUnionName)
-                                ?: return@let
+                        val unionName = IdentifierNode.parse(parser, result) ?: return@let
 
                         WhitespaceNoEOLNode.parse(parser)
 
@@ -127,8 +126,7 @@ internal class LexemePatternNode private constructor(parser: LexemParser, parent
 
                 WhitespaceNoEOLNode.parse(parser)
 
-                val patternContent =
-                        LexemePatternContentNode.parse(parser, result, LexemePatternAnalyzer.signalEndPatternContent)
+                val patternContent = LexemePatternContentNode.parse(parser, result)
 
                 if (patternContent == null) {
                     prePatternCursor.restore()

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -18,7 +18,7 @@ internal object FunctionStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------c------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionalStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.name)
@@ -31,7 +31,7 @@ internal object FunctionStmtAnalyzer {
                 fn.name = name.primitive
 
                 // Add it to the exports if the parent is a public macro
-                if (node.parent is PublicMacroStmtNode) {
+                if (node.parent is PublicMacroStmtCompiled) {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 

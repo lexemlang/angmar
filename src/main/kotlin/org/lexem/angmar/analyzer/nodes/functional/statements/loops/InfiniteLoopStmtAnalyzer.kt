@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.loops.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 
 
 /**
@@ -13,11 +13,10 @@ import org.lexem.angmar.parser.functional.statements.loops.*
 internal object InfiniteLoopStmtAnalyzer {
     const val signalEndIndex = AnalyzerNodesCommons.signalStart + 1
     const val signalEndThenBlock = signalEndIndex + 1
-    const val signalEndLastClause = signalEndThenBlock + 1
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: InfiniteLoopStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: InfiniteLoopStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
@@ -135,7 +134,7 @@ internal object InfiniteLoopStmtAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: InfiniteLoopStmtNode, count: Int = 1) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: InfiniteLoopStmtCompiled, count: Int = 1) {
         val lastIndex = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
         val newIndex = LxmInteger.from(lastIndex.primitive + count)
 
@@ -153,7 +152,7 @@ internal object InfiniteLoopStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: InfiniteLoopStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: InfiniteLoopStmtCompiled) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
 

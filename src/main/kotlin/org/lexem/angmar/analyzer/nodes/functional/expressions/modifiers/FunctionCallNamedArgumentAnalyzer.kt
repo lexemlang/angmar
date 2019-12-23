@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 
 
 /**
@@ -17,7 +17,7 @@ internal object FunctionCallNamedArgumentAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallNamedArgumentNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallNamedArgumentCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.identifier)

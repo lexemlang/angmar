@@ -84,7 +84,7 @@ internal class SelectorNodeTest {
     @MethodSource("provideSelectors")
     fun `parse correct selector`(text: String, hasName: Boolean, propCount: Int, methodCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SelectorNode
@@ -118,7 +118,7 @@ internal class SelectorNodeTest {
     @MethodSource("provideAdditionSelectors")
     fun `parse correct selector - for addition`(text: String, propCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as SelectorNode
@@ -143,7 +143,7 @@ internal class SelectorNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = SelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = SelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

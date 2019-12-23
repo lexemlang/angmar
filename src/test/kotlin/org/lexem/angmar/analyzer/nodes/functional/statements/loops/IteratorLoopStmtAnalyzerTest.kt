@@ -359,8 +359,7 @@ internal class IteratorLoopStmtAnalyzerTest {
     fun `test exit control signal from else`() {
         val tagName = "tag"
         val containerName = "container"
-        val iteratorElement = "test"
-        val iteratorElementTxt = "${StringNode.startToken}$iteratorElement${StringNode.endToken}"
+        val iteratorElementTxt = "${StringNode.startToken}${StringNode.endToken}"
         val elseBody =
                 "${LoopClausesStmtNode.elseKeyword} ${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName ${ControlWithoutExpressionStmtNode.exitKeyword}${BlockStmtNode.tagPrefix}$tagName ${BlockStmtNode.endToken}"
         val body = "${BlockStmtNode.startToken} ${BlockStmtNode.endToken}"

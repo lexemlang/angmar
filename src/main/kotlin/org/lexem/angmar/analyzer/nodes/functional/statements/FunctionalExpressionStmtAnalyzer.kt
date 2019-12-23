@@ -2,7 +2,7 @@ package org.lexem.angmar.analyzer.nodes.functional.statements
 
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -13,7 +13,7 @@ internal object FunctionalExpressionStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionalExpressionStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionalExpressionStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.expression)

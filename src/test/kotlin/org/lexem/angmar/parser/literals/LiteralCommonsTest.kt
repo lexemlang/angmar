@@ -77,7 +77,7 @@ internal class LiteralCommonsTest {
     fun `parse simple literal correct strings`(textContent: String) {
         val text = "${UnescapedStringNode.macroName}${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnescapedStringNode
@@ -96,7 +96,7 @@ internal class LiteralCommonsTest {
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LiteralCommons.parseAnyString(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
@@ -115,7 +115,7 @@ internal class LiteralCommonsTest {
     @MethodSource("provideObjects")
     fun `parse any correct object`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LiteralCommons.parseAnyObject(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LiteralCommons.parseAnyObject(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -133,7 +133,7 @@ internal class LiteralCommonsTest {
     @MethodSource("provideIntervals")
     fun `parse any correct interval`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LiteralCommons.parseAnyInterval(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LiteralCommons.parseAnyInterval(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -152,7 +152,7 @@ internal class LiteralCommonsTest {
     @MethodSource("provideIntervalsForLexem")
     fun `parse any correct interval for lexem`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LiteralCommons.parseAnyIntervalForLexem(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LiteralCommons.parseAnyIntervalForLexem(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode

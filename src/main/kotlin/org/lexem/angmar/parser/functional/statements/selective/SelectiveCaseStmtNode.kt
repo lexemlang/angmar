@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.selective
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for cases of the selective statements.
  */
-internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var patterns = mutableListOf<ParserNode>()
     lateinit var block: ParserNode
 
@@ -34,8 +35,8 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            SelectiveCaseStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            SelectiveCaseStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val patternSeparator = GlobalCommons.elementSeparator
@@ -46,19 +47,15 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
         /**
          * Parses a case of the selective statements.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): SelectiveCaseStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): SelectiveCaseStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = SelectiveCaseStmtNode(parser, parent, parentSignal)
+            val result = SelectiveCaseStmtNode(parser, parent)
 
             // Patterns
-            var pattern = ConditionalPatternSelectiveStmtNode.parse(parser, result,
-                    result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                    ?: ElsePatternSelectiveStmtNode.parse(parser, result,
-                            result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                    ?: VarPatternSelectiveStmtNode.parse(parser, result,
-                            result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                    ?: ExpressionPatternSelectiveStmtNode.parse(parser, result,
-                            result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern) ?: return null
+            var pattern =
+                    ConditionalPatternSelectiveStmtNode.parse(parser, result) ?: ElsePatternSelectiveStmtNode.parse(
+                            parser, result) ?: VarPatternSelectiveStmtNode.parse(parser, result)
+                    ?: ExpressionPatternSelectiveStmtNode.parse(parser, result) ?: return null
 
             result.patterns.add(pattern)
 
@@ -75,14 +72,10 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
 
                 WhitespaceNode.parse(parser)
 
-                pattern = ConditionalPatternSelectiveStmtNode.parse(parser, result,
-                        result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                        ?: ElsePatternSelectiveStmtNode.parse(parser, result,
-                                result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                                ?: VarPatternSelectiveStmtNode.parse(parser, result,
-                                result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
-                                ?: ExpressionPatternSelectiveStmtNode.parse(parser, result,
-                                result.patterns.size + SelectiveCaseStmtAnalyzer.signalEndFirstPattern)
+                pattern =
+                        ConditionalPatternSelectiveStmtNode.parse(parser, result) ?: ElsePatternSelectiveStmtNode.parse(
+                                parser, result) ?: VarPatternSelectiveStmtNode.parse(parser, result)
+                                ?: ExpressionPatternSelectiveStmtNode.parse(parser, result)
                                 ?: throw AngmarParserException(
                                 AngmarParserExceptionType.SelectiveCaseStatementWithoutPatternAfterElementSeparator,
                                 "A pattern was expected after the pattern separator '$patternSeparator'.") {
@@ -103,21 +96,20 @@ internal class SelectiveCaseStmtNode private constructor(parser: LexemParser, pa
 
             WhitespaceNode.parse(parser)
 
-            result.block = BlockStmtNode.parse(parser, result, SelectiveCaseStmtAnalyzer.signalEndBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.SelectiveCaseStatementWithoutBlock,
-                            "A block was expected after the patterns of the case to be executed when any of the patterns match.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                    }
+            result.block = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.SelectiveCaseStatementWithoutBlock,
+                    "A block was expected after the patterns of the case to be executed when any of the patterns match.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+            }
 
             return parser.finalizeNode(result, initCursor)
         }

@@ -8,12 +8,13 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
+import org.lexem.angmar.compiler.descriptive.statements.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
-import org.lexem.angmar.parser.descriptive.statements.*
-import org.lexem.angmar.parser.literals.*
 
 /**
  * Generic commons for the analyzers.
@@ -33,7 +34,7 @@ internal object AnalyzerNodesCommons {
      * Calls a function value.
      * Requires the arguments to have at least one reference count.
      */
-    fun callFunction(analyzer: LexemAnalyzer, function: LxmFunction, arguments: LxmArguments, node: ParserNode,
+    fun callFunction(analyzer: LexemAnalyzer, function: LxmFunction, arguments: LxmArguments, node: CompiledNode,
             returnPoint: LxmCodePoint) {
         // Save the return position.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.ReturnCodePoint, returnPoint)
@@ -70,8 +71,8 @@ internal object AnalyzerNodesCommons {
     /**
      * Handles the function execution.
      */
-    fun functionExecutionController(analyzer: LexemAnalyzer, signal: Int, parameterList: FunctionParameterListNode?,
-            block: ParserNode, node: ParserNode, signalEndParameterList: Int, signalEndBlock: Int) {
+    fun functionExecutionController(analyzer: LexemAnalyzer, signal: Int, parameterList: FunctionParameterListCompiled?,
+            block: CompiledNode, node: CompiledNode, signalEndParameterList: Int, signalEndBlock: Int) {
         when (signal) {
             // Call the function.
             signalCallFunction -> {
@@ -170,9 +171,9 @@ internal object AnalyzerNodesCommons {
     /**
      * Handles the expression or filter execution.
      */
-    fun descriptiveExecutionController(analyzer: LexemAnalyzer, signal: Int,
-            propertyNode: PropertyStyleObjectBlockNode?, parameterList: FunctionParameterListNode?, block: ParserNode,
-            node: ParserNode, signalEndProperties: Int, signalEndParameterList: Int, signalEndBlock: Int) {
+    fun descriptiveExecutionController(analyzer: LexemAnalyzer, signal: Int, propertyNode: CompiledNode?,
+            parameterList: FunctionParameterListCompiled?, block: CompiledNode, node: CompiledNode,
+            signalEndProperties: Int, signalEndParameterList: Int, signalEndBlock: Int) {
         when (signal) {
             // Call the function.
             signalCallFunction -> {
@@ -184,7 +185,7 @@ internal object AnalyzerNodesCommons {
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
                                 toWrite = false) as LxmArguments
                 if (node2ReParse != null) {
-                    if (node is ExpressionStmtNode) {
+                    if (node is ExpressionStmtCompiled) {
                         // Save the current text.
                         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenAnalyzerText,
                                 LxmReader(analyzer.text))
@@ -200,7 +201,7 @@ internal object AnalyzerNodesCommons {
                 }
 
                 // Checks whether the current call is a filtering.
-                if (node is FilterStmtNode) {
+                if (node is FilterStmtCompiled) {
                     val node2Filter = arguments.getNamedArgument(analyzer.memory,
                             AnalyzerCommons.Identifiers.Node2FilterParameter)
 
@@ -229,14 +230,14 @@ internal object AnalyzerNodesCommons {
                 val expression =
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function).dereference(analyzer.memory,
                                 toWrite = false) as LxmFunction
-                val name = if (node is FilterStmtNode) {
+                val name = if (node is FilterStmtCompiled) {
                     val node = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNode).dereference(
                             analyzer.memory, toWrite = false) as LxmNode
                     node.name
                 } else {
                     expression.name
                 }
-                val type = if (node is FilterStmtNode) {
+                val type = if (node is FilterStmtCompiled) {
                     LxmNode.LxmNodeType.Filter
                 } else {
                     LxmNode.LxmNodeType.Expression
@@ -359,7 +360,7 @@ internal object AnalyzerNodesCommons {
     /**
      * Process the final actions of the descriptive controller.
      */
-    private fun descriptiveExecutionControllerFinal(analyzer: LexemAnalyzer, node: ParserNode) {
+    private fun descriptiveExecutionControllerFinal(analyzer: LexemAnalyzer, node: CompiledNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
         // Check the unions before leave.
@@ -494,7 +495,7 @@ internal object AnalyzerNodesCommons {
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.ReturnCodePoint)
 
         // Remove FilterNode and FilterNodePosition from the stack.
-        if (node is FilterStmtNode) {
+        if (node is FilterStmtCompiled) {
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.FilterNode)
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.FilterNodePosition)
         }
@@ -505,7 +506,7 @@ internal object AnalyzerNodesCommons {
     /**
      * Moves the properties in the arguments to the node.
      */
-    private fun descriptiveExecutionControllerMovePropertiesToNode(analyzer: LexemAnalyzer, node: ParserNode,
+    private fun descriptiveExecutionControllerMovePropertiesToNode(analyzer: LexemAnalyzer, node: CompiledNode,
             arguments: LxmArguments) {
         val properties = arguments.getNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.Properties)
                 ?.dereference(analyzer.memory, toWrite = false)
@@ -532,40 +533,34 @@ internal object AnalyzerNodesCommons {
     /**
      * Resolves the inline properties of lexemes.
      */
-    fun resolveInlineProperties(analyzer: LexemAnalyzer, node: LexemPropertyPostfixNode?): Pair<Boolean, Boolean> {
+    fun resolveInlineProperties(analyzer: LexemAnalyzer, node: LexemePropertyPostfixCompiled?): Pair<Boolean, Boolean> {
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
-        var reversed = RelationalFunctions.isTruthy(
-                props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
-        var insensible = RelationalFunctions.isTruthy(
-                props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible) ?: LxmNil)
-
-        val notReversed = !reversed
-        val notInsensible = !insensible
-
         if (node == null) {
+            val reversed = RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
+            val insensible = RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible) ?: LxmNil)
+
             return Pair(reversed, insensible)
         }
 
-        for (p in node.positiveElements) {
-            when (p) {
-                LexemPropertyPostfixNode.reversedProperty -> reversed = true
-                LexemPropertyPostfixNode.insensibleProperty -> insensible = true
-            }
+        val reversed = when (node.properties[LexemPropertyPostfixNode.reversedProperty]!!) {
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.True -> true
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.False -> false
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.Reverse -> !RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.Inherit -> RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
         }
 
-        for (p in node.negativeElements) {
-            when (p) {
-                LexemPropertyPostfixNode.reversedProperty -> reversed = false
-                LexemPropertyPostfixNode.insensibleProperty -> insensible = false
-            }
-        }
-
-        for (p in node.reversedElements) {
-            when (p) {
-                LexemPropertyPostfixNode.reversedProperty -> reversed = notReversed
-                LexemPropertyPostfixNode.insensibleProperty -> insensible = notInsensible
-            }
+        val insensible = when (node.properties[LexemPropertyPostfixNode.insensibleProperty]!!) {
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.True -> true
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.False -> false
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.Reverse -> !RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible) ?: LxmNil)
+            LexemePropertyPostfixCompiled.Companion.PropertyValue.Inherit -> RelationalFunctions.isTruthy(
+                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Insensible) ?: LxmNil)
         }
 
         return Pair(reversed, insensible)

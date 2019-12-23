@@ -6,8 +6,8 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
 
 internal class LxmListTest {
@@ -369,7 +369,7 @@ internal class LxmListTest {
 
     @Test
     fun `test get type`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val list = LxmList(memory)
@@ -381,7 +381,7 @@ internal class LxmListTest {
 
     @Test
     fun `test get prototype`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val list = LxmList(memory)

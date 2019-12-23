@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object FunctionAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Create the function.

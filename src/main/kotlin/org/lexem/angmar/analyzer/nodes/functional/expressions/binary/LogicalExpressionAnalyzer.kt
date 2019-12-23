@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.BinaryAnalyzerCommons.createArguments
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 
@@ -17,10 +18,10 @@ internal object LogicalExpressionAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LogicalExpressionNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LogicalExpressionCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                return analyzer.nextNode(node.expressions[0])
+                return analyzer.nextNode(node.expressions.first())
             }
             in signalEndFirstExpression until signalEndFirstExpression + node.expressions.size -> {
                 val position = (signal - signalEndFirstExpression) + 1
@@ -45,7 +46,7 @@ internal object LogicalExpressionAnalyzer {
     /**
      * Operates two values depending on the specified operator.
      */
-    private fun operate(analyzer: LexemAnalyzer, signal: Int, position: Int, node: LogicalExpressionNode) {
+    private fun operate(analyzer: LexemAnalyzer, signal: Int, position: Int, node: LogicalExpressionCompiled) {
         val operator = node.operators[position / 2 - 1]
 
         // Get operand values.

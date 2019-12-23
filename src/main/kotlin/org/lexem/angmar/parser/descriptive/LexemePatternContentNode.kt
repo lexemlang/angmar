@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.io.printer.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for lexeme pattern contents.
  */
-internal class LexemePatternContentNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class LexemePatternContentNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var lexemes = mutableListOf<ParserNode>()
 
     override fun toString() = StringBuilder().apply {
@@ -27,16 +28,16 @@ internal class LexemePatternContentNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            LexemePatternContentAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            LexemePatternContentCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses a Lexem pattern content.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): LexemePatternContentNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): LexemePatternContentNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = LexemePatternContentNode(parser, parent, parentSignal)
+            val result = LexemePatternContentNode(parser, parent)
 
             var first = true
             while (true) {
@@ -45,8 +46,7 @@ internal class LexemePatternContentNode private constructor(parser: LexemParser,
                     PatternWhitespaceNode.parse(parser)
                 }
 
-                val lexeme = GlobalCommons.parseLexem(parser, result,
-                        result.lexemes.size + LexemePatternContentAnalyzer.signalEndFirstLexeme)
+                val lexeme = GlobalCommons.parseLexem(parser, result)
 
                 if (lexeme == null) {
                     iterationCursor.restore()

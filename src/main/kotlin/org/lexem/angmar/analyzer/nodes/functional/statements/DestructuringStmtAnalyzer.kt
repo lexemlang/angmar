@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -17,18 +17,18 @@ internal object DestructuringStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DestructuringStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DestructuringStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Adds the destructuring object to the stack.
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Destructuring, LxmDestructuring())
+                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Destructuring, node.initialValue.clone())
 
                 if (node.alias != null) {
                     return analyzer.nextNode(node.alias)
                 }
 
                 if (node.elements.isNotEmpty()) {
-                    return analyzer.nextNode(node.elements[0])
+                    return analyzer.nextNode(node.elements.first())
                 }
 
                 if (node.spread != null) {
@@ -60,7 +60,7 @@ internal object DestructuringStmtAnalyzer {
                 // Move Destructuring to Last in the stack.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Destructuring)
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 if (position < node.elements.size) {

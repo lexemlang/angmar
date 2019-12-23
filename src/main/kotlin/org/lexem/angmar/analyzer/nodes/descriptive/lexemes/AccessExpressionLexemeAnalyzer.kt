@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 
 
 /**
@@ -20,7 +20,7 @@ internal object AccessExpressionLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AccessExpressionLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AccessExpressionLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.element)
@@ -37,7 +37,7 @@ internal object AccessExpressionLexemeAnalyzer {
 
                 // Process the next operand.
                 if (node.modifiers.isNotEmpty()) {
-                    return analyzer.nextNode(node.modifiers[0])
+                    return analyzer.nextNode(node.modifiers.first())
                 } else {
                     // If the setter has a function execute it.
                     val finalValue = finalValueRef.dereference(analyzer.memory, toWrite = false)
@@ -60,7 +60,7 @@ internal object AccessExpressionLexemeAnalyzer {
             signalEndFunction -> {
                 // Skip
             }
-            in signalEndFirstModifier until signalEndFirstModifier + node.modifiers.size -> {
+            in signalEndFirstModifier..signalEndFirstModifier + node.modifiers.size -> {
                 val position = (signal - signalEndFirstModifier) + 1
 
                 // Process the next operand

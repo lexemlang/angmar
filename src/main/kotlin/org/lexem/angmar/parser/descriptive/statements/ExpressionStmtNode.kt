@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for expression statements.
  */
-internal class ExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var name: IdentifierNode
     lateinit var block: ParserNode
     var properties: PropertyStyleObjectBlockNode? = null
@@ -52,8 +53,8 @@ internal class ExpressionStmtNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ExpressionStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ExpressionStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val keyword = "exp"
@@ -63,9 +64,9 @@ internal class ExpressionStmtNode private constructor(parser: LexemParser, paren
         /**
          * Parses a expression statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExpressionStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ExpressionStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ExpressionStmtNode(parser, parent, parentSignal)
+            val result = ExpressionStmtNode(parser, parent)
 
             if (!Commons.parseKeyword(parser, keyword)) {
                 return null
@@ -73,21 +74,19 @@ internal class ExpressionStmtNode private constructor(parser: LexemParser, paren
 
             WhitespaceNode.parse(parser)
 
-            result.name = IdentifierNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndName) ?: let {
+            result.name = IdentifierNode.parse(parser, result) ?: let {
                 initCursor.restore()
                 return@parse null
             }
 
             WhitespaceNode.parse(parser)
 
-            result.properties =
-                    PropertyStyleObjectBlockNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndProperties)
+            result.properties = PropertyStyleObjectBlockNode.parse(parser, result)
             if (result.properties != null) {
                 WhitespaceNode.parse(parser)
             }
 
-            result.parameterList =
-                    FunctionParameterListNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndParameterList)
+            result.parameterList = FunctionParameterListNode.parse(parser, result)
             if (result.parameterList != null) {
                 WhitespaceNode.parse(parser)
             }
@@ -97,23 +96,20 @@ internal class ExpressionStmtNode private constructor(parser: LexemParser, paren
             parser.isDescriptiveCode = true
             parser.isFilterCode = false
 
-            result.block =
-                    BlockStmtNode.parse(parser, result, ExpressionStmtAnalyzer.signalEndBlock) ?: LambdaStmtNode.parse(
-                            parser, result, ExpressionStmtAnalyzer.signalEndBlock) ?: throw AngmarParserException(
-                            AngmarParserExceptionType.ExpressionStatementWithoutBlock,
-                            "Expressions require a block of code.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                    }
+            result.block = BlockStmtNode.parse(parser, result) ?: LambdaStmtNode.parse(parser, result)
+                    ?: throw AngmarParserException(AngmarParserExceptionType.ExpressionStatementWithoutBlock,
+                    "Expressions require a block of code.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+            }
 
             parser.isDescriptiveCode = keepIsDescriptiveCode
             parser.isFilterCode = keepIsFilterCode

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.selectors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for properties of selectors.
  */
-internal class PropertySelectorNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class PropertySelectorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isAddition = false
     val properties = mutableListOf<PropertyAbbreviationSelectorNode>()
 
@@ -40,8 +41,8 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            PropertySelectorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            PropertySelectorCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val token = "."
@@ -54,9 +55,9 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
         /**
          * Parses a property of a selector.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertySelectorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): PropertySelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertySelectorNode(parser, parent, parentSignal)
+            val result = PropertySelectorNode(parser, parent)
 
             if (!parser.readText(token)) {
                 return null
@@ -76,8 +77,7 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
                         WhitespaceNode.parse(parser)
                     }
 
-                    val property = PropertyAbbreviationSelectorNode.parse(parser, result,
-                            result.properties.size + PropertySelectorAnalyzer.signalEndFirstProperty)
+                    val property = PropertyAbbreviationSelectorNode.parse(parser, result)
                     if (property == null) {
                         initIterationCursor.restore()
                         break
@@ -125,8 +125,7 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
                     }
                 }
             } else {
-                val property = PropertyAbbreviationSelectorNode.parse(parser, result,
-                        PropertySelectorAnalyzer.signalEndFirstProperty) ?: throw AngmarParserException(
+                val property = PropertyAbbreviationSelectorNode.parse(parser, result) ?: throw AngmarParserException(
                         AngmarParserExceptionType.SelectorPropertyWithoutIdentifier,
                         "Selector properties require a property group or identifier after the start token '$token'.") {
                     val fullText = parser.reader.readAllText()
@@ -155,35 +154,35 @@ internal class PropertySelectorNode private constructor(parser: LexemParser, par
         /**
          * Parses a property of a selector for an Addition.
          */
-        fun parseForAddition(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertySelectorNode? {
+        fun parseForAddition(parser: LexemParser, parent: ParserNode): PropertySelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertySelectorNode(parser, parent, parentSignal)
+            val result = PropertySelectorNode(parser, parent)
             result.isAddition = true
 
             if (!parser.readText(token)) {
                 return null
             }
 
-            val property = PropertyAbbreviationSelectorNode.parseForAddition(parser, result,
-                    PropertySelectorAnalyzer.signalEndFirstProperty) ?: throw AngmarParserException(
-                    AngmarParserExceptionType.SelectorPropertyWithoutIdentifier,
-                    "Selector properties require a property group or identifier after the start token '$token'.") {
-                val fullText = parser.reader.readAllText()
-                addSourceCode(fullText, parser.reader.getSource()) {
-                    title = Consts.Logger.codeTitle
-                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                }
-                addSourceCode(fullText, null) {
-                    title = Consts.Logger.hintTitle
-                    highlightCursorAt(parser.reader.currentPosition())
-                    message = "Try adding an identifier or property group here"
-                }
-                addSourceCode(fullText, null) {
-                    title = Consts.Logger.hintTitle
-                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                    message = "Try removing the start token '$token'"
-                }
-            }
+            val property =
+                    PropertyAbbreviationSelectorNode.parseForAddition(parser, result) ?: throw AngmarParserException(
+                            AngmarParserExceptionType.SelectorPropertyWithoutIdentifier,
+                            "Selector properties require a property group or identifier after the start token '$token'.") {
+                        val fullText = parser.reader.readAllText()
+                        addSourceCode(fullText, parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                        }
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightCursorAt(parser.reader.currentPosition())
+                            message = "Try adding an identifier or property group here"
+                        }
+                        addSourceCode(fullText, null) {
+                            title = Consts.Logger.hintTitle
+                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                            message = "Try removing the start token '$token'"
+                        }
+                    }
 
             result.properties.add(property)
 

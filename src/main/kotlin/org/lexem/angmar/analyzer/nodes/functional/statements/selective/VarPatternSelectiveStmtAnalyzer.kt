@@ -6,10 +6,10 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.statements.*
-import org.lexem.angmar.parser.functional.statements.selective.*
 
 
 /**
@@ -21,7 +21,7 @@ internal object VarPatternSelectiveStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: VarPatternSelectiveStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: VarPatternSelectiveStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.identifier)
@@ -32,7 +32,7 @@ internal object VarPatternSelectiveStmtAnalyzer {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
 
                 // Check identifier if it is not a destructuring.
-                if (node.identifier !is DestructuringStmtNode) {
+                if (node.mustBeIdentifier) {
                     if (identifier !is LxmString) {
                         throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
                                 "The returned value by the identifier expression must be a ${StringType.TypeName}.") {
@@ -48,12 +48,14 @@ internal object VarPatternSelectiveStmtAnalyzer {
                             }
                         }
                     }
+
+                    context.setPropertyAsContext(analyzer.memory, identifier.primitive, mainValue,
+                            isConstant = node.isConstant)
                 }
-
                 // Perform the destructuring.
-                if (node.identifier is DestructuringStmtNode) {
+                else {
                     identifier as LxmDestructuring
-
+                    
                     when (val derefValue = mainValue.dereference(analyzer.memory, toWrite = false)) {
                         is LxmObject -> identifier.destructureObject(analyzer.memory, derefValue, context,
                                 node.isConstant)
@@ -69,11 +71,6 @@ internal object VarPatternSelectiveStmtAnalyzer {
                                     "The value is received from the ${SelectiveStmtNode.keyword} statement's condition. Review that value.")
                         }
                     }
-                } else {
-                    identifier as LxmString
-
-                    context.setPropertyAsContext(analyzer.memory, identifier.primitive, mainValue,
-                            isConstant = node.isConstant)
                 }
 
                 // Remove Last from the stack.

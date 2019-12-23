@@ -59,7 +59,7 @@ internal class DestructuringElementStmtNodeTest {
     @MethodSource("provideCorrectDestructuringElementStmt")
     fun `parse correct destructuring element statement`(text: String, hasOriginal: Boolean, isConstant: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as DestructuringElementStmtNode
@@ -86,7 +86,7 @@ internal class DestructuringElementStmtNodeTest {
                 AngmarParserExceptionType.DestructuringElementStatementWithoutIdentifierAfterAliasToken) {
             val text = "${IdentifierNodeTest.testExpression} ${DestructuringElementStmtNode.aliasToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -94,7 +94,7 @@ internal class DestructuringElementStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = DestructuringElementStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -2,15 +2,16 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.parser.*
 
 
 /**
  * Parser for quantifier lexemes.
  */
-internal class QuantifierLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class QuantifierLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var abbreviation: Char? = null
     var quantifier: ExplicitQuantifierLexemeNode? = null
     var modifier: Char? = null
@@ -41,8 +42,8 @@ internal class QuantifierLexemeNode private constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            QuantifierLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            QuantifierLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val lazyAbbreviation = "?"
@@ -55,12 +56,11 @@ internal class QuantifierLexemeNode private constructor(parser: LexemParser, par
         /**
          * Parses a quantifier lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifierLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): QuantifierLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = QuantifierLexemeNode(parser, parent, parentSignal)
+            val result = QuantifierLexemeNode(parser, parent)
 
-            val quantifier =
-                    ExplicitQuantifierLexemeNode.parse(parser, result, QuantifierLexemAnalyzer.endQuantifierSignal)
+            val quantifier = ExplicitQuantifierLexemeNode.parse(parser, result)
 
             if (quantifier != null) {
                 result.quantifier = quantifier

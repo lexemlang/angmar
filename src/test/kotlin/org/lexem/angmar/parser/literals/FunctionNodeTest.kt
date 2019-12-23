@@ -76,7 +76,7 @@ internal class FunctionNodeTest {
     @MethodSource("provideCorrectFunctionStmt")
     fun `parse correct function statement`(text: String, hasArguments: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionNode
@@ -104,7 +104,7 @@ internal class FunctionNodeTest {
     fun `parse incorrect function node without a block`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.FunctionWithoutBlock) {
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class FunctionNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

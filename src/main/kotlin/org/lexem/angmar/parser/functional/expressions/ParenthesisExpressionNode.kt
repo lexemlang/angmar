@@ -2,7 +2,7 @@ package org.lexem.angmar.parser.functional.expressions
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +12,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for parenthesis expressions i.e. (expression).
  */
-internal class ParenthesisExpressionNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class ParenthesisExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var expression: ParserNode
 
     override fun toString() = "$startToken$expression$endToken"
@@ -26,8 +26,7 @@ internal class ParenthesisExpressionNode private constructor(parser: LexemParser
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ParenthesisExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = expression.compile(parent, parentSignal)
 
     companion object {
         const val startToken = "("
@@ -38,9 +37,9 @@ internal class ParenthesisExpressionNode private constructor(parser: LexemParser
         /**
          * Parses a parenthesis expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParenthesisExpressionNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ParenthesisExpressionNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ParenthesisExpressionNode(parser, parent, parentSignal)
+            val result = ParenthesisExpressionNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -48,8 +47,7 @@ internal class ParenthesisExpressionNode private constructor(parser: LexemParser
 
             WhitespaceNode.parse(parser)
 
-            result.expression = ExpressionsCommons.parseExpression(parser, result,
-                    ParenthesisExpressionAnalyzer.signalEndExpression) ?: throw AngmarParserException(
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.ParenthesisExpressionWithoutExpression,
                     "An expression was expected after the open parenthesis '$startToken'.") {
                 val fullText = parser.reader.readAllText()

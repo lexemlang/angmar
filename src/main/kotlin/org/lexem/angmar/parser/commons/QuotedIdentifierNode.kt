@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.commons
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.commons.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.commons.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.commons.UnicodeEscapeNode.Companion.endBracket
 /**
  * Parser for quoted identifiers i.e `like this`.
  */
-internal class QuotedIdentifierNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class QuotedIdentifierNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val texts = mutableListOf<String>()
     val escapes = mutableListOf<ParserNode>()
 
@@ -37,8 +38,8 @@ internal class QuotedIdentifierNode private constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            QuotedIdentifierAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            QuotedIdentifierCompiler.compile(parent, parentSignal, this)
 
     companion object {
         const val startQuote = "`"
@@ -50,9 +51,9 @@ internal class QuotedIdentifierNode private constructor(parser: LexemParser, par
         /**
          * Parses a quoted identifier.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuotedIdentifierNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): QuotedIdentifierNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = QuotedIdentifierNode(parser, parent, parentSignal)
+            val result = QuotedIdentifierNode(parser, parent)
 
             if (!parser.readText(startQuote)) {
                 return null
@@ -61,8 +62,7 @@ internal class QuotedIdentifierNode private constructor(parser: LexemParser, par
             result.texts.add(readStringSection(parser) ?: "")
 
             while (true) {
-                result.escapes.add(Commons.parseSimpleEscape(parser, result,
-                        result.escapes.size + QuotedIdentifierAnalyzer.signalEndFirstEscape) ?: break)
+                result.escapes.add(Commons.parseSimpleEscape(parser, result) ?: break)
                 result.texts.add(readStringSection(parser) ?: "")
             }
 

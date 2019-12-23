@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for key-value pairs of object literals.
  */
-internal class ObjectElementNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ObjectElementNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var key: ParserNode
     lateinit var value: ParserNode
     var isConstant = false
@@ -39,8 +40,8 @@ internal class ObjectElementNode private constructor(parser: LexemParser, parent
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ObjectElementAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ObjectElementCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val constantToken = GlobalCommons.constantToken
@@ -52,12 +53,12 @@ internal class ObjectElementNode private constructor(parser: LexemParser, parent
         /**
          * Parses a key-value pair of object literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ObjectElementNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ObjectElementNode(parser, parent, parentSignal)
+            val result = ObjectElementNode(parser, parent)
 
             result.isConstant = parser.readText(constantToken)
-            result.key = Commons.parseDynamicIdentifier(parser, result, ObjectElementAnalyzer.signalEndKey) ?: let {
+            result.key = Commons.parseDynamicIdentifier(parser, result) ?: let {
                 if (result.isConstant) {
                     throw AngmarParserException(AngmarParserExceptionType.ObjectElementWithoutKeyAfterConstantToken,
                             "A key was expected after the constant token '$constantToken'.") {
@@ -98,21 +99,20 @@ internal class ObjectElementNode private constructor(parser: LexemParser, parent
 
             WhitespaceNode.parse(parser)
 
-            result.value = ExpressionsCommons.parseExpression(parser, result, ObjectElementAnalyzer.signalEndValue)
-                    ?: throw AngmarParserException(
-                            AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator,
-                            "An expression acting as value was expected after the relational separator '$keyValueSeparator'.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message = "Try adding an expression here"
-                        }
-                    }
+            result.value = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator,
+                    "An expression acting as value was expected after the relational separator '$keyValueSeparator'.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an expression here"
+                }
+            }
 
             return parser.finalizeNode(result, initCursor)
         }

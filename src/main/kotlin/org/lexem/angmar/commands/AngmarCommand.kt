@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.types.*
 import com.google.gson.*
 import es.jtp.kterm.*
 import org.lexem.angmar.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
@@ -62,13 +63,9 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
             "Parsing main grammar file: ${grammarSource.canonicalPath}"
         }
 
-        conditionalDebugLog(debug) {
-            "Parsing main grammar file: ${grammarSource.canonicalPath} - lines: ${grammarReader.readAllText().lines().size}"
-        }
-
         var grammarRootNode: LexemFileNode? = null
 
-        var time = TimeUtils.measureTimeSeconds {
+        val timeParsing = TimeUtils.measureTimeSeconds {
             try {
                 grammarRootNode = LexemFileNode.parse(parser)
             } catch (e: AngmarParserException) {
@@ -85,18 +82,45 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         }
 
         conditionalDebugLog(debug) {
-            "Finished in $time seconds"
+            "Finished in $timeParsing seconds"
+        }
+
+        // Compile the grammar.
+        conditionalDebugLog(debug) {
+            "Compiling main grammar file: ${grammarSource.canonicalPath}"
+        }
+
+        var compiledGrammarRootNode: LexemFileCompiled? = null
+
+        val timeCompiling = TimeUtils.measureTimeSeconds {
+            try {
+                compiledGrammarRootNode = LexemFileCompiled.compile(grammarRootNode!!)
+            } catch (e: AngmarCompilerException) {
+                e.logMessage()
+            }
+        }
+
+        if (grammarRootNode == null) {
+            Logger.error("Cannot compile the main grammar file (${grammarSource.canonicalPath})") {
+                showDate = true
+            }
+
+            return
+        }
+
+        conditionalDebugLog(debug) {
+            "Finished in $timeCompiling seconds"
         }
 
         // Analyze each of the texts with the parsed grammar.
-        val analyzer = LexemAnalyzer(grammarRootNode!!)
+        val analyzer = LexemAnalyzer(compiledGrammarRootNode!!)
         val results = mutableListOf<Pair<File, JsonObject?>>()
 
         conditionalDebugLog(debug) {
             "Executing the analysis:"
         }
 
-        time = TimeUtils.measureTimeSeconds {
+        val timeAnalyzing = TimeUtils.measureTimeSeconds {
             val count = texts.size.toString()
             for (i in texts.withIndex()) {
                 conditionalDebugLog(debug) {
@@ -104,7 +128,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                             count.length)}/$count] Analyzing file: ${i.value.canonicalPath}"
                 }
 
-                time = TimeUtils.measureTimeSeconds {
+                val timeFile = TimeUtils.measureTimeSeconds {
                     val textReader = IOStringReader.from(i.value)
 
                     analyzer.setEntryPoint(entryPoint)
@@ -162,13 +186,13 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                 }
 
                 conditionalDebugLog(debug) {
-                    "  [${(i.index + 1).toString().padStart(count.length)}/$count] Finished in $time seconds"
+                    "  [${(i.index + 1).toString().padStart(count.length)}/$count] Finished in $timeFile seconds"
                 }
             }
         }
 
         conditionalDebugLog(debug) {
-            "Finished in $time seconds"
+            "Finished in $timeAnalyzing seconds"
         }
 
         // Print the output.
@@ -176,7 +200,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
             "Printing the output:"
         }
 
-        time = TimeUtils.measureTimeSeconds {
+        val timeWritingOutput = TimeUtils.measureTimeSeconds {
             val count = results.size.toString()
             val printer = JsonObject()
 
@@ -187,12 +211,12 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                             count.length)}/$count] Printings file: ${fileAndResults.first.canonicalPath}"
                 }
 
-                time = TimeUtils.measureTimeSeconds {
+                val timeFile = TimeUtils.measureTimeSeconds {
                     printer.add(fileAndResults.first.canonicalPath, fileAndResults.second)
                 }
 
                 conditionalDebugLog(debug) {
-                    "  [${(i.index + 1).toString().padStart(count.length)}/$count] Finished in $time seconds"
+                    "  [${(i.index + 1).toString().padStart(count.length)}/$count] Finished in $timeFile seconds"
                 }
             }
 
@@ -204,7 +228,29 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         }
 
         conditionalDebugLog(debug) {
-            "Finished in $time seconds"
+            "Finished in $timeWritingOutput seconds"
+        }
+
+        val statsFull = """
+                Parsing main grammar:   ${timeParsing}s
+                Compiling main grammar: ${timeCompiling}s
+                Analyzing grammar:      ${timeAnalyzing}s
+                  - Average by file:    ${timeAnalyzing / texts.size}s
+                Writing output:         ${timeWritingOutput}s
+                  - Average by file:    ${timeWritingOutput / texts.size}s
+            """.trimIndent()
+        val statsEnd = """
+                Total:                  ${timeParsing + timeCompiling + timeAnalyzing + timeWritingOutput}s
+            """.trimIndent()
+        Logger.info("Summary") {
+            showDate = true
+            addSourceCode(statsFull) {
+                title = "Stats"
+                highlightSection(0, statsFull.length - 1)
+            }
+            addSourceCode(statsEnd) {
+                highlightSection(0, statsEnd.length - 1)
+            }
         }
     }
 
@@ -214,8 +260,6 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         const val AngmarCommand = "angmar"
 
         const val debugLongOption = "--debug"
-        const val forwardBufferShortOption = "-dfb"
-        const val forwardBufferLongOption = "--disable-forward-buffer"
         const val entryPointLongOption = "--entry-point"
         const val timeoutLongOption = "--timeout"
         const val keepDefaultPropertiesInOutputShortOption = "-kdp"

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes.anchors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,8 +16,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for absolute anchor lexemes.
  */
-internal class AbsoluteAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class AbsoluteAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var elements = mutableListOf<AbsoluteElementAnchorLexemeNode>()
 
@@ -39,8 +40,8 @@ internal class AbsoluteAnchorLexemeNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AbsoluteAnchorLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AbsoluteAnchorLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -52,9 +53,9 @@ internal class AbsoluteAnchorLexemeNode private constructor(parser: LexemParser,
         /**
          * Parses an absolute anchor lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AbsoluteAnchorLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AbsoluteAnchorLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AbsoluteAnchorLexemeNode(parser, parent, parentSignal)
+            val result = AbsoluteAnchorLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
@@ -66,8 +67,7 @@ internal class AbsoluteAnchorLexemeNode private constructor(parser: LexemParser,
             WhitespaceNode.parse(parser)
 
             while (true) {
-                val element = AbsoluteElementAnchorLexemeNode.parse(parser, result,
-                        result.elements.size + AbsoluteAnchorLexemeAnalyzer.signalEndFirstElement) ?: break
+                val element = AbsoluteElementAnchorLexemeNode.parse(parser, result) ?: break
 
                 result.elements.add(element)
 

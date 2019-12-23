@@ -3,7 +3,7 @@ package org.lexem.angmar.analyzer.nodes.literals
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -14,7 +14,7 @@ internal object SetAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SetNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SetCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.list)
@@ -29,7 +29,7 @@ internal object SetAnalyzer {
 
                 analyzer.memory.replaceLastStackCell(set)
 
-                if (node.list.isConstant) {
+                if (list.isConstant) {
                     set.makeConstant(analyzer.memory)
                 }
             }

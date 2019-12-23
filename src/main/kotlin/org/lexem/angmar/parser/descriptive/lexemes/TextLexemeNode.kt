@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for text lexemes.
  */
-internal class TextLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class TextLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var propertyPostfix: LexemPropertyPostfixNode? = null
     lateinit var text: StringNode
@@ -39,7 +40,8 @@ internal class TextLexemeNode private constructor(parser: LexemParser, parent: P
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = TextLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            TextLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -49,13 +51,13 @@ internal class TextLexemeNode private constructor(parser: LexemParser, parent: P
         /**
          * Parses a text lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): TextLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): TextLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = TextLexemeNode(parser, parent, parentSignal)
+            val result = TextLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
-            val text = StringNode.parse(parser, result, TextLexemAnalyzer.signalEndText)
+            val text = StringNode.parse(parser, result)
             if (text == null) {
                 initCursor.restore()
                 return null
@@ -63,8 +65,7 @@ internal class TextLexemeNode private constructor(parser: LexemParser, parent: P
 
             result.text = text
 
-            result.propertyPostfix =
-                    LexemPropertyPostfixNode.parse(parser, result, TextLexemAnalyzer.signalEndPropertyPostfix)
+            result.propertyPostfix = LexemPropertyPostfixNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

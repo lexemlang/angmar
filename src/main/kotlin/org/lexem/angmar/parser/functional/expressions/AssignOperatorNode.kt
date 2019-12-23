@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 
@@ -10,8 +11,8 @@ import org.lexem.angmar.parser.functional.expressions.binary.*
 /**
  * Parser for assign operators.
  */
-internal class AssignOperatorNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class AssignOperatorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var operator = ""
 
     override fun toString() = "$operator$assignOperator"
@@ -24,8 +25,7 @@ internal class AssignOperatorNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AssignOperatorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = throw AngmarUnreachableException()
 
     companion object {
         const val assignOperator = "="
@@ -39,9 +39,9 @@ internal class AssignOperatorNode private constructor(parser: LexemParser, paren
         /**
          * Parses an assign operator.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AssignOperatorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AssignOperatorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AssignOperatorNode(parser, parent, parentSignal)
+            val result = AssignOperatorNode(parser, parent)
 
             result.operator = ExpressionsCommons.readOperator(parser, operators)?.removeSuffix(assignOperator)
                     ?: ExpressionsCommons.readOperator(parser, assignOperatorSequence,

@@ -62,7 +62,7 @@ internal class RelationalExpressionNodeTest {
     @MethodSource("provideCorrectExpression")
     fun `parse correct relational expression`(text: String, operator: String, numExpressions: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 
@@ -90,7 +90,7 @@ internal class RelationalExpressionNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.RelationalExpressionWithoutExpressionAfterOperator) {
             val text = "${LogicalExpressionNodeTest.testExpression}${RelationalExpressionNode.identityOperator}"
             val parser = LexemParser(IOStringReader.from(text))
-            RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -98,7 +98,7 @@ internal class RelationalExpressionNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = RelationalExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

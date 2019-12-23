@@ -2,15 +2,16 @@ package org.lexem.angmar.parser.functional.expressions
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
 
 
 /**
  * Parser for prefix operators.
  */
-internal class PrefixOperatorNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class PrefixOperatorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var operator = ""
 
     override fun toString() = operator
@@ -23,8 +24,7 @@ internal class PrefixOperatorNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            PrefixOperatorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = throw AngmarUnreachableException()
 
     companion object {
         const val bitwiseNegationOperator = "~"
@@ -38,9 +38,9 @@ internal class PrefixOperatorNode private constructor(parser: LexemParser, paren
         /**
          * Parses a prefix operator
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PrefixOperatorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): PrefixOperatorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PrefixOperatorNode(parser, parent, parentSignal)
+            val result = PrefixOperatorNode(parser, parent)
 
             result.operator = ExpressionsCommons.readPrefixOperator(parser, operators.asSequence()) ?: return null
 

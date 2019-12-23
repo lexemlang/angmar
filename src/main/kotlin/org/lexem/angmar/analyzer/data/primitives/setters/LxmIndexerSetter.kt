@@ -5,9 +5,9 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 /**
  * A setter for an element.
@@ -15,11 +15,11 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 internal class LxmIndexerSetter : LexemSetter {
     val element: LexemPrimitive
     val index: LexemPrimitive
-    val node: IndexerNode
+    val node: IndexerCompiled
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerNode, memory: LexemMemory) {
+    constructor(element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerCompiled, memory: LexemMemory) {
         this.element = element.getPrimitive()
         this.index = index.getPrimitive()
         this.node = node

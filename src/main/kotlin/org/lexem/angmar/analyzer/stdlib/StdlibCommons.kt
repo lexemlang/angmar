@@ -10,7 +10,8 @@ import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.globals.*
 import org.lexem.angmar.analyzer.stdlib.prototypes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 
 /**
  * The common functions of the Lexem's standard library.
@@ -72,15 +73,16 @@ internal object StdlibCommons {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
         positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal, callerNode = function.node,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+                LxmCodePoint(InternalFunctionCallCompiled, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 
     /**
      * Calls the toString method of a value.
      */
-    fun callToString(analyzer: LexemAnalyzer, value: LexemMemoryValue, returnSignal: Int, functionName: String) {
+    fun callToString(analyzer: LexemAnalyzer, value: LexemMemoryValue, returnNode: CompiledNode, returnSignal: Int,
+            functionName: String) {
         val prototype = value.dereference(analyzer.memory, toWrite = false)
                 .getPrototypeAsObject(analyzer.memory, toWrite = false)
         val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!.dereference(
@@ -89,8 +91,8 @@ internal object StdlibCommons {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallNode,
-                LxmCodePoint(InternalFunctionCallNode, returnSignal, callerNode = function.node,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+                LxmCodePoint(returnNode, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }
 }

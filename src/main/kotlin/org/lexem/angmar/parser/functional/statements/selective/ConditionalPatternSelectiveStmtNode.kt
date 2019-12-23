@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.selective
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.selective.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for conditional patterns of the selective statements.
  */
-internal class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class ConditionalPatternSelectiveStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var condition: ParserNode
     var isUnless = false
 
@@ -38,8 +39,8 @@ internal class ConditionalPatternSelectiveStmtNode private constructor(parser: L
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ConditionalPatternSelectiveStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ConditionalPatternSelectiveStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val ifKeyword = ConditionalStmtNode.ifKeyword
@@ -51,9 +52,9 @@ internal class ConditionalPatternSelectiveStmtNode private constructor(parser: L
         /**
          * Parses a conditional pattern of the selective statements.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalPatternSelectiveStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ConditionalPatternSelectiveStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ConditionalPatternSelectiveStmtNode(parser, parent, parentSignal)
+            val result = ConditionalPatternSelectiveStmtNode(parser, parent)
 
             var conditionalKeyword = ifKeyword
             result.isUnless = when {
@@ -67,8 +68,7 @@ internal class ConditionalPatternSelectiveStmtNode private constructor(parser: L
 
             WhitespaceNode.parse(parser)
 
-            result.condition = ExpressionsCommons.parseExpression(parser, result,
-                    ConditionalPatternSelectiveStmtAnalyzer.signalEndCondition) ?: throw AngmarParserException(
+            result.condition = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.ConditionalPatternSelectiveStatementWithoutCondition,
                     "An expression was expected after the conditional keyword '$conditionalKeyword' to act as the condition.") {
                 val fullText = parser.reader.readAllText()

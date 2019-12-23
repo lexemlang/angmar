@@ -131,6 +131,18 @@ internal class LxmDestructuring : LexemPrimitive {
         return setVars
     }
 
+    /**
+     * Creates a new [LxmDestructuring] with the same values of the current one.
+     */
+    fun clone(): LxmDestructuring {
+        val result = LxmDestructuring()
+        result.alias = alias
+        result.elements.addAll(elements)
+        result.spread = spread
+
+        return result
+    }
+
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()

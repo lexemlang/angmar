@@ -84,7 +84,7 @@ internal class FunctionCallNodeTest {
     fun `parse correct function call`(text: String, positionalCount: Int, namedCount: Int, spreadCount: Int,
             hasExpressionProperties: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionCallNode
@@ -122,7 +122,7 @@ internal class FunctionCallNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator) {
             val text = "${FunctionCallNode.startToken}${FunctionCallNode.spreadOperator}${FunctionCallNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -132,7 +132,7 @@ internal class FunctionCallNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.FunctionCallWithoutEndToken) {
             val text = FunctionCallNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -140,7 +140,7 @@ internal class FunctionCallNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionCallNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

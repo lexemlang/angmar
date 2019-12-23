@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.parser.commons.*
@@ -20,7 +21,7 @@ internal object RelativeElementAnchorLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RelativeElementAnchorLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RelativeElementAnchorLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 val isStart = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.AnchorIsStart) as LxmLogic

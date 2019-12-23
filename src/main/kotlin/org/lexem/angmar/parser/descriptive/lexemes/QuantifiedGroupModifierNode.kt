@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for quantified block modifier.
  */
-internal class QuantifiedGroupModifierNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class QuantifiedGroupModifierNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var minimum: ParserNode? = null
     var hasMaximum: Boolean = false
     var maximum: ParserNode? = null
@@ -48,8 +49,8 @@ internal class QuantifiedGroupModifierNode private constructor(parser: LexemPars
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            QuantifiedGroupModifierAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            QuantifiedGroupModifierCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = ExplicitQuantifierLexemeNode.startToken
@@ -61,9 +62,9 @@ internal class QuantifiedGroupModifierNode private constructor(parser: LexemPars
         /**
          * Parses a quantified block modifier.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedGroupModifierNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): QuantifiedGroupModifierNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = QuantifiedGroupModifierNode(parser, parent, parentSignal)
+            val result = QuantifiedGroupModifierNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -71,8 +72,7 @@ internal class QuantifiedGroupModifierNode private constructor(parser: LexemPars
 
             WhitespaceNode.parse(parser)
 
-            result.minimum =
-                    ExpressionsCommons.parseExpression(parser, result, QuantifiedGroupModifierAnalyzer.signalEndMinimum)
+            result.minimum = ExpressionsCommons.parseExpression(parser, result)
 
             if (result.minimum != null) {
                 WhitespaceNode.parse(parser)
@@ -85,8 +85,7 @@ internal class QuantifiedGroupModifierNode private constructor(parser: LexemPars
 
                 WhitespaceNode.parse(parser)
 
-                result.maximum = ExpressionsCommons.parseExpression(parser, result,
-                        QuantifiedGroupModifierAnalyzer.signalEndMaximum)
+                result.maximum = ExpressionsCommons.parseExpression(parser, result)
 
                 if (result.minimum == null && result.maximum == null) {
                     WhitespaceNode.parse(parser)

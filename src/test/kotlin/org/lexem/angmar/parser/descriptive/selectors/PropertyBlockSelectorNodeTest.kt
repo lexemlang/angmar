@@ -69,7 +69,7 @@ internal class PropertyBlockSelectorNodeTest {
     @MethodSource("provideSimpleBlock")
     fun `parse correct simple block`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyBlockSelectorNode
@@ -85,7 +85,7 @@ internal class PropertyBlockSelectorNodeTest {
     @MethodSource("provideSimpleBlock")
     fun `parse correct simple block - for addition`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyBlockSelectorNode
@@ -101,7 +101,7 @@ internal class PropertyBlockSelectorNodeTest {
     @MethodSource("provideBlockWithAlias")
     fun `parse correct block with alias`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyBlockSelectorNode
@@ -120,7 +120,7 @@ internal class PropertyBlockSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition) {
             val text = "${PropertyBlockSelectorNode.startToken}${PropertyBlockSelectorNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -130,7 +130,7 @@ internal class PropertyBlockSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition) {
             val text = "${PropertyBlockSelectorNode.startToken}${PropertyBlockSelectorNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -140,7 +140,7 @@ internal class PropertyBlockSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutEndToken) {
             val text = "${PropertyBlockSelectorNode.startToken}${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -150,7 +150,7 @@ internal class PropertyBlockSelectorNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutEndToken) {
             val text = "${PropertyBlockSelectorNode.startToken}${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyBlockSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -158,7 +158,7 @@ internal class PropertyBlockSelectorNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyBlockSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

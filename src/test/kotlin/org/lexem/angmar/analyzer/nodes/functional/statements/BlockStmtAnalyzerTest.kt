@@ -23,19 +23,26 @@ internal class BlockStmtAnalyzerTest {
 
     @Test
     fun `test empty block with tag`() {
+        val variableName = "testVariable"
         val tagName = "tag"
-        val text = "${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName ${BlockStmtNode.endToken}"
+        val text =
+                "${BlockStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagName $variableName ${BlockStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = BlockStmtNode.Companion::parse)
+
+        // Prepare context.
+        var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, variableName, LxmString.from(tagName))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+        context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val contextName =
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
 
         Assertions.assertEquals(tagName, contextName.primitive, "The contextName is incorrect")
 
-        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenContextTag))
+        TestUtils.checkEmptyStackAndContext(analyzer,
+                listOf(variableName, AnalyzerCommons.Identifiers.HiddenContextTag))
     }
 
     @Test

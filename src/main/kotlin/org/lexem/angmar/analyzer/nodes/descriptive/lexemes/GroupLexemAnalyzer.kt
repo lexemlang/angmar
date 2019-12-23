@@ -7,7 +7,7 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 
 
 /**
@@ -20,7 +20,7 @@ internal object GroupLexemAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: GroupLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: GroupLexemeCompiled) {
         val signalBadPattern = signalEndFirstPattern + node.patterns.size + 1
 
         when (signal) {
@@ -51,7 +51,7 @@ internal object GroupLexemAnalyzer {
                 } else {
                     // Set the quantifier.
                     val patternUnion =
-                            LxmPatternUnion(LxmQuantifier.AlternativePattern, LxmInteger.Num0, analyzer.memory)
+                            LxmPatternUnion(analyzer.memory, LxmQuantifier.AlternativePattern, LxmInteger.Num0)
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, patternUnion)
 
                     // Create the node.
@@ -79,7 +79,7 @@ internal object GroupLexemAnalyzer {
                     analyzer.initBacktracking()
                 }
             }
-            in signalEndFirstPattern until signalEndFirstPattern + node.patterns.size -> {
+            in signalEndFirstPattern..signalEndFirstPattern + node.patterns.size -> {
                 val position = (signal - signalEndFirstPattern) + 1
 
                 // Increase index.
@@ -104,7 +104,7 @@ internal object GroupLexemAnalyzer {
                     analyzer.initBacktracking()
                 }
             }
-            in signalBadPattern until signalBadPattern + node.patterns.size -> {
+            in signalBadPattern..signalBadPattern + node.patterns.size -> {
                 val position = (signal - signalBadPattern) + 1
 
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
@@ -143,7 +143,7 @@ internal object GroupLexemAnalyzer {
     /**
      * Process the finalization of the node.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: GroupLexemeNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: GroupLexemeCompiled) {
         // Check negation.
         if (node.isNegated) {
             val lastNode = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LastNode) as LxmBigNode

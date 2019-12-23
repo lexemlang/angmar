@@ -15,7 +15,7 @@ internal class QuotedIdentifierNodeTest {
     fun `parse simple quoted identifier`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuotedIdentifierNode
@@ -34,7 +34,7 @@ internal class QuotedIdentifierNodeTest {
     fun `parse complex quoted identifier`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuotedIdentifierNode
@@ -53,7 +53,7 @@ internal class QuotedIdentifierNodeTest {
     fun `parse complex quoted identifier with escapes`(id: String) {
         val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuotedIdentifierNode
@@ -82,7 +82,7 @@ internal class QuotedIdentifierNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersEmpty) {
             val text = "${QuotedIdentifierNode.startQuote}${QuotedIdentifierNode.endQuote}"
             val parser = LexemParser(IOStringReader.from(text))
-            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -93,7 +93,7 @@ internal class QuotedIdentifierNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersMultilineNotAllowed) {
             val text = "${QuotedIdentifierNode.startQuote}$id${QuotedIdentifierNode.endQuote}"
             val parser = LexemParser(IOStringReader.from(text))
-            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -104,7 +104,7 @@ internal class QuotedIdentifierNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuotedIdentifiersWithoutEndQuote) {
             val text = "${QuotedIdentifierNode.startQuote}$id"
             val parser = LexemParser(IOStringReader.from(text))
-            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class QuotedIdentifierNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuotedIdentifierNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

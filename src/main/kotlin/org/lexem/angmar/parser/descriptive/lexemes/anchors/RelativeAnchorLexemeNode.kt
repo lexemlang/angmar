@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes.anchors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,8 +16,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for relative anchor lexemes.
  */
-internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var elements = mutableListOf<RelativeElementAnchorLexemeNode>()
     lateinit var type: RelativeAnchorType
@@ -45,8 +46,8 @@ internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            RelativeAnchorLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            RelativeAnchorLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -62,9 +63,9 @@ internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser,
         /**
          * Parses a relative anchor lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): RelativeAnchorLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): RelativeAnchorLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = RelativeAnchorLexemeNode(parser, parent, parentSignal)
+            val result = RelativeAnchorLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
@@ -85,8 +86,7 @@ internal class RelativeAnchorLexemeNode private constructor(parser: LexemParser,
                         WhitespaceNode.parse(parser)
 
                         while (true) {
-                            val element = RelativeElementAnchorLexemeNode.parse(parser, result,
-                                    result.elements.size + RelativeAnchorLexemeAnalyzer.signalEndFirstElement) ?: break
+                            val element = RelativeElementAnchorLexemeNode.parse(parser, result) ?: break
 
                             result.elements.add(element)
 

@@ -43,7 +43,7 @@ internal class MacroExpressionNodeTest {
     @MethodSource("provideCorrectMacros")
     fun `parse correct macro expression`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MacroExpressionNode
@@ -57,7 +57,7 @@ internal class MacroExpressionNodeTest {
     @ValueSource(strings = ["", "3", "no_macro!"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MacroExpressionNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

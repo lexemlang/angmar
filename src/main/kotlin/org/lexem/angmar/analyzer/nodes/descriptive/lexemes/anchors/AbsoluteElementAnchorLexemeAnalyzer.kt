@@ -4,6 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.descriptive.lexemes.anchors.*
@@ -17,7 +18,7 @@ internal object AbsoluteElementAnchorLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AbsoluteElementAnchorLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AbsoluteElementAnchorLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.expression)

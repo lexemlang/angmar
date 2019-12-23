@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,12 +16,12 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for quantified group lexemes.
  */
-internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
-    var isNegated = false
+internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var mainModifier: QuantifiedGroupModifierNode? = null
     val patterns = mutableListOf<LexemePatternContentNode>()
     val modifiers = mutableListOf<QuantifierLexemeNode?>()
+    var isNegated = false
 
     override fun toString() = StringBuilder().apply {
         if (isNegated) {
@@ -56,8 +57,8 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            QuantifiedGroupLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            QuantifiedGroupLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -70,9 +71,9 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
         /**
          * Parses a quantified group lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): QuantifiedGroupLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): QuantifiedGroupLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = QuantifiedGroupLexemeNode(parser, parent, parentSignal)
+            val result = QuantifiedGroupLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
@@ -81,15 +82,13 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
                 return null
             }
 
-            result.mainModifier = QuantifiedGroupModifierNode.parse(parser, result,
-                    QuantifiedGroupLexemAnalyzer.signalEndMainModifier)
+            result.mainModifier = QuantifiedGroupModifierNode.parse(parser, result)
 
             WhitespaceNode.parse(parser)
 
             // Patterns and modifiers
             while (true) {
-                val pattern = LexemePatternContentNode.parse(parser, result,
-                        result.patterns.size + QuantifiedGroupLexemAnalyzer.signalEndFirstPattern) ?: break
+                val pattern = LexemePatternContentNode.parse(parser, result) ?: break
 
                 WhitespaceNode.parse(parser)
 
@@ -114,8 +113,7 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
                     }
                 }
 
-                val modifier = QuantifierLexemeNode.parse(parser, result,
-                        result.modifiers.size + QuantifiedGroupLexemAnalyzer.signalEndFirstPattern)
+                val modifier = QuantifierLexemeNode.parse(parser, result)
 
                 result.patterns.add(pattern)
                 result.modifiers.add(modifier)
@@ -157,14 +155,6 @@ internal class QuantifiedGroupLexemeNode private constructor(parser: LexemParser
                         highlightCursorAt(parser.reader.currentPosition())
                         message = "Try adding the close parenthesis '$endToken' here"
                     }
-                }
-            }
-
-            // Add the offset to the modifiers.
-            val offset = result.patterns.size
-            for (i in result.modifiers) {
-                if (i != null) {
-                    i.parentSignal += offset
                 }
             }
 

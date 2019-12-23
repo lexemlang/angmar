@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.macros
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.macros.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.macros.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
@@ -10,8 +11,8 @@ import org.lexem.angmar.parser.functional.expressions.modifiers.*
 /**
  * Parser for macro 'backtrack'.
  */
-internal class MacroBacktrackNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class MacroBacktrackNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var arguments: FunctionCallNode? = null
 
     override fun toString() = StringBuilder().apply {
@@ -30,8 +31,8 @@ internal class MacroBacktrackNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            MacroBacktrackAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            MacroBacktrackCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val macroName = "backtrack${MacroExpressionNode.macroSuffix}"
@@ -41,16 +42,16 @@ internal class MacroBacktrackNode private constructor(parser: LexemParser, paren
         /**
          * Parses a macro 'backtrack'.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MacroBacktrackNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): MacroBacktrackNode? {
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(macroName)) {
                 return null
             }
 
-            val result = MacroBacktrackNode(parser, parent, parentSignal)
+            val result = MacroBacktrackNode(parser, parent)
 
-            result.arguments = FunctionCallNode.parse(parser, result, MacroBacktrackAnalyzer.signalEndValue)
+            result.arguments = FunctionCallNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

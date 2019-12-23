@@ -73,7 +73,7 @@ internal class QuantifierLexemeNodeTest {
     @MethodSource("provideAbbreviation")
     fun `parse correct abbreviation`(text: String, abbreviation: Char, modifier: Char?) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuantifierLexemeNode
@@ -89,7 +89,7 @@ internal class QuantifierLexemeNodeTest {
     @MethodSource("provideNodes")
     fun `parse correct nodes`(text: String, modifier: Char?) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as QuantifierLexemeNode
@@ -106,7 +106,7 @@ internal class QuantifierLexemeNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = QuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

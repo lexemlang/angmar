@@ -8,6 +8,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.commands.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
@@ -119,6 +120,25 @@ object TestUtils {
     }
 
     /**
+     * Ensures an [AngmarCompilerException] or throws an error.
+     */
+    internal inline fun assertCompilerException(type: AngmarCompilerExceptionType?, print: Boolean = true,
+            fn: () -> Unit) {
+        try {
+            fn()
+            throw Exception("This method should throw an assertCompilerException")
+        } catch (e: AngmarCompilerException) {
+            if (type != null && e.type != type) {
+                throw AngmarException("The expected assertCompilerException was $type but it is ${e.type}", e)
+            }
+
+            if (print) {
+                e.logMessage()
+            }
+        }
+    }
+
+    /**
      * Ensures an [AngmarAnalyzerException] that raise the [AngmarAnalyzerExceptionType.TestControlSignalRaised] type.
      */
     internal inline fun assertControlSignalRaisedCheckingStack(analyzer: LexemAnalyzer, control: String,
@@ -149,35 +169,52 @@ object TestUtils {
     /**
      * Creates a correct [LexemMemory] from an analyzer.
      */
-    internal fun generateTestMemoryFromAnalyzer() = LexemAnalyzer(ParserNode.Companion.EmptyParserNode).memory
+    internal fun generateTestMemoryFromAnalyzer() = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode).memory
 
     /**
      * Creates an analyzer from the specified parameter.
      */
     internal fun createAnalyzerFrom(grammarText: String, isDescriptiveCode: Boolean = false,
-            isFilterCode: Boolean = false,
-            parserFunction: (LexemParser, ParserNode, Int) -> ParserNode?): LexemAnalyzer {
-        val parser = LexemParser(IOStringReader.from(grammarText))
+            isFilterCode: Boolean = false, source: String = "",
+            parserFunction: (LexemParser, ParserNode) -> ParserNode?): LexemAnalyzer {
+        val parser = LexemParser(IOStringReader.from(grammarText, source))
         parser.isDescriptiveCode = isDescriptiveCode || isFilterCode
         parser.isFilterCode = isFilterCode
-        val grammar = parserFunction(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val grammar = parserFunction(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(grammar, "The grammar cannot be null")
 
-        return LexemAnalyzer(grammar!!)
+        val compiledGrammar = grammar!!.compile(CompiledNode.Companion.EmptyCompiledNode, 0)
+
+        return LexemAnalyzer(compiledGrammar)
+    }
+
+    /**
+     * Creates an analyzer from the specified parameter.
+     */
+    internal fun createAnalyzerFromWholeGrammar(grammarText: String, source: String = ""): LexemAnalyzer {
+        val parser = LexemParser(IOStringReader.from(grammarText, source))
+        val grammar = LexemFileNode.parse(parser)
+
+        Assertions.assertNotNull(grammar, "The grammar cannot be null")
+
+        val compiledGrammar = LexemFileCompiled.compile(grammar!!)
+
+        return LexemAnalyzer(compiledGrammar)
     }
 
     /**
      * Creates an analyzer from the specified file.
      */
-    internal fun createAnalyzerFromFile(filePath: String,
-            parserFunction: (LexemParser, ParserNode, Int) -> ParserNode?): LexemAnalyzer {
-        val parser = LexemParser(IOStringReader.from(File(filePath)))
-        val grammar = parserFunction(parser, ParserNode.Companion.EmptyParserNode, 0)
+    internal fun createAnalyzerFromFile(file: File): LexemAnalyzer {
+        val parser = LexemParser(IOStringReader.from(file))
+        val grammar = LexemFileNode.parse(parser)
 
         Assertions.assertNotNull(grammar, "The grammar cannot be null")
 
-        return LexemAnalyzer(grammar!!)
+        val compiledGrammar = LexemFileCompiled.compile(grammar!!)
+
+        return LexemAnalyzer(compiledGrammar)
     }
 
     /**
@@ -305,9 +342,7 @@ object TestUtils {
         val varName = "test"
         val grammar =
                 "$preFunctionCall \n $varName ${AssignOperatorNode.assignOperator} $functionCall \n $postFunctionCall"
-        val analyzer = createAnalyzerFrom(grammar) { parser, _, _ ->
-            LexemFileNode.parse(parser)
-        }
+        val analyzer = createAnalyzerFromWholeGrammar(grammar)
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)

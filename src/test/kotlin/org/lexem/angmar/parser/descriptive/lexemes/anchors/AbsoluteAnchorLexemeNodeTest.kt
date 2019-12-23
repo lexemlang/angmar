@@ -73,7 +73,7 @@ internal class AbsoluteAnchorLexemeNodeTest {
     @MethodSource("provideNodes")
     fun `parse correct node`(text: String, isNegative: Boolean, anchorCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as AbsoluteAnchorLexemeNode
@@ -94,7 +94,7 @@ internal class AbsoluteAnchorLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.AbsoluteAnchorGroupWithoutAnchors) {
             val text = "${AbsoluteAnchorLexemeNode.startToken}${AbsoluteAnchorLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -104,7 +104,7 @@ internal class AbsoluteAnchorLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.AbsoluteAnchorGroupWithoutEndToken) {
             val text = "${AbsoluteAnchorLexemeNode.startToken}${AbsoluteElementAnchorLexemeNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class AbsoluteAnchorLexemeNodeTest {
     @ValueSource(strings = ["", AbsoluteAnchorLexemeNode.notOperator])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = AbsoluteAnchorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -2,8 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.modifiers
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.FunctionCallAnalyzer.signalEndPropertiesExpression
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for function call i.e. element(expression).
  */
-internal class FunctionCallNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class FunctionCallNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val positionalArguments = mutableListOf<ParserNode>()
     val namedArguments = mutableListOf<FunctionCallNamedArgumentNode>()
     val spreadArguments = mutableListOf<ParserNode>()
@@ -45,8 +45,8 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            FunctionCallAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            FunctionCallCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "("
@@ -59,9 +59,9 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
         /**
          * Parses a function expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionCallNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): FunctionCallNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionCallNode(parser, parent, parentSignal)
+            val result = FunctionCallNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -84,8 +84,7 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = ExpressionsCommons.parseExpression(parser, result,
-                        result.positionalArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
+                val argument = ExpressionsCommons.parseExpression(parser, result)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break
@@ -122,8 +121,7 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = FunctionCallNamedArgumentNode.parse(parser, result,
-                        result.positionalArguments.size + result.namedArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
+                val argument = FunctionCallNamedArgumentNode.parse(parser, result)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break
@@ -153,22 +151,20 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
                     break
                 }
 
-                val argument = ExpressionsCommons.parseExpression(parser, result,
-                        result.positionalArguments.size + result.namedArguments.size + result.spreadArguments.size + FunctionCallAnalyzer.signalEndFirstArgument)
-                        ?: throw AngmarParserException(
-                                AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator,
-                                "An expression was expected after the spread operator '$spreadOperator'.") {
-                            val fullText = parser.reader.readAllText()
-                            addSourceCode(fullText, parser.reader.getSource()) {
-                                title = Consts.Logger.codeTitle
-                                highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                            }
-                            addSourceCode(fullText, null) {
-                                title = Consts.Logger.hintTitle
-                                highlightCursorAt(parser.reader.currentPosition())
-                                message = "Try adding an expression here"
-                            }
-                        }
+                val argument = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                        AngmarParserExceptionType.FunctionCallWithoutExpressionAfterSpreadOperator,
+                        "An expression was expected after the spread operator '$spreadOperator'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(parser.reader.currentPosition())
+                        message = "Try adding an expression here"
+                    }
+                }
 
                 result.spreadArguments.add(argument)
                 prev = true
@@ -204,8 +200,7 @@ internal class FunctionCallNode private constructor(parser: LexemParser, parent:
                 }
             }
 
-            result.propertiesExpression =
-                    FunctionCallExpressionPropertiesNode.parse(parser, result, signalEndPropertiesExpression)
+            result.propertiesExpression = FunctionCallExpressionPropertiesNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

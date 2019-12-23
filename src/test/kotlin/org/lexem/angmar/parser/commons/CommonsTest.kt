@@ -40,7 +40,7 @@ internal class CommonsTest {
     fun `parse correct unicode-like escape`(number: String) {
         val text = "${UnicodeEscapeNode.escapeStart}$number"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeEscapeNode
@@ -55,7 +55,7 @@ internal class CommonsTest {
     fun `parse correct escape`(escapeLetter: String) {
         val text = "${EscapeNode.startToken}$escapeLetter"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = Commons.parseAnyEscape(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapeNode
@@ -70,7 +70,7 @@ internal class CommonsTest {
     fun `parse correct dynamic identifier - escaped expression`(expression: String) {
         val text = "${EscapedExpressionNode.startToken}$expression${EscapedExpressionNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as EscapedExpressionNode
@@ -84,7 +84,7 @@ internal class CommonsTest {
     @ValueSource(strings = ["a", "test"])
     fun `parse correct dynamic identifier - simple identifier`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = Commons.parseDynamicIdentifier(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IdentifierNode

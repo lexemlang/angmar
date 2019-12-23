@@ -3,9 +3,7 @@ package org.lexem.angmar.analyzer.nodes.literals
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
-import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
 import java.lang.Math.*
@@ -291,16 +289,5 @@ internal class NumberAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
-    @Incorrect
-    fun `test too long number`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.NumberOverflow) {
-            val text = "8174509634562345692364592360456293456923"
-            val analyzer = TestUtils.createAnalyzerFrom(text,
-                    parserFunction = NumberNode.Companion::parseAnyNumberDefaultDecimal)
-            TestUtils.processAndCheckEmpty(analyzer)
-        }
     }
 }

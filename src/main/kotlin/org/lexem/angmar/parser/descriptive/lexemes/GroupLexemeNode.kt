@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -15,8 +16,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for group lexemes.
  */
-internal class GroupLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class GroupLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var isFilterCode = false
     var header: GroupHeaderLexemeNode? = null
@@ -50,7 +51,8 @@ internal class GroupLexemeNode private constructor(parser: LexemParser, parent: 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = GroupLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            GroupLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -64,9 +66,9 @@ internal class GroupLexemeNode private constructor(parser: LexemParser, parent: 
         /**
          * Parses a group lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): GroupLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): GroupLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = GroupLexemeNode(parser, parent, parentSignal)
+            val result = GroupLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
             result.isFilterCode = parser.isFilterCode
@@ -82,8 +84,7 @@ internal class GroupLexemeNode private constructor(parser: LexemParser, parent: 
             let {
                 val preHeaderCursor = parser.reader.saveCursor()
 
-                val header =
-                        GroupHeaderLexemeNode.parse(parser, result, GroupLexemAnalyzer.signalEndHeader) ?: return@let
+                val header = GroupHeaderLexemeNode.parse(parser, result) ?: return@let
 
                 WhitespaceNode.parse(parser)
 
@@ -111,8 +112,7 @@ internal class GroupLexemeNode private constructor(parser: LexemParser, parent: 
                     WhitespaceNode.parse(parser)
                 }
 
-                val pattern = LexemePatternContentNode.parse(parser, result,
-                        result.patterns.size + GroupLexemAnalyzer.signalEndFirstPattern) ?: if (first) {
+                val pattern = LexemePatternContentNode.parse(parser, result) ?: if (first) {
                     break
                 } else {
                     val patternCursor = parser.reader.saveCursor()

@@ -66,7 +66,7 @@ internal class UnicodeIntervalElementNodeTest {
     @MethodSource("provideSimpleIntervals")
     fun `parse correct unicode interval element`(text: String, isLeftChar: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeIntervalElementNode
@@ -90,7 +90,7 @@ internal class UnicodeIntervalElementNodeTest {
     @MethodSource("provideFullIntervals")
     fun `parse correct full unicode interval element`(text: String, isLeftChar: Boolean, isRightChar: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as UnicodeIntervalElementNode
@@ -124,7 +124,7 @@ internal class UnicodeIntervalElementNodeTest {
                 AngmarParserExceptionType.UnicodeIntervalElementWithoutElementAfterRangeOperator) {
             val text = "3${IntervalElementNode.rangeToken}$endValue"
             val parser = LexemParser(IOStringReader.from(text))
-            UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -132,7 +132,7 @@ internal class UnicodeIntervalElementNodeTest {
     @ValueSource(strings = ["", " ", "\n", "["])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = UnicodeIntervalElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

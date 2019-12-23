@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -11,8 +12,7 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for numbers in different formats.
  */
-internal class NumberNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class NumberNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     var radix = 2
     var integer = ""
     var decimal: String? = null
@@ -62,7 +62,7 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = NumberAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = NumberCompiler.compile(parent, parentSignal, this)
 
     companion object {
         const val digitSeparator = "_"
@@ -87,14 +87,15 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses a number in any radix with the Decimal(radix 10) as a default (without prefix).
          */
-        fun parseAnyNumberDefaultDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int): NumberNode? {
+        fun parseAnyNumberDefaultDecimal(parser: LexemParser, parent: ParserNode): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = parseDecimal(parser, parent, parentSignal, 2, binaryPrefix, true, binaryExponentSeparator,
-                    ::readBinaryInteger) ?: parseDecimal(parser, parent, parentSignal, 8, octalPrefix, true,
-                    octalExponentSeparator, ::readOctalInteger) ?: parseDecimal(parser, parent, parentSignal, 16,
-                    hexadecimalPrefix, true, hexadecimalExponentSeparator, ::readHexadecimalInteger) ?: parseDecimal(
-                    parser, parent, parentSignal, 10, decimalPrefix, false, decimalExponentSeparator,
-                    ::readDecimalInteger) ?: return null
+            val result =
+                    parseDecimal(parser, parent, 2, binaryPrefix, true, binaryExponentSeparator, ::readBinaryInteger)
+                            ?: parseDecimal(parser, parent, 8, octalPrefix, true, octalExponentSeparator,
+                                    ::readOctalInteger) ?: parseDecimal(parser, parent, 16, hexadecimalPrefix, true,
+                                    hexadecimalExponentSeparator, ::readHexadecimalInteger) ?: parseDecimal(parser,
+                                    parent, 10, decimalPrefix, false, decimalExponentSeparator, ::readDecimalInteger)
+                            ?: return null
 
             return parser.finalizeNode(result, initCursor)
         }
@@ -102,18 +103,15 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses a number in the specified radix with or without prefix.
          */
-        fun parseAnyNumberInSpecifiedRadix(parser: LexemParser, parent: ParserNode, parentSignal: Int,
-                radix: Int): NumberNode? {
+        fun parseAnyNumberInSpecifiedRadix(parser: LexemParser, parent: ParserNode, radix: Int): NumberNode? {
             val initCursor = parser.reader.saveCursor()
             val result = when (radix) {
-                2 -> parseDecimal(parser, parent, parentSignal, 2, binaryPrefix, false, binaryExponentSeparator,
-                        ::readBinaryInteger)
-                8 -> parseDecimal(parser, parent, parentSignal, 8, octalPrefix, false, octalExponentSeparator,
-                        ::readOctalInteger)
-                10 -> parseDecimal(parser, parent, parentSignal, 10, decimalPrefix, false, decimalExponentSeparator,
+                2 -> parseDecimal(parser, parent, 2, binaryPrefix, false, binaryExponentSeparator, ::readBinaryInteger)
+                8 -> parseDecimal(parser, parent, 8, octalPrefix, false, octalExponentSeparator, ::readOctalInteger)
+                10 -> parseDecimal(parser, parent, 10, decimalPrefix, false, decimalExponentSeparator,
                         ::readDecimalInteger)
-                16 -> parseDecimal(parser, parent, parentSignal, 16, hexadecimalPrefix, false,
-                        hexadecimalExponentSeparator, ::readHexadecimalInteger)
+                16 -> parseDecimal(parser, parent, 16, hexadecimalPrefix, false, hexadecimalExponentSeparator,
+                        ::readHexadecimalInteger)
                 else -> null
             } ?: return null
 
@@ -123,13 +121,13 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses an integer number in any radix with the Decimal(radix 10) as a default (without prefix).
          */
-        fun parseAnyIntegerDefaultDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int): NumberNode? {
+        fun parseAnyIntegerDefaultDecimal(parser: LexemParser, parent: ParserNode): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = parseInteger(parser, parent, parentSignal, 2, binaryPrefix, true, ::readBinaryInteger)
-                    ?: parseInteger(parser, parent, parentSignal, 8, octalPrefix, true, ::readOctalInteger)
-                    ?: parseInteger(parser, parent, parentSignal, 16, hexadecimalPrefix, true, ::readHexadecimalInteger)
-                    ?: parseInteger(parser, parent, parentSignal, 10, decimalPrefix, false, ::readDecimalInteger)
-                    ?: return null
+            val result =
+                    parseInteger(parser, parent, 2, binaryPrefix, true, ::readBinaryInteger) ?: parseInteger(parser,
+                            parent, 8, octalPrefix, true, ::readOctalInteger) ?: parseInteger(parser, parent, 16,
+                            hexadecimalPrefix, true, ::readHexadecimalInteger) ?: parseInteger(parser, parent, 10,
+                            decimalPrefix, false, ::readDecimalInteger) ?: return null
 
             return parser.finalizeNode(result, initCursor)
         }
@@ -137,14 +135,13 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses an integer in the specified radix with or without prefix.
          */
-        fun parseAnyIntegerInSpecifiedRadix(parser: LexemParser, parent: ParserNode, parentSignal: Int,
-                radix: Int): NumberNode? {
+        fun parseAnyIntegerInSpecifiedRadix(parser: LexemParser, parent: ParserNode, radix: Int): NumberNode? {
             val initCursor = parser.reader.saveCursor()
             val result = when (radix) {
-                2 -> parseInteger(parser, parent, parentSignal, 2, binaryPrefix, false, ::readBinaryInteger)
-                8 -> parseInteger(parser, parent, parentSignal, 8, octalPrefix, false, ::readOctalInteger)
-                10 -> parseInteger(parser, parent, parentSignal, 10, decimalPrefix, false, ::readDecimalInteger)
-                16 -> parseInteger(parser, parent, parentSignal, 16, hexadecimalPrefix, false, ::readHexadecimalInteger)
+                2 -> parseInteger(parser, parent, 2, binaryPrefix, false, ::readBinaryInteger)
+                8 -> parseInteger(parser, parent, 8, octalPrefix, false, ::readOctalInteger)
+                10 -> parseInteger(parser, parent, 10, decimalPrefix, false, ::readDecimalInteger)
+                16 -> parseInteger(parser, parent, 16, hexadecimalPrefix, false, ::readHexadecimalInteger)
                 else -> null
             } ?: return null
 
@@ -171,11 +168,11 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
          */
         fun readHexadecimalInteger(parser: LexemParser) = readInteger(parser, hexadecimalDigits)
 
-        private fun parseDecimal(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
-                prefixText: String, isPrefixCompulsory: Boolean, exponentSeparator: String,
+        private fun parseDecimal(parser: LexemParser, parent: ParserNode, radix: Int, prefixText: String,
+                isPrefixCompulsory: Boolean, exponentSeparator: String,
                 integerParser: (LexemParser) -> String?): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = NumberNode(parser, parent, parentSignal)
+            val result = NumberNode(parser, parent)
             result.radix = radix
 
             val prefix = parser.readText(prefixText)
@@ -293,10 +290,10 @@ internal class NumberNode private constructor(parser: LexemParser, parent: Parse
             return result
         }
 
-        private fun parseInteger(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int,
-                prefixText: String, isPrefixCompulsory: Boolean, integerParser: (LexemParser) -> String?): NumberNode? {
+        private fun parseInteger(parser: LexemParser, parent: ParserNode, radix: Int, prefixText: String,
+                isPrefixCompulsory: Boolean, integerParser: (LexemParser) -> String?): NumberNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = NumberNode(parser, parent, parentSignal)
+            val result = NumberNode(parser, parent)
             result.radix = radix
 
             val prefix = parser.readText(prefixText)

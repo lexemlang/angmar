@@ -52,7 +52,7 @@ internal class GlobalCommonsTest {
     fun `parse correct block statement`(text: String, type: Int, isDescriptiveCode: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = isDescriptiveCode
-        val res = GlobalCommons.parseBlockStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = GlobalCommons.parseBlockStatement(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -72,7 +72,7 @@ internal class GlobalCommonsTest {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
         parser.isFilterCode = isFilterCode
-        val res = GlobalCommons.parseLexem(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = GlobalCommons.parseLexem(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode

@@ -6,7 +6,6 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
@@ -38,12 +37,7 @@ internal class LexemAnalyzerTest {
 
         TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
             TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CustomError) {
-                val parser = LexemParser(IOStringReader.from(files["main"]!!))
-                val grammar = LexemFileNode.parse(parser)
-
-                Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-                val analyzer = LexemAnalyzer(grammar!!)
+                val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
                 TestUtils.processAndCheckEmpty(analyzer)
             }
         }
@@ -61,12 +55,7 @@ internal class LexemAnalyzerTest {
 
         TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
             TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CustomError) {
-                val parser = LexemParser(IOStringReader.from(files["main"]!!))
-                val grammar = LexemFileNode.parse(parser)
-
-                Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-                val analyzer = LexemAnalyzer(grammar!!)
+                val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
                 TestUtils.processAndCheckEmpty(analyzer)
             }
         }
@@ -88,12 +77,7 @@ internal class LexemAnalyzerTest {
 
         TestUtils.handleTempFiles(mapOf("main" to text)) { files ->
             TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CustomError) {
-                val parser = LexemParser(IOStringReader.from(files["main"]!!))
-                val grammar = LexemFileNode.parse(parser)
-
-                Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-                val analyzer = LexemAnalyzer(grammar!!)
+                val analyzer = TestUtils.createAnalyzerFromWholeGrammar(files["main"]!!.readText())
                 TestUtils.processAndCheckEmpty(analyzer)
             }
         }
@@ -103,9 +87,7 @@ internal class LexemAnalyzerTest {
     fun `test entryPoint - missing`() {
         val varName = "test"
         val text = "$varName ${AssignOperatorNode.assignOperator} ${AnalyzerCommons.Identifiers.EntryPoint}"
-        val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-            LexemFileNode.parse(parser)
-        }
+        val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -132,11 +114,11 @@ internal class LexemAnalyzerTest {
                 "import(${StringNode.startToken}$fileNameImported${StringNode.endToken}) \n $varName1 ${AssignOperatorNode.assignOperator} ${AnalyzerCommons.Identifiers.EntryPoint}"
         val textImported = "$varName2 ${AssignOperatorNode.assignOperator} ${AnalyzerCommons.Identifiers.EntryPoint}"
 
-        val parserMain = LexemParser(IOStringReader.from(text))
-        val parserImported = LexemParser(IOStringReader.from(textImported))
+        val mainReader = IOStringReader.from(text)
+        val importedReader = IOStringReader.from(textImported)
 
         val analyzer =
-                LexemAnalyzer.createFrom(mapOf(fileName to parserMain, fileNameImported to parserImported), fileName)
+                LexemAnalyzer.createFrom(mapOf(fileName to mainReader, fileNameImported to importedReader), fileName)
                         ?: throw Error("The analyzer cannot be null")
 
         // Prepare context.

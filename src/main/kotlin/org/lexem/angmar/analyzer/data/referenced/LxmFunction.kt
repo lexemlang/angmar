@@ -6,15 +6,15 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.parser.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 
 /**
  * The Lexem value of the function type.
  */
 internal open class LxmFunction : LexemReferenced {
     var name: String = "<Anonymous function>"
-    val node: ParserNode
+    val node: CompiledNode
     val contextReference: LxmReference?
     val internalFunction: ((LexemAnalyzer, LxmArguments, LxmFunction, Int) -> Boolean)?
 
@@ -28,7 +28,7 @@ internal open class LxmFunction : LexemReferenced {
     /**
      * Builds a custom function.
      */
-    constructor(memory: LexemMemory, node: ParserNode, context: LxmContext) : super(memory) {
+    constructor(memory: LexemMemory, node: CompiledNode, context: LxmContext) : super(memory) {
         this.node = node
         this.contextReference = context.getPrimitive()
         this.internalFunction = null
@@ -42,7 +42,7 @@ internal open class LxmFunction : LexemReferenced {
     constructor(memory: LexemMemory,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
-        this.node = InternalFunctionCallNode
+        this.node = InternalFunctionCallCompiled
         this.contextReference = null
         this.internalFunction = internalFunction
     }
@@ -53,7 +53,7 @@ internal open class LxmFunction : LexemReferenced {
     constructor(memory: LexemMemory, context: LxmContext,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
-        this.node = InternalFunctionCallNode
+        this.node = InternalFunctionCallCompiled
         this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
 
@@ -67,7 +67,7 @@ internal open class LxmFunction : LexemReferenced {
     constructor(memory: LexemMemory, arguments: LxmArguments,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
-        this.node = InternalFunctionCallNode
+        this.node = InternalFunctionCallCompiled
         this.contextReference = arguments.getPrimitive()
         this.internalFunction = internalFunction
 
@@ -102,8 +102,8 @@ internal open class LxmFunction : LexemReferenced {
     override fun toLexemString(memory: LexemMemory) = if (isInternalFunction) {
         LxmString.InternalFunctionToString
     } else {
-        var source = node.parser.reader.getSource()
-        val from = node.from.lineColumn()
+        var source = node.parserNode!!.parser.reader.getSource()
+        val from = node.parserNode!!.from.lineColumn()
 
         if (source.isBlank()) {
             source = "??"
@@ -113,5 +113,6 @@ internal open class LxmFunction : LexemReferenced {
         LxmString.from(name)
     }
 
-    override fun toString() = "[Function] ${node.parser.reader.getSource()}::$name - Context: $contextReference"
+    override fun toString() =
+            "[Function] ${node.parserNode!!.parser.reader.getSource()}::$name - Context: $contextReference"
 }

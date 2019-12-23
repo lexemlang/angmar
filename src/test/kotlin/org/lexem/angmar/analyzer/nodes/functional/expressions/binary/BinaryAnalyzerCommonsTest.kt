@@ -7,6 +7,7 @@ import org.lexem.angmar.analyzer.AnalyzerCommons.getCurrentContext
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.literals.*
@@ -15,10 +16,11 @@ import org.lexem.angmar.utils.*
 internal class BinaryAnalyzerCommonsTest {
     @Test
     fun `test get operator function`() {
-        val text = "${LogicNode.falseLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
+        val variableName = "variableName"
+        val text = "$variableName ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
-        val operand = (analyzer.grammarRootNode as LogicalExpressionNode).expressions[0]
+        val operand = (analyzer.grammarRootNode as LogicalExpressionCompiled).expressions.first()
 
         val function =
                 BinaryAnalyzerCommons.getOperatorFunction(analyzer, LxmLogic.True, analyzer.grammarRootNode, operand,
@@ -37,10 +39,11 @@ internal class BinaryAnalyzerCommonsTest {
     @Incorrect
     fun `test get undefined operator function`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty) {
-            val text = "${NilNode.nilLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
+            val variableName = "variableName"
+            val text = "$variableName ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
-            val operand = (analyzer.grammarRootNode as LogicalExpressionNode).expressions[0]
+            val operand = (analyzer.grammarRootNode as LogicalExpressionCompiled).expressions.first()
 
             BinaryAnalyzerCommons.getOperatorFunction(analyzer, LxmNil, analyzer.grammarRootNode, operand,
                     LogicalExpressionNode.xorOperator, AnalyzerCommons.Operators.LogicalXor)
@@ -51,12 +54,13 @@ internal class BinaryAnalyzerCommonsTest {
     @Incorrect
     fun `test get not callable operator function`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
-            val text = "${LogicNode.trueLiteral} ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
+            val variableName = "variableName"
+            val text = "$variableName ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
             val logicTypeRef = getCurrentContext(analyzer.memory, toWrite = false).getPropertyValue(analyzer.memory,
                     LogicType.TypeName)!! // Trick: change to a type
-            val operand = (analyzer.grammarRootNode as LogicalExpressionNode).expressions[0]
+            val operand = (analyzer.grammarRootNode as LogicalExpressionCompiled).expressions.first()
 
             BinaryAnalyzerCommons.getOperatorFunction(analyzer, logicTypeRef, analyzer.grammarRootNode, operand,
                     LogicalExpressionNode.xorOperator,

@@ -9,6 +9,7 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -51,7 +52,7 @@ internal object DebugGlobalObject {
             signal: Int): Boolean {
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                analyzer.nextNode(InternalFunctionCallNode, signal + 1)
+                analyzer.nextNode(InternalFunctionCallCompiled, signal + 1)
                 analyzer.status = LexemAnalyzer.Status.Paused
 
                 return false
@@ -80,7 +81,8 @@ internal object DebugGlobalObject {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Log)
+                StdlibCommons.callToString(analyzer, message, InternalFunctionCallCompiled,
+                        AnalyzerNodesCommons.signalStart + 1, Log)
 
                 return false
             }
@@ -122,7 +124,8 @@ internal object DebugGlobalObject {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, message, AnalyzerNodesCommons.signalStart + 1, Log)
+                StdlibCommons.callToString(analyzer, message, InternalFunctionCallCompiled,
+                        AnalyzerNodesCommons.signalStart + 1, Log)
 
                 return false
             }

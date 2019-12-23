@@ -11,34 +11,15 @@ import org.lexem.angmar.utils.*
 
 internal class IntervalElementAnalyzerTest {
     @Test
-    fun `test single number`() {
-        val left = 123
-        val text = "$left"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
-                        "The result must be a LxmInterval")
-        Assertions.assertEquals(1L, result.primitive.pointCount, "The pointCount property is incorrect")
-        Assertions.assertEquals(left, result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(left, result.primitive.lastPoint, "The lastPoint property is incorrect")
-
-        // Remove Accumulator from the stack.
-        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
     fun `test single expression`() {
+        val variableName = "testVariable"
         val left = 123
-        val text = "${EscapedExpressionNode.startToken}$left${EscapedExpressionNode.endToken}"
+        val text = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, variableName, LxmInteger.from(left))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -55,42 +36,24 @@ internal class IntervalElementAnalyzerTest {
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
-    fun `test range number`() {
-        val left = 123
-        val right = 456
-        val text = "$left${IntervalElementNode.rangeToken}$right"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
-                        "The result must be a LxmInterval")
-        Assertions.assertEquals(right - left + 1L, result.primitive.pointCount, "The pointCount property is incorrect")
-        Assertions.assertEquals(left, result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(right, result.primitive.lastPoint, "The lastPoint property is incorrect")
-
-        // Remove Accumulator from the stack.
-        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
 
     @Test
     fun `test range expression`() {
+        val variableLeftName = "testLeftVariable"
+        val variableRightName = "testRightVariable"
         val leftValue = 123
         val rightValue = 456
-        val left = "${EscapedExpressionNode.startToken}$leftValue${EscapedExpressionNode.endToken}"
-        val right = "${EscapedExpressionNode.startToken}$rightValue${EscapedExpressionNode.endToken}"
+        val left = "${EscapedExpressionNode.startToken}$variableLeftName${EscapedExpressionNode.endToken}"
+        val right = "${EscapedExpressionNode.startToken}$variableRightName${EscapedExpressionNode.endToken}"
         val text = "$left${IntervalElementNode.rangeToken}$right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
+        context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -108,17 +71,22 @@ internal class IntervalElementAnalyzerTest {
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableLeftName, variableRightName))
     }
 
     @Test
     @Incorrect
     fun `test incorrect left`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
-            val left = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
+            val variableName = "testVariable"
+            val left = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
             val right = 456
             val text = "$left${IntervalElementNode.rangeToken}$right"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -131,10 +99,15 @@ internal class IntervalElementAnalyzerTest {
     @Incorrect
     fun `test incorrect right`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
+            val variableName = "testVariable"
             val left = 123
-            val right = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
+            val right = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
             val text = "$left${IntervalElementNode.rangeToken}$right"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -147,10 +120,19 @@ internal class IntervalElementAnalyzerTest {
     @Incorrect
     fun `test left bigger than right`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds) {
-            val left = 456
-            val right = 123
-            val text = "$left${IntervalElementNode.rangeToken}$right"
+            val variableLeftName = "testLeftVariable"
+            val variableRightName = "testRightVariable"
+            val leftValue = 456
+            val rightValue = 123
+            val left = "${EscapedExpressionNode.startToken}$variableLeftName${EscapedExpressionNode.endToken}"
+            val right = "${EscapedExpressionNode.startToken}$variableRightName${EscapedExpressionNode.endToken}"
+            val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = IntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
+            context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)

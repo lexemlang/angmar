@@ -8,6 +8,7 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
@@ -64,11 +65,12 @@ internal object StringType {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmString.Empty)
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam, Join)
+                StdlibCommons.callToString(analyzer, spreadArguments.first(), InternalFunctionCallCompiled,
+                        signalEndFirstParam, Join)
 
                 return false
             }
-            in signalEndFirstParam until signalEndFirstParam + spreadArguments.size -> {
+            in signalEndFirstParam..signalEndFirstParam + spreadArguments.size -> {
                 val position = (signal - signalEndFirstParam) + 1
 
                 // Combine the result.
@@ -85,8 +87,8 @@ internal object StringType {
                     analyzer.memory.removeLastFromStack()
 
                     // Calls toString.
-                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam,
-                            Join)
+                    StdlibCommons.callToString(analyzer, spreadArguments[position], InternalFunctionCallCompiled,
+                            position + signalEndFirstParam, Join)
 
                     return false
                 }
@@ -130,11 +132,12 @@ internal object StringType {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmString.Empty)
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, spreadArguments.first(), signalEndFirstParam, JoinBy)
+                StdlibCommons.callToString(analyzer, spreadArguments.first(), InternalFunctionCallCompiled,
+                        signalEndFirstParam, JoinBy)
 
                 return false
             }
-            in signalEndFirstParam until signalEndFirstParam + spreadArguments.size -> {
+            in signalEndFirstParam..signalEndFirstParam + spreadArguments.size -> {
                 val position = (signal - signalEndFirstParam) + 1
                 separator as LxmString
 
@@ -156,8 +159,8 @@ internal object StringType {
                     analyzer.memory.removeLastFromStack()
 
                     // Calls toString.
-                    StdlibCommons.callToString(analyzer, spreadArguments[position], position + signalEndFirstParam,
-                            JoinBy)
+                    StdlibCommons.callToString(analyzer, spreadArguments[position], InternalFunctionCallCompiled,
+                            position + signalEndFirstParam, JoinBy)
 
                     return false
                 }

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions.binary
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for relational expressions.
  */
-internal class RelationalExpressionNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class RelationalExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val expressions = mutableListOf<ParserNode>()
     val operators = mutableListOf<String>()
 
@@ -35,8 +36,8 @@ internal class RelationalExpressionNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            RelationalExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            RelationalExpressionCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val identityOperator = "==="
@@ -55,12 +56,11 @@ internal class RelationalExpressionNode private constructor(parser: LexemParser,
         /**
          * Parses a relational expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ParserNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ParserNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = RelationalExpressionNode(parser, parent, parentSignal)
+            val result = RelationalExpressionNode(parser, parent)
 
-            result.expressions.add(LogicalExpressionNode.parse(parser, result,
-                    result.expressions.size + RelationalExpressionAnalyzer.signalEndFirstExpression) ?: return null)
+            result.expressions.add(LogicalExpressionNode.parse(parser, result) ?: return null)
 
             while (true) {
                 val initLoopCursor = parser.reader.saveCursor()
@@ -79,8 +79,7 @@ internal class RelationalExpressionNode private constructor(parser: LexemParser,
 
                 WhitespaceNode.parse(parser)
 
-                val expression = LogicalExpressionNode.parse(parser, result,
-                        result.expressions.size + RelationalExpressionAnalyzer.signalEndFirstExpression) ?: let {
+                val expression = LogicalExpressionNode.parse(parser, result) ?: let {
                     throw AngmarParserException(
                             AngmarParserExceptionType.RelationalExpressionWithoutExpressionAfterOperator,
                             "An expression was expected after the operator '$operator'") {
@@ -104,7 +103,6 @@ internal class RelationalExpressionNode private constructor(parser: LexemParser,
             if (result.expressions.size == 1) {
                 val newResult = result.expressions.first()
                 newResult.parent = parent
-                newResult.parentSignal = parentSignal
                 return newResult
             }
 

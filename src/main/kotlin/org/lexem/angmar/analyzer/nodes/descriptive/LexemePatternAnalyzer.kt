@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.descriptive.*
@@ -14,20 +15,17 @@ import org.lexem.angmar.parser.descriptive.*
  * Analyzer for lexeme pattern.
  */
 internal object LexemePatternAnalyzer {
-    const val signalEndType = AnalyzerNodesCommons.signalStart + 1
-    const val signalEndUnionName = signalEndType + 1
+    const val signalEndQuantifier = AnalyzerNodesCommons.signalStart + 1
+    const val signalEndUnionName = signalEndQuantifier + 1
     const val signalEndPatternContent = signalEndUnionName + 1
     const val signalEndBadPatternContent = signalEndPatternContent + 1
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 when (node.type) {
-                    LexemePatternNode.Companion.PatternType.Static -> {
-                        return analyzer.nextNode(node.patternContent)
-                    }
                     LexemePatternNode.Companion.PatternType.Optional -> {
                         // On backwards skip.
                         analyzer.freezeMemoryCopy(node, signalEndBadPatternContent)
@@ -55,7 +53,7 @@ internal object LexemePatternAnalyzer {
                     }
                 }
             }
-            signalEndType -> {
+            signalEndQuantifier -> {
                 // Move Last to Union in stack.
                 analyzer.memory.renameLastStackCell(AnalyzerCommons.Identifiers.LexemeUnion)
 
@@ -87,9 +85,6 @@ internal object LexemePatternAnalyzer {
             }
             signalEndPatternContent -> {
                 when (node.type) {
-                    LexemePatternNode.Companion.PatternType.Static -> {
-                        // Continue
-                    }
                     LexemePatternNode.Companion.PatternType.Optional -> {
                         // Continue
                     }
@@ -114,7 +109,7 @@ internal object LexemePatternAnalyzer {
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
 
                         // Increase the index.
-                        val union = getUnion(analyzer, node, unionName.primitive).dereference(analyzer.memory,
+                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory,
                                 toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
                     }
@@ -151,7 +146,7 @@ internal object LexemePatternAnalyzer {
                                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion) as LxmString
 
                         // Increase the index.
-                        val union = getUnion(analyzer, node, unionName.primitive).dereference(analyzer.memory,
+                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory,
                                 toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
 
@@ -170,7 +165,7 @@ internal object LexemePatternAnalyzer {
     /**
      * Executes the pattern of the union.
      */
-    private fun executePattern(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: LxmString,
+    private fun executePattern(analyzer: LexemAnalyzer, node: LexemePatternCompiled, unionName: LxmString,
             quantifier: LxmQuantifier? = null) {
         val union = getOrInitUnion(analyzer, node, unionName.primitive, quantifier)
 
@@ -190,7 +185,7 @@ internal object LexemePatternAnalyzer {
     /**
      * Gets the union.
      */
-    private fun getUnion(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: String): LxmReference {
+    private fun getUnion(analyzer: LexemAnalyzer, unionName: String): LxmReference {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)
         return unions.getPropertyValue(analyzer.memory, unionName) as LxmReference
@@ -199,7 +194,7 @@ internal object LexemePatternAnalyzer {
     /**
      * Gets or initializes a union from a quantifier.
      */
-    private fun getOrInitUnion(analyzer: LexemAnalyzer, node: LexemePatternNode, unionName: String,
+    private fun getOrInitUnion(analyzer: LexemAnalyzer, node: LexemePatternCompiled, unionName: String,
             quantifier: LxmQuantifier?): LxmPatternUnion {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = true)
@@ -209,7 +204,7 @@ internal object LexemePatternAnalyzer {
         if (union == null) {
             if (quantifier != null) {
                 // Create the union.
-                union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
                 unions.setProperty(analyzer.memory, unionName, union)
             } else {

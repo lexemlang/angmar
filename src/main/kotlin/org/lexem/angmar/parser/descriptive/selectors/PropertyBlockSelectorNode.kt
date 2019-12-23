@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.selectors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for property blocks of selectors.
  */
-internal class PropertyBlockSelectorNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class PropertyBlockSelectorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isAddition = false
     var identifier: IdentifierNode? = null
     lateinit var condition: ParserNode
@@ -42,8 +43,8 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            PropertyBlockSelectorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            PropertyBlockSelectorCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "["
@@ -55,9 +56,9 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
         /**
          * Parses a property block of a selector.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyBlockSelectorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): PropertyBlockSelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyBlockSelectorNode(parser, parent, parentSignal)
+            val result = PropertyBlockSelectorNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 initCursor.restore()
@@ -69,8 +70,7 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
             // Identifier
             let {
                 val preIdentifierCursor = parser.reader.saveCursor()
-                val identifier = IdentifierNode.parse(parser, result, PropertyBlockSelectorAnalyzer.signalEndIdentifier)
-                        ?: return@let
+                val identifier = IdentifierNode.parse(parser, result) ?: return@let
 
                 WhitespaceNode.parse(parser)
 
@@ -84,29 +84,26 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
                 result.identifier = identifier
             }
 
-            result.condition =
-                    ExpressionsCommons.parseExpression(parser, result, PropertyBlockSelectorAnalyzer.signalEndCondition)
-                            ?: let {
-                                val expressionCursor = parser.reader.saveCursor()
+            result.condition = ExpressionsCommons.parseExpression(parser, result) ?: let {
+                val expressionCursor = parser.reader.saveCursor()
 
-                                // To show the end token in the message if it exists.
-                                parser.readText(endToken)
+                // To show the end token in the message if it exists.
+                parser.readText(endToken)
 
-                                throw AngmarParserException(
-                                        AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition,
-                                        "Selector property block require an expression to act as its condition.") {
-                                    val fullText = parser.reader.readAllText()
-                                    addSourceCode(fullText, parser.reader.getSource()) {
-                                        title = Consts.Logger.codeTitle
-                                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    }
-                                    addSourceCode(fullText, null) {
-                                        title = Consts.Logger.hintTitle
-                                        highlightCursorAt(expressionCursor.position())
-                                        message = "Try adding an expression here"
-                                    }
-                                }
-                            }
+                throw AngmarParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition,
+                        "Selector property block require an expression to act as its condition.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(expressionCursor.position())
+                        message = "Try adding an expression here"
+                    }
+                }
+            }
 
             WhitespaceNode.parse(parser)
 
@@ -132,9 +129,9 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
         /**
          * Parses a property block of a selector for an Addition.
          */
-        fun parseForAddition(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyBlockSelectorNode? {
+        fun parseForAddition(parser: LexemParser, parent: ParserNode): PropertyBlockSelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyBlockSelectorNode(parser, parent, parentSignal)
+            val result = PropertyBlockSelectorNode(parser, parent)
             result.isAddition = true
 
             if (!parser.readText(startToken)) {
@@ -144,29 +141,26 @@ internal class PropertyBlockSelectorNode private constructor(parser: LexemParser
 
             WhitespaceNode.parse(parser)
 
-            result.condition =
-                    ExpressionsCommons.parseExpression(parser, result, PropertyBlockSelectorAnalyzer.signalEndCondition)
-                            ?: let {
-                                val expressionCursor = parser.reader.saveCursor()
+            result.condition = ExpressionsCommons.parseExpression(parser, result) ?: let {
+                val expressionCursor = parser.reader.saveCursor()
 
-                                // To show the end token in the message if it exists.
-                                parser.readText(endToken)
+                // To show the end token in the message if it exists.
+                parser.readText(endToken)
 
-                                throw AngmarParserException(
-                                        AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition,
-                                        "Selector property block require an expression to act as its condition.") {
-                                    val fullText = parser.reader.readAllText()
-                                    addSourceCode(fullText, parser.reader.getSource()) {
-                                        title = Consts.Logger.codeTitle
-                                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    }
-                                    addSourceCode(fullText, null) {
-                                        title = Consts.Logger.hintTitle
-                                        highlightCursorAt(expressionCursor.position())
-                                        message = "Try adding an expression here"
-                                    }
-                                }
-                            }
+                throw AngmarParserException(AngmarParserExceptionType.SelectorPropertyBlockWithoutCondition,
+                        "Selector property block require an expression to act as its condition.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(expressionCursor.position())
+                        message = "Try adding an expression here"
+                    }
+                }
+            }
 
             WhitespaceNode.parse(parser)
 

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.*
+import org.lexem.angmar.compiler.descriptive.*
 
 
 /**
@@ -17,7 +17,7 @@ internal object DataCapturingAccessLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DataCapturingAccessLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: DataCapturingAccessLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.element)
@@ -32,10 +32,10 @@ internal object DataCapturingAccessLexemeAnalyzer {
 
                 // Process the next operand.
                 if (node.modifiers.isNotEmpty()) {
-                    return analyzer.nextNode(node.modifiers[0])
+                    return analyzer.nextNode(node.modifiers.first())
                 }
             }
-            in signalEndFirstModifier until signalEndFirstModifier + node.modifiers.size -> {
+            in signalEndFirstModifier..signalEndFirstModifier + node.modifiers.size -> {
                 val position = (signal - signalEndFirstModifier) + 1
 
                 // Process the next operand

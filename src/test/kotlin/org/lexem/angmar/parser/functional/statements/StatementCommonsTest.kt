@@ -99,7 +99,7 @@ internal class StatementCommonsTest {
     @MethodSource("provideStatements")
     fun `parse any correct statement`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StatementCommons.parseAnyStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StatementCommons.parseAnyStatement(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -126,7 +126,7 @@ internal class StatementCommonsTest {
     fun `parse any correct descriptive statement`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = StatementCommons.parseAnyDescriptiveStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StatementCommons.parseAnyDescriptiveStatement(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -148,7 +148,7 @@ internal class StatementCommonsTest {
     @MethodSource("providePublicMacroStatement")
     fun `parse any correct public macro statement`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StatementCommons.parseAnyPublicMacroStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StatementCommons.parseAnyPublicMacroStatement(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -168,7 +168,7 @@ internal class StatementCommonsTest {
     @MethodSource("provideControlStatement")
     fun `parse any correct control statement`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StatementCommons.parseAnyControlStatement(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StatementCommons.parseAnyControlStatement(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object IndexerAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IndexerNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IndexerCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Move Last to Accumulator in stack.

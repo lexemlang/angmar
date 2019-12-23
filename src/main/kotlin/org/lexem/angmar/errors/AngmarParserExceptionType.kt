@@ -159,6 +159,7 @@ enum class AngmarParserExceptionType {
     ExecutorWithoutExpression,
     ExecutorWithoutExpressionAfterSeparator,
     AccessWithoutNextAccessAfterToken,
+    NegatedAccessWithNextAccess,
     GroupWithoutEndToken,
     GroupWithoutPatterns,
     GroupWithoutLexemeAfterPatternToken,

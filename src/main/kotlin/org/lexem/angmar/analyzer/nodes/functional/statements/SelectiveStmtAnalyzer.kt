@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -17,7 +17,7 @@ internal object SelectiveStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectiveStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: SelectiveStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
@@ -35,7 +35,7 @@ internal object SelectiveStmtAnalyzer {
                     return analyzer.nextNode(node.tag)
                 }
 
-                return analyzer.nextNode(node.cases[0])
+                return analyzer.nextNode(node.cases.first())
             }
             signalEndCondition -> {
                 // Move Last to SelectiveCondition in the stack.
@@ -45,7 +45,7 @@ internal object SelectiveStmtAnalyzer {
                     return analyzer.nextNode(node.tag)
                 }
 
-                return analyzer.nextNode(node.cases[0])
+                return analyzer.nextNode(node.cases.first())
             }
             signalEndTag -> {
                 // Set the name of the context.
@@ -56,9 +56,9 @@ internal object SelectiveStmtAnalyzer {
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
 
-                return analyzer.nextNode(node.cases[0])
+                return analyzer.nextNode(node.cases.first())
             }
-            in signalEndFirstCase until signalEndFirstCase + node.cases.size -> {
+            in signalEndFirstCase..signalEndFirstCase + node.cases.size -> {
                 // Check the result.
                 val result = analyzer.memory.getLastFromStack() as LxmLogic
 
@@ -72,14 +72,14 @@ internal object SelectiveStmtAnalyzer {
                     }
                 }
 
-                finish(analyzer, node)
+                finish(analyzer)
             }
             // Process the control signal.
             AnalyzerNodesCommons.signalExitControl -> {
                 val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                finish(analyzer, node)
+                finish(analyzer)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
@@ -91,12 +91,12 @@ internal object SelectiveStmtAnalyzer {
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
             AnalyzerNodesCommons.signalRestartControl, AnalyzerNodesCommons.signalReturnControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
@@ -108,7 +108,7 @@ internal object SelectiveStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: SelectiveStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
 

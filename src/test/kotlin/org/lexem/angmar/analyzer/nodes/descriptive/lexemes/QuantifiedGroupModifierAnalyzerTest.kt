@@ -121,10 +121,16 @@ internal class QuantifiedGroupModifierAnalyzerTest {
     @Incorrect
     fun `test quantifier with non integer minimum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
+            val variableName = "testVariable"
             val minimum = LxmLogic.False
-            val text = "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.endToken}"
+            val text = "${QuantifiedGroupModifierNode.startToken}$variableName${QuantifiedGroupModifierNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = QuantifiedGroupModifierNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, minimum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }
@@ -133,15 +139,15 @@ internal class QuantifiedGroupModifierAnalyzerTest {
     @Incorrect
     fun `test quantifier with minimum lower than zero`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds) {
-            val minimum = -1
-            val text = "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.endToken}"
+            val variableName = "testVariable"
+            val minimum = LxmInteger.Num_1
+            val text = "${QuantifiedGroupModifierNode.startToken}$variableName${QuantifiedGroupModifierNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = QuantifiedGroupModifierNode.Companion::parse)
 
-            // Prepare the context.
+            // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                    LxmString.from("test"))
+            context.setProperty(analyzer.memory, variableName, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -151,12 +157,18 @@ internal class QuantifiedGroupModifierAnalyzerTest {
     @Incorrect
     fun `test quantifier with non integer maximum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
+            val variableName = "testVariable"
             val minimum = 5
             val maximum = LxmNil
             val text =
-                    "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.elementSeparator}$maximum${QuantifiedGroupModifierNode.endToken}"
+                    "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.elementSeparator}$variableName${QuantifiedGroupModifierNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = QuantifiedGroupModifierNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, maximum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }
@@ -165,12 +177,18 @@ internal class QuantifiedGroupModifierAnalyzerTest {
     @Incorrect
     fun `test quantifier with maximum lower than minimum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds) {
+            val variableName = "testVariable"
             val minimum = 5
-            val maximum = 1
+            val maximum = LxmInteger.Num1
             val text =
-                    "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.elementSeparator}$maximum${QuantifiedGroupModifierNode.endToken}"
+                    "${QuantifiedGroupModifierNode.startToken}$minimum${QuantifiedGroupModifierNode.elementSeparator}$variableName${QuantifiedGroupModifierNode.endToken}"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = QuantifiedGroupModifierNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, maximum)
+
             TestUtils.processAndCheckEmpty(analyzer)
         }
     }

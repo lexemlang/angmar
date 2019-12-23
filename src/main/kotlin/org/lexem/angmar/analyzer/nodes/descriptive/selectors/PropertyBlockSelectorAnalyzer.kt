@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.selectors.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object PropertyBlockSelectorAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyBlockSelectorNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyBlockSelectorCompiled) {
         if (node.isAddition) {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {

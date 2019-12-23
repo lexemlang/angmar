@@ -28,7 +28,7 @@ internal class ElsePatternSelectiveStmtNodeTest {
     @ValueSource(strings = [ElsePatternSelectiveStmtNode.elseKeyword])
     fun `parse correct else pattern selective statement`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ElsePatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ElsePatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ElsePatternSelectiveStmtNode
@@ -40,7 +40,7 @@ internal class ElsePatternSelectiveStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ElsePatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ElsePatternSelectiveStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

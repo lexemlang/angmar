@@ -5,8 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 
 
@@ -18,11 +17,11 @@ internal object LambdaStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LambdaStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LambdaStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate a new context.
-                val type = if (node.statement !is LexemePatternContentNode) {
+                val type = if (!node.isDescriptiveCode) {
                     LxmContext.LxmContextType.Function
                 } else if (node.isFilterCode) {
                     LxmContext.LxmContextType.Filter
@@ -32,11 +31,11 @@ internal object LambdaStmtAnalyzer {
 
                 AnalyzerCommons.createAndAssignNewContext(analyzer.memory, type)
 
-                return analyzer.nextNode(node.statement)
+                return analyzer.nextNode(node.expression)
             }
             signalEndExpression -> {
                 // If it is functional code rise a return.
-                if (node.statement !is LexemePatternContentNode) {
+                if (!node.isDescriptiveCode) {
                     val value = analyzer.memory.getLastFromStack()
 
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Control,

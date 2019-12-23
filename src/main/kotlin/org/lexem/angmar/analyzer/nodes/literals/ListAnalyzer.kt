@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object ListAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ListNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ListCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Add the new list.
@@ -33,7 +33,7 @@ internal object ListAnalyzer {
                 // Move accumulator to last.
                 analyzer.memory.renameStackCellToLast(AnalyzerCommons.Identifiers.Accumulator)
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 // Add the value to the list.

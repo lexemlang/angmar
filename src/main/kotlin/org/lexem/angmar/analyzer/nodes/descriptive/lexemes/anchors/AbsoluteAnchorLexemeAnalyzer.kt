@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.lexemes.anchors.*
+import org.lexem.angmar.compiler.descriptive.lexemes.anchors.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object AbsoluteAnchorLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AbsoluteAnchorLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AbsoluteAnchorLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.isNegated) {
@@ -32,7 +32,7 @@ internal object AbsoluteAnchorLexemeAnalyzer {
 
                 return analyzer.nextNode(node.elements.first())
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack() as LxmLogic

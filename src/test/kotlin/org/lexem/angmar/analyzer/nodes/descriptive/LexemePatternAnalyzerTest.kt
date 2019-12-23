@@ -34,6 +34,43 @@ internal class LexemePatternAnalyzerTest {
 
             return sequence.asStream()
         }
+
+
+        // AUXILIARY FUNCTIONS ----------------------------------------------------
+
+        fun generatePattern(text: String?,
+                type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
+                "${LexemePatternNode.patternToken}${type.token} ${printText(text)}"
+
+        fun generateNegativePattern(text: String?,
+                type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
+                "${LexemePatternNode.patternToken}${type.token} ${TextLexemeNode.notOperator}${printText(text)}"
+
+        fun generatePattern(text: String?, unionName: String,
+                type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
+                "${LexemePatternNode.patternToken}${type.token}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
+                        text)}"
+
+        fun generateQuantifiedPatterns(text: String?, unionName: String, quantifier: LxmQuantifier?) =
+                if (quantifier != null) {
+                    if (quantifier.isInfinite) {
+                        "${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}${quantifier.min}${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
+                                text)}"
+                    } else {
+                        "${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}${quantifier.min}${ExplicitQuantifierLexemeNode.elementSeparator}${quantifier.max}${ExplicitQuantifierLexemeNode.endToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
+                                text)}"
+                    }
+
+                } else {
+                    "${LexemePatternNode.patternToken}${LexemePatternNode.quantifierSlaveToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
+                            text)}"
+                }
+
+        private fun printText(text: String?) = if (text == null) {
+            ""
+        } else {
+            "${StringNode.startToken}${text}${StringNode.endToken}"
+        }
     }
 
 
@@ -272,7 +309,7 @@ internal class LexemePatternAnalyzerTest {
             else -> throw AngmarUnreachableException()
         }
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -317,7 +354,7 @@ internal class LexemePatternAnalyzerTest {
             else -> throw AngmarUnreachableException()
         }
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -355,7 +392,7 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         val quantifier = LxmQuantifier.AlternativePattern
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num1, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num1)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -466,7 +503,7 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -505,7 +542,7 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -543,7 +580,7 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.from(quantifier.max), analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.from(quantifier.max))
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -585,7 +622,7 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -624,7 +661,7 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        var union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+        var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
         unions.setProperty(analyzer.memory, unionName, union)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -687,7 +724,7 @@ internal class LexemePatternAnalyzerTest {
             val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
             val unions = LxmObject(analyzer.memory)
             val quantifier2 = LxmQuantifier(3)
-            val union = LxmPatternUnion(quantifier2, LxmInteger.Num0, analyzer.memory)
+            val union = LxmPatternUnion(analyzer.memory, quantifier2, LxmInteger.Num0)
             unions.setProperty(analyzer.memory, unionName, union)
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
@@ -811,37 +848,5 @@ internal class LexemePatternAnalyzerTest {
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenPatternUnions))
-    }
-
-    // AUXILIARY FUNCTIONS ----------------------------------------------------
-
-    private fun generatePattern(text: String?,
-            type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
-            "${LexemePatternNode.patternToken}${type.token} ${printText(text)}"
-
-    private fun generatePattern(text: String?, unionName: String,
-            type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
-            "${LexemePatternNode.patternToken}${type.token}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
-                    text)}"
-
-    private fun generateQuantifiedPatterns(text: String?, unionName: String, quantifier: LxmQuantifier?) =
-            if (quantifier != null) {
-                if (quantifier.isInfinite) {
-                    "${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}${quantifier.min}${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
-                            text)}"
-                } else {
-                    "${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}${quantifier.min}${ExplicitQuantifierLexemeNode.elementSeparator}${quantifier.max}${ExplicitQuantifierLexemeNode.endToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
-                            text)}"
-                }
-
-            } else {
-                "${LexemePatternNode.patternToken}${LexemePatternNode.quantifierSlaveToken}$unionName${LexemePatternNode.unionNameRelationalToken} ${printText(
-                        text)}"
-            }
-
-    private fun printText(text: String?) = if (text == null) {
-        ""
-    } else {
-        "${StringNode.startToken}${text}${StringNode.endToken}"
     }
 }

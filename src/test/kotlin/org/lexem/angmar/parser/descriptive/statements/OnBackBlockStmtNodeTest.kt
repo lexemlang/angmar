@@ -129,7 +129,7 @@ internal class OnBackBlockStmtNodeTest {
     @MethodSource("provideStatement")
     fun `parse correct onBack statement`(text: String, hasParameters: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as OnBackBlockStmtNode
@@ -150,7 +150,7 @@ internal class OnBackBlockStmtNodeTest {
     @MethodSource("provideConditionalStatement")
     fun `parse correct onBack statement with conditional`(text: String, hasParameters: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as OnBackBlockStmtNode
@@ -171,7 +171,7 @@ internal class OnBackBlockStmtNodeTest {
     @MethodSource("provideSelectiveStatement")
     fun `parse correct onBack statement with selective`(text: String, hasParameters: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as OnBackBlockStmtNode
@@ -194,7 +194,7 @@ internal class OnBackBlockStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.OnBackBlockWithoutBlock) {
             val text = OnBackBlockStmtNode.macroName
             val parser = LexemParser(IOStringReader.from(text))
-            OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -202,7 +202,7 @@ internal class OnBackBlockStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = OnBackBlockStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

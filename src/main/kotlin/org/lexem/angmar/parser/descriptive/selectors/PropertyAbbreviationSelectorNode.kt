@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.selectors
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.selectors.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.functional.expressions.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for property abbreviations of selectors.
  */
-internal class PropertyAbbreviationSelectorNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class PropertyAbbreviationSelectorNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var isAddition = false
     var isAtIdentifier = false
@@ -47,8 +48,8 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            PropertyAbbreviationSelectorAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            PropertyAbbreviationSelectorCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -59,16 +60,16 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
         /**
          * Parses a property abbreviation of a selector.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyAbbreviationSelectorNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): PropertyAbbreviationSelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyAbbreviationSelectorNode(parser, parent, parentSignal)
+            val result = PropertyAbbreviationSelectorNode(parser, parent)
 
             if (parser.readText(notOperator)) {
                 result.isNegated = true
 
                 result.isAtIdentifier = parser.readText(atPrefix)
 
-                val name = IdentifierNode.parse(parser, result, PropertyAbbreviationSelectorAnalyzer.signalEndName)
+                val name = IdentifierNode.parse(parser, result)
                 if (name == null) {
                     initCursor.restore()
                     return null
@@ -78,7 +79,7 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
             } else {
                 result.isAtIdentifier = parser.readText(atPrefix)
 
-                val name = IdentifierNode.parse(parser, result, PropertyAbbreviationSelectorAnalyzer.signalEndName)
+                val name = IdentifierNode.parse(parser, result)
                 if (name == null) {
                     initCursor.restore()
                     return null
@@ -86,8 +87,7 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
 
                 result.name = name
 
-                result.propertyBlock = PropertyBlockSelectorNode.parse(parser, result,
-                        PropertyAbbreviationSelectorAnalyzer.signalEndPropertyBlock)
+                result.propertyBlock = PropertyBlockSelectorNode.parse(parser, result)
             }
 
             return parser.finalizeNode(result, initCursor)
@@ -96,16 +96,15 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
         /**
          * Parses a property abbreviation of a selector for an addition.
          */
-        fun parseForAddition(parser: LexemParser, parent: ParserNode,
-                parentSignal: Int): PropertyAbbreviationSelectorNode? {
+        fun parseForAddition(parser: LexemParser, parent: ParserNode): PropertyAbbreviationSelectorNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyAbbreviationSelectorNode(parser, parent, parentSignal)
+            val result = PropertyAbbreviationSelectorNode(parser, parent)
             result.isAddition = true
 
             if (parser.readText(notOperator)) {
                 result.isNegated = true
 
-                val name = IdentifierNode.parse(parser, result, PropertyAbbreviationSelectorAnalyzer.signalEndName)
+                val name = IdentifierNode.parse(parser, result)
                 if (name == null) {
                     initCursor.restore()
                     return null
@@ -113,7 +112,7 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
 
                 result.name = name
             } else {
-                val name = IdentifierNode.parse(parser, result, PropertyAbbreviationSelectorAnalyzer.signalEndName)
+                val name = IdentifierNode.parse(parser, result)
                 if (name == null) {
                     initCursor.restore()
                     return null
@@ -121,8 +120,7 @@ internal class PropertyAbbreviationSelectorNode private constructor(parser: Lexe
 
                 result.name = name
 
-                result.propertyBlock = PropertyBlockSelectorNode.parseForAddition(parser, result,
-                        PropertyAbbreviationSelectorAnalyzer.signalEndPropertyBlock)
+                result.propertyBlock = PropertyBlockSelectorNode.parseForAddition(parser, result)
             }
 
             return parser.finalizeNode(result, initCursor)

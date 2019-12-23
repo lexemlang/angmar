@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,10 +14,9 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for block statements.
  */
-internal class BlockStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
-    var tag: IdentifierNode? = null
+internal class BlockStmtNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val statements = mutableListOf<ParserNode>()
+    var tag: IdentifierNode? = null
 
     override fun toString() = StringBuilder().apply {
         append(startToken)
@@ -39,7 +39,8 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = BlockStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            BlockStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "{"
@@ -51,14 +52,14 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
         /**
          * Parses a block statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BlockStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): BlockStmtNode? {
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(startToken)) {
                 return null
             }
 
-            val result = BlockStmtNode(parser, parent, parentSignal)
+            val result = BlockStmtNode(parser, parent)
 
             // tag
             let {
@@ -68,7 +69,7 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
                     return@let
                 }
 
-                result.tag = IdentifierNode.parse(parser, result, BlockStmtAnalyzer.signalEndTag)
+                result.tag = IdentifierNode.parse(parser, result)
                 if (result.tag == null) {
                     initTagCursor.restore()
                 }
@@ -79,8 +80,7 @@ internal class BlockStmtNode private constructor(parser: LexemParser, parent: Pa
 
                 WhitespaceNode.parse(parser)
 
-                val statement = GlobalCommons.parseBlockStatement(parser, result,
-                        result.statements.size + BlockStmtAnalyzer.signalEndFirstStatement)
+                val statement = GlobalCommons.parseBlockStatement(parser, result)
                 if (statement == null) {
                     initLoopCursor.restore()
                     break

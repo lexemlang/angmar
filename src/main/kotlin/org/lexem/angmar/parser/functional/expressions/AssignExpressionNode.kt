@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.expressions
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.expressions.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.expressions.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for assign expressions.
  */
-internal class AssignExpressionNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class AssignExpressionNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var left: ParserNode
     lateinit var operator: AssignOperatorNode
     lateinit var right: RightExpressionNode
@@ -36,31 +37,29 @@ internal class AssignExpressionNode private constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AssignExpressionAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AssignExpressionCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses an assign expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AssignExpressionNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AssignExpressionNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AssignExpressionNode(parser, parent, parentSignal)
+            val result = AssignExpressionNode(parser, parent)
 
-            result.left = ExpressionsCommons.parseLeftExpression(parser, result, AssignExpressionAnalyzer.signalEndLeft)
-                    ?: return null
+            result.left = ExpressionsCommons.parseLeftExpression(parser, result) ?: return null
 
             WhitespaceNoEOLNode.parse(parser)
 
-            result.operator =
-                    AssignOperatorNode.parse(parser, result, AssignExpressionAnalyzer.signalEndOperator) ?: let {
-                        initCursor.restore()
-                        return@parse null
-                    }
+            result.operator = AssignOperatorNode.parse(parser, result) ?: let {
+                initCursor.restore()
+                return@parse null
+            }
 
             WhitespaceNode.parse(parser)
 
-            result.right = RightExpressionNode.parse(parser, result, AssignExpressionAnalyzer.signalEndRight) ?: let {
+            result.right = RightExpressionNode.parse(parser, result) ?: let {
                 throw AngmarParserException(
                         AngmarParserExceptionType.AssignExpressionWithoutExpressionAfterAssignOperator,
                         "An expression was expected after the assign operator '${result.operator}'.") {

@@ -167,8 +167,9 @@ internal class LexemePatternGroupAnalyzerTest {
     @Incorrect
     fun `test incorrect quantifier minimum`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.QuantifierMinimumIsGreaterThanNumberOfPatterns) {
+            val variableName = "testVariable"
             val text = "ab"
-            val grammar = generateQuantifiedPatterns(listOf("a", "b"), 4)
+            val grammar = generateQuantifiedPatterns(listOf("a", "b"), variableName)
             val analyzer =
                     TestUtils.createAnalyzerFrom(grammar, parserFunction = LexemePatternGroupNode.Companion::parse,
                             isDescriptiveCode = true)
@@ -178,6 +179,7 @@ internal class LexemePatternGroupAnalyzerTest {
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
             context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+            context.setPropertyAsContext(analyzer.memory, variableName, LxmInteger.from(4))
 
             TestUtils.processAndCheckEmpty(analyzer, textReader)
         }
@@ -253,33 +255,39 @@ internal class LexemePatternGroupAnalyzerTest {
 
     // AUXILIARY FUNCTIONS ----------------------------------------------------
 
-    private fun generatePatterns(texts: List<String?>,
-            type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
-            texts.joinToString("\n") {
-                "${LexemePatternNode.patternToken}${type.token} ${printText(it)}"
-            }
-
-    private fun generateQuantifiedPatterns(texts: List<String?>, min: Int, isInfinite: Boolean = false) =
-            StringBuilder().apply {
-                if (isInfinite) {
-                    append("${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}$min${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken} ${printText(
-                            texts.first())}")
-                } else {
-                    append("${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}$min${ExplicitQuantifierLexemeNode.endToken} ${printText(
-                            texts.first())}")
+    companion object {
+        internal fun generatePatterns(texts: List<String?>,
+                type: LexemePatternNode.Companion.PatternType = LexemePatternNode.Companion.PatternType.Alternative) =
+                texts.joinToString("\n") {
+                    "${LexemePatternNode.patternToken}${type.token} ${printText(it)}"
                 }
 
-                if (texts.size > 1) {
-                    append("\n")
-                    append(texts.joinToString("\n") {
-                        "${LexemePatternNode.patternToken}${LexemePatternNode.quantifierSlaveToken} ${printText(it)}"
-                    })
-                }
-            }.toString()
+        fun generateQuantifiedPatterns(texts: List<String?>, min: Int, isInfinite: Boolean = false) =
+                generateQuantifiedPatterns(texts, min.toString(), isInfinite)
 
-    private fun printText(text: String?) = if (text == null) {
-        ""
-    } else {
-        "${StringNode.startToken}${text}${StringNode.endToken}"
+        fun generateQuantifiedPatterns(texts: List<String?>, min: String, isInfinite: Boolean = false) =
+                StringBuilder().apply {
+                    if (isInfinite) {
+                        append("${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}$min${ExplicitQuantifierLexemeNode.elementSeparator}${ExplicitQuantifierLexemeNode.endToken} ${printText(
+                                texts.first())}")
+                    } else {
+                        append("${LexemePatternNode.patternToken}${ExplicitQuantifierLexemeNode.startToken}$min${ExplicitQuantifierLexemeNode.endToken} ${printText(
+                                texts.first())}")
+                    }
+
+                    if (texts.size > 1) {
+                        append("\n")
+                        append(texts.drop(1).joinToString("\n") {
+                            "${LexemePatternNode.patternToken}${LexemePatternNode.quantifierSlaveToken} ${printText(
+                                    it)}"
+                        })
+                    }
+                }.toString()
+
+        private fun printText(text: String?) = if (text == null) {
+            ""
+        } else {
+            "${StringNode.startToken}${text}${StringNode.endToken}"
+        }
     }
 }

@@ -58,7 +58,7 @@ internal class BitlistElementNodeTest {
     @MethodSource("provideNumberElements")
     fun `parse correct bitlist element`(text: String, radix: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0, radix)
+        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, radix)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistElementNode
@@ -75,8 +75,7 @@ internal class BitlistElementNodeTest {
     @ValueSource(strings = [EscapedExpressionNodeTest.testExpression])
     fun `parse correct bitlist element`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0,
-                2) // The radix does not matter
+        val res = BitlistElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 2) // The radix does not matter
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as BitlistElementNode
@@ -93,7 +92,7 @@ internal class BitlistElementNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

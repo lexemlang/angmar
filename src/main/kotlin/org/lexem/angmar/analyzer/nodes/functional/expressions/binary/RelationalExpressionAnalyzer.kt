@@ -5,6 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
+import org.lexem.angmar.compiler.functional.expressions.binary.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 
@@ -17,10 +18,10 @@ internal object RelationalExpressionAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RelationalExpressionNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RelationalExpressionCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                return analyzer.nextNode(node.expressions[0])
+                return analyzer.nextNode(node.expressions.first())
             }
             signalEndFirstExpression -> {
                 // Move Last to Left in the stack.
@@ -56,7 +57,8 @@ internal object RelationalExpressionAnalyzer {
      * Operates two values depending on the specified operator.
      * Returns a value indicating whether the expression must end.
      */
-    private fun operate(analyzer: LexemAnalyzer, signal: Int, position: Int, node: RelationalExpressionNode): Boolean {
+    private fun operate(analyzer: LexemAnalyzer, signal: Int, position: Int,
+            node: RelationalExpressionCompiled): Boolean {
         val operator = node.operators[position - (signalEndFirstExpression + 1)]
 
         // Get operand values.

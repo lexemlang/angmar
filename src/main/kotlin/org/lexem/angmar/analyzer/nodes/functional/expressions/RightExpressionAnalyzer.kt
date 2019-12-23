@@ -3,7 +3,7 @@ package org.lexem.angmar.analyzer.nodes.functional.expressions
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.expressions.*
+import org.lexem.angmar.compiler.functional.expressions.*
 
 
 /**
@@ -14,7 +14,7 @@ internal object RightExpressionAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RightExpressionNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: RightExpressionCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.expression)

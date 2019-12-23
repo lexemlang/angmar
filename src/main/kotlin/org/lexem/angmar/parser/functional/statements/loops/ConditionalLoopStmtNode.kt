@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.loops
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.loops.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,13 +15,13 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for conditional loop statements.
  */
-internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var condition: ParserNode
     lateinit var thenBlock: ParserNode
-    var isUntil = false
     var index: IdentifierNode? = null
     var lastClauses: LoopClausesStmtNode? = null
+    var isUntil = false
 
     override fun toString() = StringBuilder().apply {
         if (index != null) {
@@ -58,8 +59,8 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ConditionalLoopStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ConditionalLoopStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val whileKeyword = "while"
@@ -71,9 +72,9 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
         /**
          * Parses a conditional loop statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalLoopStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ConditionalLoopStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ConditionalLoopStmtNode(parser, parent, parentSignal)
+            val result = ConditionalLoopStmtNode(parser, parent)
 
             // index
             let {
@@ -83,7 +84,7 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
 
                 WhitespaceNode.parse(parser)
 
-                result.index = IdentifierNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndIndex)
+                result.index = IdentifierNode.parse(parser, result)
                 if (result.index == null) {
                     initCursor.restore()
                     return null
@@ -107,45 +108,42 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
 
             WhitespaceNode.parse(parser)
 
-            result.condition =
-                    ExpressionsCommons.parseExpression(parser, result, ConditionalLoopStmtAnalyzer.signalEndCondition)
-                            ?: throw AngmarParserException(
-                                    AngmarParserExceptionType.ConditionalLoopStatementWithoutCondition,
-                                    "An expression was expected after the loop keyword '$conditionalKeyword' to act as the condition.") {
-                                val fullText = parser.reader.readAllText()
-                                addSourceCode(fullText, parser.reader.getSource()) {
-                                    title = Consts.Logger.codeTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightCursorAt(parser.reader.currentPosition())
-                                    message = "Try adding an expression here to act as the condition of the loop"
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    message = "Try removing the loop keyword '$conditionalKeyword'"
-                                }
-                            }
+            result.condition = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.ConditionalLoopStatementWithoutCondition,
+                    "An expression was expected after the loop keyword '$conditionalKeyword' to act as the condition.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an expression here to act as the condition of the loop"
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    message = "Try removing the loop keyword '$conditionalKeyword'"
+                }
+            }
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = BlockStmtNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndThenBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.ConditionalLoopStatementWithoutBlock,
-                            "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                    }
+            result.thenBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.ConditionalLoopStatementWithoutBlock,
+                    "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+            }
 
             // last clauses
             let {
@@ -153,8 +151,7 @@ internal class ConditionalLoopStmtNode private constructor(parser: LexemParser, 
 
                 WhitespaceNode.parse(parser)
 
-                val lastClauses =
-                        LoopClausesStmtNode.parse(parser, result, ConditionalLoopStmtAnalyzer.signalEndLastClause)
+                val lastClauses = LoopClausesStmtNode.parse(parser, result)
                 if (lastClauses == null) {
                     initLastClausesCursor.restore()
                 }

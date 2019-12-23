@@ -5,8 +5,8 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
 
 internal class LxmObjectTest {
@@ -94,7 +94,7 @@ internal class LxmObjectTest {
     @Test
     fun `test get undefined property`() {
         val propName = "test"
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val obj = LxmObject(memory)
@@ -149,7 +149,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test set property`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val prototype = LxmObject(memory)
@@ -232,7 +232,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test set property as context`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         var prototype = LxmObject(memory)
@@ -267,7 +267,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test set property ignoring constant`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
         val propName = "test"
 
@@ -282,7 +282,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test set property changing the inner attributes`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
         val propName = "test"
 
@@ -308,7 +308,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test set property changing the inner attributes recursively`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
         val propName = "test"
 
@@ -586,7 +586,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test get type`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val obj = LxmObject(memory)
@@ -598,7 +598,7 @@ internal class LxmObjectTest {
 
     @Test
     fun `test get prototype`() {
-        val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+        val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
         val memory = analyzer.memory
 
         val prototype1 = LxmObject(memory)
@@ -619,7 +619,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `set property in a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 
@@ -636,7 +636,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `set a constant property`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 
@@ -653,7 +653,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `remove property in a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 
@@ -669,7 +669,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `remove a constant property`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
             val testName = "test"
@@ -685,7 +685,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `make an undefined property constant`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 
@@ -697,7 +697,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `make a property constant in a constant object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 
@@ -710,7 +710,7 @@ internal class LxmObjectTest {
     @Incorrect
     fun `set a property in a non-writable object`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableObject) {
-            val analyzer = LexemAnalyzer(ParserNode.Companion.EmptyParserNode)
+            val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)
 

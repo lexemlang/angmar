@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.compiler.literals.*
 
 
 /**
@@ -15,13 +15,13 @@ internal object IntervalAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IntervalNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IntervalCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.elements.isNotEmpty()) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
 
-                    return analyzer.nextNode(node.elements[0])
+                    return analyzer.nextNode(node.elements.first())
                 }
 
                 if (node.reversed) {
@@ -30,7 +30,7 @@ internal object IntervalAnalyzer {
                     analyzer.memory.addToStackAsLast(LxmInterval.Empty)
                 }
             }
-            in signalEndFirstElement until signalEndFirstElement + node.elements.size -> {
+            in signalEndFirstElement..signalEndFirstElement + node.elements.size -> {
                 val position = (signal - ListAnalyzer.signalEndFirstElement) + 1
 
                 // Process the next node.

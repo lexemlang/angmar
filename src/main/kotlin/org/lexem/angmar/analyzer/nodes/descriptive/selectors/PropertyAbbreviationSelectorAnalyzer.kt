@@ -7,9 +7,9 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.descriptive.selectors.*
 
 
 /**
@@ -21,7 +21,7 @@ internal object PropertyAbbreviationSelectorAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyAbbreviationSelectorNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: PropertyAbbreviationSelectorCompiled) {
         if (node.isAddition) {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {

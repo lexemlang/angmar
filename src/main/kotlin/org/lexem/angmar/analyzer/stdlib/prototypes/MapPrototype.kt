@@ -164,7 +164,7 @@ internal object MapPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -253,7 +253,7 @@ internal object MapPrototype {
                 val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmMap
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -340,7 +340,7 @@ internal object MapPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     // Remove Last from the stack.
@@ -480,7 +480,7 @@ internal object MapPrototype {
                 val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmMap
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -566,7 +566,7 @@ internal object MapPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -641,7 +641,7 @@ internal object MapPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement until signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()

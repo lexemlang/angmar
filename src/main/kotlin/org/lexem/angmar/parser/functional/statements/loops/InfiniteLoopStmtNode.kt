@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.loops
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.loops.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for infinite loop statements.
  */
-internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var thenBlock: ParserNode
     var index: IdentifierNode? = null
     var lastClauses: LoopClausesStmtNode? = null
@@ -45,8 +46,8 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            InfiniteLoopStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            InfiniteLoopStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val keyword = "repeat"
@@ -56,9 +57,9 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
         /**
          * Parses an infinite loop statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): InfiniteLoopStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): InfiniteLoopStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = InfiniteLoopStmtNode(parser, parent, parentSignal)
+            val result = InfiniteLoopStmtNode(parser, parent)
 
             if (!Commons.parseKeyword(parser, keyword)) {
                 return null
@@ -70,7 +71,7 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
 
                 WhitespaceNode.parse(parser)
 
-                result.index = IdentifierNode.parse(parser, result, InfiniteLoopStmtAnalyzer.signalEndIndex)
+                result.index = IdentifierNode.parse(parser, result)
                 if (result.index == null) {
                     initIndexCursor.restore()
                 }
@@ -78,22 +79,21 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = BlockStmtNode.parse(parser, result, InfiniteLoopStmtAnalyzer.signalEndThenBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.InfiniteLoopStatementWithoutBlock,
-                            "A block was expected after the loop keyword '$keyword' to act as the code of the loop.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                        addNote("WARNING", "An empty block will cause an infinite loop")
-                    }
+            result.thenBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.InfiniteLoopStatementWithoutBlock,
+                    "A block was expected after the loop keyword '$keyword' to act as the code of the loop.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+                addNote("WARNING", "An empty block will cause an infinite loop")
+            }
 
             // last clauses
             let {
@@ -101,8 +101,7 @@ internal class InfiniteLoopStmtNode private constructor(parser: LexemParser, par
 
                 WhitespaceNode.parse(parser)
 
-                result.lastClauses =
-                        LoopClausesStmtNode.parse(parser, result, InfiniteLoopStmtAnalyzer.signalEndLastClause)
+                result.lastClauses = LoopClausesStmtNode.parse(parser, result)
                 if (result.lastClauses == null) {
                     initLastClausesCursor.restore()
                 }

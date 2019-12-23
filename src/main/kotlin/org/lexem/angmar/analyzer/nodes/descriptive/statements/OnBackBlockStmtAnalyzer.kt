@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.statements.*
+import org.lexem.angmar.compiler.descriptive.statements.*
 
 
 /**
@@ -18,7 +18,7 @@ internal object OnBackBlockStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: OnBackBlockStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: OnBackBlockStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // On backwards execute the block.
@@ -56,7 +56,7 @@ internal object OnBackBlockStmtAnalyzer {
                 val control = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Control) as LxmControl
                 val contextTag = AnalyzerCommons.getCurrentContextTag(analyzer.memory)
 
-                finish(analyzer, node)
+                finish(analyzer)
 
                 // Propagate the control signal.
                 if (control.tag != null && control.tag != contextTag) {
@@ -71,12 +71,12 @@ internal object OnBackBlockStmtAnalyzer {
             }
             // Propagate the control signal.
             AnalyzerNodesCommons.signalNextControl, AnalyzerNodesCommons.signalRedoControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
             AnalyzerNodesCommons.signalRestartControl, AnalyzerNodesCommons.signalReturnControl -> {
-                finish(analyzer, node)
+                finish(analyzer)
 
                 return analyzer.nextNode(node.parent, signal)
             }
@@ -88,7 +88,7 @@ internal object OnBackBlockStmtAnalyzer {
     /**
      * Process the finalization of the node.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: OnBackBlockStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
     }

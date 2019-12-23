@@ -44,7 +44,7 @@ internal class FunctionParameterNodeTest {
     @ValueSource(strings = [correctFunctionParameter])
     fun `parse correct function parameter`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterNode
@@ -58,7 +58,7 @@ internal class FunctionParameterNodeTest {
     @ValueSource(strings = [correctFunctionParameterWithValue])
     fun `parse correct function parameter with values`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterNode
@@ -72,7 +72,7 @@ internal class FunctionParameterNodeTest {
     @ValueSource(strings = [correctFunctionParameterWithValueAndWS])
     fun `parse correct function parameter with values and whites`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as FunctionParameterNode
@@ -89,7 +89,7 @@ internal class FunctionParameterNodeTest {
                 AngmarParserExceptionType.FunctionParameterWithoutExpressionAfterAssignOperator) {
             val text = "${IdentifierNodeTest.testExpression}${FunctionParameterNode.assignOperator}"
             val parser = LexemParser(IOStringReader.from(text))
-            FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -97,7 +97,7 @@ internal class FunctionParameterNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = FunctionParameterNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

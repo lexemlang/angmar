@@ -36,7 +36,7 @@ internal class IndexerNodeTest {
     fun `parse correct indexer`(expression: String) {
         val text = "${IndexerNode.startToken}$expression${IndexerNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IndexerNode
@@ -51,7 +51,7 @@ internal class IndexerNodeTest {
     fun `parse correct indexer with whites`(expression: String) {
         val text = "${IndexerNode.startToken}  $expression  ${IndexerNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IndexerNode
@@ -67,7 +67,7 @@ internal class IndexerNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IndexerWithoutStartToken) {
             val text = IndexerNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -78,7 +78,7 @@ internal class IndexerNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IndexerWithoutEndToken) {
             val text = "${IndexerNode.startToken}$expression"
             val parser = LexemParser(IOStringReader.from(text))
-            IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -86,7 +86,7 @@ internal class IndexerNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IndexerNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

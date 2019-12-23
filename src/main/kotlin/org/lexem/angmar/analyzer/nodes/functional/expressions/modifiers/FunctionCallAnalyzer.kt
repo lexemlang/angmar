@@ -6,9 +6,9 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.primitives.setters.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 
 /**
@@ -20,7 +20,10 @@ internal object FunctionCallAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallCompiled) {
+        val signalEndFirstNamed = signalEndFirstArgument + node.positionalArguments.size
+        val signalEndFirstSpread = signalEndFirstNamed + node.namedArguments.size
+
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Move Last to Function in the stack.
@@ -32,15 +35,15 @@ internal object FunctionCallAnalyzer {
 
                 // Call next element
                 if (node.positionalArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.positionalArguments[0])
+                    return analyzer.nextNode(node.positionalArguments.first())
                 }
 
                 if (node.namedArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.namedArguments[0])
+                    return analyzer.nextNode(node.namedArguments.first())
                 }
 
                 if (node.spreadArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.spreadArguments[0])
+                    return analyzer.nextNode(node.spreadArguments.first())
                 }
 
                 if (node.propertiesExpression != null) {
@@ -69,11 +72,11 @@ internal object FunctionCallAnalyzer {
                 }
 
                 if (node.namedArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.namedArguments[0])
+                    return analyzer.nextNode(node.namedArguments.first())
                 }
 
                 if (node.spreadArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.spreadArguments[0])
+                    return analyzer.nextNode(node.spreadArguments.first())
                 }
 
                 if (node.propertiesExpression != null) {
@@ -83,8 +86,8 @@ internal object FunctionCallAnalyzer {
                 return callFunction(analyzer, node)
             }
             // Named arguments.
-            in signalEndFirstArgument + node.positionalArguments.size until signalEndFirstArgument + node.positionalArguments.size + node.namedArguments.size -> {
-                val position = (signal - signalEndFirstArgument - node.positionalArguments.size) + 1
+            in signalEndFirstNamed until signalEndFirstNamed + node.namedArguments.size -> {
+                val position = (signal - signalEndFirstNamed) + 1
 
                 // Call next element
                 if (position < node.namedArguments.size) {
@@ -92,7 +95,7 @@ internal object FunctionCallAnalyzer {
                 }
 
                 if (node.spreadArguments.isNotEmpty()) {
-                    return analyzer.nextNode(node.spreadArguments[0])
+                    return analyzer.nextNode(node.spreadArguments.first())
                 }
 
                 if (node.propertiesExpression != null) {
@@ -102,9 +105,8 @@ internal object FunctionCallAnalyzer {
                 return callFunction(analyzer, node)
             }
             // Spread arguments.
-            in signalEndFirstArgument + node.positionalArguments.size + node.namedArguments.size until signalEndFirstArgument + node.positionalArguments.size + node.namedArguments.size + node.spreadArguments.size -> {
-                val position =
-                        (signal - signalEndFirstArgument - node.positionalArguments.size - node.namedArguments.size) + 1
+            in signalEndFirstSpread until signalEndFirstSpread + node.spreadArguments.size -> {
+                val position = (signal - signalEndFirstSpread) + 1
 
                 val value = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false)
                 val arguments =
@@ -165,7 +167,7 @@ internal object FunctionCallAnalyzer {
         return analyzer.nextNode(node.parent, node.parentSignal)
     }
 
-    private fun callFunction(analyzer: LexemAnalyzer, node: FunctionCallNode) {
+    private fun callFunction(analyzer: LexemAnalyzer, node: FunctionCallCompiled) {
         val arguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
                 toWrite = true) as LxmArguments
         val functionRef = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Function)

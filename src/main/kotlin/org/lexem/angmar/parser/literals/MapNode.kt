@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,7 @@ import org.lexem.angmar.parser.functional.expressions.macros.*
 /**
  * Parser for map literals.
  */
-internal class MapNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class MapNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val elements = mutableListOf<MapElementNode>()
     var isConstant = false
 
@@ -38,7 +38,7 @@ internal class MapNode private constructor(parser: LexemParser, parent: ParserNo
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = MapAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = MapCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val macroName = "map${MacroExpressionNode.macroSuffix}"
@@ -53,14 +53,14 @@ internal class MapNode private constructor(parser: LexemParser, parent: ParserNo
         /**
          * Parses a map literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): MapNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): MapNode? {
             val initCursor = parser.reader.saveCursor()
 
             if (!parser.readText(macroName)) {
                 return null
             }
 
-            val result = MapNode(parser, parent, parentSignal)
+            val result = MapNode(parser, parent)
             result.isConstant = parser.readText(constantToken)
 
             if (!parser.readText(startToken)) {
@@ -95,8 +95,7 @@ internal class MapNode private constructor(parser: LexemParser, parent: ParserNo
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument =
-                        MapElementNode.parse(parser, result, result.elements.size + MapAnalyzer.signalEndFirstElement)
+                val argument = MapElementNode.parse(parser, result)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break

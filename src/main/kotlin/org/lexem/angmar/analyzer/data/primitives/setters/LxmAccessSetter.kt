@@ -4,9 +4,9 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 
 /**
  * A setter for a variable.
@@ -14,13 +14,13 @@ import org.lexem.angmar.parser.*
 internal class LxmAccessSetter : LexemSetter {
     val context: LxmReference
     val variableName: String
-    val node: ParserNode
-    val nodeElement: ParserNode
+    val node: CompiledNode
+    val nodeElement: CompiledNode
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(memory: LexemMemory, context: LxmContext, variableName: String, node: ParserNode,
-            nodeElement: ParserNode) {
+    constructor(memory: LexemMemory, context: LxmContext, variableName: String, node: CompiledNode,
+            nodeElement: CompiledNode) {
         this.context = context.getPrimitive()
         this.variableName = variableName
         this.node = node

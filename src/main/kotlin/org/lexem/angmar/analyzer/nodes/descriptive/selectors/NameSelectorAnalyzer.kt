@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.selectors.*
+import org.lexem.angmar.compiler.descriptive.selectors.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object NameSelectorAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: NameSelectorNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: NameSelectorCompiled) {
         if (node.isAddition) {
             when (signal) {
                 AnalyzerNodesCommons.signalStart -> {
@@ -39,7 +39,7 @@ internal object NameSelectorAnalyzer {
                 AnalyzerNodesCommons.signalStart -> {
                     return analyzer.nextNode(node.names.first())
                 }
-                in signalEndFirstName until signalEndFirstName + node.names.size -> {
+                in signalEndFirstName..signalEndFirstName + node.names.size -> {
                     val position = (signal - signalEndFirstName) + 1
 
                     val name = analyzer.memory.getLastFromStack() as LxmString

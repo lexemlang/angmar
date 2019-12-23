@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for explicit quantifier lexemes.
  */
-internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var hasMaximum: Boolean = false
     var maximum: ParserNode? = null
     lateinit var minimum: ParserNode
@@ -47,8 +48,8 @@ internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemPar
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ExplicitQuantifierLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ExplicitQuantifierLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "{"
@@ -60,9 +61,9 @@ internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemPar
         /**
          * Parses an explicit quantifier lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ExplicitQuantifierLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ExplicitQuantifierLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ExplicitQuantifierLexemeNode(parser, parent, parentSignal)
+            val result = ExplicitQuantifierLexemeNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -70,8 +71,7 @@ internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemPar
 
             WhitespaceNode.parse(parser)
 
-            result.minimum = ExpressionsCommons.parseExpression(parser, result,
-                    ExplicitQuantifierLexemeAnalyzer.signalEndMinimum) ?: let {
+            result.minimum = ExpressionsCommons.parseExpression(parser, result) ?: let {
                 val expressionCursor = parser.reader.saveCursor()
 
                 // To show the end token in the message if it exists.
@@ -99,8 +99,7 @@ internal class ExplicitQuantifierLexemeNode private constructor(parser: LexemPar
 
                 WhitespaceNode.parse(parser)
 
-                result.maximum = ExpressionsCommons.parseExpression(parser, result,
-                        ExplicitQuantifierLexemeAnalyzer.signalEndMaximum)
+                result.maximum = ExpressionsCommons.parseExpression(parser, result)
 
                 if (result.maximum != null) {
                     WhitespaceNode.parse(parser)

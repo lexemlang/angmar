@@ -34,30 +34,29 @@ internal object GlobalCommons {
     /**
      * Parses a block statement depending on the context.
      */
-    fun parseBlockStatement(parser: LexemParser, parent: ParserNode, parentSignal: Int) =
-            if (parser.isDescriptiveCode) {
-                if (parser.isFilterCode) {
-                    // Descriptive code (filters)
-                    StatementCommons.parseAnyDescriptiveStatement(parser, parent, parentSignal)
-                } else {
-                    // Descriptive code (expressions)
-                    StatementCommons.parseAnyDescriptiveStatement(parser, parent, parentSignal)
-                }
-            } else {
-                // Functional code
-                StatementCommons.parseAnyStatement(parser, parent, parentSignal)
-            }
+    fun parseBlockStatement(parser: LexemParser, parent: ParserNode) = if (parser.isDescriptiveCode) {
+        if (parser.isFilterCode) {
+            // Descriptive code (filters)
+            StatementCommons.parseAnyDescriptiveStatement(parser, parent)
+        } else {
+            // Descriptive code (expressions)
+            StatementCommons.parseAnyDescriptiveStatement(parser, parent)
+        }
+    } else {
+        // Functional code
+        StatementCommons.parseAnyStatement(parser, parent)
+    }
 
     /**
      * Parses a lexeme depending on the context.
      */
-    fun parseLexem(parser: LexemParser, parent: ParserNode, parentSignal: Int) = if (parser.isDescriptiveCode) {
+    fun parseLexem(parser: LexemParser, parent: ParserNode) = if (parser.isDescriptiveCode) {
         if (parser.isFilterCode) {
             // Descriptive code (filters)
-            AnyFilterLexemeNode.parse(parser, parent, parentSignal)
+            AnyFilterLexemeNode.parse(parser, parent)
         } else {
             // Descriptive code (expressions)
-            AnyLexemeNode.parse(parser, parent, parentSignal)
+            AnyLexemeNode.parse(parser, parent)
         }
     } else {
         throw AngmarUnreachableException()

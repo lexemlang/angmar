@@ -98,7 +98,7 @@ internal class PropertyAbbreviationSelectorNodeTest {
     @MethodSource("provideSimpleProperty")
     fun `parse correct simple property`(text: String, isNegated: Boolean, isAtIdentifier: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyAbbreviationSelectorNode
@@ -117,7 +117,7 @@ internal class PropertyAbbreviationSelectorNodeTest {
     @MethodSource("provideSimplePropertyForAddition")
     fun `parse correct simple property - for addition`(text: String, isNegated: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyAbbreviationSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyAbbreviationSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyAbbreviationSelectorNode
@@ -136,7 +136,7 @@ internal class PropertyAbbreviationSelectorNodeTest {
     @MethodSource("providePropertyWithBlock")
     fun `parse correct property with block`(text: String, isAtIdentifier: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyAbbreviationSelectorNode
@@ -156,7 +156,7 @@ internal class PropertyAbbreviationSelectorNodeTest {
     fun `parse correct property with block - for addition`() {
         val text = IdentifierNodeTest.testExpression + PropertyBlockSelectorNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyAbbreviationSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyAbbreviationSelectorNode.parseForAddition(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyAbbreviationSelectorNode
@@ -177,7 +177,7 @@ internal class PropertyAbbreviationSelectorNodeTest {
             strings = ["", PropertyAbbreviationSelectorNode.notOperator, PropertyAbbreviationSelectorNode.atPrefix, "${PropertyAbbreviationSelectorNode.notOperator}${PropertyAbbreviationSelectorNode.atPrefix}"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyAbbreviationSelectorNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

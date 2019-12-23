@@ -89,7 +89,7 @@ internal class ExplicitQuantifierLexemeNodeTest {
     @MethodSource("provideNodes")
     fun `parse correct nodes`(text: String, hasMaximum: Boolean, hasMaximumProperty: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ExplicitQuantifierLexemeNode
@@ -113,7 +113,7 @@ internal class ExplicitQuantifierLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifierWithoutMinimumExpression) {
             val text = "${ExplicitQuantifierLexemeNode.startToken}${ExplicitQuantifierLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -123,7 +123,7 @@ internal class ExplicitQuantifierLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.QuantifierWithoutEndToken) {
             val text = "${ExplicitQuantifierLexemeNode.startToken}${SelectorNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -131,7 +131,7 @@ internal class ExplicitQuantifierLexemeNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExplicitQuantifierLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

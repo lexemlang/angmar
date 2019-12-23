@@ -2,7 +2,9 @@ package org.lexem.angmar.parser.commons
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.commons.*
+import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -11,8 +13,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for Unicode escapes.
  */
-internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var hasBrackets = false
     var value = 0
 
@@ -31,8 +33,8 @@ internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            UnicodeEscapeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ConstantCompiled(parent, parentSignal, this, LxmInteger.from(value))
 
     companion object {
         internal const val escapeStart = "${EscapeNode.startToken}u"
@@ -45,9 +47,9 @@ internal class UnicodeEscapeNode private constructor(parser: LexemParser, parent
         /**
          * Parses a unicode escape.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): UnicodeEscapeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): UnicodeEscapeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = UnicodeEscapeNode(parser, parent, parentSignal)
+            val result = UnicodeEscapeNode(parser, parent)
 
             if (!parser.readText(escapeStart)) {
                 return null

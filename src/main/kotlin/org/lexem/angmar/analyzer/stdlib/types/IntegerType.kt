@@ -6,6 +6,8 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
@@ -74,12 +76,12 @@ internal object IntegerType {
 
                 val reader = IOStringReader.from(value.primitive)
                 val parser = LexemParser(reader)
-                val grammar =
-                        NumberNode.parseAnyIntegerInSpecifiedRadix(parser, ParserNode.Companion.EmptyParserNode, 0,
-                                radix.primitive)
+                val grammar = NumberNode.parseAnyIntegerInSpecifiedRadix(parser, ParserNode.Companion.EmptyParserNode,
+                        radix.primitive)
 
                 if (grammar != null) {
-                    grammar.analyze(analyzer, AnalyzerNodesCommons.signalStart)
+                    val compiledGrammar = NumberCompiler.compile(CompiledNode.Companion.EmptyCompiledNode, 0, grammar)
+                    compiledGrammar.analyze(analyzer, AnalyzerNodesCommons.signalStart)
                 } else {
                     analyzer.memory.addToStackAsLast(LxmNil)
                 }

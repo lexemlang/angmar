@@ -5,9 +5,9 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.anchors.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
-import org.lexem.angmar.parser.descriptive.lexemes.*
 import org.lexem.angmar.utils.*
 
 
@@ -20,7 +20,7 @@ internal object BlockLexemAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BlockLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BlockLexemeCompiled) {
         val reader = analyzer.text as? ITextReader ?: throw AngmarException(
                 "The block lexeme require that the analyzed content is a text reader.")
 
@@ -37,7 +37,7 @@ internal object BlockLexemAnalyzer {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LastNode, memoryIndex)
                 }
 
-                return analyzer.nextNode(node.block)
+                return analyzer.nextNode(node.interval)
             }
             signalEndInterval -> {
                 val (reverse, insensible) = AnalyzerNodesCommons.resolveInlineProperties(analyzer, node.propertyPostfix)

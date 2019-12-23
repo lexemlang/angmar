@@ -169,7 +169,7 @@ internal class LexemePatternGroupNodeTest {
             textFirstPattern: String, type: LexemePatternNode.Companion.PatternType) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LexemePatternGroupNode
@@ -199,7 +199,7 @@ internal class LexemePatternGroupNodeTest {
             patternCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LexemePatternGroupNode
@@ -229,7 +229,7 @@ internal class LexemePatternGroupNodeTest {
             val text = "${LexemePatternNode.patternToken}${LexemePatternNode.quantifierSlaveToken}"
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
-            LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -238,7 +238,7 @@ internal class LexemePatternGroupNodeTest {
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LexemePatternGroupNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -14,8 +15,7 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for list literals.
  */
-internal class ListNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ListNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val elements = mutableListOf<ParserNode>()
     var isConstant = false
 
@@ -37,7 +37,7 @@ internal class ListNode private constructor(parser: LexemParser, parent: ParserN
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = ListAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = ListCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "["
@@ -51,9 +51,9 @@ internal class ListNode private constructor(parser: LexemParser, parent: ParserN
         /**
          * Parses a list literal
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ListNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ListNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ListNode(parser, parent, parentSignal)
+            val result = ListNode(parser, parent)
 
             result.isConstant = parser.readText(constantToken)
 
@@ -78,8 +78,7 @@ internal class ListNode private constructor(parser: LexemParser, parent: ParserN
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = ExpressionsCommons.parseExpression(parser, result,
-                        result.elements.size + ListAnalyzer.signalEndFirstElement)
+                val argument = ExpressionsCommons.parseExpression(parser, result)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break

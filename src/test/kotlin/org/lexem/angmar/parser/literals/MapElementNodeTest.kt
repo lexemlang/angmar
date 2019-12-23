@@ -37,7 +37,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [correctMapElement])
     fun `parse correct map element`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapElementNode
@@ -51,7 +51,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [correctMapElementWithWS])
     fun `parse correct map element with whitespaces`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as MapElementNode
@@ -67,7 +67,7 @@ internal class MapElementNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.MapElementWithoutRelationalSeparatorAfterKey) {
             val text = ExpressionsCommonsTest.testExpression
             val parser = LexemParser(IOStringReader.from(text))
-            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -77,7 +77,7 @@ internal class MapElementNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.MapElementWithoutExpressionAfterRelationalSeparator) {
             val text = "${ExpressionsCommonsTest.testExpression}${MapElementNode.keyValueSeparator}"
             val parser = LexemParser(IOStringReader.from(text))
-            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -85,7 +85,7 @@ internal class MapElementNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = MapElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

@@ -5,9 +5,9 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.descriptive.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.descriptive.*
 
 
 /**
@@ -19,28 +19,16 @@ internal object LexemePatternGroupAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternGroupNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: LexemePatternGroupCompiled) {
         val signalBadPattern = signalEndFirstPattern + node.patterns.size + 1
 
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                when (node.type) {
-                    LexemePatternNode.Companion.PatternType.Additive -> {
-                        // Add quantifier.
-                        analyzer.memory.addToStackAsLast(LxmQuantifier.AdditivePattern)
-                    }
-                    LexemePatternNode.Companion.PatternType.Selective -> {
-                        // Add quantifier.
-                        analyzer.memory.addToStackAsLast(LxmQuantifier.SelectivePattern)
-                    }
-                    LexemePatternNode.Companion.PatternType.Alternative -> {
-                        // Add quantifier.
-                        analyzer.memory.addToStackAsLast(LxmQuantifier.AlternativePattern)
-                    }
-                    LexemePatternNode.Companion.PatternType.Quantified -> {
-                        return analyzer.nextNode(node.quantifier)
-                    }
-                    else -> throw AngmarUnreachableException()
+                if (node.initialQuantifier == null) {
+                    return analyzer.nextNode(node.quantifier)
+                } else {
+                    // Add quantifier.
+                    analyzer.memory.addToStackAsLast(node.initialQuantifier!!)
                 }
 
                 // Jump to signalEndQuantifier.
@@ -48,7 +36,7 @@ internal object LexemePatternGroupAnalyzer {
             }
             signalEndQuantifier -> {
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -65,10 +53,9 @@ internal object LexemePatternGroupAnalyzer {
                         }
                         addSourceCode(fullText) {
                             title = Consts.Logger.hintTitle
-                            highlightSection(node.quantifier!!.minimum.from.position(),
-                                    node.quantifier!!.minimum.to.position() - 1)
+                            highlightSection(node.quantifier!!.from.position(), node.quantifier!!.to.position() - 1)
                             message =
-                                    "Review that the returned value of this expression is lower or equal than ${node.patterns.size}"
+                                    "Review that the returned value of the minimum expression is lower or equal than ${node.patterns.size}"
                         }
                     }
                 }
@@ -96,7 +83,7 @@ internal object LexemePatternGroupAnalyzer {
                     return analyzer.initBacktracking()
                 }
             }
-            in signalEndFirstPattern until signalEndFirstPattern + node.patterns.size -> {
+            in signalEndFirstPattern..signalEndFirstPattern + node.patterns.size -> {
                 val position = (signal - signalEndFirstPattern) + 1
 
                 // Increase index.
@@ -126,7 +113,7 @@ internal object LexemePatternGroupAnalyzer {
                     return analyzer.initBacktracking()
                 }
             }
-            in signalBadPattern until signalBadPattern + node.patterns.size -> {
+            in signalBadPattern..signalBadPattern + node.patterns.size -> {
                 val position = (signal - signalBadPattern) + 1
 
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
@@ -178,7 +165,7 @@ internal object LexemePatternGroupAnalyzer {
     /**
      * Process the finalization of the node.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: LexemePatternGroupNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: LexemePatternGroupCompiled) {
         // Remove LexemeUnion from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
     }

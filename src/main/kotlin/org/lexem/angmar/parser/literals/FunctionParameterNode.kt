@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for function parameters.
  */
-internal class FunctionParameterNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class FunctionParameterNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var identifier: ParserNode
     var expression: ParserNode? = null
 
@@ -35,8 +36,8 @@ internal class FunctionParameterNode private constructor(parser: LexemParser, pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            FunctionParameterAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            FunctionParameterCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val assignOperator = AssignOperatorNode.assignOperator
@@ -46,13 +47,11 @@ internal class FunctionParameterNode private constructor(parser: LexemParser, pa
         /**
          * Parses a function parameter.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): FunctionParameterNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): FunctionParameterNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = FunctionParameterNode(parser, parent, parentSignal)
+            val result = FunctionParameterNode(parser, parent)
 
-            result.identifier =
-                    Commons.parseDynamicIdentifier(parser, result, FunctionParameterAnalyzer.signalEndIdentifier)
-                            ?: return null
+            result.identifier = Commons.parseDynamicIdentifier(parser, result) ?: return null
 
             // Assign
             let {
@@ -67,8 +66,7 @@ internal class FunctionParameterNode private constructor(parser: LexemParser, pa
 
                 WhitespaceNode.parse(parser)
 
-                result.expression = ExpressionsCommons.parseExpression(parser, result,
-                        FunctionParameterAnalyzer.signalEndExpression) ?: throw AngmarParserException(
+                result.expression = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
                         AngmarParserExceptionType.FunctionParameterWithoutExpressionAfterAssignOperator,
                         "An expression was expected after the assign operator '$assignOperator' to act as the default value of the function parameter.") {
                     val fullText = parser.reader.readAllText()

@@ -88,7 +88,7 @@ internal class IteratorLoopStmtNodeTest {
     fun `parse correct iterator loop statement`(text: String, isDestructuring: Boolean, hasClauses: Boolean,
             hasIndex: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IteratorLoopStmtNode
@@ -125,7 +125,7 @@ internal class IteratorLoopStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutIdentifier) {
             val text = IteratorLoopStmtNode.keyword
             val parser = LexemParser(IOStringReader.from(text))
-            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -135,7 +135,7 @@ internal class IteratorLoopStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IteratorLoopStatementWithoutRelationalKeyword) {
             val text = "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -147,7 +147,7 @@ internal class IteratorLoopStmtNodeTest {
             val text =
                     "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword}"
             val parser = LexemParser(IOStringReader.from(text))
-            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -158,7 +158,7 @@ internal class IteratorLoopStmtNodeTest {
             val text =
                     "${IteratorLoopStmtNode.keyword} ${DestructuringStmtNodeTest.testExpression} ${IteratorLoopStmtNode.relationKeyword} ${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -166,7 +166,7 @@ internal class IteratorLoopStmtNodeTest {
     @ValueSource(strings = ["", "${InfiniteLoopStmtNode.keyword} ${IdentifierNodeTest.testExpression}"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IteratorLoopStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

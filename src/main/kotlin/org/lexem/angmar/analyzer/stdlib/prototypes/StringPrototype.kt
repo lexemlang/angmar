@@ -10,6 +10,7 @@ import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 import org.lexem.angmar.utils.*
@@ -735,8 +736,8 @@ internal object StringPrototype {
                 }
 
                 // Calls toString.
-                StdlibCommons.callToString(analyzer, right, AnalyzerNodesCommons.signalStart + 1,
-                        AnalyzerCommons.Operators.Add)
+                StdlibCommons.callToString(analyzer, right, InternalFunctionCallCompiled,
+                        AnalyzerNodesCommons.signalStart + 1, AnalyzerCommons.Operators.Add)
 
                 return false
             }

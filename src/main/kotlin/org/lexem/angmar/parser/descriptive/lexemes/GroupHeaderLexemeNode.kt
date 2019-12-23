@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
 import org.lexem.angmar.parser.literals.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for group header lexemes.
  */
-internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var quantifier: QuantifierLexemeNode? = null
     var identifier: IdentifierNode? = null
     var propertyBlock: PropertyStyleObjectBlockNode? = null
@@ -42,19 +43,19 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            GroupHeaderLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            GroupHeaderLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses a group header lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): GroupHeaderLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): GroupHeaderLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = GroupHeaderLexemeNode(parser, parent, parentSignal)
+            val result = GroupHeaderLexemeNode(parser, parent)
             result.isFilterCode = parser.isFilterCode
 
-            result.quantifier = QuantifierLexemeNode.parse(parser, result, GroupHeaderLexemAnalyzer.signalEndQuantifier)
+            result.quantifier = QuantifierLexemeNode.parse(parser, result)
 
             // Identifier
             let {
@@ -64,7 +65,7 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
                     WhitespaceNode.parse(parser)
                 }
 
-                result.identifier = IdentifierNode.parse(parser, result, GroupHeaderLexemAnalyzer.signalEndIdentifier)
+                result.identifier = IdentifierNode.parse(parser, result)
 
                 if (result.identifier == null) {
                     preIdentifierCursor.restore()
@@ -79,8 +80,7 @@ internal class GroupHeaderLexemeNode private constructor(parser: LexemParser, pa
                     WhitespaceNode.parse(parser)
                 }
 
-                result.propertyBlock = PropertyStyleObjectBlockNode.parse(parser, result,
-                        GroupHeaderLexemAnalyzer.signalEndPropertyBlock)
+                result.propertyBlock = PropertyStyleObjectBlockNode.parse(parser, result)
 
                 if (result.propertyBlock == null) {
                     prePropertyBlockCursor.restore()

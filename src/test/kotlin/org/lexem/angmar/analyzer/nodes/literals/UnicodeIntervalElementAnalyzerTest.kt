@@ -11,34 +11,15 @@ import org.lexem.angmar.utils.*
 
 internal class UnicodeIntervalElementAnalyzerTest {
     @Test
-    fun `test single char`() {
-        val left = 'a'
-        val text = "$left"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
-                        "The result must be a LxmInterval")
-        Assertions.assertEquals(1L, result.primitive.pointCount, "The pointCount property is incorrect")
-        Assertions.assertEquals(left.toInt(), result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(left.toInt(), result.primitive.lastPoint, "The lastPoint property is incorrect")
-
-        // Remove Accumulator from the stack.
-        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
     fun `test single expression`() {
+        val variableName = "testVariable"
         val left = 'a'.toInt()
-        val text = "${EscapedExpressionNode.startToken}$left${EscapedExpressionNode.endToken}"
+        val text = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, variableName, LxmInteger.from(left))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -55,42 +36,24 @@ internal class UnicodeIntervalElementAnalyzerTest {
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
-    }
-
-    @Test
-    fun `test range char`() {
-        val left = 'a'
-        val right = 'x'
-        val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
-        val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
-
-        // Prepare stack.
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
-
-        TestUtils.processAndCheckEmpty(analyzer)
-
-        val result =
-                analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as? LxmInterval ?: throw Error(
-                        "The result must be a LxmInterval")
-        Assertions.assertEquals(right - left + 1L, result.primitive.pointCount, "The pointCount property is incorrect")
-        Assertions.assertEquals(left.toInt(), result.primitive.firstPoint, "The firstPoint property is incorrect")
-        Assertions.assertEquals(right.toInt(), result.primitive.lastPoint, "The lastPoint property is incorrect")
-
-        // Remove Accumulator from the stack.
-        analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
-
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableName))
     }
 
     @Test
     fun `test range expression`() {
+        val variableLeftName = "testLeftVariable"
+        val variableRightName = "testRightVariable"
         val leftValue = 'a'.toInt()
         val rightValue = 'x'.toInt()
-        val left = "${EscapedExpressionNode.startToken}$leftValue${EscapedExpressionNode.endToken}"
-        val right = "${EscapedExpressionNode.startToken}$rightValue${EscapedExpressionNode.endToken}"
+        val left = "${EscapedExpressionNode.startToken}$variableLeftName${EscapedExpressionNode.endToken}"
+        val right = "${EscapedExpressionNode.startToken}$variableRightName${EscapedExpressionNode.endToken}"
         val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
+
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
+        context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -108,18 +71,23 @@ internal class UnicodeIntervalElementAnalyzerTest {
         // Remove Accumulator from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)
 
-        TestUtils.checkEmptyStackAndContext(analyzer)
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(variableLeftName, variableRightName))
     }
 
     @Test
     @Incorrect
     fun `test incorrect left`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
-            val left = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
+            val variableName = "testVariable"
+            val left = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
             val right = 'g'
             val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -132,11 +100,16 @@ internal class UnicodeIntervalElementAnalyzerTest {
     @Incorrect
     fun `test incorrect right`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType) {
+            val variableName = "testVariable"
             val left = 'g'
-            val right = "${EscapedExpressionNode.startToken}${LogicNode.trueLiteral}${EscapedExpressionNode.endToken}"
+            val right = "${EscapedExpressionNode.startToken}$variableName${EscapedExpressionNode.endToken}"
             val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -149,11 +122,20 @@ internal class UnicodeIntervalElementAnalyzerTest {
     @Incorrect
     fun `test left bigger than right`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds) {
-            val left = 'x'
-            val right = 'a'
+            val variableLeftName = "testLeftVariable"
+            val variableRightName = "testRightVariable"
+            val leftValue = 'x'.toInt()
+            val rightValue = 'a'.toInt()
+            val left = "${EscapedExpressionNode.startToken}$variableLeftName${EscapedExpressionNode.endToken}"
+            val right = "${EscapedExpressionNode.startToken}$variableRightName${EscapedExpressionNode.endToken}"
             val text = "$left${UnicodeIntervalElementNode.rangeToken}$right"
             val analyzer =
                     TestUtils.createAnalyzerFrom(text, parserFunction = UnicodeIntervalElementNode.Companion::parse)
+
+            // Prepare context.
+            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+            context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
+            context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)

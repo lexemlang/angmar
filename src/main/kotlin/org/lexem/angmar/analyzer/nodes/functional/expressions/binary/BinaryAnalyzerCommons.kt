@@ -6,9 +6,9 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
 
@@ -19,8 +19,8 @@ internal object BinaryAnalyzerCommons {
     /**
      * Gets the function of an operator.
      */
-    fun getOperatorFunction(analyzer: LexemAnalyzer, valueRef: LexemPrimitive, expressionNode: ParserNode,
-            leftOperand: ParserNode, operator: String, operatorFunctionName: String): LxmFunction {
+    fun getOperatorFunction(analyzer: LexemAnalyzer, valueRef: LexemPrimitive, expressionNode: CompiledNode,
+            leftOperand: CompiledNode, operator: String, operatorFunctionName: String): LxmFunction {
         val value = valueRef.dereference(analyzer.memory, toWrite = false)
         val prototype = value.getObjectOrPrototype(analyzer.memory, toWrite = false)
 

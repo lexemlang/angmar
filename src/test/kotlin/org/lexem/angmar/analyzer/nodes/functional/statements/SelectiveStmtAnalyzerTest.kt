@@ -10,19 +10,19 @@ import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.functional.statements.*
 import org.lexem.angmar.parser.functional.statements.controls.*
 import org.lexem.angmar.parser.functional.statements.selective.*
-import org.lexem.angmar.parser.literals.*
 import org.lexem.angmar.utils.*
 
 internal class SelectiveStmtAnalyzerTest {
     @Test
     fun `test without condition`() {
         val varName = "test"
+        val varNameForCase = "testVarCondition"
         val block1 =
                 "${BlockStmtNode.startToken} $varName ${AdditiveExpressionNode.additionOperator}${AssignOperatorNode.assignOperator} 100 ${BlockStmtNode.endToken}"
         val case1 = "${ElsePatternSelectiveStmtNode.elseKeyword} $block1"
         val block2 =
                 "${BlockStmtNode.startToken} $varName ${AdditiveExpressionNode.additionOperator}${AssignOperatorNode.assignOperator} 10 ${BlockStmtNode.endToken}"
-        val case2 = "${ConditionalPatternSelectiveStmtNode.ifKeyword} ${LogicNode.falseLiteral} $block2"
+        val case2 = "${ConditionalPatternSelectiveStmtNode.ifKeyword} $varNameForCase $block2"
         val text =
                 "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken} $case2 \n $case1 ${SelectiveStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveStmtNode.Companion::parse)
@@ -30,6 +30,7 @@ internal class SelectiveStmtAnalyzerTest {
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty(analyzer.memory, varNameForCase, LxmLogic.False)
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
@@ -42,7 +43,7 @@ internal class SelectiveStmtAnalyzerTest {
         Assertions.assertEquals(110, variable.primitive, "The primitive property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer,
-                listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
+                listOf(varName, varNameForCase, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
     }
 
     @Test
@@ -114,7 +115,7 @@ internal class SelectiveStmtAnalyzerTest {
                 "${BlockStmtNode.startToken} $keyword${BlockStmtNode.tagPrefix}$tagNameControl ${BlockStmtNode.endToken}"
         val case = "${ElsePatternSelectiveStmtNode.elseKeyword} $block"
         val text =
-                "${SelectiveStmtNode.keyword} ${SelectiveStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagNameBlock $case ${SelectiveStmtNode.endToken}"
+                "${SelectiveStmtNode.keyword}  ${ParenthesisExpressionNode.startToken} 4 ${ParenthesisExpressionNode.endToken} ${SelectiveStmtNode.startToken}${BlockStmtNode.tagPrefix}$tagNameBlock $case ${SelectiveStmtNode.endToken}"
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = SelectiveStmtNode.Companion::parse)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagNameControl, null) {

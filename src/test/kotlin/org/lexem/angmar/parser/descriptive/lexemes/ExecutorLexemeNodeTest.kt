@@ -80,7 +80,7 @@ internal class ExecutorLexemeNodeTest {
     @MethodSource("provideNodes")
     fun `parse correct executor`(text: String, isConditional: Boolean, expressionCount: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ExecutorLexemeNode
@@ -101,7 +101,7 @@ internal class ExecutorLexemeNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ExecutorWithoutExpression) {
             val text = "${ExecutorLexemeNode.startToken}${ExecutorLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class ExecutorLexemeNodeTest {
             val text =
                     "${ExecutorLexemeNode.startToken}${ExpressionsCommonsTest.testExpression}${ExecutorLexemeNode.separatorToken}${ExecutorLexemeNode.endToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -120,7 +120,7 @@ internal class ExecutorLexemeNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExecutorLexemeNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

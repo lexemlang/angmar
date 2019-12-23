@@ -51,7 +51,7 @@ internal class StringNodeTest {
     fun `parse simple correct strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
@@ -71,7 +71,7 @@ internal class StringNodeTest {
     fun `parse simple correct strings with escapes`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
@@ -102,7 +102,7 @@ internal class StringNodeTest {
                 textContent.filter { it.toString() == StringNode.startToken || it.toString() == StringNode.endToken || it.toString() == additionalDelimiter }.length)
         val text = "$additionalDelimiter${StringNode.startToken}$textContent${StringNode.endToken}$additionalDelimiter"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
@@ -131,7 +131,7 @@ internal class StringNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.StringWithoutEndQuote) {
             val text = "$additionalDelimiter${StringNode.startToken} this is a test"
             val parser = LexemParser(IOStringReader.from(text))
-            StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -140,7 +140,7 @@ internal class StringNodeTest {
     fun `parse incorrect complex strings`(textContent: String) {
         val text = "${StringNode.startToken}$textContent${StringNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as StringNode
@@ -159,7 +159,7 @@ internal class StringNodeTest {
     @ValueSource(strings = ["", "3", additionalDelimiter])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = StringNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

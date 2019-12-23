@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.commons.*
@@ -11,11 +12,11 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for an element of the bitlist literals.
  */
-internal class BitlistElementNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class BitlistElementNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var radix = 0
     var number: String? = null
-    var expression: EscapedExpressionNode? = null
+    var expression: ParserNode? = null
 
     override fun toString() = if (number != null) {
         number!!
@@ -32,19 +33,19 @@ internal class BitlistElementNode private constructor(parser: LexemParser, paren
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            BitListElementAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            BitlistElementCompiler.compile(parent, parentSignal, this)
 
     companion object {
         /**
          * Parses an element of the bitlist literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int, radix: Int): BitlistElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode, radix: Int): BitlistElementNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = BitlistElementNode(parser, parent, parentSignal)
+            val result = BitlistElementNode(parser, parent)
             result.radix = radix
 
-            result.expression = EscapedExpressionNode.parse(parser, result, BitListElementAnalyzer.signalEndExpression)
+            result.expression = EscapedExpressionNode.parse(parser, result)
             if (result.expression == null) {
                 result.number = when (radix) {
                     2 -> NumberNode.readBinaryInteger(parser)

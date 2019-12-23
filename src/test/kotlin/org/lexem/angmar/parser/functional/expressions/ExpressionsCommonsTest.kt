@@ -38,7 +38,7 @@ internal class ExpressionsCommonsTest {
         @JvmStatic
         private fun provideMacros(): Stream<Arguments> {
             val sequence = sequence {
-                val tests = listOf(MacroCheckPropsNodeTest.testExpression, MacroBacktrackNodeTest.testExpression,
+                val tests = listOf(CheckPropsMacroNodeTest.testExpression, MacroBacktrackNodeTest.testExpression,
                         MacroExpressionNodeTest.testExpression)
 
                 for (test in tests.withIndex()) {
@@ -85,7 +85,7 @@ internal class ExpressionsCommonsTest {
     @MethodSource("provideExpressions")
     fun `parse correct expression`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExpressionsCommons.parseExpression(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionsCommons.parseExpression(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -103,13 +103,13 @@ internal class ExpressionsCommonsTest {
     @MethodSource("provideMacros")
     fun `parse correct macro`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExpressionsCommons.parseMacro(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionsCommons.parseMacro(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
 
         when (type) {
-            0 -> MacroCheckPropsNodeTest.checkTestExpression(res)
+            0 -> CheckPropsMacroNodeTest.checkTestExpression(res)
             1 -> MacroBacktrackNodeTest.checkTestExpression(res)
             2 -> MacroExpressionNodeTest.checkTestExpression(res)
             else -> throw AngmarUnreachableException()
@@ -122,7 +122,7 @@ internal class ExpressionsCommonsTest {
     @MethodSource("provideLiterals")
     fun `parse correct literal`(text: String, type: Int) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExpressionsCommons.parseLiteral(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionsCommons.parseLiteral(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ParserNode
@@ -149,7 +149,7 @@ internal class ExpressionsCommonsTest {
     fun `parse correct left expression`() {
         val text = AccessExpressionNodeTest.testExpression
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExpressionsCommons.parseLeftExpression(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionsCommons.parseLeftExpression(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
 

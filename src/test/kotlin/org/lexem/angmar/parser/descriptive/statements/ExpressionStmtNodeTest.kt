@@ -94,7 +94,7 @@ internal class ExpressionStmtNodeTest {
     fun `parse correct nodes`(text: String, hasProperties: Boolean, hasParameters: Boolean, isLambda: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ExpressionStmtNode
@@ -130,7 +130,7 @@ internal class ExpressionStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ExpressionStatementWithoutBlock) {
             val text = "${ExpressionStmtNode.keyword} ${IdentifierNodeTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -138,7 +138,7 @@ internal class ExpressionStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ExpressionStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

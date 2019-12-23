@@ -89,7 +89,7 @@ internal class ConditionalStmtNodeTest {
     @MethodSource("provideCorrectConditionalStmt")
     fun `parse correct conditional statement`(text: String, isUnless: Boolean, hasElse: Boolean, isIfElse: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ConditionalStmtNode
@@ -119,7 +119,7 @@ internal class ConditionalStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ConditionalStatementWithoutCondition) {
             val text = ConditionalStmtNode.ifKeyword
             val parser = LexemParser(IOStringReader.from(text))
-            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -129,7 +129,7 @@ internal class ConditionalStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ConditionalStatementWithoutThenBlock) {
             val text = "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression}"
             val parser = LexemParser(IOStringReader.from(text))
-            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -140,7 +140,7 @@ internal class ConditionalStmtNodeTest {
             val text =
                     "${ConditionalStmtNode.ifKeyword} ${ExpressionsCommonsTest.testExpression} ${BlockStmtNodeTest.testExpression} ${ConditionalStmtNode.elseKeyword}"
             val parser = LexemParser(IOStringReader.from(text))
-            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -148,7 +148,7 @@ internal class ConditionalStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ConditionalStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

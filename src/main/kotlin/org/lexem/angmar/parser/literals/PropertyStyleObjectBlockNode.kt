@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for property-style object blocks.
  */
-internal class PropertyStyleObjectBlockNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class PropertyStyleObjectBlockNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     val positiveElements = mutableListOf<ParserNode>()
     val negativeElements = mutableListOf<ParserNode>()
     val setElements = mutableListOf<PropertyStyleObjectElementNode>()
@@ -50,8 +51,8 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            PropertyStyleObjectBlockAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            PropertyStyleObjectBlockCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "["
@@ -65,9 +66,9 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
         /**
          * Parses a property-style object blocks
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): PropertyStyleObjectBlockNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): PropertyStyleObjectBlockNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = PropertyStyleObjectBlockNode(parser, parent, parentSignal)
+            val result = PropertyStyleObjectBlockNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 initCursor.restore()
@@ -79,8 +80,7 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
 
                 WhitespaceNode.parse(parser)
 
-                val element = Commons.parseDynamicIdentifier(parser, result,
-                        result.positiveElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
+                val element = Commons.parseDynamicIdentifier(parser, result)
                 if (element == null) {
                     initLoopCursor.restore()
                     break
@@ -100,8 +100,7 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
 
                         WhitespaceNode.parse(parser)
 
-                        val element = Commons.parseDynamicIdentifier(parser, result,
-                                result.positiveElements.size + result.negativeElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
+                        val element = Commons.parseDynamicIdentifier(parser, result)
                         if (element == null) {
                             initLoopCursor.restore()
                             break
@@ -125,8 +124,7 @@ internal class PropertyStyleObjectBlockNode private constructor(parser: LexemPar
 
                         WhitespaceNode.parse(parser)
 
-                        val element = PropertyStyleObjectElementNode.parse(parser, result,
-                                result.positiveElements.size + result.negativeElements.size + result.setElements.size + PropertyStyleObjectBlockAnalyzer.signalEndFirstElement)
+                        val element = PropertyStyleObjectElementNode.parse(parser, result)
                         if (element == null) {
                             initLoopCursor.restore()
                             break

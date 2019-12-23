@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements.controls
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.controls.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.controls.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for control statements with a expression.
  */
-internal class ControlWithExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class ControlWithExpressionStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var keyword: String
     lateinit var expression: ParserNode
     var tag: IdentifierNode? = null
@@ -40,8 +41,8 @@ internal class ControlWithExpressionStmtNode private constructor(parser: LexemPa
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ControlWithExpressionStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ControlWithExpressionStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val returnKeyword = "return"
@@ -52,10 +53,10 @@ internal class ControlWithExpressionStmtNode private constructor(parser: LexemPa
         /**
          * Parses a control statement with a expression.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int, keyword: String,
+        fun parse(parser: LexemParser, parent: ParserNode, keyword: String,
                 captureTag: Boolean = true): ControlWithExpressionStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ControlWithExpressionStmtNode(parser, parent, parentSignal)
+            val result = ControlWithExpressionStmtNode(parser, parent)
             result.keyword = keyword
 
             if (!Commons.parseKeyword(parser, keyword)) {
@@ -70,7 +71,7 @@ internal class ControlWithExpressionStmtNode private constructor(parser: LexemPa
                         return@let
                     }
 
-                    result.tag = IdentifierNode.parse(parser, result, ControlWithExpressionStmtAnalyzer.signalEndTag)
+                    result.tag = IdentifierNode.parse(parser, result)
                     if (result.tag == null) {
                         initTagCursor.restore()
                     }
@@ -79,8 +80,7 @@ internal class ControlWithExpressionStmtNode private constructor(parser: LexemPa
 
             WhitespaceNode.parse(parser)
 
-            result.expression = ExpressionsCommons.parseExpression(parser, result,
-                    ControlWithExpressionStmtAnalyzer.signalEndExpression) ?: throw AngmarParserException(
+            result.expression = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
                     AngmarParserExceptionType.ControlWithExpressionStatementWithoutExpression,
                     "An expression was expected after the control statement '$keyword'.") {
                 val fullText = parser.reader.readAllText()

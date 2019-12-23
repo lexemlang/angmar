@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.functional.statements.*
 
 
 /**
@@ -16,7 +16,7 @@ internal object BlockStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BlockStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: BlockStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 if (node.tag != null) {
@@ -50,7 +50,7 @@ internal object BlockStmtAnalyzer {
                 // Remove the context.
                 AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
             }
-            in signalEndFirstStatement until signalEndFirstStatement + node.statements.size -> {
+            in signalEndFirstStatement..signalEndFirstStatement + node.statements.size -> {
                 val position = (signal - signalEndFirstStatement) + 1
 
                 // Process the next node.

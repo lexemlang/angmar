@@ -4,7 +4,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
+import org.lexem.angmar.compiler.functional.expressions.modifiers.*
 
 
 /**
@@ -15,7 +15,7 @@ internal object FunctionCallExpressionPropertiesAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallExpressionPropertiesNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: FunctionCallExpressionPropertiesCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.value)

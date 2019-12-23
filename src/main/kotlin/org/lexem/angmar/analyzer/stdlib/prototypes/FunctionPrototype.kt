@@ -7,6 +7,7 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
 
@@ -74,8 +75,8 @@ internal object FunctionPrototype {
                 val fnValue = parsedArguments[AnalyzerCommons.Identifiers.HiddenFunction]!!.dereference(analyzer.memory,
                         toWrite = false) as LxmFunction
 
-                AnalyzerNodesCommons.callFunction(analyzer, fnValue, wrappedArguments, InternalFunctionCallNode,
-                        LxmCodePoint(InternalFunctionCallNode, signalEnd, callerNode = function.node,
+                AnalyzerNodesCommons.callFunction(analyzer, fnValue, wrappedArguments, InternalFunctionCallCompiled,
+                        LxmCodePoint(InternalFunctionCallCompiled, signalEnd, callerNode = function.node,
                                 callerContextName = "<${FunctionType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Wrap"))
 
                 return false

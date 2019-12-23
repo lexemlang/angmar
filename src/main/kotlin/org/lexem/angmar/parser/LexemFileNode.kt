@@ -2,7 +2,7 @@ package org.lexem.angmar.parser
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.*
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,7 +13,7 @@ import org.lexem.angmar.parser.functional.statements.*
 /**
  * Parser for Lexem files.
  */
-internal class LexemFileNode private constructor(parser: LexemParser) : ParserNode(parser, null, 0) {
+internal class LexemFileNode private constructor(parser: LexemParser) : ParserNode(parser, null) {
     val statements = mutableListOf<ParserNode>()
 
     override fun toString() = StringBuilder().apply {
@@ -28,7 +28,8 @@ internal class LexemFileNode private constructor(parser: LexemParser) : ParserNo
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = LexemFileAnalyzer.stateMachine(analyzer, signal, this)
+    // It must never be called like this.
+    override fun compile(parent: CompiledNode, parentSignal: Int) = throw AngmarUnreachableException()
 
     companion object {
         /**
@@ -48,8 +49,7 @@ internal class LexemFileNode private constructor(parser: LexemParser) : ParserNo
 
                 WhitespaceNode.parse(parser)
 
-                val statement = StatementCommons.parseAnyStatement(parser, result,
-                        result.statements.size + LexemFileAnalyzer.signalEndFirstStatement)
+                val statement = StatementCommons.parseAnyStatement(parser, result)
                 if (statement == null) {
                     initLoopCursor.restore()
                     break

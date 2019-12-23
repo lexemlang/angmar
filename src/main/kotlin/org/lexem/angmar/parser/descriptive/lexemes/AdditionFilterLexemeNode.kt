@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -14,8 +15,8 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for addition filter lexemes.
  */
-internal class AdditionFilterLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class AdditionFilterLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var selector: SelectorNode
     var nextAccess: AccessLexemeNode? = null
 
@@ -39,8 +40,8 @@ internal class AdditionFilterLexemeNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            AdditionFilterLexemeAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            AdditionFilterLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -53,9 +54,9 @@ internal class AdditionFilterLexemeNode private constructor(parser: LexemParser,
         /**
          * Parses an addition filter lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): AdditionFilterLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): AdditionFilterLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = AdditionFilterLexemeNode(parser, parent, parentSignal)
+            val result = AdditionFilterLexemeNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 initCursor.restore()
@@ -64,29 +65,26 @@ internal class AdditionFilterLexemeNode private constructor(parser: LexemParser,
 
             WhitespaceNode.parse(parser)
 
-            result.selector =
-                    SelectorNode.parseForAddition(parser, result, AdditionFilterLexemeAnalyzer.signalEndSelector)
-                            ?: let {
-                                val selectorCursor = parser.reader.saveCursor()
+            result.selector = SelectorNode.parseForAddition(parser, result) ?: let {
+                val selectorCursor = parser.reader.saveCursor()
 
-                                // To show the end token in the message if it exists.
-                                parser.readText(NameSelectorNode.groupEndToken)
+                // To show the end token in the message if it exists.
+                parser.readText(NameSelectorNode.groupEndToken)
 
-                                throw AngmarParserException(
-                                        AngmarParserExceptionType.AdditionFilterLexemeWithoutSelector,
-                                        "Addition lexemes of filters require a selector.") {
-                                    val fullText = parser.reader.readAllText()
-                                    addSourceCode(fullText, parser.reader.getSource()) {
-                                        title = Consts.Logger.codeTitle
-                                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    }
-                                    addSourceCode(fullText, null) {
-                                        title = Consts.Logger.hintTitle
-                                        highlightCursorAt(selectorCursor.position())
-                                        message = "Try adding a selector here"
-                                    }
-                                }
-                            }
+                throw AngmarParserException(AngmarParserExceptionType.AdditionFilterLexemeWithoutSelector,
+                        "Addition lexemes of filters require a selector.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightCursorAt(selectorCursor.position())
+                        message = "Try adding a selector here"
+                    }
+                }
+            }
 
             WhitespaceNode.parse(parser)
 
@@ -113,22 +111,20 @@ internal class AdditionFilterLexemeNode private constructor(parser: LexemParser,
             if (parser.readText(nextAccessToken)) {
                 WhitespaceNode.parse(parser)
 
-                result.nextAccess =
-                        AccessLexemeNode.parse(parser, result, AdditionFilterLexemeAnalyzer.signalEndNextAccess)
-                                ?: throw AngmarParserException(
-                                        AngmarParserExceptionType.AdditionFilterLexemeWithoutNextAccessAfterToken,
-                                        "Addition lexemes require an Access lexeme after the relational token '${AccessLexemeNode.nextAccessToken}'.") {
-                                    val fullText = parser.reader.readAllText()
-                                    addSourceCode(fullText, parser.reader.getSource()) {
-                                        title = Consts.Logger.codeTitle
-                                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    }
-                                    addSourceCode(fullText, null) {
-                                        title = Consts.Logger.hintTitle
-                                        highlightSection(parser.reader.currentPosition() - 1)
-                                        message = "Try removing the relational token '$nextAccessToken'"
-                                    }
-                                }
+                result.nextAccess = AccessLexemeNode.parse(parser, result) ?: throw AngmarParserException(
+                        AngmarParserExceptionType.AdditionFilterLexemeWithoutNextAccessAfterToken,
+                        "Addition lexemes require an Access lexeme after the relational token '${AccessLexemeNode.nextAccessToken}'.") {
+                    val fullText = parser.reader.readAllText()
+                    addSourceCode(fullText, parser.reader.getSource()) {
+                        title = Consts.Logger.codeTitle
+                        highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    }
+                    addSourceCode(fullText, null) {
+                        title = Consts.Logger.hintTitle
+                        highlightSection(parser.reader.currentPosition() - 1)
+                        message = "Try removing the relational token '$nextAccessToken'"
+                    }
+                }
             } else {
                 preNextAccessCursor.restore()
             }

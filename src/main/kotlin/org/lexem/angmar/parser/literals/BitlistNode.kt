@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,10 +14,9 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for bitlist literals.
  */
-internal class BitlistNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class BitlistNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     var radix = 2
-    val elements = mutableListOf<BitlistElementNode>()
+    val elements = mutableListOf<ParserNode>()
 
     override fun toString() = StringBuilder().apply {
         when (radix) {
@@ -39,7 +39,7 @@ internal class BitlistNode private constructor(parser: LexemParser, parent: Pars
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = BitListAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = BitlistCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = StringNode.startToken
@@ -51,9 +51,9 @@ internal class BitlistNode private constructor(parser: LexemParser, parent: Pars
         /**
          * Parses a bitlist literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BitlistNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): BitlistNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = BitlistNode(parser, parent, parentSignal)
+            val result = BitlistNode(parser, parent)
 
             result.radix = when {
                 parser.readText(binaryPrefix) -> 2
@@ -72,8 +72,7 @@ internal class BitlistNode private constructor(parser: LexemParser, parent: Pars
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node = BitlistElementNode.parse(parser, result,
-                        result.elements.size + BitListAnalyzer.signalEndFirstElement, result.radix)
+                val node = BitlistElementNode.parse(parser, result, result.radix)
                 if (node == null) {
                     initLoopCursor.restore()
                     break

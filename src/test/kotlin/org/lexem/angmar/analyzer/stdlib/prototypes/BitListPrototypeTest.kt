@@ -202,7 +202,7 @@ internal class BitListPrototypeTest {
     @Test
     @Incorrect
     fun `test left shift - incorrect type`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
+        TestUtils.assertCompilerException(AngmarCompilerExceptionType.IncompatibleType) {
             val setLength = 6
             val set = BitSet().apply {
                 set(0)
@@ -245,7 +245,7 @@ internal class BitListPrototypeTest {
     @Test
     @Incorrect
     fun `test right shift - incorrect type`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
+        TestUtils.assertCompilerException(AngmarCompilerExceptionType.IncompatibleType) {
             val setLength = 6
             val set = BitSet().apply {
                 set(0)
@@ -290,7 +290,7 @@ internal class BitListPrototypeTest {
     @Test
     @Incorrect
     fun `test left rotation - incorrect type`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
+        TestUtils.assertCompilerException(AngmarCompilerExceptionType.IncompatibleType) {
             val setLength = 6
             val set = BitSet().apply {
                 set(0)
@@ -335,7 +335,7 @@ internal class BitListPrototypeTest {
     @Test
     @Incorrect
     fun `test right rotation - incorrect type`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
+        TestUtils.assertCompilerException(AngmarCompilerExceptionType.IncompatibleType) {
             val setLength = 6
             val set = BitSet().apply {
                 set(0)

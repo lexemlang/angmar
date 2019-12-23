@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.functional.statements
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.functional.statements.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.functional.statements.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -13,12 +14,12 @@ import org.lexem.angmar.parser.functional.expressions.*
 /**
  * Parser for conditional statements.
  */
-internal class ConditionalStmtNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ConditionalStmtNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var condition: ParserNode
     lateinit var thenBlock: ParserNode
-    var isUnless = false
     var elseBlock: ParserNode? = null
+    var isUnless = false
 
     override fun toString() = StringBuilder().apply {
         append(if (isUnless) {
@@ -50,8 +51,8 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            ConditionalStmtAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            ConditionalStmtCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val ifKeyword = "if"
@@ -64,9 +65,9 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
         /**
          * Parses a conditional statement.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ConditionalStmtNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ConditionalStmtNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ConditionalStmtNode(parser, parent, parentSignal)
+            val result = ConditionalStmtNode(parser, parent)
 
             var conditionalKeyword = ifKeyword
             result.isUnless = when {
@@ -80,45 +81,42 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
 
             WhitespaceNode.parse(parser)
 
-            result.condition =
-                    ExpressionsCommons.parseExpression(parser, result, ConditionalStmtAnalyzer.signalEndCondition)
-                            ?: throw AngmarParserException(
-                                    AngmarParserExceptionType.ConditionalStatementWithoutCondition,
-                                    "An expression was expected after the conditional keyword '$conditionalKeyword' to act as the condition.") {
-                                val fullText = parser.reader.readAllText()
-                                addSourceCode(fullText, parser.reader.getSource()) {
-                                    title = Consts.Logger.codeTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightCursorAt(parser.reader.currentPosition())
-                                    message = "Try adding an expression acting as the condition here"
-                                }
-                                addSourceCode(fullText, null) {
-                                    title = Consts.Logger.hintTitle
-                                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                                    message = "Try removing the conditional keyword '$conditionalKeyword'"
-                                }
-                            }
+            result.condition = ExpressionsCommons.parseExpression(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.ConditionalStatementWithoutCondition,
+                    "An expression was expected after the conditional keyword '$conditionalKeyword' to act as the condition.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an expression acting as the condition here"
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                    message = "Try removing the conditional keyword '$conditionalKeyword'"
+                }
+            }
 
             WhitespaceNode.parse(parser)
 
-            result.thenBlock = BlockStmtNode.parse(parser, result, ConditionalStmtAnalyzer.signalEndThenBlock)
-                    ?: throw AngmarParserException(AngmarParserExceptionType.ConditionalStatementWithoutThenBlock,
-                            "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
-                        val fullText = parser.reader.readAllText()
-                        addSourceCode(fullText, parser.reader.getSource()) {
-                            title = Consts.Logger.codeTitle
-                            highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
-                        }
-                        addSourceCode(fullText, null) {
-                            title = Consts.Logger.hintTitle
-                            highlightCursorAt(parser.reader.currentPosition())
-                            message =
-                                    "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
-                        }
-                    }
+            result.thenBlock = BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
+                    AngmarParserExceptionType.ConditionalStatementWithoutThenBlock,
+                    "A block was expected after the condition expression to act as the code to be executed $conditionalKeyword the condition match.") {
+                val fullText = parser.reader.readAllText()
+                addSourceCode(fullText, parser.reader.getSource()) {
+                    title = Consts.Logger.codeTitle
+                    highlightSection(initCursor.position(), parser.reader.currentPosition() - 1)
+                }
+                addSourceCode(fullText, null) {
+                    title = Consts.Logger.hintTitle
+                    highlightCursorAt(parser.reader.currentPosition())
+                    message = "Try adding an empty block '${BlockStmtNode.startToken}${BlockStmtNode.endToken}' here"
+                }
+            }
 
             // else block
             let {
@@ -134,8 +132,7 @@ internal class ConditionalStmtNode private constructor(parser: LexemParser, pare
                 WhitespaceNode.parse(parser)
 
                 result.elseBlock =
-                        parse(parser, result, ConditionalStmtAnalyzer.signalEndElseBlock) ?: BlockStmtNode.parse(parser,
-                                result, ConditionalStmtAnalyzer.signalEndElseBlock) ?: throw AngmarParserException(
+                        parse(parser, result) ?: BlockStmtNode.parse(parser, result) ?: throw AngmarParserException(
                                 AngmarParserExceptionType.ConditionalStatementWithoutElseBlock,
                                 "A block was expected after the conditional keyword '$elseKeyword' to act as the code to be executed if the condition does not match.") {
                             val fullText = parser.reader.readAllText()

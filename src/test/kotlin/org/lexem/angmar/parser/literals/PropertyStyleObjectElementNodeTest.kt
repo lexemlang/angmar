@@ -36,7 +36,7 @@ internal class PropertyStyleObjectElementNodeTest {
     @ValueSource(strings = [testExpression])
     fun `parse correct property-style object element `(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as PropertyStyleObjectElementNode
@@ -53,7 +53,7 @@ internal class PropertyStyleObjectElementNodeTest {
                 AngmarParserExceptionType.PropertyStyleObjectElementWithoutExpressionAfterName) {
             val text = CommonsTest.testDynamicIdentifier
             val parser = LexemParser(IOStringReader.from(text))
-            PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -61,7 +61,7 @@ internal class PropertyStyleObjectElementNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = PropertyStyleObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

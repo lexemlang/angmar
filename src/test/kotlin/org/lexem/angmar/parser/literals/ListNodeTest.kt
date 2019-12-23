@@ -63,7 +63,7 @@ internal class ListNodeTest {
     fun `parse correct list literal`(list: String, size: Int) {
         val text = "${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ListNode
@@ -83,7 +83,7 @@ internal class ListNodeTest {
     fun `parse correct constant list literal`(list: String, size: Int) {
         val text = "${ListNode.constantToken}${ListNode.startToken}$list${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ListNode
@@ -103,7 +103,7 @@ internal class ListNodeTest {
     fun `parse correct list literal with whitespaces`(list: String, size: Int) {
         val text = "${ListNode.startToken} $list ${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ListNode
@@ -123,7 +123,7 @@ internal class ListNodeTest {
     fun `parse correct list literal with trailing comma`(list: String, size: Int) {
         val text = "${ListNode.startToken}$list${ListNode.elementSeparator}${ListNode.endToken}"
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ListNode
@@ -144,7 +144,7 @@ internal class ListNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = ListNode.startToken
             val parser = LexemParser(IOStringReader.from(text))
-            ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -155,7 +155,7 @@ internal class ListNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ListWithoutEndToken) {
             val text = "${ListNode.startToken}$expression"
             val parser = LexemParser(IOStringReader.from(text))
-            ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -163,7 +163,7 @@ internal class ListNodeTest {
     @ValueSource(strings = ["", "3", ListNode.constantToken])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ListNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

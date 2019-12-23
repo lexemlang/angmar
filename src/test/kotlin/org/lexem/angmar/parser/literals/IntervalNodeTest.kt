@@ -69,7 +69,7 @@ internal class IntervalNodeTest {
     fun `parse correct interval`(text: String, reversed: Boolean, numElements: Int,
             areElementsOfSubIntervals: Boolean) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as IntervalNode
@@ -94,7 +94,7 @@ internal class IntervalNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IntervalWithoutStartToken) {
             val text = IntervalNode.macroName
             val parser = LexemParser(IOStringReader.from(text))
-            IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -104,7 +104,7 @@ internal class IntervalNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.IntervalWithoutEndToken) {
             val text = "${IntervalNode.macroName}${IntervalNode.startToken}"
             val parser = LexemParser(IOStringReader.from(text))
-            IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -112,7 +112,7 @@ internal class IntervalNodeTest {
     @ValueSource(strings = ["", " ", "\n"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = IntervalNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

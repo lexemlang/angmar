@@ -171,7 +171,7 @@ internal class NumberNodeTest {
     @MethodSource("providePrefixedIntegers")
     fun `parse correct prefixed integers`(text: String, radix: Int, integer: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NumberNode.parseAnyIntegerDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NumberNode.parseAnyIntegerDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NumberNode
@@ -189,7 +189,7 @@ internal class NumberNodeTest {
     fun `parse correct prefixed numbers`(text: String, radix: Int, integer: String, decimal: String?,
             exponentSign: Boolean, exponent: String?) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NumberNode
@@ -209,7 +209,7 @@ internal class NumberNodeTest {
         val text =
                 "$number${NumberNode.decimalSeparator}t" // We use a t because is not inside the hexadecimal range of characters.
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as NumberNode
@@ -229,7 +229,7 @@ internal class NumberNodeTest {
     fun `parse incorrect numbers with bad end underscores`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.NumberWithSequenceEndedWithADigitSeparator) {
             val parser = LexemParser(IOStringReader.from(text))
-            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
         }
 
         // Note: "0._0" is interpreted as a Number(0) followed by a property access (._0)
@@ -242,7 +242,7 @@ internal class NumberNodeTest {
     fun `parse incorrect numbers with bad start underscores`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.NumberWithSequenceStartedWithADigitSeparator) {
             val parser = LexemParser(IOStringReader.from(text))
-            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
         }
 
         // Note: "0._0" is interpreted as a Number(0) followed by a property access (._0)
@@ -255,7 +255,7 @@ internal class NumberNodeTest {
     fun `parse incorrect numbers with no integer before decimal or exponent`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterPrefix) {
             val parser = LexemParser(IOStringReader.from(text))
-            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -265,7 +265,7 @@ internal class NumberNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterDecimalSeparator) {
             val text = "${NumberNode.decimalPrefix}0${NumberNode.decimalSeparator}"
             val parser = LexemParser(IOStringReader.from(text))
-            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
         }
 
         // Note: "0d0.e+0" is interpreted as a Number(0) followed by a property access (.e), an operator(+) and another number(0)
@@ -278,7 +278,7 @@ internal class NumberNodeTest {
     fun `parse incorrect numbers with no exponent after the letter or sign`(text: String) {
         TestUtils.assertParserException(AngmarParserExceptionType.NumberWithoutDigitAfterExponentSeparator) {
             val parser = LexemParser(IOStringReader.from(text))
-            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+            NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -286,7 +286,7 @@ internal class NumberNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = NumberNode.parseAnyNumberDefaultDecimal(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

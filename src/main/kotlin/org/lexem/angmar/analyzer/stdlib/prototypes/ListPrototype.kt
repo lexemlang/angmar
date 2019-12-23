@@ -10,6 +10,7 @@ import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.binary.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.functional.expressions.modifiers.*
@@ -170,7 +171,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -236,7 +237,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(list)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
@@ -299,7 +300,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 // Remove Last from the stack.
@@ -352,7 +353,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -423,7 +424,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
                 val positionFromLast = thisValue.actualListSize - 1 - position
 
@@ -614,7 +615,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(list)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
@@ -675,7 +676,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(default)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -729,7 +730,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -871,7 +872,7 @@ internal object ListPrototype {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
 
                             StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, 0)!!,
-                                    signalEndFirstElement, JoinToString)
+                                    InternalFunctionCallCompiled, signalEndFirstElement, JoinToString)
 
                             return false
                         }
@@ -883,7 +884,7 @@ internal object ListPrototype {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
 
                             StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, 0)!!,
-                                    signalEndFirstElement, JoinToString)
+                                    InternalFunctionCallCompiled, signalEndFirstElement, JoinToString)
 
                             return false
                         }
@@ -892,7 +893,7 @@ internal object ListPrototype {
                             "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$JoinToString' method requires the parameter called '${JoinToStringArgs[0]}' be a ${StringType.TypeName}") {}
                 }
             }
-            in signalEndFirstElement until signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmString
@@ -913,7 +914,7 @@ internal object ListPrototype {
 
                 if (position < thisValue.actualListSize) {
                     StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, position)!!,
-                            signalEndFirstElement + position, JoinToString)
+                            InternalFunctionCallCompiled, signalEndFirstElement + position, JoinToString)
 
                     return false
                 }

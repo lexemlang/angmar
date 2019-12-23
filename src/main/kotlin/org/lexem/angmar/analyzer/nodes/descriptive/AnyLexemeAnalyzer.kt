@@ -6,8 +6,7 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.parser.descriptive.*
-import org.lexem.angmar.parser.functional.statements.*
+import org.lexem.angmar.compiler.descriptive.*
 
 
 /**
@@ -22,7 +21,7 @@ internal object AnyLexemeAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AnyLexemeNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: AnyLexemeCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Save the memory big node for atomic quantifiers
@@ -55,7 +54,7 @@ internal object AnyLexemeAnalyzer {
             signalEndQuantifier -> {
                 // Set the quantifier and the index.
                 val quantifier = analyzer.memory.getLastFromStack() as LxmQuantifier
-                val union = LxmPatternUnion(quantifier, LxmInteger.Num0, analyzer.memory)
+                val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, union)
 
@@ -65,7 +64,7 @@ internal object AnyLexemeAnalyzer {
                 return evaluateCondition(analyzer, node)
             }
             signalEndLexem -> {
-                val result = if (node.lexeme is BlockStmtNode) {
+                val result = if (node.isBlock) {
                     LxmNil
                 } else {
                     analyzer.memory.getLastFromStack()
@@ -79,14 +78,14 @@ internal object AnyLexemeAnalyzer {
                     list.addCell(analyzer.memory, result)
                 }
 
-                if (node.lexeme !is BlockStmtNode) {
+                if (!node.isBlock) {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
                 }
 
                 if (node.quantifier != null) {
                     // Increase the index.
-                    incrementIterationIndex(analyzer, node)
+                    incrementIterationIndex(analyzer)
 
                     // Evaluate condition.
                     return evaluateCondition(analyzer, node)
@@ -131,7 +130,7 @@ internal object AnyLexemeAnalyzer {
     /**
      * Performs the next iteration of a loop.
      */
-    private fun evaluateCondition(analyzer: LexemAnalyzer, node: AnyLexemeNode) {
+    private fun evaluateCondition(analyzer: LexemAnalyzer, node: AnyLexemeCompiled) {
         // Evaluate the condition.
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
                 toWrite = false) as LxmPatternUnion
@@ -181,7 +180,7 @@ internal object AnyLexemeAnalyzer {
     /**
      * Evaluates the end of the lexeme.
      */
-    private fun finalization(analyzer: LexemAnalyzer, node: AnyLexemeNode, isAtomic: Boolean) {
+    private fun finalization(analyzer: LexemAnalyzer, node: AnyLexemeCompiled, isAtomic: Boolean) {
         if (isAtomic) {
             val atomicFirstIndex =
                     analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.AtomicFirstIndex) as LxmBigNode
@@ -200,7 +199,7 @@ internal object AnyLexemeAnalyzer {
     /**
      * Sets the data captured in the specified variable.
      */
-    private fun setDataCapturing(analyzer: LexemAnalyzer, node: AnyLexemeNode) {
+    private fun setDataCapturing(analyzer: LexemAnalyzer, node: AnyLexemeCompiled) {
         if (node.dataCapturing == null) {
             return
         }
@@ -219,7 +218,7 @@ internal object AnyLexemeAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: AnyLexemeNode, count: Int = 1) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer) {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
                 toWrite = true) as LxmPatternUnion
 
@@ -229,7 +228,7 @@ internal object AnyLexemeAnalyzer {
     /**
      * Process the finalization of the node.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: AnyLexemeNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: AnyLexemeCompiled) {
         // Remove AtomicFirstIndex, LexemeDataCapturingName, LexemeDataCapturingList, LexemeAlias and LexemeQuantifier from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.AtomicFirstIndex)
         if (node.dataCapturing != null) {

@@ -5,7 +5,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.*
-import org.lexem.angmar.parser.functional.statements.selective.*
+import org.lexem.angmar.compiler.functional.statements.selective.*
 
 
 /**
@@ -17,7 +17,7 @@ internal object ExpressionPatternSelectiveStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ExpressionPatternSelectiveStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: ExpressionPatternSelectiveStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 return analyzer.nextNode(node.expression)

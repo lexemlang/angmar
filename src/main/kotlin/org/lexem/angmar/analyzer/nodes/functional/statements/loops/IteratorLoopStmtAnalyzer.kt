@@ -8,10 +8,9 @@ import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.data.referenced.iterators.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.functional.statements.loops.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.functional.statements.*
-import org.lexem.angmar.parser.functional.statements.loops.*
 
 
 /**
@@ -26,7 +25,7 @@ internal object IteratorLoopStmtAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IteratorLoopStmtNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: IteratorLoopStmtCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
                 // Generate an intermediate context.
@@ -55,7 +54,7 @@ internal object IteratorLoopStmtAnalyzer {
             }
             signalEndVariable -> {
                 // Check identifier if it is not a destructuring.
-                if (node.variable !is DestructuringStmtNode) {
+                if (node.mustBeIdentifier) {
                     val variable = analyzer.memory.getLastFromStack()
 
                     if (variable !is LxmString) {
@@ -198,7 +197,7 @@ internal object IteratorLoopStmtAnalyzer {
     /**
      * Increment the iteration index.
      */
-    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode, count: Int = 1) {
+    private fun incrementIterationIndex(analyzer: LexemAnalyzer, node: IteratorLoopStmtCompiled, count: Int = 1) {
         val lastIndex = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
         val newIndex = LxmInteger.from(lastIndex.primitive + count)
 
@@ -216,7 +215,7 @@ internal object IteratorLoopStmtAnalyzer {
     /**
      * Advances the iterator assigning the next value.
      */
-    private fun advanceIterator(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode, advance: Boolean = true) {
+    private fun advanceIterator(analyzer: LexemAnalyzer, node: IteratorLoopStmtCompiled, advance: Boolean = true) {
         val iterator =
                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator).dereference(analyzer.memory,
                         toWrite = true) as LexemIterator
@@ -233,15 +232,17 @@ internal object IteratorLoopStmtAnalyzer {
         if (iterator.isEnded(analyzer.memory)) {
             val indexValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
 
-            if (indexValue.primitive == 0 && node.lastClauses?.elseBlock != null) {
-                return analyzer.nextNode(node.lastClauses!!.elseBlock)
-            }
+            if (node.lastClauses != null) {
+                return if (indexValue.primitive == 0) {
+                    analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForElse)
+                    analyzer.nextNode(node.lastClauses)
+                } else {
+                    // Remove the name of the intermediate statement.
+                    context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
-            if (indexValue.primitive != 0 && node.lastClauses?.lastBlock != null) {
-                // Remove the name of the intermediate statement.
-                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
-
-                return analyzer.nextNode(node.lastClauses!!.lastBlock)
+                    analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForLast)
+                    analyzer.nextNode(node.lastClauses)
+                }
             }
 
             finish(analyzer, node)
@@ -261,7 +262,7 @@ internal object IteratorLoopStmtAnalyzer {
         }
 
         // Perform the destructuring.
-        if (node.variable is DestructuringStmtNode) {
+        if (!node.mustBeIdentifier) {
             variable as LxmDestructuring
 
             when (value) {
@@ -293,7 +294,7 @@ internal object IteratorLoopStmtAnalyzer {
     /**
      * Process the finalization of the loop.
      */
-    private fun finish(analyzer: LexemAnalyzer, node: IteratorLoopStmtNode) {
+    private fun finish(analyzer: LexemAnalyzer, node: IteratorLoopStmtCompiled) {
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)
 

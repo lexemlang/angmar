@@ -59,7 +59,7 @@ internal class LambdaStmtNodeTest {
             Assertions.assertTrue(node is LambdaStmtNode, "The node is not a LambdaStmtNode")
             node as LambdaStmtNode
 
-            ExpressionsCommonsTest.checkTestExpression(node.statement)
+            ExpressionsCommonsTest.checkTestExpression(node.expression)
             Assertions.assertFalse(node.isFilterCode, "The isFilterCode property is incorrect")
         }
 
@@ -67,7 +67,7 @@ internal class LambdaStmtNodeTest {
             Assertions.assertTrue(node is LambdaStmtNode, "The node is not a LambdaStmtNode")
             node as LambdaStmtNode
 
-            LexemePatternContentNodeTest.checkTestExpression(node.statement)
+            LexemePatternContentNodeTest.checkTestExpression(node.expression)
             Assertions.assertFalse(node.isFilterCode, "The isFilterCode property is incorrect")
         }
 
@@ -75,7 +75,7 @@ internal class LambdaStmtNodeTest {
             Assertions.assertTrue(node is LambdaStmtNode, "The node is not a LambdaStmtNode")
             node as LambdaStmtNode
 
-            LexemePatternContentNodeTest.checkTestExpressionFilter(node.statement)
+            LexemePatternContentNodeTest.checkTestExpressionFilter(node.expression)
             Assertions.assertTrue(node.isFilterCode, "The isFilterCode property is incorrect")
         }
     }
@@ -87,12 +87,12 @@ internal class LambdaStmtNodeTest {
     @MethodSource("provideCorrectFunctionalLambdas")
     fun `parse correct lambda - functional`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LambdaStmtNode
 
-        ExpressionsCommonsTest.checkTestExpression(res.statement)
+        ExpressionsCommonsTest.checkTestExpression(res.expression)
         Assertions.assertFalse(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
@@ -101,12 +101,12 @@ internal class LambdaStmtNodeTest {
     fun `parse correct lambda - descriptive expressions`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
-        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LambdaStmtNode
 
-        LexemePatternContentNodeTest.checkTestExpression(res.statement)
+        LexemePatternContentNodeTest.checkTestExpression(res.expression)
         Assertions.assertFalse(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
@@ -116,12 +116,12 @@ internal class LambdaStmtNodeTest {
         val parser = LexemParser(IOStringReader.from(text))
         parser.isDescriptiveCode = true
         parser.isFilterCode = true
-        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as LambdaStmtNode
 
-        LexemePatternContentNodeTest.checkTestExpressionFilter(res.statement)
+        LexemePatternContentNodeTest.checkTestExpressionFilter(res.expression)
         Assertions.assertTrue(res.isFilterCode, "The isFilterCode property is incorrect")
     }
 
@@ -131,7 +131,7 @@ internal class LambdaStmtNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.LambdaStatementWithoutExpression) {
             val text = LambdaStmtNode.token
             val parser = LexemParser(IOStringReader.from(text))
-            LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -142,7 +142,7 @@ internal class LambdaStmtNodeTest {
             val text = LambdaStmtNode.token
             val parser = LexemParser(IOStringReader.from(text))
             parser.isDescriptiveCode = true
-            LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -150,7 +150,7 @@ internal class LambdaStmtNodeTest {
     @ValueSource(strings = [""])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = LambdaStmtNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")

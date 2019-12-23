@@ -98,9 +98,9 @@ class IOStringReader internal constructor(private val sourceFile: String, privat
 
     companion object {
         /**
-         * Creates a new [IOStringReader] with the specified content.
+         * Creates a new [IOStringReader] with the specified content and source.
          */
-        fun from(text: String) = IOStringReader("", text)
+        fun from(text: String, source: String = "") = IOStringReader(source, text)
 
         /**
          * Creates a new [IOStringReader] with the content of a file.

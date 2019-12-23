@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,7 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for object literals.
  */
-internal class ObjectNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class ObjectNode private constructor(parser: LexemParser, parent: ParserNode) : ParserNode(parser, parent) {
     val elements = mutableListOf<ParserNode>()
     var isConstant = false
 
@@ -36,7 +36,7 @@ internal class ObjectNode private constructor(parser: LexemParser, parent: Parse
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) = ObjectAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) = ObjectCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "{"
@@ -50,9 +50,9 @@ internal class ObjectNode private constructor(parser: LexemParser, parent: Parse
         /**
          * Parses a object literal.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): ObjectNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): ObjectNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = ObjectNode(parser, parent, parentSignal)
+            val result = ObjectNode(parser, parent)
 
             result.isConstant = parser.readText(constantToken)
 
@@ -77,9 +77,7 @@ internal class ObjectNode private constructor(parser: LexemParser, parent: Parse
                     WhitespaceNode.parse(parser)
                 }
 
-                val argument = ObjectSimplificationNode.parse(parser, result,
-                        result.elements.size + ObjectAnalyzer.signalEndFirstElement) ?: ObjectElementNode.parse(parser,
-                        result, result.elements.size + ObjectAnalyzer.signalEndFirstElement)
+                val argument = ObjectSimplificationNode.parse(parser, result) ?: ObjectElementNode.parse(parser, result)
                 if (argument == null) {
                     initLoopCursor.restore()
                     break

@@ -5,10 +5,10 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.nodes.*
 import org.lexem.angmar.analyzer.stdlib.types.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.parser.literals.*
 
 
 /**
@@ -20,25 +20,12 @@ internal object UnicodeIntervalElementAnalyzer {
 
     // METHODS ----------------------------------------------------------------
 
-    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeIntervalElementNode) {
+    fun stateMachine(analyzer: LexemAnalyzer, signal: Int, node: UnicodeIntervalElementCompiled) {
         when (signal) {
             AnalyzerNodesCommons.signalStart -> {
-                if (node.left != null) {
-                    return analyzer.nextNode(node.left)
-                }
+                val constantValue = node.constantValue ?: return analyzer.nextNode(node.left)
 
-                if (node.right != null) {
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmInteger.from(node.leftChar.toInt()))
-                    return analyzer.nextNode(node.right)
-                }
-
-                val right = if (node.rightChar == ' ') {
-                    node.leftChar.toInt()
-                } else {
-                    node.rightChar.toInt()
-                }
-
-                operate(analyzer, node.leftChar.toInt(), right, node)
+                operate(analyzer, constantValue.from, constantValue.to)
             }
             signalEndLeft -> {
                 // Check value.
@@ -59,7 +46,7 @@ internal object UnicodeIntervalElementAnalyzer {
                         }
                         addSourceCode(fullText) {
                             title = Consts.Logger.hintTitle
-                            highlightSection(node.left!!.from.position(), node.left!!.to.position() - 1)
+                            highlightSection(node.left.from.position(), node.left.to.position() - 1)
                             message = "Review the returned value of this expression"
                         }
                     }
@@ -70,13 +57,7 @@ internal object UnicodeIntervalElementAnalyzer {
                     return analyzer.nextNode(node.right)
                 }
 
-                val right = if (node.rightChar == ' ') {
-                    left.primitive
-                } else {
-                    node.rightChar.toInt()
-                }
-
-                operate(analyzer, left.primitive, right, node)
+                operate(analyzer, left.primitive, left.primitive)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -104,7 +85,18 @@ internal object UnicodeIntervalElementAnalyzer {
                 // Add the value to the interval.
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmInteger
 
-                operate(analyzer, left.primitive, right.primitive, node)
+                if (left.primitive > right.primitive) {
+                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
+                            "The left value must be lower or equal than the right value. Actual left: $left, actual right: $right") {
+                        val fullText = node.parser.reader.readAllText()
+                        addSourceCode(fullText, node.parser.reader.getSource()) {
+                            title = Consts.Logger.codeTitle
+                            highlightSection(node.from.position(), node.to.position() - 1)
+                        }
+                    }
+                }
+
+                operate(analyzer, left.primitive, right.primitive)
 
                 // Remove Left and Last from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Left)
@@ -118,22 +110,11 @@ internal object UnicodeIntervalElementAnalyzer {
     /**
      * Creates a Unicode range with the first character of both strings as bounds.
      */
-    private fun operate(analyzer: LexemAnalyzer, left: Int, right: Int, node: UnicodeIntervalElementNode) {
-        try {
-            val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
-            val range = IntegerRange.new(left, right)
-            val resInterval = itv.primitive.plus(range)
+    private fun operate(analyzer: LexemAnalyzer, left: Int, right: Int) {
+        val itv = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LxmInterval
+        val range = IntegerRange.new(left, right)
+        val resInterval = itv.primitive.plus(range)
 
-            analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))
-        } catch (e: AngmarException) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectRangeBounds,
-                    "The left value must be lower or equal than the right value. Actual left: $left, actual right: $right") {
-                val fullText = node.parser.reader.readAllText()
-                addSourceCode(fullText, node.parser.reader.getSource()) {
-                    title = Consts.Logger.codeTitle
-                    highlightSection(node.from.position(), node.to.position() - 1)
-                }
-            }
-        }
+        analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.from(resInterval))
     }
 }

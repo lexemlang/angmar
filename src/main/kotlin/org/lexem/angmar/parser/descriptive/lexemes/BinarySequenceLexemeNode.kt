@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.descriptive.lexemes
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.descriptive.lexemes.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.descriptive.lexemes.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.literals.*
@@ -11,8 +12,8 @@ import org.lexem.angmar.parser.literals.*
 /**
  * Parser for binary sequence lexemes.
  */
-internal class BinarySequenceLexemeNode private constructor(parser: LexemParser, parent: ParserNode,
-        parentSignal: Int) : ParserNode(parser, parent, parentSignal) {
+internal class BinarySequenceLexemeNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var isNegated = false
     var propertyPostfix: LexemPropertyPostfixNode? = null
     lateinit var bitlist: BitlistNode
@@ -39,8 +40,8 @@ internal class BinarySequenceLexemeNode private constructor(parser: LexemParser,
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            BinarySequenceLexemAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            BinarySequenceLexemeCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val notOperator = PrefixOperatorNode.notOperator
@@ -50,13 +51,13 @@ internal class BinarySequenceLexemeNode private constructor(parser: LexemParser,
         /**
          * Parses a bitlist lexeme.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): BinarySequenceLexemeNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): BinarySequenceLexemeNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = BinarySequenceLexemeNode(parser, parent, parentSignal)
+            val result = BinarySequenceLexemeNode(parser, parent)
 
             result.isNegated = parser.readText(notOperator)
 
-            val bitlist = BitlistNode.parse(parser, result, BinarySequenceLexemAnalyzer.signalEndBitlist)
+            val bitlist = BitlistNode.parse(parser, result)
             if (bitlist == null) {
                 initCursor.restore()
                 return null
@@ -64,8 +65,7 @@ internal class BinarySequenceLexemeNode private constructor(parser: LexemParser,
 
             result.bitlist = bitlist
 
-            result.propertyPostfix =
-                    LexemPropertyPostfixNode.parse(parser, result, BinarySequenceLexemAnalyzer.signalEndPropertyPostfix)
+            result.propertyPostfix = LexemPropertyPostfixNode.parse(parser, result)
 
             return parser.finalizeNode(result, initCursor)
         }

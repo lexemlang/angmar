@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.*
@@ -12,8 +13,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for elements of interval literals.
  */
-internal class IntervalElementNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class IntervalElementNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     lateinit var left: ParserNode
     var right: ParserNode? = null
 
@@ -34,8 +35,8 @@ internal class IntervalElementNode private constructor(parser: LexemParser, pare
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            IntervalElementAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            IntervalElementCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val rangeToken = ".."
@@ -46,18 +47,18 @@ internal class IntervalElementNode private constructor(parser: LexemParser, pare
         /**
          * Parses an element of interval literals.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalElementNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): IntervalElementNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = IntervalElementNode(parser, parent, parentSignal)
+            val result = IntervalElementNode(parser, parent)
 
-            result.left = EscapedExpressionNode.parse(parser, result, IntervalElementAnalyzer.signalEndLeft)
-                    ?: NumberNode.parseAnyIntegerDefaultDecimal(parser, result, IntervalElementAnalyzer.signalEndLeft)
-                            ?: return null
+            result.left =
+                    EscapedExpressionNode.parse(parser, result) ?: NumberNode.parseAnyIntegerDefaultDecimal(parser,
+                            result) ?: return null
 
             if (parser.readText(rangeToken)) {
-                result.right = EscapedExpressionNode.parse(parser, result, IntervalElementAnalyzer.signalEndRight)
-                        ?: NumberNode.parseAnyIntegerDefaultDecimal(parser, result,
-                                IntervalElementAnalyzer.signalEndRight)
+                result.right =
+                        EscapedExpressionNode.parse(parser, result) ?: NumberNode.parseAnyIntegerDefaultDecimal(parser,
+                                result)
 
                 if (result.right == null) {
                     throw AngmarParserException(

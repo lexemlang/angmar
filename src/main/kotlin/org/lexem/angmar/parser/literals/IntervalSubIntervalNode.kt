@@ -2,7 +2,8 @@ package org.lexem.angmar.parser.literals
 
 import com.google.gson.*
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.nodes.literals.*
+import org.lexem.angmar.compiler.*
+import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.printer.*
@@ -13,8 +14,8 @@ import org.lexem.angmar.parser.commons.*
 /**
  * Parser for sub-intervals of interval literals.
  */
-internal class IntervalSubIntervalNode private constructor(parser: LexemParser, parent: ParserNode, parentSignal: Int) :
-        ParserNode(parser, parent, parentSignal) {
+internal class IntervalSubIntervalNode private constructor(parser: LexemParser, parent: ParserNode) :
+        ParserNode(parser, parent) {
     var operator = Operator.Add
     var reversed = false
     val elements = mutableListOf<ParserNode>()
@@ -38,8 +39,8 @@ internal class IntervalSubIntervalNode private constructor(parser: LexemParser, 
         return result
     }
 
-    override fun analyze(analyzer: LexemAnalyzer, signal: Int) =
-            IntervalSubIntervalAnalyzer.stateMachine(analyzer, signal, this)
+    override fun compile(parent: CompiledNode, parentSignal: Int) =
+            IntervalSubIntervalCompiled.compile(parent, parentSignal, this)
 
     companion object {
         const val startToken = "["
@@ -52,9 +53,9 @@ internal class IntervalSubIntervalNode private constructor(parser: LexemParser, 
         /**
          * Parses a sub-interval of interval literals.
          */
-        fun parse(parser: LexemParser, parent: ParserNode, parentSignal: Int): IntervalSubIntervalNode? {
+        fun parse(parser: LexemParser, parent: ParserNode): IntervalSubIntervalNode? {
             val initCursor = parser.reader.saveCursor()
-            val result = IntervalSubIntervalNode(parser, parent, parentSignal)
+            val result = IntervalSubIntervalNode(parser, parent)
 
             if (!parser.readText(startToken)) {
                 return null
@@ -78,10 +79,7 @@ internal class IntervalSubIntervalNode private constructor(parser: LexemParser, 
 
                 WhitespaceNode.parseSimpleWhitespaces(parser)
 
-                val node =
-                        parse(parser, result, result.elements.size + IntervalSubIntervalAnalyzer.signalEndFirstElement)
-                                ?: IntervalElementNode.parse(parser, result,
-                                        result.elements.size + IntervalSubIntervalAnalyzer.signalEndFirstElement)
+                val node = parse(parser, result) ?: IntervalElementNode.parse(parser, result)
                 if (node == null) {
                     initLoopCursor.restore()
                     break

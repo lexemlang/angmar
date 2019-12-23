@@ -6,6 +6,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.functional.expressions.macros.*
 import org.lexem.angmar.utils.*
+import java.io.*
 
 internal class MacroExpressionAnalyzerTest {
     @Test
@@ -34,51 +35,47 @@ internal class MacroExpressionAnalyzerTest {
     fun `test fileMacro`() {
         val text = MacroExpressionNode.fileMacro
 
-        TestUtils.handleTempFiles(mapOf("main" to text)) { files ->
-            val mainPath = files["main"]!!.canonicalPath
-            val analyzer = TestUtils.createAnalyzerFromFile(mainPath, MacroExpressionNode.Companion::parse)
+        val mainPath = "/this/is/a/test"
+        val analyzer = TestUtils.createAnalyzerFrom(text, source = mainPath,
+                parserFunction = MacroExpressionNode.Companion::parse)
 
-            // Prepare context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
-            TestUtils.processAndCheckEmpty(analyzer)
+        TestUtils.processAndCheckEmpty(analyzer)
 
-            val result =
-                    analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-            Assertions.assertEquals(mainPath, result.primitive, "The value inserted in the stack is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
+        Assertions.assertEquals(mainPath, result.primitive, "The value inserted in the stack is incorrect")
 
-            // Remove Last from the stack.
-            analyzer.memory.removeLastFromStack()
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-            TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
-        }
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
     }
 
     @Test
     fun `test directoryMacro`() {
         val text = MacroExpressionNode.directoryMacro
 
-        TestUtils.handleTempFiles(mapOf("main" to text)) { files ->
-            val mainPath = files["main"]!!.canonicalPath
-            val analyzer = TestUtils.createAnalyzerFromFile(mainPath, MacroExpressionNode.Companion::parse)
+        val mainPath = "/this/is/a/test"
+        val analyzer = TestUtils.createAnalyzerFrom(text, source = mainPath,
+                parserFunction = MacroExpressionNode.Companion::parse)
 
-            // Prepare context.
-            val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
+        // Prepare context.
+        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
-            TestUtils.processAndCheckEmpty(analyzer)
+        TestUtils.processAndCheckEmpty(analyzer)
 
-            val result =
-                    analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
-            Assertions.assertEquals(files["main"]!!.parentFile.canonicalPath, result.primitive,
-                    "The value inserted in the stack is incorrect")
+        val result = analyzer.memory.getLastFromStack() as? LxmString ?: throw Error("The result must be a LxmString")
+        Assertions.assertEquals(File(mainPath).parentFile.canonicalPath, result.primitive,
+                "The value inserted in the stack is incorrect")
 
-            // Remove Last from the stack.
-            analyzer.memory.removeLastFromStack()
+        // Remove Last from the stack.
+        analyzer.memory.removeLastFromStack()
 
-            TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
-        }
+        TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.HiddenFilePath))
     }
 
     @Test

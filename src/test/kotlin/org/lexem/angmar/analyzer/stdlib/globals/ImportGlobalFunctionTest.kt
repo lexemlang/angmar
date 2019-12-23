@@ -8,7 +8,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
-import org.lexem.angmar.parser.*
 import org.lexem.angmar.parser.functional.expressions.*
 import org.lexem.angmar.parser.functional.expressions.binary.*
 import org.lexem.angmar.parser.literals.*
@@ -24,12 +23,7 @@ internal class ImportGlobalFunctionTest {
         val textImported = "$varName ${AssignOperatorNode.assignOperator} 1"
 
         TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
-            val parser = LexemParser(IOStringReader.from(files["main"]!!))
-            val grammar = LexemFileNode.parse(parser)
-
-            Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-            val analyzer = LexemAnalyzer(grammar!!)
+            val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -58,12 +52,7 @@ internal class ImportGlobalFunctionTest {
                     "import(${StringNode.startToken}${files[importedFile]!!.canonicalPath}${StringNode.endToken}) \n $varName ${MultiplicativeExpressionNode.multiplicationOperator}${AssignOperatorNode.assignOperator} 2"
             files["main"]!!.writeText(text)
 
-            val parser = LexemParser(IOStringReader.from(files["main"]!!))
-            val grammar = LexemFileNode.parse(parser)
-
-            Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-            val analyzer = LexemAnalyzer(grammar!!)
+            val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -89,12 +78,7 @@ internal class ImportGlobalFunctionTest {
         val textImported = "$varName ${AssignOperatorNode.assignOperator} 1"
 
         TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
-            val parser = LexemParser(IOStringReader.from(files["main"]!!))
-            val grammar = LexemFileNode.parse(parser)
-
-            Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-            val analyzer = LexemAnalyzer(grammar!!)
+            val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -119,12 +103,7 @@ internal class ImportGlobalFunctionTest {
         val text = "import(${StringNode.startToken}$importedFile${StringNode.endToken})"
 
         TestUtils.handleTempFiles(mapOf("main" to text)) { files ->
-            val parser = LexemParser(IOStringReader.from(files["main"]!!))
-            val grammar = LexemFileNode.parse(parser)
-
-            Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-            val analyzer = LexemAnalyzer(grammar!!)
+            val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -150,12 +129,7 @@ internal class ImportGlobalFunctionTest {
         val textImported = "$varName ${AdditiveExpressionNode.additionOperator}${AssignOperatorNode.assignOperator} 1"
 
         TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
-            val parser = LexemParser(IOStringReader.from(files["main"]!!))
-            val grammar = LexemFileNode.parse(parser)
-
-            Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-            val analyzer = LexemAnalyzer(grammar!!)
+            val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
@@ -181,11 +155,11 @@ internal class ImportGlobalFunctionTest {
                 "import(${StringNode.startToken}$fileNameImported${StringNode.endToken}) \n $varName ${MultiplicativeExpressionNode.multiplicationOperator}${AssignOperatorNode.assignOperator} 2"
         val textImported = "$varName ${AssignOperatorNode.assignOperator} 1"
 
-        val parserMain = LexemParser(IOStringReader.from(text))
-        val parserImported = LexemParser(IOStringReader.from(textImported))
+        val mainReader = IOStringReader.from(text)
+        val importedReader = IOStringReader.from(textImported)
 
         val analyzer =
-                LexemAnalyzer.createFrom(mapOf(fileName to parserMain, fileNameImported to parserImported), fileName)
+                LexemAnalyzer.createFrom(mapOf(fileName to mainReader, fileNameImported to importedReader), fileName)
                         ?: throw Error("The analyzer cannot be null")
 
         // Prepare context.
@@ -207,9 +181,7 @@ internal class ImportGlobalFunctionTest {
     fun `import without uri`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError) {
             val text = "import()"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
             TestUtils.checkEmptyStackAndContext(analyzer)
@@ -221,9 +193,7 @@ internal class ImportGlobalFunctionTest {
     fun `import an undefined file`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist) {
             val text = "import(${StringNode.startToken}/lexem-file-not-found${StringNode.endToken})"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
             TestUtils.checkEmptyStackAndContext(analyzer)
@@ -239,12 +209,7 @@ internal class ImportGlobalFunctionTest {
             val textImported = ")"
 
             TestUtils.handleTempFiles(mapOf("main" to text, importedFile to textImported)) { files ->
-                val parser = LexemParser(IOStringReader.from(files["main"]!!))
-                val grammar = LexemFileNode.parse(parser)
-
-                Assertions.assertNotNull(grammar, "The grammar cannot be null")
-
-                val analyzer = LexemAnalyzer(grammar!!)
+                val analyzer = TestUtils.createAnalyzerFromFile(files["main"]!!)
                 TestUtils.processAndCheckEmpty(analyzer)
                 TestUtils.checkEmptyStackAndContext(analyzer)
             }
@@ -257,9 +222,7 @@ internal class ImportGlobalFunctionTest {
         val importedFile = "https://bad.url.to.test/"
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist) {
             val text = "import(${StringNode.startToken}$importedFile${StringNode.endToken})"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
             TestUtils.checkEmptyStackAndContext(analyzer)
@@ -271,9 +234,7 @@ internal class ImportGlobalFunctionTest {
     fun `import an incorrect uri`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist) {
             val text = "import(${StringNode.startToken}_$%<>!${StringNode.endToken})"
-            val analyzer = TestUtils.createAnalyzerFrom(text) { parser, _, _ ->
-                LexemFileNode.parse(parser)
-            }
+            val analyzer = TestUtils.createAnalyzerFromWholeGrammar(text)
 
             TestUtils.processAndCheckEmpty(analyzer)
             TestUtils.checkEmptyStackAndContext(analyzer)
@@ -289,9 +250,9 @@ internal class ImportGlobalFunctionTest {
             val fileName = "main"
             val text = "import(${StringNode.startToken}$url${StringNode.endToken})"
 
-            val parserMain = LexemParser(IOStringReader.from(text))
+            val mainReader = IOStringReader.from(text)
 
-            val analyzer = LexemAnalyzer.createFrom(mapOf(fileName to parserMain), fileName) ?: throw Error(
+            val analyzer = LexemAnalyzer.createFrom(mapOf(fileName to mainReader), fileName) ?: throw Error(
                     "The analyzer cannot be null")
 
             TestUtils.processAndCheckEmpty(analyzer)

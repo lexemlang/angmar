@@ -41,7 +41,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctObjectElement])
     fun `parse correct object element`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -55,7 +55,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctConstantObjectElement])
     fun `parse correct constant object element`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -69,7 +69,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = [correctObjectElementWithWS])
     fun `parse correct object element with whitespaces`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNotNull(res, "The input has not been correctly parsed")
         res as ObjectElementNode
@@ -85,7 +85,7 @@ internal class ObjectElementNodeTest {
         TestUtils.assertParserException(AngmarParserExceptionType.ObjectElementWithoutRelationalOperatorAfterKey) {
             val text = CommonsTest.testDynamicIdentifier
             val parser = LexemParser(IOStringReader.from(text))
-            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -96,7 +96,7 @@ internal class ObjectElementNodeTest {
                 AngmarParserExceptionType.ObjectElementWithoutExpressionAfterRelationalOperator) {
             val text = "${CommonsTest.testDynamicIdentifier}${ObjectElementNode.keyValueSeparator}"
             val parser = LexemParser(IOStringReader.from(text))
-            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+            ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
         }
     }
 
@@ -104,7 +104,7 @@ internal class ObjectElementNodeTest {
     @ValueSource(strings = ["", "3"])
     fun `not parse the node`(text: String) {
         val parser = LexemParser(IOStringReader.from(text))
-        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode, 0)
+        val res = ObjectElementNode.parse(parser, ParserNode.Companion.EmptyParserNode)
 
         Assertions.assertNull(res, "The input has incorrectly parsed anything")
         Assertions.assertEquals(0, parser.reader.currentPosition(), "The parser must not advance the cursor")
