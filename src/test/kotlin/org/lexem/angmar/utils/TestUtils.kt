@@ -296,6 +296,7 @@ object TestUtils {
 
         // Check context.
         val stdLibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = false)
         val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
 
         Assertions.assertEquals(stdLibContext, context, "The context must be the stdLib")
@@ -313,20 +314,25 @@ object TestUtils {
             context.removePropertyIgnoringConstants(memory, it)
         }
 
-        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenFileMap)
-        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext)
-        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
-        context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)
+        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenFileMap)
+        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext)
+        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
+        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)
 
         if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-            context.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenParserMap)
+            hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenParserMap)
         }
 
         // Check whether the context is empty.
+        Assertions.assertEquals(0, stdLibContext.getAllIterableProperties().size,
+                "The stdLibContext is not empty: $context")
+        Assertions.assertEquals(0, hiddenContext.getAllIterableProperties().size,
+                "The hiddenContext is not empty: $context")
         Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 
-        // Remove the stdlib context.
+        // Remove the stdlib and hidden context.
         LxmReference.StdLibContext.decreaseReferences(memory)
+        LxmReference.HiddenContext.decreaseReferences(memory)
 
         // Check whether the memory is empty.
         Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,

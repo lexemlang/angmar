@@ -124,6 +124,20 @@ internal class LexemMemory {
     }
 
     /**
+     * Counts the number of [BigNode]s in the memory.
+     */
+    fun countBigNodes(): Int {
+        var count = 0
+        var bn: BigNode? = lastNode
+        while (bn != null) {
+            count += 1
+            bn = lastNode.previousNode
+        }
+
+        return count
+    }
+
+    /**
      * Freezes the memory creating a differential copy of the memory.
      */
     fun freezeCopy(): BigNode {

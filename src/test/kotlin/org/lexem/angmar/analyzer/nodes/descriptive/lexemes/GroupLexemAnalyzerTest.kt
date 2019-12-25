@@ -415,8 +415,8 @@ internal class GroupLexemAnalyzerTest {
      * Checks all the results of the header.
      */
     private fun removeNode(analyzer: LexemAnalyzer) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val lxmNode = context.getPropertyValue(analyzer.memory,
+        val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
+        val lxmNode = hiddenContext.getPropertyValue(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenLastResultNode)!!.dereference(analyzer.memory,
                 toWrite = false) as LxmNode
         val children = lxmNode.getChildren(analyzer.memory, toWrite = true)

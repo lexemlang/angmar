@@ -53,5 +53,6 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
 
     companion object {
         val StdLibContext = LxmReference(0)
+        val HiddenContext = LxmReference(1)
     }
 }

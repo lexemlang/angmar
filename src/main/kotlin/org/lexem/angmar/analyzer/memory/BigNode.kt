@@ -391,8 +391,9 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         // Track from the main context and stack.
         val gcFifo = GarbageCollectorFifo(actualHeapSize)
 
-        // Track the stdlib.
+        // Track the stdlib and hidden contexts.
         LxmReference.StdLibContext.spatialGarbageCollect(memory, gcFifo)
+        LxmReference.HiddenContext.spatialGarbageCollect(memory, gcFifo)
 
         // Track the stack.
         for (i in actualStackLevelSize - 1 downTo 0) {
