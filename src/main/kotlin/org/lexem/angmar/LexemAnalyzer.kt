@@ -130,7 +130,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
             loop@ while (true) {
                 // Check timeout.
                 val time = System.nanoTime()
-                if (!Consts.debug && time >= timeout || status == Status.Paused) {
+                if (!Consts.verbose && time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false
                 }
@@ -150,7 +150,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                         // Done here to prevent calling the garbage collector before
                         // set all the references.
                         if (memory.lastNode.spatialGarbageCollectorMark) {
-                            if (Consts.debug) {
+                            if (Consts.verbose) {
                                 Logger.debug("init spatialGarbageCollect") {
                                     showDate = true
                                 }
@@ -167,7 +167,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
                         // Execute the temporal garbage collector if the memory has asked for.
                         if (memory.lastNode.temporalGarbageCollectorMark) {
-                            if (Consts.debug) {
+                            if (Consts.verbose) {
                                 Logger.debug("init temporalGarbageCollect ${memory.countBigNodes()}") {
                                     showDate = true
                                 }
@@ -232,13 +232,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                 }
             }
 
-            if (Consts.debug) {
+            if (Consts.verbose) {
                 e.logger.cause = Logger("Debug error at $ticks ticks", e)
             }
 
             throw e
         } catch (e: Throwable) {
-            if (Consts.debug) {
+            if (Consts.verbose) {
                 Logger.debug("Unexpected error at $ticks ticks", e)
             }
 

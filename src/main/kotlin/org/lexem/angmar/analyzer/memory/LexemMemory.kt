@@ -131,7 +131,7 @@ internal class LexemMemory {
         var bn: BigNode? = lastNode
         while (bn != null) {
             count += 1
-            bn = lastNode.previousNode
+            bn = bn.previousNode
         }
 
         return count
