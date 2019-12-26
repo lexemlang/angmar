@@ -19,6 +19,8 @@ internal interface LexemSetter : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
+    override fun containsReferences() = true
+
     override fun dereference(memory: LexemMemory, toWrite: Boolean) =
             getSetterPrimitive(memory).dereference(memory, toWrite = true)
 

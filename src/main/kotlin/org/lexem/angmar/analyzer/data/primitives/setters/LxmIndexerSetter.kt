@@ -24,9 +24,6 @@ internal class LxmIndexerSetter : LexemSetter {
         this.index = index.getPrimitive()
         this.node = node
 
-        this.element.increaseReferences(memory)
-        this.index.increaseReferences(memory)
-
         // Check the types.
         when (element) {
             is LxmString -> {
@@ -177,12 +174,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -221,12 +218,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -254,16 +251,6 @@ internal class LxmIndexerSetter : LexemSetter {
             }
             else -> throw AngmarUnreachableException()
         }
-    }
-
-    override fun increaseReferences(memory: LexemMemory) {
-        element.increaseReferences(memory)
-        index.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: LexemMemory) {
-        element.decreaseReferences(memory)
-        index.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

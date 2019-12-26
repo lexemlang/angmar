@@ -82,10 +82,6 @@ internal class LxmDestructuring : LexemPrimitive {
         if (spread != null) {
             to.setProperty(memory, spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
-        } else {
-            val spreadObjectRef = spreadObject.getPrimitive()
-            spreadObjectRef.increaseReferences(memory)
-            spreadObjectRef.decreaseReferences(memory)
         }
 
         return setVars
@@ -122,10 +118,6 @@ internal class LxmDestructuring : LexemPrimitive {
         if (spread != null) {
             to.setProperty(memory, spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
-        } else {
-            val spreadListRef = spreadList.getPrimitive()
-            spreadListRef.increaseReferences(memory)
-            spreadListRef.decreaseReferences(memory)
         }
 
         return setVars

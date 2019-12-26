@@ -121,7 +121,7 @@ internal class AccessLexemAnalyzerTest {
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(expressionName, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -178,7 +178,7 @@ internal class AccessLexemAnalyzerTest {
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(expressionName, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -241,7 +241,7 @@ internal class AccessLexemAnalyzerTest {
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(parent.name, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -304,7 +304,7 @@ internal class AccessLexemAnalyzerTest {
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(expression2Name, result.name, "The name property is incorrect")
         Assertions.assertEquals(leftText.length, result.getFrom(analyzer.memory).primitive.position(),
@@ -323,10 +323,9 @@ internal class AccessLexemAnalyzerTest {
         val lxmNode = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = false) ?: throw Error(
                 "The node must be a LxmNode")
-        Assertions.assertEquals(1, lxmNode.getChildrenAsList(analyzer.memory).size,
-                "The number of results is incorrect")
+        Assertions.assertEquals(1, lxmNode.getChildrenList(analyzer.memory).size, "The number of results is incorrect")
         Assertions.assertEquals(result,
-                lxmNode.getChildrenAsList(analyzer.memory).first().dereference(analyzer.memory, toWrite = false),
+                lxmNode.getChildrenList(analyzer.memory).first().dereference(analyzer.memory, toWrite = false),
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
@@ -630,7 +629,7 @@ internal class AccessLexemAnalyzerTest {
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(parent.name, result.name, "The name property is incorrect")
         Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
@@ -666,7 +665,7 @@ internal class AccessLexemAnalyzerTest {
         val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
         val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
 
-        for (i in children.actualListSize - 1 downTo 0) {
+        for (i in children.size - 1 downTo 0) {
             children.removeCell(analyzer.memory, i, ignoreConstant = true)
         }
     }

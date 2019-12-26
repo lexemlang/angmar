@@ -41,7 +41,7 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    if (leftDeref.actualListSize != rightDeref.actualListSize) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
@@ -58,22 +58,16 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllValues()
-                    val rightValues = rightDeref.getAllValues()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
+                    val leftValues = leftDeref.getAllValues()
+                    val rightValues = rightDeref.getAllValues()
+
                     for (i in leftValues) {
-                        val rightList = rightValues[i.key] ?: return false
-
-                        if (i.value.size != rightList.size) {
+                        if (i !in rightValues) {
                             return false
-                        }
-
-                        for (j in i.value) {
-                            rightList.find { identityEquals(it.value, j.value) } ?: return false
                         }
                     }
 
@@ -84,21 +78,21 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllIterableProperties()
-                    val rightValues = rightDeref.getAllIterableProperties()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
-                    for (i in leftValues) {
-                        val rightProperty = rightValues[i.key] ?: return false
+                    val leftValues = leftDeref.getAllIterableProperties()
+                    val rightValues = rightDeref.getAllIterableProperties()
 
-                        if (i.value.isConstant != rightProperty.isConstant) {
+                    for ((key, property) in leftValues) {
+                        val rightProperty = rightValues[key] ?: return false
+
+                        if (property.isConstant != rightProperty.isConstant) {
                             return false
                         }
 
-                        if (identityNotEquals(i.value.value, rightProperty.value)) {
+                        if (identityNotEquals(property.value, rightProperty.value)) {
                             return false
                         }
                     }
@@ -110,24 +104,18 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllProperties()
-                    val rightValues = rightDeref.getAllProperties()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
-                    for (i in leftValues) {
-                        val rightList = rightValues[i.key] ?: return false
+                    val leftValues = leftDeref.getAllProperties()
+                    val rightValues = rightDeref.getAllProperties()
 
-                        if (i.value.size != rightList.size) {
+                    for ((key, lValue) in leftValues) {
+                        val (_, rValue) = rightValues.first { identityEquals(it.first, key) } ?: return false
+
+                        if (!identityEquals(lValue, rValue)) {
                             return false
-                        }
-
-                        for (j in i.value) {
-                            rightList.find {
-                                identityEquals(it.key, j.key) && identityEquals(it.value, j.value)
-                            } ?: return false
                         }
                     }
 

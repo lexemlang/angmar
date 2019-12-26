@@ -15,7 +15,8 @@ import org.lexem.angmar.compiler.others.*
 internal open class LxmFunction : LexemReferenced {
     var name: String = "<Anonymous function>"
     val node: CompiledNode
-    val contextReference: LxmReference?
+    var contextReference: LxmReference?
+        private set
     val internalFunction: ((LexemAnalyzer, LxmArguments, LxmFunction, Int) -> Boolean)?
 
     val isInternalFunction get() = internalFunction != null
@@ -32,8 +33,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = node
         this.contextReference = context.getPrimitive()
         this.internalFunction = null
-
-        contextReference.increaseReferences(memory)
     }
 
     /**
@@ -56,8 +55,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = InternalFunctionCallCompiled
         this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
-
-        contextReference.increaseReferences(memory)
     }
 
     /**
@@ -70,8 +67,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = InternalFunctionCallCompiled
         this.contextReference = arguments.getPrimitive()
         this.internalFunction = internalFunction
-
-        contextReference.increaseReferences(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -87,7 +82,7 @@ internal open class LxmFunction : LexemReferenced {
     override fun memoryShift(memory: LexemMemory) = this
 
     override fun memoryDealloc(memory: LexemMemory) {
-        contextReference?.decreaseReferences(memory)
+        contextReference = null
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

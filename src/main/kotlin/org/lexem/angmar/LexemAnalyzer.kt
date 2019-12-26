@@ -1,6 +1,7 @@
 package org.lexem.angmar
 
 import es.jtp.kterm.*
+import kotlinx.coroutines.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
@@ -15,7 +16,6 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
-import org.lexem.angmar.utils.*
 
 
 /**
@@ -50,8 +50,6 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         val hiddenContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
         val stdLibContextReference = stdLibContext.getPrimitive()
         val hiddenContextReference = hiddenContext.getPrimitive()
-        stdLibContextReference.increaseReferences(memory)
-        hiddenContextReference.increaseReferences(memory)
 
         if (stdLibContextReference.position != LxmReference.StdLibContext.position || hiddenContextReference.position != LxmReference.HiddenContext.position) {
             // This must never happen.
@@ -123,84 +121,59 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      * Resumes the analysis.
      */
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
+        val analyzer = this
         status = Status.Executing
-        val timeout = System.nanoTime() + timeoutInMilliseconds * 1000000
 
         try {
-            loop@ while (true) {
-                // Check timeout.
-                val time = System.nanoTime()
-                if (!Consts.verbose && time >= timeout || status == Status.Paused) {
-                    status = Status.Paused
-                    return false
-                }
-
-                ticks += 1L
-
-                when (processStatus) {
-                    ProcessStatus.Forward -> {
-                        // No more nodes
-                        if (nextNode == null) {
-                            break@loop
+            runBlocking {
+                withTimeout(timeoutInMilliseconds) {
+                    loop@ while (true) {
+                        if (status == Status.Paused) {
+                            return@withTimeout
                         }
 
-                        nextNode!!.analyze(this, signal)
+                        ticks += 1L
 
-                        // Execute the spatial garbage collector if the memory has asked for.
-                        // Done here to prevent calling the garbage collector before
-                        // set all the references.
-                        if (memory.lastNode.spatialGarbageCollectorMark) {
-                            if (Consts.verbose) {
-                                Logger.debug("init spatialGarbageCollect") {
-                                    showDate = true
+                        when (processStatus) {
+                            ProcessStatus.Forward -> {
+                                // No more nodes
+                                if (nextNode == null) {
+                                    break@loop
                                 }
-                                val gcTime = TimeUtils.measureTimeSeconds {
-                                    memory.spatialGarbageCollect()
+
+                                nextNode!!.analyze(analyzer, signal)
+                            }
+                            ProcessStatus.Backward -> {
+                                memory.rollbackCopy()
+
+                                val lastCodePoint = getLastRollbackCodePoint()
+                                lastCodePoint.restore(analyzer)
+
+                                // Handle the possibility of matching nothing.
+                                if (memory.lastNode.previousNode == null) {
+                                    signal = 0
+                                    nextNode = null
+
+                                    status = Status.Ended
+                                    return@withTimeout
                                 }
-                                Logger.debug("end  spatialGarbageCollect after ${gcTime}s") {
-                                    showDate = true
-                                }
-                            } else {
-                                memory.spatialGarbageCollect()
+
+                                processStatus = ProcessStatus.Forward
                             }
                         }
-
-                        // Execute the temporal garbage collector if the memory has asked for.
-                        if (memory.lastNode.temporalGarbageCollectorMark) {
-                            if (Consts.verbose) {
-                                Logger.debug("init temporalGarbageCollect ${memory.countBigNodes()}") {
-                                    showDate = true
-                                }
-                                val gcTime = TimeUtils.measureTimeSeconds {
-                                    memory.temporalGarbageCollect()
-                                }
-                                Logger.debug("end  temporalGarbageCollect after ${gcTime}s") {
-                                    showDate = true
-                                }
-                            } else {
-                                memory.temporalGarbageCollect()
-                            }
-                        }
-                    }
-                    ProcessStatus.Backward -> {
-                        memory.rollbackCopy()
-
-                        val lastCodePoint = getLastRollbackCodePoint()
-                        lastCodePoint.restore(this)
-
-                        // Handle the possibility of matching nothing.
-                        if (memory.lastNode.previousNode == null) {
-                            signal = 0
-                            nextNode = null
-
-                            status = Status.Ended
-                            return true
-                        }
-
-                        processStatus = ProcessStatus.Forward
                     }
                 }
             }
+
+            // TODO call GC async
+
+            when (status) {
+                Status.Ended -> return true
+                Status.Paused -> return false
+            }
+        } catch (e: TimeoutCancellationException) {
+            status = Status.Paused
+            return false
         } catch (e: AngmarAnalyzerException) {
             // Print the stack traces
             val callHierarchy = AnalyzerCommons.getCallHierarchy(memory)

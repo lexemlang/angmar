@@ -203,14 +203,11 @@ internal object AnalyzerNodesCommons {
                 // Checks whether the current call is a filtering.
                 if (node is FilterStmtCompiled) {
                     val node2Filter = arguments.getNamedArgument(analyzer.memory,
-                            AnalyzerCommons.Identifiers.Node2FilterParameter)
+                            AnalyzerCommons.Identifiers.Node2FilterParameter) ?: node2ReParse
 
                     if (node2Filter == null) {
-                        if (node2ReParse == null) {
-                            throw AngmarAnalyzerException(
-                                    AngmarAnalyzerExceptionType.FilterCallWithoutNode2FilterArgument,
-                                    "Cannot call a filter without specifying the '${AnalyzerCommons.Identifiers.Node2FilterParameter}' argument.") {}
-                        }
+                        throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FilterCallWithoutNode2FilterArgument,
+                                "Cannot call a filter without specifying the '${AnalyzerCommons.Identifiers.Node2FilterParameter}' argument.") {}
                     } else {
                         if (node2ReParse == null) {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNode, node2Filter)
@@ -219,7 +216,9 @@ internal object AnalyzerNodesCommons {
                         }
                     }
 
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+                    val derefNode = node2Filter.dereference(analyzer.memory, toWrite = false) as LxmNode
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                            LxmFilterPosition(analyzer.memory, derefNode))
                 }
 
                 // Save the first index.
@@ -403,11 +402,11 @@ internal object AnalyzerNodesCommons {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture) {
                 // Set the returned value.
-                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                if (children && childrenList.actualListSize > 0) {
+                if (children && lxmNode.getChildCount(analyzer.memory) > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
+                    resultList.addCell(analyzer.memory,
+                            *lxmNode.getChildrenList(analyzer.memory, toWrite = false).toList().toTypedArray())
                     returnValue = resultList
                 } else {
                     // Set a null value.

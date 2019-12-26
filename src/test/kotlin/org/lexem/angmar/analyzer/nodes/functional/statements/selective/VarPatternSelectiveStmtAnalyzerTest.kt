@@ -25,7 +25,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val property =
-                context.getOwnPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 
@@ -54,7 +54,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val property =
-                context.getOwnPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 

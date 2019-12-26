@@ -1,15 +1,17 @@
 package org.lexem.angmar.analyzer.stdlib.globals
 
-import org.junit.jupiter.api.*
-import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.*
-import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.errors.*
-import org.lexem.angmar.io.readers.*
-import org.lexem.angmar.parser.functional.expressions.*
-import org.lexem.angmar.parser.functional.expressions.modifiers.*
-import org.lexem.angmar.parser.literals.*
-import org.lexem.angmar.utils.*
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.lexem.angmar.Incorrect
+import org.lexem.angmar.analyzer.AnalyzerCommons
+import org.lexem.angmar.analyzer.data.primitives.LxmNil
+import org.lexem.angmar.errors.AngmarAnalyzerExceptionType
+import org.lexem.angmar.io.readers.IOStringReader
+import org.lexem.angmar.parser.functional.expressions.AssignOperatorNode
+import org.lexem.angmar.parser.functional.expressions.modifiers.AccessExplicitMemberNode
+import org.lexem.angmar.parser.functional.expressions.modifiers.FunctionCallNode
+import org.lexem.angmar.parser.literals.StringNode
+import org.lexem.angmar.utils.TestUtils
 
 internal class DebugGlobalObjectTest {
     @Test
@@ -27,7 +29,6 @@ internal class DebugGlobalObjectTest {
         val hasFinished = analyzer.start(IOStringReader.from(""), timeoutInMilliseconds = Long.MAX_VALUE)
         Assertions.assertFalse(hasFinished, "The analyzer has finished")
 
-
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val result = context.getPropertyValue(analyzer.memory, varName)
         Assertions.assertEquals(LxmNil, result, "The result is incorrect")
@@ -38,7 +39,7 @@ internal class DebugGlobalObjectTest {
         val value = "this is a test"
         val (stdOut, errOut) = TestUtils.handleLogs {
             val fnCall =
-                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
+                "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
@@ -58,9 +59,9 @@ internal class DebugGlobalObjectTest {
         val value = "this is a test"
         val (stdOut, errOut) = TestUtils.handleLogs {
             val fnCall =
-                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
+                "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
             val fnArgs =
-                    "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
+                "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
@@ -80,7 +81,7 @@ internal class DebugGlobalObjectTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CustomError) {
             val value = "this is a test"
             val fnCall =
-                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
+                "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
@@ -97,9 +98,9 @@ internal class DebugGlobalObjectTest {
             val value = "this is a test"
             val tag = "tag"
             val fnCall =
-                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
+                "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Throw}"
             val fnArgs =
-                    "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
+                "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}${StringNode.startToken}$tag${StringNode.endToken}"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)
 
@@ -116,7 +117,7 @@ internal class DebugGlobalObjectTest {
             val tag = 5
             val value = "this is a test"
             val fnCall =
-                    "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
+                "${DebugGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${DebugGlobalObject.Log}"
             val fnArgs = "${StringNode.startToken}$value${StringNode.endToken}${FunctionCallNode.argumentSeparator}$tag"
             val grammar = "$fnCall${FunctionCallNode.startToken}$fnArgs${FunctionCallNode.endToken}"
             val analyzer = TestUtils.createAnalyzerFromWholeGrammar(grammar)

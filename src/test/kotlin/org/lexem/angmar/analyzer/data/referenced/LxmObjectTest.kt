@@ -117,11 +117,11 @@ internal class LxmObjectTest {
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.setProperty(memory, "new", LxmInteger.Num1)
 
-        val oldDescriptor = new.getOwnPropertyDescriptor(memory, "old") ?: throw Error("The old property is incorrect")
-        val newDescriptor = new.getOwnPropertyDescriptor(memory, "new") ?: throw Error("The new property is incorrect")
+        val oldDescriptor = new.getPropertyDescriptor(memory, "old") ?: throw Error("The old property is incorrect")
+        val newDescriptor = new.getPropertyDescriptor(memory, "new") ?: throw Error("The new property is incorrect")
 
         Assertions.assertEquals(LxmInteger.Num1, newDescriptor.value, "The new property is incorrect")
-        Assertions.assertNull(new.getOwnPropertyDescriptor(memory, "prototype"), "The prototype property is incorrect")
+        Assertions.assertNull(new.getPropertyDescriptor(memory, "prototype"), "The prototype property is incorrect")
         Assertions.assertEquals(LxmLogic.True, oldDescriptor.value, "The old property is incorrect")
     }
 
@@ -289,7 +289,7 @@ internal class LxmObjectTest {
         val obj = LxmObject(memory)
         obj.setProperty(memory, propName, LxmInteger.Num10)
 
-        var cell = obj.getOwnPropertyDescriptor(memory, propName)!!
+        var cell = obj.getPropertyDescriptor(memory, propName)!!
 
         Assertions.assertFalse(cell.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(cell.isIterable, "The isIterable property is incorrect")
@@ -298,7 +298,7 @@ internal class LxmObjectTest {
 
         obj.setProperty(memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
 
-        cell = obj.getOwnPropertyDescriptor(memory, propName)!!
+        cell = obj.getPropertyDescriptor(memory, propName)!!
 
         Assertions.assertTrue(cell.isConstant, "The isConstant property is incorrect")
         Assertions.assertFalse(cell.isIterable, "The isIterable property is incorrect")
@@ -315,7 +315,7 @@ internal class LxmObjectTest {
         val old = LxmObject(memory)
         old.setProperty(memory, propName, LxmInteger.Num10)
 
-        var cellOld = old.getOwnPropertyDescriptor(memory, propName)!!
+        var cellOld = old.getPropertyDescriptor(memory, propName)!!
 
         Assertions.assertFalse(cellOld.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(cellOld.isIterable, "The isIterable property is incorrect")
@@ -327,8 +327,8 @@ internal class LxmObjectTest {
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.setProperty(memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
 
-        cellOld = old.getOwnPropertyDescriptor(memory, propName)!!
-        val cellNew = new.getOwnPropertyDescriptor(memory, propName)!!
+        cellOld = old.getPropertyDescriptor(memory, propName)!!
+        val cellNew = new.getPropertyDescriptor(memory, propName)!!
 
         Assertions.assertFalse(cellOld.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(cellOld.isIterable, "The isIterable property is incorrect")
@@ -387,7 +387,7 @@ internal class LxmObjectTest {
 
         obj.removeProperty(memory, propName)
 
-        Assertions.assertNull(obj.getOwnPropertyDescriptor(memory, propName), "The $propName property mustn't be got")
+        Assertions.assertNull(obj.getPropertyDescriptor(memory, propName), "The $propName property mustn't be got")
     }
 
     @Test
@@ -408,13 +408,13 @@ internal class LxmObjectTest {
 
         new.removeProperty(memory, propName)
 
-        Assertions.assertEquals(LxmLogic.True, old.getOwnPropertyDescriptor(memory, propName)?.value,
+        Assertions.assertEquals(LxmLogic.True, old.getPropertyDescriptor(memory, propName)?.value,
                 "The $propName property is incorrect")
-        Assertions.assertEquals(LxmLogic.False, prototype.getOwnPropertyDescriptor(memory, propName)?.value,
+        Assertions.assertEquals(LxmLogic.False, prototype.getPropertyDescriptor(memory, propName)?.value,
                 "The $propName property is incorrect")
 
         val descriptor =
-                new.getOwnPropertyDescriptor(memory, propName) ?: throw Error("The $propName property is incorrect")
+                new.getPropertyDescriptor(memory, propName) ?: throw Error("The $propName property is incorrect")
         Assertions.assertFalse(descriptor.isIterable, "The isIterable property is incorrect")
         Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
         Assertions.assertEquals(LxmNil, descriptor.value, "The value property is incorrect")
@@ -439,14 +439,14 @@ internal class LxmObjectTest {
         val obj = LxmObject(memory)
         obj.setProperty(memory, propName, LxmLogic.True)
 
-        val descriptorPre = obj.getOwnPropertyDescriptor(memory, propName)!!
+        val descriptorPre = obj.getPropertyDescriptor(memory, propName)!!
         Assertions.assertFalse(descriptorPre.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(descriptorPre.isIterable, "The isIterable property is incorrect")
         Assertions.assertFalse(descriptorPre.isRemoved, "The isRemoved property is incorrect")
         Assertions.assertEquals(LxmLogic.True, descriptorPre.value, "The value property is incorrect")
 
         obj.makePropertyConstant(memory, propName)
-        val descriptorPost = obj.getOwnPropertyDescriptor(memory, propName)!!
+        val descriptorPost = obj.getPropertyDescriptor(memory, propName)!!
         Assertions.assertTrue(descriptorPost.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(descriptorPost.isIterable, "The isIterable property is incorrect")
         Assertions.assertFalse(descriptorPost.isRemoved, "The isRemoved property is incorrect")

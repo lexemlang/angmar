@@ -39,7 +39,7 @@ internal class FilterLexemeAnalyzerTest {
         val resultRef = analyzer.memory.getLastFromStack() as LxmReference
         val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertEquals(1, newPosition.primitive, "The new position is incorrect")
         Assertions.assertEquals(childNode.getPrimitive().position, resultRef.position, "The result is incorrect")
@@ -220,7 +220,7 @@ internal class FilterLexemeAnalyzerTest {
         val resultRef = analyzer.memory.getLastFromStack() as LxmReference
         val result = resultRef.dereferenceAs<LxmNode>(analyzer.memory, toWrite = false)!!
         val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory)
+        val resultParentChildren = resultParent.getChildrenList(analyzer.memory)
 
         Assertions.assertTrue(executed, "The function has not been executed")
         Assertions.assertEquals(1, newPosition.primitive, "The new position is incorrect")

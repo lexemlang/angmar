@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of a List iterator.
@@ -16,12 +15,11 @@ internal class LxmListIterator : LexemIterator {
 
     constructor(memory: LexemMemory, list: LxmList) : super(memory) {
         setProperty(memory, AnalyzerCommons.Identifiers.Value, list.getPrimitive())
-        this.size = list.actualListSize.toLong()
+        intervalSize = list.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmListIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
-        this.size = oldVersion.size
+    private constructor(memory: LexemMemory, oldVersion: LxmListIterator) : super(memory, oldVersion) {
+        intervalSize = oldVersion.intervalSize
     }
 
     // METHODS ----------------------------------------------------------------
@@ -34,7 +32,7 @@ internal class LxmListIterator : LexemIterator {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val size: Long
+    override val intervalSize: Long
 
     override fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
         if (isEnded(memory)) {
@@ -47,8 +45,7 @@ internal class LxmListIterator : LexemIterator {
         return Pair(null, currentValue)
     }
 
-    override fun memoryShift(memory: LexemMemory) = LxmListIterator(memory, this,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryShift(memory: LexemMemory) = LxmListIterator(memory, oldVersion = this)
 
     override fun toString() = "[Iterator - List] ${super.toString()}"
 }

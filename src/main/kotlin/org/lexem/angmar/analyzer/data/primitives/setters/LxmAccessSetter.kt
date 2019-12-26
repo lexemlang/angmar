@@ -25,8 +25,6 @@ internal class LxmAccessSetter : LexemSetter {
         this.variableName = variableName
         this.node = node
         this.nodeElement = nodeElement
-
-        this.context.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -53,14 +51,6 @@ internal class LxmAccessSetter : LexemSetter {
     override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
         val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = true)!!
         ctxObject.setPropertyAsContext(memory, variableName, value)
-    }
-
-    override fun increaseReferences(memory: LexemMemory) {
-        context.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: LexemMemory) {
-        context.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

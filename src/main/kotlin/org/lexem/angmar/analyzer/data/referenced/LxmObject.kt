@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
@@ -13,33 +12,26 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the Object type.
  */
 internal open class LxmObject : LexemReferenced {
-    val prototypeReference: LxmReference?
+    private var properties = hashMapOf<String, LxmObjectProperty>()
+    private var isPropertiesCloned = false
+
+    var prototypeReference: LxmReference?
     var isConstant = false
         private set
     var isWritable = true
         private set
-    protected var properties = mutableMapOf<String, LxmObjectProperty>()
+    val size get() = properties.size
 
     private val isFinalInHierarchy get() = this is LxmAnyPrototype || (this is LxmContext && prototypeReference == null)
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    protected constructor(memory: LexemMemory, oldVersion: LxmObject, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
-        if (toClone) {
-            prototypeReference = oldVersion.prototypeReference
-            isConstant = oldVersion.isConstant
-            isWritable = oldVersion.isWritable
-            properties = oldVersion.getAllProperties()
-
-            for ((key, property) in properties) {
-                properties[key] = property.clone()
-            }
-        } else {
-            prototypeReference = oldVersion.prototypeReference
-            isConstant = oldVersion.isConstant
-            isWritable = oldVersion.isWritable
-        }
+    protected constructor(memory: LexemMemory, oldVersion: LxmObject, dummy: Boolean = true) : super(memory,
+            oldVersion) {
+        prototypeReference = oldVersion.prototypeReference
+        isConstant = oldVersion.isConstant
+        isWritable = oldVersion.isWritable
+        properties = oldVersion.properties
     }
 
     /**
@@ -47,6 +39,7 @@ internal open class LxmObject : LexemReferenced {
      */
     constructor(memory: LexemMemory) : super(memory) {
         prototypeReference = null
+        isPropertiesCloned = true
     }
 
     /**
@@ -54,7 +47,7 @@ internal open class LxmObject : LexemReferenced {
      */
     constructor(memory: LexemMemory, prototype: LxmObject) : super(memory) {
         prototypeReference = prototype.getPrimitive()
-        prototypeReference.increaseReferences(memory)
+        isPropertiesCloned = true
     }
 
     // METHODS ----------------------------------------------------------------
@@ -63,7 +56,7 @@ internal open class LxmObject : LexemReferenced {
      * Gets the value of a property. It searches also in prototypes.
      */
     open fun getPropertyValue(memory: LexemMemory, identifier: String): LexemPrimitive? {
-        val property = getOwnPropertyDescriptor(memory, identifier)
+        val property = properties[identifier]
 
         if (property == null) {
             // Avoid infinite loops.
@@ -75,35 +68,14 @@ internal open class LxmObject : LexemReferenced {
             return prototype.getPropertyValue(memory, identifier)
         }
 
-        if (property.isRemoved) {
-            return null
-        }
-
         return property.value
-    }
-
-    /**
-     * Gets the property descriptor of the specified property inside the current object.
-     */
-    fun getOwnPropertyDescriptor(memory: LexemMemory, identifier: String): LxmObjectProperty? {
-        var obj: LxmObject? = this
-        while (obj != null) {
-            val value = obj.properties[identifier]
-            if (value != null) {
-                return value
-            }
-
-            obj = obj.oldVersion as? LxmObject
-        }
-
-        return null
     }
 
     /**
      * Gets the property descriptor of the specified property.
      */
     fun getPropertyDescriptor(memory: LexemMemory, identifier: String): LxmObjectProperty? {
-        val property = getOwnPropertyDescriptor(memory, identifier)
+        val property = properties[identifier]
 
         if (property == null) {
             // Avoid infinite loops.
@@ -148,42 +120,29 @@ internal open class LxmObject : LexemReferenced {
                     "The object is non writable therefore cannot be modified") {}
         }
 
+        cloneProperties()
+
         val valuePrimitive = value.getPrimitive()
-        val currentProperty = properties[identifier]
-        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
+        var property = properties[identifier]
 
-        when {
-            // No property.
-            currentProperty == null && lastProperty == null -> {
-                val property = LxmObjectProperty(isConstant, isIterable, false)
-                properties[identifier] = property
-                property.replaceValue(memory, valuePrimitive)
+        if (property == null) {
+            property = LxmObjectProperty(this, isConstant,
+                    isIterable || !identifier.startsWith(AnalyzerCommons.Identifiers.HiddenPrefix))
+            properties[identifier] = property
+            property.replaceValue(valuePrimitive)
+        } else {
+            if (!ignoreConstant && property.isConstant) {
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
+                        "The object property called '$identifier' is constant therefore it cannot be modified") {}
             }
 
-            // Current property.
-            currentProperty != null -> {
-                if (!ignoreConstant && currentProperty.isConstant) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
-                            "The object property called '$identifier' is constant therefore it cannot be modified") {}
-                }
-
-                currentProperty.replaceValue(memory, valuePrimitive)
-                currentProperty.isConstant = isConstant
-                currentProperty.isIterable = isIterable
-                currentProperty.isRemoved = false
+            if (property.belongsTo != this) {
+                property = property.clone(this)
             }
 
-            // Property in past version of the object.
-            lastProperty != null -> {
-                if (!ignoreConstant && lastProperty.isConstant) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
-                            "The object property called '$identifier' is constant therefore it cannot be modified") {}
-                }
-
-                val property = lastProperty.clone(isConstant = isConstant, isIterable = isIterable, isRemoved = false)
-                properties[identifier] = property
-                property.replaceValue(memory, valuePrimitive)
-            }
+            property.replaceValue(valuePrimitive)
+            property.isConstant = isConstant
+            property.isIterable = isIterable || !identifier.startsWith(AnalyzerCommons.Identifiers.HiddenPrefix)
         }
     }
 
@@ -209,12 +168,12 @@ internal open class LxmObject : LexemReferenced {
         }
 
         // Check the current object and the prototype.
-        val currentProperty = getOwnPropertyDescriptor(memory, identifier)
+        val currentProperty = properties[identifier]
 
         if (currentProperty == null) {
             var prototype = getPrototypeAsObject(memory, toWrite = false)
             while (true) {
-                val prototypeProperty = prototype.getOwnPropertyDescriptor(memory, identifier)
+                val prototypeProperty = prototype.properties[identifier]
 
                 // Set in prototype.
                 if (prototypeProperty != null) {
@@ -239,10 +198,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Returns whether the object contains a property or not.
      */
-    fun containsOwnProperty(memory: LexemMemory, identifier: String): Boolean {
-        val prop = getOwnPropertyDescriptor(memory, identifier)
-        return prop != null && !prop.isRemoved
-    }
+    fun containsOwnProperty(memory: LexemMemory, identifier: String) = properties[identifier] != null
 
     /**
      * Removes a property.
@@ -259,41 +215,17 @@ internal open class LxmObject : LexemReferenced {
                     "The object is constant therefore it cannot be modified") {}
         }
 
-        val currentProperty = properties[identifier]
-        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
-
-        when {
-            // Current property
-            currentProperty != null -> {
-                if (!ignoreConstant && currentProperty.isConstant) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
-                            "The object property called '$identifier' is constant therefore it cannot be modified") {}
-                }
-
-                if (lastProperty != null) {
-                    // Set property to remove.
-                    currentProperty.isIterable = false
-                    currentProperty.isRemoved = true
-                    currentProperty.replaceValue(memory, LxmNil)
-                } else {
-                    // Remove property.
-                    properties.remove(identifier)
-                    currentProperty.replaceValue(memory, LxmNil)
-                }
+        val property = properties[identifier]
+        if (property != null) {
+            if (!ignoreConstant && property.isConstant) {
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
+                        "The object property called '$identifier' is constant therefore it cannot be modified") {}
             }
 
-            // Property in past version of the object
-            lastProperty != null -> {
-                if (!ignoreConstant && lastProperty.isConstant) {
-                    throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
-                            "The object property called '$identifier' is constant therefore it cannot be modified") {}
-                }
+            cloneProperties()
 
-                // Set property to remove.
-                val cloned = lastProperty.clone(isIterable = false, isRemoved = true)
-                properties[identifier] = cloned
-                cloned.replaceValue(memory, LxmNil)
-            }
+            // Remove property.
+            properties.remove(identifier)
         }
     }
 
@@ -337,53 +269,37 @@ internal open class LxmObject : LexemReferenced {
                     "The object is constant therefore it cannot be modified") {}
         }
 
-        val currentProperty = properties[identifier]
-        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
+        var property = properties[identifier] ?: throw AngmarAnalyzerException(
+                AngmarAnalyzerExceptionType.UndefinedObjectProperty,
+                "The object hasn't a property called '$identifier'") {}
 
-        when {
-            // No property
-            currentProperty == null && lastProperty == null -> {
-                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UndefinedObjectProperty,
-                        "The object hasn't a property called '$identifier'") {}
-            }
+        cloneProperties()
 
-            // Current property
-            currentProperty != null -> {
-                currentProperty.isConstant = true
-            }
-
-            // Property in past version of the object
-            lastProperty != null -> {
-                // Avoid to shift if it is constant.
-                if (lastProperty.isConstant) {
-                    return
-                }
-
-                properties[identifier] = lastProperty.clone(isConstant = true)
-            }
+        if (property.belongsTo != this) {
+            property = property.clone(this)
         }
+
+        property.isConstant = true
     }
 
     /**
      * Gets all iterable properties of the object.
      */
-    fun getAllIterableProperties() = getAllProperties().filter { it.value.isIterable }
+    fun getAllIterableProperties() = properties.filterValues { it.isIterable }.toMutableMap()
 
     /**
      * Gets all properties of the object.
      */
-    private fun getAllProperties(): MutableMap<String, LxmObjectProperty> {
-        val versions = getListOfVersions<LxmObject>()
+    private fun getAllProperties() = properties.toMutableMap()
 
-        // Iterate to get a list of versions.
-        val result = mutableMapOf<String, LxmObjectProperty>()
-
-        while (versions.isNotEmpty()) {
-            val element = versions.removeLast()
-            result.putAll(element.properties)
+    /**
+     * Clones the properties map.
+     */
+    private fun cloneProperties() {
+        if (!isPropertiesCloned) {
+            properties = HashMap(properties)
+            isPropertiesCloned = true
         }
-
-        return result
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -391,26 +307,19 @@ internal open class LxmObject : LexemReferenced {
     override fun memoryShift(memory: LexemMemory) = if (!isWritable) {
         this
     } else {
-        LxmObject(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+        LxmObject(memory, oldVersion = this)
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        for ((key, property) in getAllProperties()) {
-            val reference = property.value
-            if (reference is LxmReference) {
-                reference.decreaseReferences(memory)
-            }
-        }
-
-        prototypeReference?.decreaseReferences(memory)
-
-        if (isWritable) {
+        if (isPropertiesCloned) {
             properties.clear()
         }
+
+        prototypeReference = null
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        for ((_, property) in getAllProperties()) {
+        for ((_, property) in properties) {
             property.value.spatialGarbageCollect(memory, gcFifo)
         }
 
@@ -457,18 +366,17 @@ internal open class LxmObject : LexemReferenced {
     /**
      * A property of [LxmObject]s.
      */
-    class LxmObjectProperty(var isConstant: Boolean, var isIterable: Boolean, var isRemoved: Boolean) {
+    class LxmObjectProperty(val belongsTo: LxmObject, var isConstant: Boolean, var isIterable: Boolean) {
         var value: LexemPrimitive = LxmNil
+            private set
 
         // METHODS ------------------------------------------------------------
 
         /**
          * Clones the object property only if it is not constant.
          */
-        fun clone(isConstant: Boolean? = null, isIterable: Boolean? = null,
-                isRemoved: Boolean? = null): LxmObjectProperty {
-            val prop = LxmObjectProperty(isConstant = isConstant ?: this.isConstant,
-                    isIterable = isIterable ?: this.isIterable, isRemoved = isRemoved ?: this.isRemoved)
+        fun clone(belongsTo: LxmObject): LxmObjectProperty {
+            val prop = LxmObjectProperty(belongsTo, isConstant = isConstant, isIterable = isIterable)
 
             prop.value = value
             return prop
@@ -477,29 +385,22 @@ internal open class LxmObject : LexemReferenced {
         /**
          * Replaces the value handling the memory references.
          */
-        fun replaceValue(memory: LexemMemory, newValue: LexemPrimitive) {
-            // Keep this to replace the elements before possibly remove the references.
-            val oldValue = value
+        fun replaceValue(newValue: LexemPrimitive) {
             value = newValue
-            memory.replacePrimitives(oldValue, newValue)
         }
 
         override fun toString() = StringBuilder().apply {
-            if (isRemoved) {
-                append("REMOVED")
-            } else {
-                if (isConstant) {
-                    append('#')
-                }
-
-                if (isIterable) {
-                    append("[]")
-                }
-
-                append(" ")
-
-                append(value)
+            if (isConstant) {
+                append('#')
             }
+
+            if (isIterable) {
+                append("[]")
+            }
+
+            append(" ")
+
+            append(value)
         }.toString()
     }
 }

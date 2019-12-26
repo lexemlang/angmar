@@ -16,8 +16,7 @@ internal abstract class LexemIterator : LxmObject {
         restart(memory)
     }
 
-    protected constructor(memory: LexemMemory, oldVersion: LexemIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone)
+    protected constructor(memory: LexemMemory, oldVersion: LexemIterator) : super(memory, oldVersion, true)
 
     // METHODS ----------------------------------------------------------------
 
@@ -29,12 +28,12 @@ internal abstract class LexemIterator : LxmObject {
     /**
      * The number of iterations.
      */
-    abstract val size: Long
+    abstract val intervalSize: Long
 
     /**
      * Whether the iterator is ended or not.
      */
-    fun isEnded(memory: LexemMemory) = getIndex(memory).primitive >= size
+    fun isEnded(memory: LexemMemory) = getIndex(memory).primitive >= intervalSize
 
     /**
      * Returns the current element in a index-value pair.
@@ -44,7 +43,7 @@ internal abstract class LexemIterator : LxmObject {
     /**
      * Advance one iteration.
      */
-    fun advance(memory: LexemMemory) {
+    open fun advance(memory: LexemMemory) {
         val prev = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
         val new = LxmInteger.from(prev.primitive + 1)
         setProperty(memory, AnalyzerCommons.Identifiers.Index, new)
@@ -53,7 +52,7 @@ internal abstract class LexemIterator : LxmObject {
     /**
      * Restarts the iterator.
      */
-    fun restart(memory: LexemMemory) {
+    open fun restart(memory: LexemMemory) {
         setProperty(memory, AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
     }
 }

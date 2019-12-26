@@ -1,14 +1,13 @@
 package org.lexem.angmar.analyzer.memory
 
-import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 
 /**
  * An fifo made with intervals and optimized for garbage collection.
  */
-internal class GarbageCollectorFifo : Iterable<Int> {
-    private val deadRanges = mutableListOf<IntegerRange>()
-    private val restRangesToProcess = mutableListOf<IntegerRange>()
+internal class GarbageCollectorFifo : Iterable<Long> {
+    private val deadRanges = mutableListOf<LongRange>()
+    private val restRangesToProcess = mutableListOf<LongRange>()
 
     // CONSTRUCTORS -----------------------------------------------------------
 
@@ -21,7 +20,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
         }
 
         if (size > 0) {
-            deadRanges.add(IntegerRange.new(0, size - 1))
+            deadRanges.add(0L until size)
         }
     }
 
@@ -30,7 +29,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * Push a reference to process only if there is not already processed.
      */
-    fun push(position: Int) {
+    fun push(position: Long) {
         if (contains(position, deadRanges)) {
             sub(position, deadRanges)
             add(position, restRangesToProcess)
@@ -40,12 +39,12 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * Pops the next reference to be processed.
      */
-    fun pop(): Int? {
+    fun pop(): Long? {
         if (restRangesToProcess.isEmpty()) {
             return null
         }
 
-        val point = restRangesToProcess.first().from
+        val point = restRangesToProcess.first().first
         sub(point, restRangesToProcess)
 
         return point
@@ -54,7 +53,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * Adds a point to the specified interval.
      */
-    private fun add(point: Int, ranges: MutableList<IntegerRange>) {
+    private fun add(point: Long, ranges: MutableList<LongRange>) {
         var index = binarySearch(point, ranges)
         if (index >= 0) {
             return
@@ -68,36 +67,36 @@ internal class GarbageCollectorFifo : Iterable<Int> {
 
         if (prevRange != null) {
             if (nextRange != null) {
-                if (prevRange.to == point - 1) {
-                    if (point + 1 == nextRange.from) {
-                        ranges[index - 1] = IntegerRange.new(prevRange.from, nextRange.to)
+                if (prevRange.last == point - 1) {
+                    if (point + 1 == nextRange.first) {
+                        ranges[index - 1] = prevRange.first..nextRange.last
                         ranges.removeAt(index)
                     } else {
-                        ranges[index - 1] = IntegerRange.new(prevRange.from, point)
+                        ranges[index - 1] = prevRange.first..point
                     }
                 } else {
-                    if (point + 1 == nextRange.from) {
-                        ranges[index] = IntegerRange.new(point, nextRange.to)
+                    if (point + 1 == nextRange.first) {
+                        ranges[index] = point..nextRange.last
                     } else {
-                        ranges.add(index, IntegerRange.new(point))
+                        ranges.add(index, point..point)
                     }
                 }
             } else {
-                if (prevRange.to == point - 1) {
-                    ranges[index - 1] = IntegerRange.new(prevRange.from, point)
+                if (prevRange.last == point - 1) {
+                    ranges[index - 1] = prevRange.first..point
                 } else {
-                    ranges.add(index, IntegerRange.new(point))
+                    ranges.add(index, point..point)
                 }
             }
         } else {
             if (nextRange != null) {
-                if (point + 1 == nextRange.from) {
-                    ranges[index] = IntegerRange.new(point, nextRange.to)
+                if (point + 1 == nextRange.first) {
+                    ranges[index] = point..nextRange.last
                 } else {
-                    ranges.add(index, IntegerRange.new(point))
+                    ranges.add(index, point..point)
                 }
             } else {
-                ranges.add(IntegerRange.new(point))
+                ranges.add(point..point)
             }
         }
     }
@@ -105,11 +104,11 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * Removes a point from the specified interval.
      */
-    private fun sub(point: Int, ranges: MutableList<IntegerRange>) {
+    private fun sub(point: Long, ranges: MutableList<LongRange>) {
         when {
             ranges.isEmpty() -> return
-            point < ranges.first().from -> return
-            ranges.last().to < point -> return
+            point < ranges.first().first -> return
+            ranges.last().last < point -> return
         }
 
         val index = binarySearch(point, ranges)
@@ -120,20 +119,20 @@ internal class GarbageCollectorFifo : Iterable<Int> {
         val range = ranges[index]
 
         when (point) {
-            range.from -> {
-                if (point == range.to) {
+            range.first -> {
+                if (point == range.last) {
                     ranges.removeAt(index)
                     return
                 }
 
-                ranges[index] = IntegerRange.new(range.from + 1, range.to)
+                ranges[index] = range.first + 1..range.last
             }
-            range.to -> {
-                ranges[index] = IntegerRange.new(range.from, range.to - 1)
+            range.last -> {
+                ranges[index] = range.first until range.last
             }
             else -> {
-                ranges[index] = IntegerRange.new(range.from, point - 1)
-                ranges.add(index + 1, IntegerRange.new(point + 1, range.to))
+                ranges[index] = range.first until point
+                ranges.add(index + 1, point + 1..range.last)
             }
         }
     }
@@ -143,11 +142,11 @@ internal class GarbageCollectorFifo : Iterable<Int> {
      * The insertion point is defined as the index at which the element should be inserted,
      * so that the list (or the specified subrange of list) still remains sorted.
      */
-    private fun binarySearch(point: Int, ranges: MutableList<IntegerRange>): Int {
+    private fun binarySearch(point: Long, ranges: MutableList<LongRange>): Int {
         return ranges.binarySearch {
             when {
-                point < it.from -> 1
-                point > it.to -> -1
+                point < it.first -> 1
+                point > it.last -> -1
                 else -> 0
             }
         }
@@ -156,7 +155,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * Checks if a point is inside the specified interval.
      */
-    private fun contains(point: Int, ranges: MutableList<IntegerRange>) = binarySearch(point, ranges) >= 0
+    private fun contains(point: Long, ranges: MutableList<LongRange>) = binarySearch(point, ranges) >= 0
 
     /**
      * Whether this [GarbageCollectorFifo] is empty or not.
@@ -214,7 +213,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     /**
      * [GarbageCollectorFifo]'s iterator over the dead points.
      */
-    class GarbageCollectorFifoIterator internal constructor(interval: GarbageCollectorFifo) : Iterator<Int> {
+    class GarbageCollectorFifoIterator internal constructor(interval: GarbageCollectorFifo) : Iterator<Long> {
         private val rangeIterator = interval.deadRanges.iterator()
         private var pointIterator = if (rangeIterator.hasNext()) {
             rangeIterator.next().iterator()
@@ -224,7 +223,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
 
         override fun hasNext() = pointIterator != null
 
-        override fun next(): Int {
+        override fun next(): Long {
             val res = pointIterator!!.next()
 
             if (!pointIterator!!.hasNext()) {

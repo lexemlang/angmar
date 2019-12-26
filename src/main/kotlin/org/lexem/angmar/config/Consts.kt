@@ -8,7 +8,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
  */
 internal object Consts {
     // Flag to specify the system is under test.
-    const val debug = false
+    const val verbose = false
 
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
@@ -27,12 +27,6 @@ internal object Consts {
 
     object Memory {
         const val maxPoolSize = 500
-        const val maxDistanceToShift = 5
-        const val maxVersionCountToFullyCopyAValue = 15
-        const val spatialGarbageCollectorMinimumFreeSpace = 20.0
-        const val spatialGarbageCollectorInitialThreshold = 40000
-        const val spatialGarbageCollectorThresholdIncrement = 3.0
-        const val temporalGarbageCollectorThreshold = 2 * spatialGarbageCollectorInitialThreshold
     }
 
     object Analyzer {
@@ -70,7 +64,6 @@ internal object Consts {
         val defaultPropertiesForFilterGroup = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
                 AnalyzerCommons.Properties.Children to LxmLogic.True,
                 AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
-                AnalyzerCommons.Properties.Consume to LxmLogic.True,
                 AnalyzerCommons.Properties.Reverse to LxmLogic.False)
     }
 }

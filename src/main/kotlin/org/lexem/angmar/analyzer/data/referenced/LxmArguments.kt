@@ -4,7 +4,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 
 /**
@@ -18,12 +17,7 @@ internal class LxmArguments : LxmObject {
         init(memory)
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmArguments, mustInit: Boolean, toClone: Boolean) : super(
-            memory, oldVersion, toClone) {
-        if (mustInit) {
-            init(memory)
-        }
-    }
+    private constructor(memory: LexemMemory, oldVersion: LxmArguments) : super(memory, oldVersion, true)
 
     // METHODS ----------------------------------------------------------------
 
@@ -200,8 +194,7 @@ internal class LxmArguments : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryShift(memory: LexemMemory) = LxmArguments(memory, oldVersion = this)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

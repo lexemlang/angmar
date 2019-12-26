@@ -116,7 +116,7 @@ internal object ListPrototype {
     private fun sizeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Size, ListType.TypeName,
                     toWrite = false) { _: LexemAnalyzer, thisValue: LxmList ->
-                LxmInteger.from(thisValue.actualListSize)
+                LxmInteger.from(thisValue.size)
             }
 
     /**
@@ -162,7 +162,7 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Every)
 
@@ -171,7 +171,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -181,7 +181,7 @@ internal object ListPrototype {
                 analyzer.memory.removeLastFromStack()
 
                 if (resultTruthy) {
-                    if (position < thisValue.actualListSize) {
+                    if (position < thisValue.size) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
                                 signalEndFirstElement + position, Every)
@@ -226,7 +226,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val list = LxmList(analyzer.memory)
 
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
@@ -237,7 +237,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(list)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
@@ -252,7 +252,7 @@ internal object ListPrototype {
                     left.addCell(analyzer.memory, thisValue.getCell(analyzer.memory, position - 1)!!)
                 }
 
-                if (position < thisValue.actualListSize) {
+                if (position < thisValue.size) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
                             signalEndFirstElement + position, Filter)
 
@@ -291,7 +291,7 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, ForEach)
 
@@ -300,13 +300,13 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
 
-                if (position < thisValue.actualListSize) {
+                if (position < thisValue.size) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
                             signalEndFirstElement + position, ForEach)
 
@@ -344,7 +344,7 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Find)
 
@@ -353,7 +353,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -374,7 +374,7 @@ internal object ListPrototype {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
-                    if (position < thisValue.actualListSize) {
+                    if (position < thisValue.size) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
                                 signalEndFirstElement + position, Find)
@@ -414,19 +414,19 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function,
-                            listOf(thisValue.getCell(analyzer.memory, thisValue.actualListSize - 1)!!),
-                            signalEndFirstElement, FindLast)
+                            listOf(thisValue.getCell(analyzer.memory, thisValue.size - 1)!!), signalEndFirstElement,
+                            FindLast)
 
                     return false
                 }
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
-                val positionFromLast = thisValue.actualListSize - 1 - position
+                val positionFromLast = thisValue.size - 1 - position
 
                 val result = analyzer.memory.getLastFromStack()
                 val resultTruthy = RelationalFunctions.isTruthy(result)
@@ -479,7 +479,7 @@ internal object ListPrototype {
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$IndexOf' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        for ((index, listValue) in (0 until thisValue.actualListSize).map {
+        for ((index, listValue) in (0 until thisValue.size).map {
             thisValue.getCell(analyzer.memory, it)!!
         }.withIndex()) {
             if (RelationalFunctions.identityEquals(value, listValue)) {
@@ -508,11 +508,11 @@ internal object ListPrototype {
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$LastIndexOf' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        for ((index, listValue) in (thisValue.actualListSize - 1 downTo 0).map {
+        for ((index, listValue) in (thisValue.size - 1 downTo 0).map {
             thisValue.getCell(analyzer.memory, it)!!
         }.withIndex()) {
             if (RelationalFunctions.identityEquals(value, listValue)) {
-                analyzer.memory.addToStackAsLast(LxmInteger.from(thisValue.actualListSize - index - 1))
+                analyzer.memory.addToStackAsLast(LxmInteger.from(thisValue.size - index - 1))
                 return true
             }
         }
@@ -604,7 +604,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val list = LxmList(analyzer.memory)
 
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
@@ -615,7 +615,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(list)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
@@ -627,7 +627,7 @@ internal object ListPrototype {
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
 
-                if (position < thisValue.actualListSize) {
+                if (position < thisValue.size) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, position)!!),
                             signalEndFirstElement + position, Map)
 
@@ -667,7 +667,7 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function,
                             listOf(default, thisValue.getCell(analyzer.memory, 0)!!), signalEndFirstElement, Reduce)
 
@@ -676,12 +676,12 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(default)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
 
-                if (position < thisValue.actualListSize) {
+                if (position < thisValue.size) {
                     StdlibCommons.callMethod(analyzer, function,
                             listOf(result, thisValue.getCell(analyzer.memory, position)!!),
                             signalEndFirstElement + position, Reduce)
@@ -721,7 +721,7 @@ internal object ListPrototype {
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
-                if (thisValue.listSize > 0) {
+                if (thisValue.size > 0) {
                     StdlibCommons.callMethod(analyzer, function, listOf(thisValue.getCell(analyzer.memory, 0)!!),
                             signalEndFirstElement, Any)
 
@@ -730,7 +730,7 @@ internal object ListPrototype {
 
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val result = analyzer.memory.getLastFromStack()
@@ -740,7 +740,7 @@ internal object ListPrototype {
                 analyzer.memory.removeLastFromStack()
 
                 if (!resultTruthy) {
-                    if (position < thisValue.actualListSize) {
+                    if (position < thisValue.size) {
                         StdlibCommons.callMethod(analyzer, function,
                                 listOf(thisValue.getCell(analyzer.memory, position)!!),
                                 signalEndFirstElement + position, Any)
@@ -832,7 +832,7 @@ internal object ListPrototype {
                             "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$RemoveAt' method requires the parameter called '${RemoveAtArgs[1]}' be a positive ${IntegerType.TypeName}") {}
                 }
 
-                if (at.primitive < thisValue.actualListSize) {
+                if (at.primitive < thisValue.size) {
                     thisValue.removeCell(analyzer.memory, at.primitive, count.primitive)
                 }
 
@@ -866,7 +866,7 @@ internal object ListPrototype {
             AnalyzerNodesCommons.signalCallFunction -> {
                 when (separator) {
                     is LxmNil -> {
-                        if (thisValue.actualListSize == 0) {
+                        if (thisValue.size == 0) {
                             analyzer.memory.addToStackAsLast(LxmString.Empty)
                         } else {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
@@ -878,7 +878,7 @@ internal object ListPrototype {
                         }
                     }
                     is LxmString -> {
-                        if (thisValue.actualListSize == 0) {
+                        if (thisValue.size == 0) {
                             analyzer.memory.addToStackAsLast(LxmString.Empty)
                         } else {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Left, LxmString.Empty)
@@ -893,7 +893,7 @@ internal object ListPrototype {
                             "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$JoinToString' method requires the parameter called '${JoinToStringArgs[0]}' be a ${StringType.TypeName}") {}
                 }
             }
-            in signalEndFirstElement..signalEndFirstElement + thisValue.actualListSize -> {
+            in signalEndFirstElement..signalEndFirstElement + thisValue.size -> {
                 val position = (signal - signalEndFirstElement) + 1
 
                 val left = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Left) as LxmString
@@ -912,7 +912,7 @@ internal object ListPrototype {
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
 
-                if (position < thisValue.actualListSize) {
+                if (position < thisValue.size) {
                     StdlibCommons.callToString(analyzer, thisValue.getCell(analyzer.memory, position)!!,
                             InternalFunctionCallCompiled, signalEndFirstElement + position, JoinToString)
 
@@ -973,16 +973,14 @@ internal object ListPrototype {
 
         when (count) {
             is LxmNil -> {
-                val indexCurrent = minOf(from.primitive, thisValue.actualListSize)
-                val cells2Copy =
-                        (indexCurrent until thisValue.actualListSize).map { thisValue.getCell(analyzer.memory, it)!! }
+                val indexCurrent = minOf(from.primitive, thisValue.size)
+                val cells2Copy = (indexCurrent until thisValue.size).map { thisValue.getCell(analyzer.memory, it)!! }
 
-                if (at.primitive < target.actualListSize) {
+                if (at.primitive < target.size) {
                     target.removeCell(analyzer.memory, at.primitive, cells2Copy.size)
                 }
 
-                target.insertCell(analyzer.memory, minOf(at.primitive, target.actualListSize),
-                        *cells2Copy.toTypedArray())
+                target.insertCell(analyzer.memory, minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
@@ -992,16 +990,15 @@ internal object ListPrototype {
                             "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$CopyWithin' method requires the parameter called '${CopyWithinArgs[3]}' be a positive ${IntegerType.TypeName}") {}
                 }
 
-                val indexCurrent = minOf(from.primitive, thisValue.actualListSize)
-                val cells2Copy = (indexCurrent until thisValue.actualListSize).take(count.primitive)
+                val indexCurrent = minOf(from.primitive, thisValue.size)
+                val cells2Copy = (indexCurrent until thisValue.size).take(count.primitive)
                         .map { thisValue.getCell(analyzer.memory, it)!! }
 
-                if (at.primitive < target.actualListSize) {
+                if (at.primitive < target.size) {
                     target.removeCell(analyzer.memory, at.primitive, cells2Copy.size)
                 }
 
-                target.insertCell(analyzer.memory, minOf(at.primitive, target.actualListSize),
-                        *cells2Copy.toTypedArray())
+                target.insertCell(analyzer.memory, minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
@@ -1053,14 +1050,14 @@ internal object ListPrototype {
 
         when (count) {
             is LxmNil -> {
-                if (thisValue.actualListSize == 0) {
+                if (thisValue.size == 0) {
                     analyzer.memory.addToStackAsLast(LxmNil)
                 }
 
-                val value = thisValue.getCell(analyzer.memory, thisValue.actualListSize - 1)!!
+                val value = thisValue.getCell(analyzer.memory, thisValue.size - 1)!!
 
                 analyzer.memory.addToStackAsLast(value)
-                thisValue.removeCell(analyzer.memory, thisValue.actualListSize - 1, count = 1)
+                thisValue.removeCell(analyzer.memory, thisValue.size - 1, count = 1)
             }
             is LxmInteger -> {
                 if (count.primitive < 0) {
@@ -1069,13 +1066,13 @@ internal object ListPrototype {
                 }
 
                 val result = LxmList(analyzer.memory)
-                val count2Pop = minOf(thisValue.actualListSize, count.primitive)
-                val cellsToKeep = (thisValue.actualListSize - 1 downTo 0).take(count.primitive).map {
+                val count2Pop = minOf(thisValue.size, count.primitive)
+                val cellsToKeep = (thisValue.size - 1 downTo 0).take(count.primitive).map {
                     thisValue.getCell(analyzer.memory, it)!!
                 }.toTypedArray()
 
                 result.addCell(analyzer.memory, *cellsToKeep)
-                thisValue.removeCell(analyzer.memory, thisValue.actualListSize - count2Pop, count2Pop)
+                thisValue.removeCell(analyzer.memory, thisValue.size - count2Pop, count2Pop)
 
                 analyzer.memory.addToStackAsLast(result)
             }
@@ -1127,7 +1124,7 @@ internal object ListPrototype {
 
         when (count) {
             is LxmNil -> {
-                if (thisValue.actualListSize == 0) {
+                if (thisValue.size == 0) {
                     analyzer.memory.addToStackAsLast(LxmNil)
                 }
 
@@ -1143,8 +1140,8 @@ internal object ListPrototype {
                 }
 
                 val result = LxmList(analyzer.memory)
-                val count2Shift = minOf(thisValue.actualListSize, count.primitive)
-                val cellsToKeep = (0 until thisValue.actualListSize).take(count.primitive).map {
+                val count2Shift = minOf(thisValue.size, count.primitive)
+                val cellsToKeep = (0 until thisValue.size).take(count.primitive).map {
                     thisValue.getCell(analyzer.memory, it)!!
                 }.toTypedArray()
 
@@ -1187,7 +1184,7 @@ internal object ListPrototype {
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Insert' method requires the parameter called '${InsertArgs[0]}' be a positive ${IntegerType.TypeName}") {}
         }
 
-        val index = minOf(at.primitive, thisValue.actualListSize)
+        val index = minOf(at.primitive, thisValue.size)
 
         thisValue.insertCell(analyzer.memory, index, *spreadPositional.toTypedArray())
 
@@ -1234,13 +1231,13 @@ internal object ListPrototype {
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Replace' method requires the parameter called '${ReplaceArgs[1]}' be a positive ${IntegerType.TypeName}") {}
         }
 
-        var index = minOf(at.primitive, thisValue.actualListSize)
+        var index = minOf(at.primitive, thisValue.size)
 
-        if (index < thisValue.actualListSize) {
+        if (index < thisValue.size) {
             thisValue.removeCell(analyzer.memory, index, count.primitive)
         }
 
-        index = minOf(at.primitive, thisValue.actualListSize)
+        index = minOf(at.primitive, thisValue.size)
 
         thisValue.insertCell(analyzer.memory, index, *spreadPositional.toTypedArray())
 
@@ -1255,13 +1252,13 @@ internal object ListPrototype {
     private fun reverseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Reverse, ListType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-                if (thisValue.actualListSize < 2) {
+                if (thisValue.size < 2) {
                     return@executeUnitaryOperator LxmNil
                 }
 
                 // Reverse the list.
-                for ((leftPos, rightPos) in (0 until thisValue.actualListSize / 2).map {
-                    Pair(it, thisValue.actualListSize - 1 - it)
+                for ((leftPos, rightPos) in (0 until thisValue.size / 2).map {
+                    Pair(it, thisValue.size - 1 - it)
                 }) {
                     val left = thisValue.getCell(analyzer.memory, leftPos)!!
                     val right = thisValue.getCell(analyzer.memory, rightPos)!!
@@ -1310,7 +1307,7 @@ internal object ListPrototype {
             is LxmNil -> {
                 val result = LxmList(analyzer.memory)
 
-                result.addCell(analyzer.memory, *(from.primitive until thisValue.actualListSize).map {
+                result.addCell(analyzer.memory, *(from.primitive until thisValue.size).map {
                     thisValue.getCell(analyzer.memory, it)!!
                 }.toTypedArray())
 
@@ -1324,10 +1321,9 @@ internal object ListPrototype {
 
                 val result = LxmList(analyzer.memory)
 
-                result.addCell(analyzer.memory,
-                        *(from.primitive until thisValue.actualListSize).take(count.primitive).map {
-                            thisValue.getCell(analyzer.memory, it)!!
-                        }.toTypedArray())
+                result.addCell(analyzer.memory, *(from.primitive until thisValue.size).take(count.primitive).map {
+                    thisValue.getCell(analyzer.memory, it)!!
+                }.toTypedArray())
 
                 analyzer.memory.addToStackAsLast(result)
             }
@@ -1344,7 +1340,7 @@ internal object ListPrototype {
     private fun clearFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Clear, ListType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-                for (i in thisValue.actualListSize - 1 downTo 0) {
+                for (i in thisValue.size - 1 downTo 0) {
                     thisValue.removeCell(analyzer.memory, i)
                 }
 

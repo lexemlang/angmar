@@ -31,7 +31,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         val parentChildren =
                 result.getParent(analyzer.memory, toWrite = false)!!.getChildren(analyzer.memory, toWrite = false)
         Assertions.assertEquals(lxmNode.getPrimitive().position, parentRef.position, "The parent node is incorrect")
-        Assertions.assertEquals(1, parentChildren.actualListSize, "The number of children is incorrect")
+        Assertions.assertEquals(1, parentChildren.size, "The number of children is incorrect")
         Assertions.assertEquals((analyzer.memory.getLastFromStack() as LxmReference).position,
                 (parentChildren.getCell(analyzer.memory, 0) as LxmReference).position,
                 "The child has not been included in the parent")

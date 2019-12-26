@@ -9,9 +9,6 @@ import org.lexem.angmar.errors.*
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory {
-    var isInGarbageCollectionMode = false
-        private set
-
     val firstNode = BigNode(previousNode = null, nextNode = null)
     var lastNode = firstNode
         private set
@@ -21,8 +18,7 @@ internal class LexemMemory {
     /**
      * Adds a new primitive into the stack.
      */
-    fun addToStack(name: String, primitive: LexemMemoryValue) =
-            lastNode.addToStack(name, primitive.getPrimitive(), this)
+    fun addToStack(name: String, primitive: LexemMemoryValue) = lastNode.addToStack(name, primitive.getPrimitive())
 
     /**
      * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
@@ -42,7 +38,7 @@ internal class LexemMemory {
     /**
      * Removes the specified primitive from the stack.
      */
-    fun removeFromStack(name: String) = lastNode.removeFromStack(name, this)
+    fun removeFromStack(name: String) = lastNode.removeFromStack(name)
 
     /**
      * Removes the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
@@ -76,7 +72,7 @@ internal class LexemMemory {
      * Replace the specified stack cell by another primitive.
      */
     fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
-            lastNode.replaceStackCell(name, newValue.getPrimitive(), this)
+            lastNode.replaceStackCell(name, newValue.getPrimitive())
 
     /**
      * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
@@ -86,40 +82,29 @@ internal class LexemMemory {
     /**
      * Gets a value from the memory.
      */
-    fun get(reference: LxmReference, toWrite: Boolean) =
-            lastNode.getCell(this, reference.position, forceShift = toWrite).value
+    fun get(reference: LxmReference, toWrite: Boolean) = lastNode.getCell(this, reference.position, toWrite = toWrite)
 
     /**
      * Adds a value in the memory returning the position in which it has been added.
      */
-    fun add(value: LexemReferenced) = LxmReference(lastNode.alloc(this, value).position)
+    fun add(value: LexemReferenced) = LxmReference(lastNode.alloc(value))
 
     /**
      * Removes a value in the memory.
      */
-    fun remove(reference: LxmReference) = lastNode.free(this, reference.position)
-
-    /**
-     * Replaces a primitive with a new one handling the pointer changes.
-     */
-    fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
-        // Increases the new reference.
-        if (newValue is LxmReference) {
-            lastNode.getCell(this, newValue.position, forceShift = true).increaseReferences()
-        }
-
-        // Removes the previous reference.
-        if (oldValue is LxmReference) {
-            lastNode.getCell(this, oldValue.position, forceShift = true).decreaseReferences(this)
-        }
-    }
+    fun remove(reference: LxmReference) = lastNode.free(reference.position)
 
     /**
      * Clears the memory.
      */
     fun clear() {
-        firstNode.nextNode?.destroy()
-        firstNode.nextNode = null
+        var node = firstNode.nextNode
+        while (node != null) {
+            val nextNode = node.nextNode
+            node.destroy()
+            node = nextNode
+        }
+
         lastNode = firstNode
     }
 
@@ -157,31 +142,22 @@ internal class LexemMemory {
                     "The memory cannot rollback the first BigNode") {}
         }
 
-        // Get the previous recoverable node.
-        var node = lastNode.previousNode
-        while (node != null) {
-            if (node.isRecoverable) {
-                break
-            }
-
-            node = node.previousNode
-        }
-
-        restoreCopy(node ?: throw AngmarUnreachableException())
+        restoreCopy(lastNode.previousNode ?: throw AngmarUnreachableException())
     }
 
     /**
      * Restores the specified copy, removing all changes since then.
      */
     fun restoreCopy(bigNode: BigNode) {
-        if (!bigNode.isRecoverable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.NonRecoverableNodeRollback,
-                    "The memory cannot rollback a non-recoverable BigNode") {}
+        var node = bigNode.nextNode
+        while (node != null) {
+            val nextNode = node.nextNode
+            node.destroy()
+            node = nextNode
         }
 
-        bigNode.nextNode?.destroy()
-        bigNode.nextNode = null
         lastNode = bigNode
+        lastNode.onRecover()
     }
 
     /**
@@ -193,113 +169,23 @@ internal class LexemMemory {
             return
         }
 
-        // Mark the nodes counting the heap elements.
-        var count = 0
-        var node: BigNode? = bigNode
-        while (node != null) {
-            // Avoid to increase twice a node that in a previous
-            // collapse was counted.
-            if (node.isRecoverable) {
-                node.isRecoverable = false
-                count += node.heapSize
-            }
-
-            node = node.nextNode
+        var node = lastNode.previousNode!!
+        while (node != bigNode) {
+            val prevNode = node.previousNode!!
+            node.destroy()
+            node = prevNode
         }
 
-        // Creates a new bigNode that represents the old one.
-        freezeCopy()
-
-        // Add the count to the bigNode.
-        lastNode.temporalGarbageCollectorCount += count
+        lastNode.previousNode = node
+        node.nextNode = lastNode
+        lastNode.onRecover()
     }
 
     /**
      * Collects all the garbage of the current big node.
      */
     fun spatialGarbageCollect(forced: Boolean = false) {
-        isInGarbageCollectionMode = true
+        // TODO
         lastNode.spatialGarbageCollect(this, forced)
-        isInGarbageCollectionMode = false
-    }
-
-    /**
-     * Collapses all the garbage of the big node history.
-     */
-    fun temporalGarbageCollect() {
-        for ((from, destination) in temporalGarbageCollectFindGroups()) {
-            val prev = destination.previousNode
-            val next = from.nextNode
-            from.temporalGarbageCollect(destination)
-
-            prev?.nextNode = destination
-            destination.previousNode = prev
-            destination.nextNode = next
-            next?.previousNode = destination
-
-            // Update the lastNode.
-            if (from == lastNode) {
-                lastNode = destination
-            }
-        }
-    }
-
-    /**
-     * Find non-recoverable groups.
-     */
-    private fun temporalGarbageCollectFindGroups() = sequence {
-        var state = 0
-        var from: BigNode? = lastNode
-        var destination: BigNode? = lastNode
-        var node: BigNode? = lastNode
-        stateLoop@ while (state >= 0) {
-            when (state) {
-                // Find first.
-                0 -> {
-                    while (node != null) {
-                        if (!node.isRecoverable) {
-                            from = node.nextNode ?: throw AngmarAnalyzerException(
-                                    AngmarAnalyzerExceptionType.LastBigNodeTemporalGarbageCollection,
-                                    "The temporal garbage collector cannot remove a non-recoverable bigNode without a next one.") {}
-
-                            state = 1
-                            continue@stateLoop
-                        } else {
-                            // No more non-recoverable bigNodes before this one.
-                            if (node.temporalGarbageCollectorCount == 0) {
-                                break@stateLoop
-                            }
-
-                            // Clears the count of the recoverable bigNodes.
-                            node.temporalGarbageCollectorCount = 0
-                        }
-
-                        node = node.previousNode
-                    }
-
-                    // Exit
-                    state = -1
-                }
-                // Find end.
-                1 -> {
-                    while (node != null) {
-                        if (node.isRecoverable) {
-                            break
-                        }
-
-                        destination = node
-                        node = node.previousNode
-                    }
-
-                    // Collects the garbage.
-                    yield(Pair(from!!, destination!!))
-
-                    from = null
-                    destination = null
-
-                    state = 0
-                }
-            }
-        }
     }
 }

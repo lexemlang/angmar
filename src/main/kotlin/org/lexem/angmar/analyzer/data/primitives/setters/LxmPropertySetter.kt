@@ -21,8 +21,6 @@ internal class LxmPropertySetter : LexemSetter {
         this.value = value.getPrimitive()
         this.property = property
         this.node = node
-
-        this.value.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -58,14 +56,6 @@ internal class LxmPropertySetter : LexemSetter {
         }
 
         obj.setProperty(memory, property, value)
-    }
-
-    override fun increaseReferences(memory: LexemMemory) {
-        value.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: LexemMemory) {
-        value.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

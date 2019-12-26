@@ -7,9 +7,9 @@ import org.lexem.angmar.errors.*
 /**
  * The Lexem reference value, i.e. a pointer.
  */
-internal class LxmReference constructor(val position: Int) : LexemPrimitive {
+internal class LxmReference constructor(val position: Long) : LexemPrimitive {
     init {
-        if (position < 0) {
+        if (position < 0L) {
             throw AngmarException("The position of a reference cannot be negative")
         }
     }
@@ -27,15 +27,9 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
+    override fun containsReferences() = true
+
     override fun dereference(memory: LexemMemory, toWrite: Boolean) = memory.get(this, toWrite)!!
-
-    override fun increaseReferences(memory: LexemMemory) {
-        memory.replacePrimitives(LxmNil, this)
-    }
-
-    override fun decreaseReferences(memory: LexemMemory) {
-        memory.replacePrimitives(this, LxmNil)
-    }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
         gcFifo.push(position)

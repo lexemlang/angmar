@@ -4,7 +4,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value for the context.
@@ -23,43 +22,8 @@ internal class LxmContext : LxmObject {
         this.type = type
     }
 
-    private constructor(memory: LexemMemory, oldContext: LxmContext, toClone: Boolean) : super(memory, oldContext,
-            toClone) {
-        type = oldContext.type
-    }
-
-    // METHODS ----------------------------------------------------------------
-
-    /**
-     * Removes a property ignoring constants. Used for testing.
-     */
-    fun removePropertyIgnoringConstants(memory: LexemMemory, identifier: String) {
-        val currentProperty = properties[identifier]
-        val lastProperty = (oldVersion as? LxmObject)?.getOwnPropertyDescriptor(memory, identifier)
-
-        when {
-            // Current property
-            currentProperty != null -> {
-                if (lastProperty != null) {
-                    // Set property to remove.
-                    currentProperty.isIterable = false
-                    currentProperty.isRemoved = true
-                    currentProperty.replaceValue(memory, LxmNil)
-                } else {
-                    // Remove property.
-                    properties.remove(identifier)
-                    currentProperty.replaceValue(memory, LxmNil)
-                }
-            }
-
-            // Property in past version of the object
-            lastProperty != null -> {
-                // Set property to remove.
-                val cloned = lastProperty.clone(isIterable = false, isRemoved = true)
-                cloned.replaceValue(memory, LxmNil)
-                properties[identifier] = cloned
-            }
-        }
+    private constructor(memory: LexemMemory, oldVersion: LxmContext) : super(memory, oldVersion, true) {
+        type = oldVersion.type
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -72,8 +36,7 @@ internal class LxmContext : LxmObject {
         return type.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype) as LxmReference
     }
 
-    override fun memoryShift(memory: LexemMemory) =
-            LxmContext(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryShift(memory: LexemMemory) = LxmContext(memory, oldVersion = this)
 
     override fun toString() = "[Context] ${super.toString()}"
 

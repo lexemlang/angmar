@@ -36,12 +36,6 @@ internal object GroupLexemAnalyzer {
                 // Put the index in the stack.
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LastNode, memoryIndex)
 
-                // Put the filter position in the stack.
-                if (node.isFilterCode) {
-                    val filterPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition)
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition, filterPosition)
-                }
-
                 // Generate an intermediate context that will be removed at the end.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory, context, "Group", context.type)
@@ -181,11 +175,11 @@ internal object GroupLexemAnalyzer {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture && children) {
                 // Set the returned value.
-                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                if (children && childrenList.actualListSize > 0) {
+                if (children && lxmNode.getChildCount(analyzer.memory) > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
+                    resultList.addCell(analyzer.memory,
+                            *lxmNode.getChildrenList(analyzer.memory, toWrite = false).toList().toTypedArray())
                     returnValue = resultList
                 } else {
                     // Set a null value.
@@ -221,21 +215,12 @@ internal object GroupLexemAnalyzer {
                 analyzer.memory.collapseTo(lastNode.node)
             }
 
-            val consume = RelationalFunctions.isTruthy(
-                    props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Consume) ?: LxmNil)
-            if (!consume) {
-                if (node.isFilterCode) {
-                    val filterPosition =
-                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition)
-                    analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.FilterNodePosition, filterPosition)
-                } else {
+            if (!node.isFilterCode) {
+                val consume = RelationalFunctions.isTruthy(
+                        props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Consume) ?: LxmNil)
+                if (!consume) {
                     lxmNode.getFrom(analyzer.memory).primitive.restore()
                 }
-            }
-
-            if (node.isFilterCode) {
-                // Remove SavedFilterNodePosition from the stack.
-                analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition)
             }
         }
         // Set parent node as the current one.

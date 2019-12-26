@@ -75,10 +75,8 @@ internal object SetType {
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Join' method requires that all its parameters be a $TypeName") {}
                     }
 
-                    for ((i, propList) in set.getAllValues()) {
-                        for (prop in propList) {
-                            newSet.addValue(analyzer.memory, prop.value)
-                        }
+                    for (value in set.getAllValues()) {
+                        newSet.addValue(analyzer.memory, value)
                     }
                 }
 

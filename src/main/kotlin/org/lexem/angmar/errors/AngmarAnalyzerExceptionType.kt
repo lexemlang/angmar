@@ -25,6 +25,7 @@ enum class AngmarAnalyzerExceptionType {
     ValueShiftOverSameBigNode,
 
     HeapSegmentationFault,
+    FreedMemoryAccess,
     HeapBigNodeLinkFault,
     ReferencedHeapCellFreed,
     ReferenceCountUnderflow,
@@ -58,6 +59,9 @@ enum class AngmarAnalyzerExceptionType {
     CannotModifyAConstantMap,
 
     CannotModifyAConstantSet,
+
+    IncorrectNodeChildCount,
+    IncorrectNodeReference,
 
     // FUNCTIONS --------------------------------------------------------------
 

@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of a Map iterator.
@@ -18,19 +17,17 @@ internal class LxmMapIterator : LexemIterator {
         setProperty(memory, AnalyzerCommons.Identifiers.Value, map.getPrimitive())
 
         val list = LxmList(memory)
-        val values = map.getAllProperties().flatMap { it.value.map { it.key } }
-        for (v in values) {
-            list.addCell(memory, v)
+        for ((key, _) in map.getAllProperties()) {
+            list.addCell(memory, key)
         }
 
         setProperty(memory, AnalyzerCommons.Identifiers.Keys, list)
 
-        size = values.size.toLong()
+        intervalSize = map.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmMapIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
-        this.size = oldVersion.size
+    private constructor(memory: LexemMemory, oldVersion: LxmMapIterator) : super(memory, oldVersion) {
+        intervalSize = oldVersion.intervalSize
     }
     // METHODS ----------------------------------------------------------------
 
@@ -48,7 +45,7 @@ internal class LxmMapIterator : LexemIterator {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val size: Long
+    override val intervalSize: Long
 
     override fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
         if (isEnded(memory)) {
@@ -63,8 +60,7 @@ internal class LxmMapIterator : LexemIterator {
         return Pair(currentKey, currentValue)
     }
 
-    override fun memoryShift(memory: LexemMemory) =
-            LxmMapIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryShift(memory: LexemMemory) = LxmMapIterator(memory, oldVersion = this)
 
     override fun toString() = "[Iterator - Map] ${super.toString()}"
 }

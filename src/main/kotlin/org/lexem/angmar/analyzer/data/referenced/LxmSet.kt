@@ -6,7 +6,6 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
@@ -14,30 +13,20 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the Set type.
  */
 internal class LxmSet : LexemReferenced {
+    private var properties = hashMapOf<Int, MutableList<LxmSetProperty>>()
+    private var isPropertiesCloned = false
+
     var isConstant = false
         private set
-    private var values: MutableMap<Int, MutableList<LxmSetProperty>>
+    val size get() = properties.size
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory) {
-        values = mutableMapOf()
-    }
+    constructor(memory: LexemMemory) : super(memory)
 
-    private constructor(memory: LexemMemory, oldVersion: LxmSet, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
+    private constructor(memory: LexemMemory, oldVersion: LxmSet) : super(memory, oldVersion) {
         isConstant = oldVersion.isConstant
-        values = if (toClone) {
-            val map = oldVersion.getAllValues()
-
-            for ((key, list) in map) {
-                map[key] = list.mapTo(mutableListOf()) { it.clone(memory) }
-            }
-
-            map
-        } else {
-            mutableMapOf()
-        }
+        properties = oldVersion.properties
     }
 
     // METHODS ----------------------------------------------------------------
@@ -59,40 +48,22 @@ internal class LxmSet : LexemReferenced {
 
         val valuePrimitive = value.getPrimitive()
         val valueHash = valuePrimitive.getHashCode(memory)
-        val currentProperty = getOwnPropertyDescriptorInCurrent(valuePrimitive, valueHash)
-        val lastProperty = (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(valuePrimitive, valueHash)
+        var property = getOwnPropertyDescriptor(memory, value)
 
-        when {
-            // No property
-            currentProperty == null && lastProperty == null -> {
-                val property = LxmSetProperty(isRemoved = false)
-                values.putIfAbsent(valueHash, mutableListOf())
-                values[valueHash]!!.add(property)
-                property.replaceValue(memory, valuePrimitive)
-            }
+        if (property == null) {
+            cloneProperties()
 
-            // Current property
-            currentProperty != null -> {
-                currentProperty.replaceValue(memory, valuePrimitive)
-                currentProperty.isRemoved = false
-            }
-
-            // Property in past version of the object
-            lastProperty != null -> {
-                values.putIfAbsent(valueHash, mutableListOf())
-                values[valueHash]!!.add(lastProperty.clone(memory, isRemoved = false))
-            }
+            property = LxmSetProperty()
+            properties.putIfAbsent(valueHash, mutableListOf())
+            properties[valueHash]!!.add(property)
+            property.replaceValue(valuePrimitive)
         }
     }
 
     /**
      * Returns whether the set contains a property or not.
      */
-    fun containsValue(memory: LexemMemory, value: LexemMemoryValue): Boolean {
-        val valuePrimitive = value.getPrimitive()
-        val descriptor = getOwnPropertyDescriptor(valuePrimitive, valuePrimitive.getHashCode(memory))
-        return descriptor != null && !descriptor.isRemoved
-    }
+    fun containsValue(memory: LexemMemory, value: LexemMemoryValue) = getOwnPropertyDescriptor(memory, value) != null
 
     /**
      * Removes a value.
@@ -110,31 +81,18 @@ internal class LxmSet : LexemReferenced {
         }
 
         val valuePrimitive = value.getPrimitive()
-        val valueHash = valuePrimitive.getHashCode(memory)
-        val currentProperty = getOwnPropertyDescriptorInCurrent(valuePrimitive, valueHash)
-        val lastProperty = (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(valuePrimitive, valueHash)
+        val property = getOwnPropertyDescriptor(memory, value)
 
-        when {
-            // Current property
-            currentProperty != null -> {
-                if (lastProperty != null) {
-                    // Set property to remove.
-                    currentProperty.replaceValue(memory, LxmNil)
-                    currentProperty.isRemoved = true
-                } else {
-                    // Remove property.
-                    values[valueHash]!!.remove(currentProperty)
-                    currentProperty.replaceValue(memory, LxmNil)
-                }
-            }
+        if (property != null) {
+            cloneProperties()
 
-            // Property in past version of the object
-            lastProperty != null -> {
-                // Set property to remove.
-                val property = lastProperty.clone(memory, isRemoved = true)
-                values.putIfAbsent(valueHash, mutableListOf())
-                values[valueHash]!!.add(property)
-                property.replaceValue(memory, LxmNil)
+            // Remove property.
+            val valueHash = valuePrimitive.getHashCode(memory)
+            val list = properties[valueHash]!!
+            if (list.size == 1) {
+                properties.remove(valueHash)
+            } else {
+                list.remove(property)
             }
         }
     }
@@ -154,8 +112,9 @@ internal class LxmSet : LexemReferenced {
     /**
      * Gets the property descriptor of the specified property in the current set.
      */
-    private fun getOwnPropertyDescriptorInCurrent(value: LexemPrimitive, hash: Int): LxmSetProperty? {
-        val list = values[hash] ?: return null
+    private fun getOwnPropertyDescriptor(memory: LexemMemory, value: LexemMemoryValue): LxmSetProperty? {
+        val hashCode = value.getPrimitive().getHashCode(memory)
+        val list = properties[hashCode] ?: return null
 
         for (i in list) {
             if (RelationalFunctions.identityEquals(value, i.value)) {
@@ -167,52 +126,18 @@ internal class LxmSet : LexemReferenced {
     }
 
     /**
-     * Gets the property descriptor of the specified property.
-     */
-    private fun getOwnPropertyDescriptor(value: LexemPrimitive, hash: Int): LxmSetProperty? =
-            getOwnPropertyDescriptorInCurrent(value, hash) ?: (oldVersion as? LxmSet)?.getOwnPropertyDescriptor(value,
-                    hash)
-
-    /**
-     * Gets the size of the set.
-     */
-    fun getSize(): Int {
-        val result = mutableMapOf<Int, MutableList<LxmSetProperty>>()
-
-        var currentObject: LxmSet? = this
-        while (currentObject != null) {
-            for (propList in currentObject.values) {
-                val list = result[propList.key] ?: mutableListOf()
-                result.putIfAbsent(propList.key, list)
-
-                for (prop in propList.value) {
-                    if (list.find { RelationalFunctions.identityEquals(it.value, prop.value) } == null) {
-                        list.add(prop)
-                    }
-                }
-            }
-
-            currentObject = currentObject.oldVersion as? LxmSet
-        }
-
-        return result.map { it.value.size }.sum()
-    }
-
-    /**
      * Gets all value of the set.
      */
-    fun getAllValues(): MutableMap<Int, MutableList<LxmSetProperty>> {
-        val versions = getListOfVersions<LxmSet>()
+    fun getAllValues() = properties.asSequence().flatMap { it.value.asSequence() }.map { it.value }
 
-        // Iterate to get a list of versions.
-        val result = mutableMapOf<Int, MutableList<LxmSetProperty>>()
-
-        while (versions.isNotEmpty()) {
-            val element = versions.removeLast()
-            result.putAll(element.values)
+    /**
+     * Clones the properties map.
+     */
+    private fun cloneProperties() {
+        if (!isPropertiesCloned) {
+            properties = HashMap(properties.mapValues { it.value.toMutableList() })
+            isPropertiesCloned = true
         }
-
-        return result
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -220,29 +145,18 @@ internal class LxmSet : LexemReferenced {
     override fun memoryShift(memory: LexemMemory) = if (isConstant) {
         this
     } else {
-        LxmSet(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+        LxmSet(memory, oldVersion = this)
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        for (i in values) {
-            for (j in i.value) {
-                val reference = j.value
-                if (reference is LxmReference) {
-                    reference.decreaseReferences(memory)
-                }
-            }
-        }
-
-        if (!isConstant) {
-            values.clear()
+        if (isPropertiesCloned) {
+            properties.clear()
         }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        for ((_, list) in getAllValues()) {
-            for (property in list) {
-                property.value.spatialGarbageCollect(memory, gcFifo)
-            }
+        for (property in properties.asSequence().flatMap { it.value.asSequence() }) {
+            property.value.spatialGarbageCollect(memory, gcFifo)
         }
     }
 
@@ -262,16 +176,15 @@ internal class LxmSet : LexemReferenced {
 
         append(ListNode.startToken)
 
-        val properties = getAllValues().flatMap { it.value }
-        val text = properties.asSequence().take(4).joinToString(", ") {
+        val text = properties.asSequence().flatMap { it.value.asSequence() }.take(4).joinToString(", ") {
             it.value.toString()
         }
 
         append(text)
         append(ListNode.endToken)
 
-        if (properties.size > 4) {
-            append(" and ${properties.size - 4} more")
+        if (size > 4) {
+            append(" and ${size - 4} more")
         }
     }.toString()
 
@@ -280,7 +193,7 @@ internal class LxmSet : LexemReferenced {
     /**
      * A property of [LxmSet]s.
      */
-    class LxmSetProperty(var isRemoved: Boolean) {
+    class LxmSetProperty() {
         var value: LexemPrimitive = LxmNil
 
         // METHODS ------------------------------------------------------------
@@ -288,10 +201,10 @@ internal class LxmSet : LexemReferenced {
         /**
          * Clones the object property only if it is not constant.
          */
-        fun clone(memory: LexemMemory, isRemoved: Boolean? = null): LxmSetProperty {
-            val property = LxmSetProperty(isRemoved = isRemoved ?: this.isRemoved)
+        fun clone(): LxmSetProperty {
+            val property = LxmSetProperty()
 
-            property.replaceValue(memory, value)
+            property.replaceValue(value)
 
             return property
         }
@@ -299,11 +212,8 @@ internal class LxmSet : LexemReferenced {
         /**
          * Replaces the value handling the memory references.
          */
-        fun replaceValue(memory: LexemMemory, newValue: LexemPrimitive) {
-            // Keep this to replace the elements before possibly remove the references.
-            val oldValue = value
+        fun replaceValue(newValue: LexemPrimitive) {
             value = newValue
-            memory.replacePrimitives(oldValue, newValue)
         }
     }
 }
