@@ -120,8 +120,7 @@ internal class SelectorAnalyzerTest {
                     val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                     val lxmNodeAux = LxmNode(analyzer.memory, "aux", analyzer.text.saveCursor())
 
-                    lxmNode.getChildren(analyzer.memory, toWrite = true)
-                            .addCell(analyzer.memory, lxmNodeAux, ignoreConstant = true)
+                    lxmNode.insertChildren(analyzer.memory, listOf(lxmNodeAux), after = null)
                     lxmNode.getProperties(analyzer.memory, toWrite = true)
                             .setProperty(analyzer.memory, propertyName, LxmLogic.True)
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)

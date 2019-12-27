@@ -473,24 +473,6 @@ internal class LexemMemoryTest {
         val bigNode5 = memory.lastNode
 
         Assertions.assertNotEquals(bigNode5, bigNode4, "bigNode3 and bigNode5 cannot be equals")
-        Assertions.assertTrue(bigNode5.isRecoverable, "The bigNode5 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode4.isRecoverable, "The bigNode4 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode3.isRecoverable, "The bigNode3 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode2.isRecoverable, "The bigNode2 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode1.isRecoverable, "The bigNode1 isRecoverable property is incorrect")
-
-        val totalCountFor4 = bigNode2.heapSize + bigNode3.heapSize
-        val totalCountFor5 = bigNode1.heapSize + totalCountFor4 + bigNode4.heapSize
-        Assertions.assertEquals(totalCountFor5, bigNode5.temporalGarbageCollectorCount,
-                "The bigNode5 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(totalCountFor4, bigNode4.temporalGarbageCollectorCount,
-                "The bigNode4 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode3.temporalGarbageCollectorCount,
-                "The bigNode3 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode2.temporalGarbageCollectorCount,
-                "The bigNode2 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode1.temporalGarbageCollectorCount,
-                "The temporalGarbageCollectorCount isRecoverable property is incorrect")
     }
 
     @Test
@@ -521,23 +503,13 @@ internal class LexemMemoryTest {
         val object1_2 = object1.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         object1_2.setProperty(memory, "e", object6.getPrimitive())
 
-        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
+        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualHeapSize,
                 "The actualUsedCellCount property is incorrect")
 
         memory.spatialGarbageCollect(forced = true)
 
-        Assertions.assertEquals(initialSize, memory.lastNode.actualUsedCellCount,
+        Assertions.assertEquals(initialSize, memory.lastNode.actualHeapSize,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
-                "The cell[0] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
-                "The cell[1] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
-                "The cell[2] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
-                "The cell[3] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object5.getPrimitive().position).isFreed,
-                "The cell[4] property is incorrect")
     }
 
     @Test
@@ -568,23 +540,13 @@ internal class LexemMemoryTest {
         val object1_2 = object1.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         object1_2.setProperty(memory, "e", object6.getPrimitive())
 
-        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
+        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualHeapSize,
                 "The actualUsedCellCount property is incorrect")
 
         memory.spatialGarbageCollect()
 
-        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
+        Assertions.assertEquals(5 + initialSize, memory.lastNode.actualHeapSize,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
-                "The cell[0] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
-                "The cell[1] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
-                "The cell[2] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
-                "The cell[3] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object5.getPrimitive().position).isFreed,
-                "The cell[4] property is incorrect")
     }
 
     @Test

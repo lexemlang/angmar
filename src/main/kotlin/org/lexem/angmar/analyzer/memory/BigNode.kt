@@ -29,13 +29,13 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Whether the stack of the [BigNode] is cloned or not.
      */
-    var isStackCloned = false
+    var isStackCloned = previousNode == null
         private set
 
     /**
      * Whether the map of the [BigNode] is cloned or not.
      */
-    var isHeapCloned = false
+    var isHeapCloned = previousNode == null
         private set
 
     /**
@@ -242,16 +242,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * Clears the [BigNode] destroying its cells to reuse them.
      */
     fun destroy() {
-        // Clears the stack.
-        if (isStackCloned) {
-            stackLevels.clear()
-        }
-
-        // Destroys all cells to reuse them.
-        if (isHeapCloned) {
-            heap.clear()
-        }
-
         isRemoved = true
         previousNode = null
         nextNode = null

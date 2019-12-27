@@ -29,7 +29,7 @@ internal class SetPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Size}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             result as? LxmInteger ?: throw Error("The result must be LxmInteger")
             Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
         }
@@ -75,7 +75,7 @@ internal class SetPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.IsFrozen}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -114,10 +114,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -149,7 +149,7 @@ internal class SetPrototypeTest {
             val set =
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
-            Assertions.assertEquals(0, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }
 
@@ -166,7 +166,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Every}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -194,10 +194,9 @@ internal class SetPrototypeTest {
             val resultList = list.filter { it > 2 }
             val resSet = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(resultList.size, resSet.getSize(), "The result is incorrect")
+            Assertions.assertEquals(resultList.size, resSet.size, "The result is incorrect")
 
-            for (setElement in resSet.getAllValues().flatMap { it.value }) {
-                val value = setElement.value
+            for (value in resSet.getAllValues()) {
                 value as? LxmInteger ?: throw Error("All elements in the result list must be LxmInteger")
 
                 if (value.primitive !in list) {
@@ -210,10 +209,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if ((prop.value as LxmInteger).primitive !in list) {
+            for (prop in setValues) {
+                if ((prop as LxmInteger).primitive !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -233,7 +232,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Filter}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -266,10 +265,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if ((prop.value as LxmInteger).primitive !in list) {
+            for (prop in setValues) {
+                if ((prop as LxmInteger).primitive !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -294,7 +293,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.ForEach}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -337,10 +336,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -360,7 +359,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Find}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -386,10 +385,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -424,10 +423,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -455,10 +454,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -493,10 +492,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -525,12 +524,12 @@ internal class SetPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resSet = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(list.size, resSet.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, resSet.size, "The result is incorrect")
 
             val resList = list.map { it + 10 }
-            for (prop in resSet.getAllValues().flatMap { it.value }) {
-                prop.value as? LxmInteger ?: throw Error("All elements in the result list must be LxmInteger")
-                if ((prop.value as LxmInteger).primitive !in resList) {
+            for (prop in resSet.getAllValues()) {
+                prop as? LxmInteger ?: throw Error("All elements in the result list must be LxmInteger")
+                if (prop.primitive !in resList) {
                     throw Error("The result list is incorrect")
                 }
             }
@@ -540,10 +539,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if ((prop.value as LxmInteger).primitive !in list) {
+            for (prop in setValues) {
+                if ((prop as LxmInteger).primitive !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -563,7 +562,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Map}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -597,10 +596,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if ((prop.value as LxmInteger).primitive !in list) {
+            for (prop in setValues) {
+                if ((prop as LxmInteger).primitive !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -620,7 +619,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Reduce}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -659,10 +658,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -694,7 +693,7 @@ internal class SetPrototypeTest {
             val set =
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
-            Assertions.assertEquals(0, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }
 
@@ -711,7 +710,7 @@ internal class SetPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${SetPrototype.Any}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -737,10 +736,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -770,11 +769,11 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size + additionElements.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size + additionElements.size, set.size, "The result is incorrect")
 
             val resultList = list + additionElements
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in resultList) {
+            for (prop in setValues) {
+                if (prop !in resultList) {
                     throw Error("The original set has changed")
                 }
             }
@@ -802,10 +801,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -836,16 +835,16 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(resultList.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(resultList.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
 
             for (prop in additionElements) {
-                if (prop in setValues.flatMap { it.value }.map { it.value }) {
+                if (prop in setValues) {
                     throw Error("The removed values are contained in the set")
                 }
             }
@@ -880,10 +879,10 @@ internal class SetPrototypeTest {
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
-            Assertions.assertEquals(list.size, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
-            for (prop in setValues.flatMap { it.value }) {
-                if (prop.value !in list) {
+            for (prop in setValues) {
+                if (prop !in list) {
                     throw Error("The original set has changed")
                 }
             }
@@ -909,7 +908,7 @@ internal class SetPrototypeTest {
             val set =
                     context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmSet")
-            Assertions.assertEquals(0, set.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }
 
@@ -926,10 +925,10 @@ internal class SetPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(3, set.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(3, set.size, "The size of the result is incorrect")
 
-            for (i in set.getAllValues().flatMap { it.value }) {
-                Assertions.assertTrue(i.value in list1 || i.value in list2, "The result is incorrect")
+            for (i in set.getAllValues()) {
+                Assertions.assertTrue(i in list1 || i in list2, "The result is incorrect")
             }
         }
     }
@@ -947,10 +946,10 @@ internal class SetPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(1, set.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(1, set.size, "The size of the result is incorrect")
 
-            for (i in set.getAllValues().flatMap { it.value }) {
-                Assertions.assertTrue(i.value in list1 && i.value !in list2, "The result is incorrect")
+            for (i in set.getAllValues()) {
+                Assertions.assertTrue(i in list1 && i !in list2, "The result is incorrect")
             }
         }
     }
@@ -968,10 +967,10 @@ internal class SetPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(1, set.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(1, set.size, "The size of the result is incorrect")
 
-            for (i in set.getAllValues().flatMap { it.value }) {
-                Assertions.assertTrue(i.value in list1 && i.value in list2, "The result is incorrect")
+            for (i in set.getAllValues()) {
+                Assertions.assertTrue(i in list1 && i in list2, "The result is incorrect")
             }
         }
     }
@@ -989,10 +988,10 @@ internal class SetPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(3, set.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(3, set.size, "The size of the result is incorrect")
 
-            for (i in set.getAllValues().flatMap { it.value }) {
-                Assertions.assertTrue(i.value in list1 || i.value in list2, "The result is incorrect")
+            for (i in set.getAllValues()) {
+                Assertions.assertTrue(i in list1 || i in list2, "The result is incorrect")
             }
         }
     }
@@ -1010,11 +1009,10 @@ internal class SetPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be LxmSet")
-            Assertions.assertEquals(2, set.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(2, set.size, "The size of the result is incorrect")
 
-            for (i in set.getAllValues().flatMap { it.value }) {
-                Assertions.assertTrue(
-                        (i.value in list1 && i.value !in list2) || (i.value !in list1 && i.value in list2),
+            for (i in set.getAllValues()) {
+                Assertions.assertTrue((i in list1 && i !in list2) || (i !in list1 && i in list2),
                         "The result is incorrect")
             }
         }

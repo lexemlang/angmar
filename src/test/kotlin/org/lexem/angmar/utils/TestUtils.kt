@@ -303,7 +303,7 @@ object TestUtils {
 
         // Remove elements from the context.
         StdlibCommons.GlobalNames.forEach {
-            context.removePropertyIgnoringConstants(memory, it)
+            context.removeProperty(memory, it, ignoreConstant = true)
         }
 
         valuesToRemove?.forEach {
@@ -311,16 +311,16 @@ object TestUtils {
                 throw Exception("The context does not contains the property called '$it'")
             }
 
-            context.removePropertyIgnoringConstants(memory, it)
+            context.removeProperty(memory, it, ignoreConstant = true)
         }
 
-        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenFileMap)
-        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext)
-        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)
-        hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint, ignoreConstant = true)
 
         if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-            hiddenContext.removePropertyIgnoringConstants(memory, AnalyzerCommons.Identifiers.HiddenParserMap)
+            hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, ignoreConstant = true)
         }
 
         // Check whether the context is empty.
@@ -331,12 +331,15 @@ object TestUtils {
         Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 
         // Remove the stdlib and hidden context.
-        LxmReference.StdLibContext.decreaseReferences(memory)
-        LxmReference.HiddenContext.decreaseReferences(memory)
+        memory.remove(LxmReference.StdLibContext)
+        memory.remove(LxmReference.HiddenContext)
+
+        // Call garbage collector.
+        memory.spatialGarbageCollect(forced = true)
 
         // Check whether the memory is empty.
-        Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,
-                "The memory must be completely cleared. Remaining cells with values: ${memory.lastNode.actualUsedCellCount}")
+        Assertions.assertEquals(0, memory.lastNode.actualHeapSize,
+                "The memory must be completely cleared. Remaining cells with values: ${memory.lastNode.actualHeapSize}")
     }
 
     /**

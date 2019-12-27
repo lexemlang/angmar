@@ -171,9 +171,6 @@ internal class LxmMap : LexemReferenced {
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        if (isPropertiesCloned) {
-            properties.clear()
-        }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

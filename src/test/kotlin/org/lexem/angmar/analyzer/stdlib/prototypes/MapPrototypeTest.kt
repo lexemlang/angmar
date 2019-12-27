@@ -27,7 +27,7 @@ internal class MapPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Size}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             result as? LxmInteger ?: throw Error("The result must be LxmInteger")
             Assertions.assertEquals(resultValue, result.primitive, "The result is incorrect")
         }
@@ -51,11 +51,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -71,7 +71,7 @@ internal class MapPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.IsFrozen}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -108,11 +108,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -142,7 +142,7 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, mapOri.size, "The result is incorrect")
         }
     }
 
@@ -158,7 +158,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Every}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -185,23 +185,23 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(1, resMap.getSize(), "The result is incorrect")
+            Assertions.assertEquals(1, resMap.size, "The result is incorrect")
 
             val resultMap = map.filter { it.value.primitive >= value2Check.primitive }
-            for (prop in resMap.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in resultMap, "The original map has been modified")
-                Assertions.assertEquals(resultMap[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in resMap.getAllProperties()) {
+                Assertions.assertTrue(key in resultMap, "The original map has been modified")
+                Assertions.assertEquals(resultMap[key], value, "The original map has been modified")
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -218,7 +218,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Filter}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -249,11 +249,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
 
             val accumulator = context.getPropertyValue(analyzer.memory, variableAccumulator)
@@ -273,7 +273,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.ForEach}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -303,11 +303,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -330,11 +330,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -364,11 +364,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -391,11 +391,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -422,23 +422,23 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(map.size, resMap.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, resMap.size, "The result is incorrect")
 
             val resultMap = map.mapValues { LxmInteger.from(it.value.primitive + 1) }
-            for (prop in resMap.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in resultMap, "The original map has been modified")
-                Assertions.assertEquals(resultMap[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in resMap.getAllProperties()) {
+                Assertions.assertTrue(key in resultMap, "The original map has been modified")
+                Assertions.assertEquals(resultMap[key], value, "The original map has been modified")
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -455,7 +455,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Map}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -486,11 +486,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -507,7 +507,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Reduce}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -544,11 +544,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -578,7 +578,7 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, mapOri.size, "The result is incorrect")
         }
     }
 
@@ -594,7 +594,7 @@ internal class MapPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${MapPrototype.Any}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -619,17 +619,18 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size + 1, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size + 1, mapOri.size, "The result is incorrect")
 
-            val resProps = mapOri.getAllProperties().flatMap { it.value }
+            val resProps = mapOri.getAllProperties()
             for ((key, value) in map) {
-                Assertions.assertTrue(key in resProps.map { it.key }, "The original map has been modified")
-                Assertions.assertEquals(value, resProps.find { it.key == key }?.value,
+                Assertions.assertTrue(key in resProps.map { it.first }, "The original map has been modified")
+                Assertions.assertEquals(value, resProps.find { it.first == key }?.second,
                         "The original map has been modified")
             }
 
-            Assertions.assertTrue(additionElements[0] in resProps.map { it.key }, "The original map has been modified")
-            Assertions.assertEquals(additionElements[1], resProps.find { it.key == additionElements[0] }?.value,
+            Assertions.assertTrue(additionElements[0] in resProps.map { it.first },
+                    "The original map has been modified")
+            Assertions.assertEquals(additionElements[1], resProps.find { it.first == additionElements[0] }?.second,
                     "The original map has been modified")
         }
     }
@@ -652,11 +653,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -682,11 +683,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size - 1, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size - 1, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in resultMap, "The original map has been modified")
-                Assertions.assertEquals(resultMap[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in resultMap, "The original map has been modified")
+                Assertions.assertEquals(resultMap[key], value, "The original map has been modified")
             }
         }
     }
@@ -720,11 +721,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -752,11 +753,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -784,11 +785,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -816,11 +817,11 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(map.size, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(map.size, mapOri.size, "The result is incorrect")
 
-            for (prop in mapOri.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map, "The original map has been modified")
-                Assertions.assertEquals(map[prop.key], prop.value, "The original map has been modified")
+            for ((key, value) in mapOri.getAllProperties()) {
+                Assertions.assertTrue(key in map, "The original map has been modified")
+                Assertions.assertEquals(map[key], value, "The original map has been modified")
             }
         }
     }
@@ -842,7 +843,7 @@ internal class MapPrototypeTest {
             val mapOri =
                     context.getDereferencedProperty<LxmMap>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmMap")
-            Assertions.assertEquals(0, mapOri.getSize(), "The result is incorrect")
+            Assertions.assertEquals(0, mapOri.size, "The result is incorrect")
         }
     }
 
@@ -856,15 +857,15 @@ internal class MapPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(3, map.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(3, map.size, "The size of the result is incorrect")
 
-            for (prop in map.getAllProperties().flatMap { it.value }) {
-                when (prop.key) {
+            for ((key, value) in map.getAllProperties()) {
+                when (key) {
                     in map2 -> {
-                        Assertions.assertEquals(map2[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map2[key], value, "The value of '$key' is incorrect")
                     }
                     in map1 -> {
-                        Assertions.assertEquals(map1[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map1[key], value, "The value of '$key' is incorrect")
                     }
                     else -> throw Error("The result is incorrect")
                 }
@@ -882,12 +883,12 @@ internal class MapPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(1, map.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(1, map.size, "The size of the result is incorrect")
 
-            for (prop in map.getAllProperties().flatMap { it.value }) {
-                when (prop.key) {
+            for ((key, value) in map.getAllProperties()) {
+                when (key) {
                     in map1 -> {
-                        Assertions.assertEquals(map1[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map1[key], value, "The value of '$key' is incorrect")
                     }
                     else -> throw Error("The result is incorrect")
                 }
@@ -905,12 +906,11 @@ internal class MapPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(1, map.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(1, map.size, "The size of the result is incorrect")
 
-            for (prop in map.getAllProperties().flatMap { it.value }) {
-                Assertions.assertTrue(prop.key in map1 && prop.key in map2,
-                        "The result is incorrect${prop.key}' is incorrect")
-                Assertions.assertEquals(map2[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+            for ((key, value) in map.getAllProperties()) {
+                Assertions.assertTrue(key in map1 && key in map2, "The result is incorrect$key' is incorrect")
+                Assertions.assertEquals(map2[key], value, "The value of '$key' is incorrect")
             }
         }
     }
@@ -925,15 +925,15 @@ internal class MapPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(3, map.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(3, map.size, "The size of the result is incorrect")
 
-            for (prop in map.getAllProperties().flatMap { it.value }) {
-                when (prop.key) {
+            for ((key, value) in map.getAllProperties()) {
+                when (key) {
                     in map2 -> {
-                        Assertions.assertEquals(map2[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map2[key], value, "The value of '$key' is incorrect")
                     }
                     in map1 -> {
-                        Assertions.assertEquals(map1[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map1[key], value, "The value of '$key' is incorrect")
                     }
                     else -> throw Error("The result is incorrect")
                 }
@@ -951,16 +951,16 @@ internal class MapPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val map = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(2, map.getSize(), "The size of the result is incorrect")
+            Assertions.assertEquals(2, map.size, "The size of the result is incorrect")
 
-            for (prop in map.getAllProperties().flatMap { it.value }) {
-                when (prop.key) {
+            for ((key, value) in map.getAllProperties()) {
+                when (key) {
                     in map2 -> {
-                        Assertions.assertTrue(prop.key !in map1, "The result is incorrect")
-                        Assertions.assertEquals(map2[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertTrue(key !in map1, "The result is incorrect")
+                        Assertions.assertEquals(map2[key], value, "The value of '$key' is incorrect")
                     }
                     in map1 -> {
-                        Assertions.assertEquals(map1[prop.key], prop.value, "The value of '${prop.key}' is incorrect")
+                        Assertions.assertEquals(map1[key], value, "The value of '$key' is incorrect")
                     }
                     else -> throw Error("The result is incorrect")
                 }

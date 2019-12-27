@@ -119,8 +119,7 @@ internal class GroupHeaderLexemAnalyzerTest {
 
             // Remove the node to avoid circular references.
             val parentNode = lxmNode.getParent(analyzer.memory, toWrite = false)!!
-            val parentChildren = parentNode.getChildren(analyzer.memory, toWrite = false)
-            parentChildren.removeCell(analyzer.memory, parentChildren.size - 1, ignoreConstant = true)
+            parentNode.clearChildren(analyzer.memory)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node,
                     lxmNode.getParentReference(analyzer.memory)!!, ignoreConstant = true)
         }

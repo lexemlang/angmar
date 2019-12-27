@@ -199,9 +199,6 @@ internal class LxmList : LexemReferenced {
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        if (isCellsCloned) {
-            cells.clear()
-        }
     }
 
     override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {

@@ -39,7 +39,7 @@ internal class ExpressionPrototypeTest {
             val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = true)
             val node = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
                     AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = true)!!
-            node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            node.clearChildren(analyzer.memory)
         }
     }
 }

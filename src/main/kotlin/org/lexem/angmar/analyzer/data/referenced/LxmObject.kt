@@ -311,10 +311,6 @@ internal open class LxmObject : LexemReferenced {
     }
 
     override fun memoryDealloc(memory: LexemMemory) {
-        if (isPropertiesCloned) {
-            properties.clear()
-        }
-
         prototypeReference = null
     }
 

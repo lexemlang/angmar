@@ -8,7 +8,7 @@ import org.lexem.angmar.utils.*
 
 internal class SetAnalyzerTest {
     val values = setOf(1, 2, 3, 4)
-    val valuesText = values.joinToString(ListNode.elementSeparator)
+    private val valuesText = values.joinToString(ListNode.elementSeparator)
 
     // TESTS ------------------------------------------------------------------
 
@@ -28,10 +28,8 @@ internal class SetAnalyzerTest {
         Assertions.assertEquals(values.size, values.size, "The number of values is incorrect")
 
         for (i in allValues) {
-            for (j in i.value) {
-                val value = j.value as? LxmInteger ?: throw Error("The property must be a LxmInteger")
-                Assertions.assertTrue(value.primitive in values, "The primitive property is incorrect")
-            }
+            val value = i as? LxmInteger ?: throw Error("The property must be a LxmInteger")
+            Assertions.assertTrue(value.primitive in values, "The primitive property is incorrect")
         }
 
         Assertions.assertFalse(set.isConstant, "The isConstant property is incorrect")
@@ -58,10 +56,8 @@ internal class SetAnalyzerTest {
         Assertions.assertEquals(values.size, values.size, "The number of values is incorrect")
 
         for (i in allValues) {
-            for (j in i.value) {
-                val value = j.value as? LxmInteger ?: throw Error("The property must be a LxmInteger")
-                Assertions.assertTrue(value.primitive in values, "The primitive property is incorrect")
-            }
+            val value = i as? LxmInteger ?: throw Error("The property must be a LxmInteger")
+            Assertions.assertTrue(value.primitive in values, "The primitive property is incorrect")
         }
 
         Assertions.assertTrue(set.isConstant, "The isConstant property is incorrect")
@@ -83,7 +79,7 @@ internal class SetAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmSet")
-        val values = set.getAllValues()
+        val values = set.getAllValues().toList()
 
         Assertions.assertEquals(0, values.size, "The number of cells is incorrect")
         Assertions.assertFalse(set.isConstant, "The isConstant property is incorrect")
@@ -105,7 +101,7 @@ internal class SetAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val set = resultRef.dereferenceAs<LxmSet>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmSet")
-        val values = set.getAllValues()
+        val values = set.getAllValues().toList()
 
         Assertions.assertEquals(0, values.size, "The number of cells is incorrect")
         Assertions.assertTrue(set.isConstant, "The isConstant property is incorrect")
