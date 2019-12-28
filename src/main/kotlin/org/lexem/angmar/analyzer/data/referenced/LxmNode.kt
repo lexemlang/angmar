@@ -119,6 +119,14 @@ internal class LxmNode : LxmObject {
     }
 
     /**
+     * Adds a list of nodes at the end.
+     */
+    fun addChildren(memory: LexemMemory, vararg children: LxmNode) {
+        val lastNode = getLastChild(memory, toWrite = true)
+        insertChildren(memory, children.toList(), lastNode)
+    }
+
+    /**
      * Adds a list of nodes after the specified node.
      */
     fun insertChildren(memory: LexemMemory, children: List<LxmNode>, after: LxmNode?) {

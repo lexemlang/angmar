@@ -28,12 +28,11 @@ internal class AdditionFilterLexemeAnalyzerTest {
         val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode
                 ?: throw Error("The result must be a LxmNode")
         val parentRef = result.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Parent) as LxmReference
-        val parentChildren =
-                result.getParent(analyzer.memory, toWrite = false)!!.getChildren(analyzer.memory, toWrite = false)
+        val parent = result.getParent(analyzer.memory, toWrite = false)!!
         Assertions.assertEquals(lxmNode.getPrimitive().position, parentRef.position, "The parent node is incorrect")
-        Assertions.assertEquals(1, parentChildren.size, "The number of children is incorrect")
+        Assertions.assertEquals(1, parent.getChildCount(analyzer.memory), "The number of children is incorrect")
         Assertions.assertEquals((analyzer.memory.getLastFromStack() as LxmReference).position,
-                (parentChildren.getCell(analyzer.memory, 0) as LxmReference).position,
+                parent.getFirstChild(analyzer.memory, toWrite = false)?.getPrimitive()?.position,
                 "The child has not been included in the parent")
 
         // Remove FilterNodePosition and Last from the stack.

@@ -27,7 +27,7 @@ internal class GarbageCollectorFifoTest {
         gcFifo.push(0)
         Assertions.assertEquals("Dead[1, ${size - 1}] ToProcess[0]", gcFifo.toString(), "The fifo is incorrect")
 
-        gcFifo.push(size - 1)
+        gcFifo.push(size.toLong() - 1)
         Assertions.assertEquals("Dead[1, ${size - 2}] ToProcess[0] U [${size - 1}]", gcFifo.toString(),
                 "The fifo is incorrect")
 
@@ -39,7 +39,7 @@ internal class GarbageCollectorFifoTest {
         Assertions.assertEquals("Dead[3, ${size - 2}] ToProcess[0, 2] U [${size - 1}]", gcFifo.toString(),
                 "The fifo is incorrect")
 
-        gcFifo.push(size - 2)
+        gcFifo.push(size.toLong() - 2)
         Assertions.assertEquals("Dead[3, ${size - 3}] ToProcess[0, 2] U [${size - 2}, ${size - 1}]", gcFifo.toString(),
                 "The fifo is incorrect")
 
@@ -127,7 +127,7 @@ internal class GarbageCollectorFifoTest {
         Assertions.assertEquals("Dead[0, ${size - 1}] ToProcess[]", gcFifo.toString(), "The fifo is incorrect")
 
         // Push
-        gcFifo.push(size + 5)
+        gcFifo.push(size.toLong() + 5)
         Assertions.assertEquals("Dead[0, ${size - 1}] ToProcess[]", gcFifo.toString(), "The fifo is incorrect")
 
         // Pop

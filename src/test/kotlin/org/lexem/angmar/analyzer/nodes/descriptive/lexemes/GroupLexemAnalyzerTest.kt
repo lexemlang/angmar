@@ -418,11 +418,7 @@ internal class GroupLexemAnalyzerTest {
         val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
         val lxmNode = hiddenContext.getPropertyValue(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenLastResultNode)!!.dereference(analyzer.memory,
-                toWrite = false) as LxmNode
-        val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-
-        for (i in children.size - 1 downTo 0) {
-            children.removeCell(analyzer.memory, i, ignoreConstant = true)
-        }
+                toWrite = true) as LxmNode
+        lxmNode.clearChildren(analyzer.memory)
     }
 }

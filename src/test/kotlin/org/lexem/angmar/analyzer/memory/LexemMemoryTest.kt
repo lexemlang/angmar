@@ -5,17 +5,16 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
 internal class LexemMemoryTest {
-    private val size = 4
+    private val size = 4L
 
     @Test
     fun `test stack add, get and remove`() {
         val memory = TestUtils.generateTestMemory()
-        val objects = List(size) { LxmString.from("obj$it") }
+        val objects = List(size.toInt()) { LxmString.from("obj$it") }
         val stackName = "last"
 
         // Add some
@@ -83,7 +82,7 @@ internal class LexemMemoryTest {
     @Test
     fun `test stack add, get and remove using last`() {
         val memory = TestUtils.generateTestMemory()
-        val objects = List(size) { LxmString.from("obj$it") }
+        val objects = List(size.toInt()) { LxmString.from("obj$it") }
 
         // Add some
         for (obj in objects) {
@@ -155,8 +154,8 @@ internal class LexemMemoryTest {
     @Test
     fun `test stack recursively`() {
         val memory = TestUtils.generateTestMemory()
-        val objects1 = List(size) { LxmString.from("objA$it") }
-        val objects2 = List(size) { LxmString.from("objB$it") }
+        val objects1 = List(size.toInt()) { LxmString.from("objA$it") }
+        val objects2 = List(size.toInt()) { LxmString.from("objB$it") }
 
         // Add some in the first copy
         for (obj in objects1) {
@@ -258,7 +257,7 @@ internal class LexemMemoryTest {
         memory.rollbackCopy()
         for (i in 0..size) {
             val res = memory.get(LxmReference(i), toWrite = false)
-            Assertions.assertEquals(initialObjects[i], res, "The value of the memory is incorrect")
+            Assertions.assertEquals(initialObjects[i.toInt()], res, "The value of the memory is incorrect")
         }
     }
 
@@ -309,9 +308,6 @@ internal class LexemMemoryTest {
     fun `test freezeCopy and rollbackCopy`() {
         val memory = TestUtils.generateTestMemory()
         val object1 = LxmObject(memory)
-
-        memory.freezeCopy()
-        memory.lastNode.isRecoverable = false
 
         memory.freezeCopy()
 
@@ -418,22 +414,7 @@ internal class LexemMemoryTest {
 
 
         Assertions.assertNotEquals(bigNode4, bigNode3, "bigNode3 and bigNode4 cannot be equals")
-        Assertions.assertTrue(bigNode4.isRecoverable, "The bigNode4 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode3.isRecoverable, "The bigNode3 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode2.isRecoverable, "The bigNode2 isRecoverable property is incorrect")
-        Assertions.assertFalse(bigNode1.isRecoverable, "The bigNode1 isRecoverable property is incorrect")
-
-        val totalCount = bigNode1.heapSize + bigNode2.heapSize + bigNode3.heapSize
-        Assertions.assertEquals(totalCount, bigNode4.temporalGarbageCollectorCount,
-                "The bigNode4 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode3.temporalGarbageCollectorCount,
-                "The bigNode3 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode2.temporalGarbageCollectorCount,
-                "The bigNode2 temporalGarbageCollectorCount property is incorrect")
-        Assertions.assertEquals(0, bigNode1.temporalGarbageCollectorCount,
-                "The temporalGarbageCollectorCount isRecoverable property is incorrect")
     }
-
 
     @Test
     fun `test collapseTo - nested`() {
@@ -549,156 +530,84 @@ internal class LexemMemoryTest {
                 "The actualUsedCellCount property is incorrect")
     }
 
-    @Test
-    fun `test spatial garbage collector - not forced - calling`() {
-        val memory = TestUtils.generateTestMemory()
-        val initialGarbageThreshold = memory.lastNode.garbageThreshold
-        var prev = LxmObject(memory)
-
-        val limit = (memory.lastNode.garbageThreshold * 0.9).toInt()
-        for (i in 0 until limit) {
-            val obj = LxmObject(memory)
-            prev.setProperty(memory, "next", obj)
-            prev = obj
-        }
-
-        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
-                "The actualUsedCellCount property is incorrect")
-        Assertions.assertEquals(initialGarbageThreshold, memory.lastNode.garbageThreshold,
-                "The garbageThreshold property is incorrect")
-
-        memory.spatialGarbageCollect()
-
-        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
-                "The actualUsedCellCount property is incorrect")
-        Assertions.assertEquals(
-                (initialGarbageThreshold * Consts.Memory.spatialGarbageCollectorThresholdIncrement).toInt(),
-                memory.lastNode.garbageThreshold, "The garbageThreshold property is incorrect")
-    }
-
-    @Test
-    fun `test spatial garbage collector - stack`() {
-        val memory = TestUtils.generateTestMemoryFromAnalyzer()
-        val initialSize = memory.lastNode.actualHeapSize
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
-
-        val object0 = LxmObject(memory)
-        val object1 = LxmObject(memory)
-        val object2 = LxmObject(memory)
-        var object3 = LxmObject(memory)
-
-        // Previous big node.
-
-        context.setProperty(memory, "ori", object0.getPrimitive())
-        object1.setProperty(memory, "a", object2.getPrimitive())
-
-        memory.addToStackAsLast(object1.getPrimitive())
-        memory.addToStackAsLast(object3.getPrimitive())
-
-
-        memory.freezeCopy()
-
-
-        object3 = object3.getPrimitive().dereferenceAs(memory, toWrite = true)!!
-
-        // New big node.
-        val object4 = LxmObject(memory)
-        val object5 = LxmObject(memory)
-        object3.setProperty(memory, "d", object4.getPrimitive())
-        object4.setProperty(memory, "d", object3.getPrimitive())
-
-        memory.addToStackAsLast(object5.getPrimitive())
-        memory.removeLastFromStack()
-        memory.removeLastFromStack()
-
-
-        memory.spatialGarbageCollect(forced = true)
-
-
-        Assertions.assertEquals(3 + initialSize, memory.lastNode.actualUsedCellCount,
-                "The actualUsedCellCount property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object0.getPrimitive().position).isFreed,
-                "The cell[0] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
-                "The cell[1] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
-                "The cell[2] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
-                "The cell[3] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
-                "The cell[4] property is incorrect")
-    }
-
-    @Test
-    fun `test temporalGarbageCollect - two groups with gap`() {
-        val memory = TestUtils.generateTestMemory()
-        val bigNode1 = memory.lastNode
-
-        // Add values to heap.
-        val obj0 = LxmObject(memory)
-        val obj1 = LxmList(memory)
-        val obj2 = LxmObject(memory)
-
-        memory.freezeCopy()
-        val bigNode2 = memory.lastNode
-
-
-        // Add values to heap.
-        obj1.getPrimitive().dereference(memory, toWrite = true)
-        val obj3 = LxmObject(memory)
-        val obj4 = LxmObject(memory)
-        val obj5 = LxmObject(memory)
-
-        memory.remove(obj4.getPrimitive())
-
-        // Collapse
-        memory.collapseTo(bigNode1)
-        val bigNode3 = memory.lastNode
-
-
-        // Add values to heap.
-        memory.freezeCopy()
-        val bigNode4 = memory.lastNode
-        val obj6 = LxmObject(memory)
-        val obj7 = LxmObject(memory)
-
-
-        // Add values to heap.
-        memory.freezeCopy()
-        val bigNode5 = memory.lastNode
-        val obj8 = LxmObject(memory)
-        val obj9 = LxmObject(memory)
-
-        // Collapse
-        memory.collapseTo(bigNode4)
-        val bigNode6 = memory.lastNode
-
-        memory.temporalGarbageCollect()
-
-        // Check isRecoverable and count.
-        var count = 0
-        var node: BigNode? = memory.lastNode
-        while (node != null) {
-            Assertions.assertTrue(node.isRecoverable, "The node[$count] isRecoverable property is incorrect")
-            Assertions.assertEquals(0, node.temporalGarbageCollectorCount,
-                    "The node[$count] temporalGarbageCollectorCount property is incorrect")
-            count += 1
-
-            when (count) {
-                1 -> {
-                    Assertions.assertEquals(4, node.heapSize, "The heapSize property is incorrect")
-                }
-                2 -> {
-                    Assertions.assertEquals(6, node.heapSize, "The heapSize property is incorrect")
-                }
-                else -> {
-                    Assertions.assertEquals(0, node.heapSize, "The heapSize property is incorrect")
-                }
-            }
-
-            node = node.previousNode
-        }
-        Assertions.assertEquals(3, count, "The number of bigNodes is incorrect")
-
-    }
+    // TODO enable again
+    //    @Test
+    //    fun `test spatial garbage collector - not forced - calling`() {
+    //        val memory = TestUtils.generateTestMemory()
+    //        val initialGarbageThreshold = memory.lastNode.garbageThreshold
+    //        var prev = LxmObject(memory)
+    //
+    //        val limit = (memory.lastNode.garbageThreshold * 0.9).toInt()
+    //        for (i in 0 until limit) {
+    //            val obj = LxmObject(memory)
+    //            prev.setProperty(memory, "next", obj)
+    //            prev = obj
+    //        }
+    //
+    //        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
+    //                "The actualUsedCellCount property is incorrect")
+    //        Assertions.assertEquals(initialGarbageThreshold, memory.lastNode.garbageThreshold,
+    //                "The garbageThreshold property is incorrect")
+    //
+    //        memory.spatialGarbageCollect()
+    //
+    //        Assertions.assertEquals(limit + 1, memory.lastNode.actualUsedCellCount,
+    //                "The actualUsedCellCount property is incorrect")
+    //        Assertions.assertEquals(
+    //                (initialGarbageThreshold * Consts.Memory.spatialGarbageCollectorThresholdIncrement).toInt(),
+    //                memory.lastNode.garbageThreshold, "The garbageThreshold property is incorrect")
+    //    }
+    //
+    //    @Test
+    //    fun `test spatial garbage collector - stack`() {
+    //        val memory = TestUtils.generateTestMemoryFromAnalyzer()
+    //        val initialSize = memory.lastNode.actualHeapSize
+    //        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
+    //
+    //        val object0 = LxmObject(memory)
+    //        val object1 = LxmObject(memory)
+    //        val object2 = LxmObject(memory)
+    //        var object3 = LxmObject(memory)
+    //
+    //        // Previous big node.
+    //
+    //        context.setProperty(memory, "ori", object0.getPrimitive())
+    //        object1.setProperty(memory, "a", object2.getPrimitive())
+    //
+    //        memory.addToStackAsLast(object1.getPrimitive())
+    //        memory.addToStackAsLast(object3.getPrimitive())
+    //
+    //
+    //        memory.freezeCopy()
+    //
+    //
+    //        object3 = object3.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+    //
+    //        // New big node.
+    //        val object4 = LxmObject(memory)
+    //        val object5 = LxmObject(memory)
+    //        object3.setProperty(memory, "d", object4.getPrimitive())
+    //        object4.setProperty(memory, "d", object3.getPrimitive())
+    //
+    //        memory.addToStackAsLast(object5.getPrimitive())
+    //        memory.removeLastFromStack()
+    //        memory.removeLastFromStack()
+    //
+    //
+    //        memory.spatialGarbageCollect(forced = true)
+    //
+    //
+    //        Assertions.assertEquals(3 + initialSize, memory.lastNode.actualUsedCellCount,
+    //                "The actualUsedCellCount property is incorrect")
+    //        Assertions.assertFalse(memory.lastNode.getCell(memory, object0.getPrimitive().position).isFreed,
+    //                "The cell[0] property is incorrect")
+    //        Assertions.assertFalse(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
+    //                "The cell[1] property is incorrect")
+    //        Assertions.assertFalse(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
+    //                "The cell[2] property is incorrect")
+    //        Assertions.assertTrue(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
+    //                "The cell[3] property is incorrect")
+    //        Assertions.assertTrue(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
+    //                "The cell[4] property is incorrect")
+    //    }
 }
