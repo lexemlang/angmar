@@ -79,7 +79,7 @@ internal object SelectorAnalyzer {
                         }
                     }
                 }
-                in signalEndFirstProperty..signalEndFirstProperty + node.properties.size -> {
+                in signalEndFirstProperty until signalEndFirstProperty + node.properties.size -> {
                     val position = (signal - signalEndFirstProperty) + 1
 
                     val result = analyzer.memory.getLastFromStack() as LxmLogic
@@ -100,7 +100,7 @@ internal object SelectorAnalyzer {
                         }
                     }
                 }
-                in signalEndFirstMethod..signalEndFirstMethod + node.methods.size -> {
+                in signalEndFirstMethod until signalEndFirstMethod + node.methods.size -> {
                     val position = (signal - signalEndFirstMethod) + 1
 
                     val result = analyzer.memory.getLastFromStack() as LxmLogic

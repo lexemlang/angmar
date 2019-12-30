@@ -319,7 +319,8 @@ internal class AccessLexemAnalyzerTest {
         Assertions.assertEquals(text.length, analyzer.text.currentPosition(),
                 "The lexem has not consumed the characters")
 
-        val lxmNode = context.getDereferencedProperty<LxmNode>(analyzer.memory,
+        val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
+        val lxmNode = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = false) ?: throw Error(
                 "The node must be a LxmNode")
         Assertions.assertEquals(1, lxmNode.getChildrenAsList(analyzer.memory).size,
@@ -659,8 +660,9 @@ internal class AccessLexemAnalyzerTest {
      * Checks all the results of the header.
      */
     private fun removeNode(analyzer: LexemAnalyzer) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val lxmNodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
+        val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
+        val lxmNodeRef =
+                hiddenContext.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
         val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
         val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
 

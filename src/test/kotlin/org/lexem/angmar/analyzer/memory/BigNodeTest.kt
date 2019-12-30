@@ -380,7 +380,7 @@ internal class BigNodeTest {
         for (i in objects.withIndex()) {
             val cell = bigNode.getCell(memory, i.index)
 
-            BigNodeCellTest.checkCell(cell, i.index, i.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index, i.value)
             checkBigNode(bigNode, heapSize = size, actualHeapSize = size)
         }
     }
@@ -413,7 +413,7 @@ internal class BigNodeTest {
         for (i in oldObjects.withIndex()) {
             val cell = newBigNode.getCell(memory, i.index)
 
-            BigNodeCellTest.checkCell(cell, i.index, cell.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index, cell.value)
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
@@ -421,7 +421,7 @@ internal class BigNodeTest {
         for (i in newObjects.withIndex()) {
             val cell = newBigNode.getCell(memory, i.index + size)
 
-            BigNodeCellTest.checkCell(cell, i.index + size, i.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index + size, i.value)
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
@@ -430,7 +430,7 @@ internal class BigNodeTest {
         for (i in oldObjects.withIndex()) {
             val cell = oldBigNode.getCell(memory, i.index)
 
-            BigNodeCellTest.checkCell(cell, i.index, i.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index, i.value)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
     }
@@ -509,7 +509,7 @@ internal class BigNodeTest {
         for (i in oldObjects.withIndex().take(2)) {
             val cell = newBigNode.getCell(memory, i.index)
 
-            BigNodeCellTest.checkCell(cell, i.index, cell.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index, cell.value)
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size - 2)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
@@ -517,7 +517,7 @@ internal class BigNodeTest {
         for (i in newObjects.withIndex()) {
             val cell = newBigNode.getCell(memory, i.index + size - 2)
 
-            BigNodeCellTest.checkCell(cell, i.index + size - 2, i.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index + size - 2, i.value)
             checkBigNode(newBigNode, prevNode = oldBigNode, heapSize = size, actualHeapSize = 2 * size - 2)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
@@ -535,7 +535,7 @@ internal class BigNodeTest {
         for (i in oldObjects.withIndex()) {
             val cell = oldBigNode.getCell(memory, i.index)
 
-            BigNodeCellTest.checkCell(cell, i.index, i.value)
+            BigNodeHeapCellTest.checkCell(cell, i.index, i.value)
             checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size, actualHeapSize = size)
         }
     }

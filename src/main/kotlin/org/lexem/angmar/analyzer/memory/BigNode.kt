@@ -2,6 +2,7 @@ package org.lexem.angmar.analyzer.memory
 
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.memory.bignode.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 
@@ -9,74 +10,18 @@ import org.lexem.angmar.errors.*
  * A big node that represents an differential view of the memory.
  */
 internal class BigNode constructor(var previousNode: BigNode?, var nextNode: BigNode?) {
-    private val stackLevels = mutableMapOf<Int, BigNodeStackLevel>()
-    private val heap = mutableMapOf<Int, BigNodeCell>()
-
-    /**
-     * Indicates whether or not this bigNode is recoverable.
-     */
-    var isRecoverable = true
-
-    /**
-     * Specifies the maximum number of used elements in the heap to call the spatial garbage collector.
-     */
-    var garbageThreshold: Int = previousNode?.garbageThreshold ?: Consts.Memory.spatialGarbageCollectorInitialThreshold
-        private set
-
-    /**
-     * Indicates whether it is necessary or not to call the spatial garbage collector.
-     */
-    var spatialGarbageCollectorMark = false
-        private set
-
-    /**
-     * The number of unused cells in previous non-recoverable bigNodes.
-     */
-    var temporalGarbageCollectorCount: Int = previousNode?.temporalGarbageCollectorCount ?: 0
-
-    /**
-     * Indicates whether it is necessary or not to call the temporal garbage collector.
-     */
-    val temporalGarbageCollectorMark get() = temporalGarbageCollectorCount >= Consts.Memory.temporalGarbageCollectorThreshold
-
-    /**
-     * The number of levels in the current [BigNode]'s stack.
-     */
-    val stackLevelSize get() = stackLevels.size
+    private val stack: BigNodeStack = previousNode?.stack?.clone(this) ?: BigNodeStack(this)
+    private val heap: BigNodeHeap = previousNode?.heap?.clone(this) ?: BigNodeHeap(this, 0)
 
     /**
      * The number of elements in the current [BigNode]'s stack.
      */
-    val stackSize get() = stackLevels.values.sumBy { it.cellCount }
-
-    /**
-     * The number of levels in the whole stack.
-     */
-    var actualStackLevelSize: Int = previousNode?.actualStackLevelSize ?: 0
-        private set
-
-    /**
-     * The number of elements in the whole stack.
-     */
-    var actualStackSize: Int = previousNode?.actualStackSize ?: 0
-        private set
+    val stackSize get() = stack.size
 
     /**
      * The number of cells in the current [BigNode]'s heap.
      */
-    val heapSize get() = heap.size
-
-    /**
-     * The number of cells in the whole heap.
-     */
-    var actualHeapSize: Int = previousNode?.actualHeapSize ?: 0
-        private set
-
-    /**
-     * The number of stored elements in the whole heap.
-     */
-    var actualUsedCellCount: Int = previousNode?.actualUsedCellCount ?: 0
-        private set
+    val heapSize get() = heap.cellCount
 
     /**
      * The position of the last empty cell that can be used to hold new information.
@@ -263,7 +208,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Gets a cell recursively in the [BigNode]'s chain.
      */
-    fun getCell(memory: LexemMemory, position: Int, forceShift: Boolean = false): BigNodeCell {
+    fun getCell(memory: LexemMemory, position: Int, forceShift: Boolean = false): BigNodeHeapCell {
         if (position >= actualHeapSize) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "The analyzer is trying to access a forbidden memory position") {}
@@ -276,7 +221,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
 
         val (distance, cell) = previousNode?.getCellRecursive(position) ?: throw AngmarUnreachableException()
 
-        return if (forceShift || distance >= Consts.Memory.maxDistanceToShift) {
+        return if (forceShift) {
             val cell2 = cell.shiftCell(memory)
             heap[position] = cell2
             cell2
@@ -288,7 +233,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Gets a value recursively without shifting the value in newer nodes.
      */
-    private fun getCellRecursive(position: Int): Pair<Int, BigNodeCell>? {
+    private fun getCellRecursive(position: Int): Pair<Int, BigNodeHeapCell>? {
         var distance = 0
         var node: BigNode? = this
         while (node != null) {
@@ -308,7 +253,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * Adds a new cell (or reuses a free one) to hold the specified value
      * returning the cell itself.
      */
-    fun alloc(memory: LexemMemory, value: LexemReferenced): BigNodeCell {
+    fun alloc(memory: LexemMemory, value: LexemReferenced): BigNodeHeapCell {
         // Prevent errors regarding the BigNode link.
         if (value.bigNode != this) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapBigNodeLinkFault,
@@ -322,7 +267,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
                 spatialGarbageCollectorMark = true
             }
 
-            val cell = BigNodeCell.new(lastFreePosition, value)
+            val cell = BigNodeHeapCell.new(lastFreePosition, value)
             heap[lastFreePosition] = cell
             lastFreePosition += 1
             actualHeapSize += 1
@@ -391,8 +336,9 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         // Track from the main context and stack.
         val gcFifo = GarbageCollectorFifo(actualHeapSize)
 
-        // Track the stdlib.
+        // Track the stdlib and hidden contexts.
         LxmReference.StdLibContext.spatialGarbageCollect(memory, gcFifo)
+        LxmReference.HiddenContext.spatialGarbageCollect(memory, gcFifo)
 
         // Track the stack.
         for (i in actualStackLevelSize - 1 downTo 0) {
@@ -421,66 +367,5 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         }
 
         spatialGarbageCollectorMark = false
-    }
-
-    /**
-     * Moves the heap of the current node to the destination and destroys this.
-     */
-    fun temporalGarbageCollect(destination: BigNode) {
-        // Remove the excess levels in the stack.
-        if (destination.actualStackLevelSize > actualStackLevelSize) {
-            for (i in actualStackLevelSize until destination.actualStackLevelSize) {
-                val level = destination.stackLevels[i]!!
-                level.destroy()
-                destination.stackLevels.remove(i)
-            }
-        }
-
-        // Sets the information.
-        destination.actualStackLevelSize = actualStackLevelSize
-        destination.actualStackSize = actualStackSize
-        destination.actualHeapSize = actualHeapSize
-        destination.actualUsedCellCount = actualUsedCellCount
-        destination.lastFreePosition = lastFreePosition
-        destination.garbageThreshold = garbageThreshold
-        destination.spatialGarbageCollectorMark = spatialGarbageCollectorMark
-        destination.temporalGarbageCollectorCount = 0
-
-        // Move stack and heap elements backwards until reach this.
-        var node = destination.nextNode ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
-                "The temporal garbage collector cannot reach the main bigNode of the collapsing group.") {}
-        while (node != this) {
-            destination.stackLevels.putAll(node.stackLevels)
-            destination.heap.putAll(node.heap)
-
-            // Clears the bigNode.
-            node.stackLevels.clear()
-            node.heap.clear()
-            previousNode = null
-            nextNode = null
-
-            node = node.nextNode ?: throw AngmarAnalyzerException(
-                    AngmarAnalyzerExceptionType.CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
-                    "The temporal garbage collector cannot reach the main bigNode of the collapsing group.") {}
-        }
-
-        destination.stackLevels.putAll(stackLevels)
-        destination.heap.putAll(heap)
-
-        // Clears the current bigNode.
-        stackLevels.clear()
-        heap.clear()
-        previousNode = null
-        nextNode = null
-
-        // Updates the bigNode reference of the values in the destination bigNode.
-        for (i in destination.heap.map { it.value.value }) {
-            i?.bigNode = destination
-        }
-
-        // Updates some values of the destination bigNode.
-        destination.temporalGarbageCollectorCount = 0
-        destination.isRecoverable = true
     }
 }

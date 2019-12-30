@@ -4,16 +4,17 @@ import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.analyzer.memory.bignode.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
-internal class BigNodeCellTest {
+internal class BigNodeHeapCellTest {
     companion object {
 
         // AUX METHODS --------------------------------------------------------
 
         // Checks the status of a Cell.
-        fun checkCell(cell: BigNodeCell, position: Int, value: LexemReferenced?, referenceCount: Int = 0,
+        fun checkCell(cell: BigNodeHeapCell, position: Int, value: LexemReferenced?, referenceCount: Int = 0,
                 isFreed: Boolean = false) {
             Assertions.assertEquals(position, cell.position, "The position property is incorrect")
             Assertions.assertEquals(value, cell.value, "The value property is incorrect")
@@ -29,7 +30,7 @@ internal class BigNodeCellTest {
         val memory = LexemMemory()
         val emptyObject = LxmObject(memory)
         val emptyList = LxmList(memory)
-        val cell = BigNodeCell.new(0, emptyObject)
+        val cell = BigNodeHeapCell.new(0, emptyObject)
 
         checkCell(cell, 0, emptyObject)
 
@@ -38,7 +39,7 @@ internal class BigNodeCellTest {
         checkCell(cell, -1, null, isFreed = true)
 
         // Check whether the new cell is the same as before to check the reuse of them.
-        val newCell = BigNodeCell.new(56, emptyList)
+        val newCell = BigNodeHeapCell.new(56, emptyList)
 
         Assertions.assertEquals(cell, newCell, "The cells are not equals")
         checkCell(newCell, 56, emptyList)
@@ -49,7 +50,7 @@ internal class BigNodeCellTest {
     fun `test get`() {
         val memory = LexemMemory()
         val emptyList = LxmList(memory)
-        val cell = BigNodeCell.new(0, emptyList)
+        val cell = BigNodeHeapCell.new(0, emptyList)
 
         checkCell(cell, 0, emptyList)
     }

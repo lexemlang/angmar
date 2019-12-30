@@ -124,6 +124,20 @@ internal class LexemMemory {
     }
 
     /**
+     * Counts the number of [BigNode]s in the memory.
+     */
+    fun countBigNodes(): Int {
+        var count = 0
+        var bn: BigNode? = lastNode
+        while (bn != null) {
+            count += 1
+            bn = bn.previousNode
+        }
+
+        return count
+    }
+
+    /**
      * Freezes the memory creating a differential copy of the memory.
      */
     fun freezeCopy(): BigNode {
@@ -143,28 +157,13 @@ internal class LexemMemory {
                     "The memory cannot rollback the first BigNode") {}
         }
 
-        // Get the previous recoverable node.
-        var node = lastNode.previousNode
-        while (node != null) {
-            if (node.isRecoverable) {
-                break
-            }
-
-            node = node.previousNode
-        }
-
-        restoreCopy(node ?: throw AngmarUnreachableException())
+        restoreCopy(lastNode.previousNode ?: throw AngmarUnreachableException())
     }
 
     /**
      * Restores the specified copy, removing all changes since then.
      */
     fun restoreCopy(bigNode: BigNode) {
-        if (!bigNode.isRecoverable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.NonRecoverableNodeRollback,
-                    "The memory cannot rollback a non-recoverable BigNode") {}
-        }
-
         bigNode.nextNode?.destroy()
         bigNode.nextNode = null
         lastNode = bigNode
@@ -179,25 +178,16 @@ internal class LexemMemory {
             return
         }
 
-        // Mark the nodes counting the heap elements.
-        var count = 0
-        var node: BigNode? = bigNode
-        while (node != null) {
-            // Avoid to increase twice a node that in a previous
-            // collapse was counted.
-            if (node.isRecoverable) {
-                node.isRecoverable = false
-                count += node.heapSize
-            }
+        // Un-links the previous bigNode.
+        lastNode.previousNode!!.nextNode = null
 
-            node = node.nextNode
-        }
+        // Destroys the bigNode.
+        val previousNode = bigNode.previousNode!!
+        bigNode.destroy()
 
-        // Creates a new bigNode that represents the old one.
-        freezeCopy()
-
-        // Add the count to the bigNode.
-        lastNode.temporalGarbageCollectorCount += count
+        // Link again.
+        previousNode.nextNode = lastNode
+        lastNode.previousNode = previousNode
     }
 
     /**
@@ -207,85 +197,5 @@ internal class LexemMemory {
         isInGarbageCollectionMode = true
         lastNode.spatialGarbageCollect(this, forced)
         isInGarbageCollectionMode = false
-    }
-
-    /**
-     * Collapses all the garbage of the big node history.
-     */
-    fun temporalGarbageCollect() {
-        for ((from, destination) in temporalGarbageCollectFindGroups()) {
-            val prev = destination.previousNode
-            val next = from.nextNode
-            from.temporalGarbageCollect(destination)
-
-            prev?.nextNode = destination
-            destination.previousNode = prev
-            destination.nextNode = next
-            next?.previousNode = destination
-
-            // Update the lastNode.
-            if (from == lastNode) {
-                lastNode = destination
-            }
-        }
-    }
-
-    /**
-     * Find non-recoverable groups.
-     */
-    private fun temporalGarbageCollectFindGroups() = sequence {
-        var state = 0
-        var from: BigNode? = lastNode
-        var destination: BigNode? = lastNode
-        var node: BigNode? = lastNode
-        stateLoop@ while (state >= 0) {
-            when (state) {
-                // Find first.
-                0 -> {
-                    while (node != null) {
-                        if (!node.isRecoverable) {
-                            from = node.nextNode ?: throw AngmarAnalyzerException(
-                                    AngmarAnalyzerExceptionType.LastBigNodeTemporalGarbageCollection,
-                                    "The temporal garbage collector cannot remove a non-recoverable bigNode without a next one.") {}
-
-                            state = 1
-                            continue@stateLoop
-                        } else {
-                            // No more non-recoverable bigNodes before this one.
-                            if (node.temporalGarbageCollectorCount == 0) {
-                                break@stateLoop
-                            }
-
-                            // Clears the count of the recoverable bigNodes.
-                            node.temporalGarbageCollectorCount = 0
-                        }
-
-                        node = node.previousNode
-                    }
-
-                    // Exit
-                    state = -1
-                }
-                // Find end.
-                1 -> {
-                    while (node != null) {
-                        if (node.isRecoverable) {
-                            break
-                        }
-
-                        destination = node
-                        node = node.previousNode
-                    }
-
-                    // Collects the garbage.
-                    yield(Pair(from!!, destination!!))
-
-                    from = null
-                    destination = null
-
-                    state = 0
-                }
-            }
-        }
     }
 }

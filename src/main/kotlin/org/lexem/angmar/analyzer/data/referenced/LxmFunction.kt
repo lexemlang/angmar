@@ -102,7 +102,7 @@ internal open class LxmFunction : LexemReferenced {
     override fun toLexemString(memory: LexemMemory) = if (isInternalFunction) {
         LxmString.InternalFunctionToString
     } else {
-        var source = node.parserNode!!.parser.reader.getSource()
+        var source = node.parser.reader.getSource()
         val from = node.parserNode!!.from.lineColumn()
 
         if (source.isBlank()) {
@@ -113,6 +113,5 @@ internal open class LxmFunction : LexemReferenced {
         LxmString.from(name)
     }
 
-    override fun toString() =
-            "[Function] ${node.parserNode!!.parser.reader.getSource()}::$name - Context: $contextReference"
+    override fun toString() = "[Function] ${node.parser.reader.getSource()}::$name - Context: $contextReference"
 }

@@ -55,3 +55,14 @@ This is the plan to work towards a future release.
 - Check what is public of the library.
 - Check whether the hidden properties are serializable with a test.
 - Protect the indexer to access hidden properties.
+
+
+
+## Temporal memory model
+
+- No differential.
+- Incremental copy of the memory copying the map reference.
+  - If there's a writing access, shallow-copies the map and clones the cell and object inside.
+  - If the cell is modified but the object not, only clones the cell. For example during a reference change.
+  
+- Functions must be primitives.

@@ -30,7 +30,8 @@ enum class AngmarAnalyzerExceptionType {
     ReferenceCountUnderflow,
 
     FirstBigNodeRollback,
-    NonRecoverableNodeRollback,
+
+    ForbiddenMemoryAccess,
 
     LastBigNodeTemporalGarbageCollection,
     CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
