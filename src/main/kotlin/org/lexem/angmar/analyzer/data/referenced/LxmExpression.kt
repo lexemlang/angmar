@@ -21,8 +21,8 @@ internal class LxmExpression : LxmFunction {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, ExpressionType.TypeName) as LxmReference
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(ExpressionType.TypeName) as LxmReference
     }
 
     override fun toLexemString(bigNode: BigNode): LxmString {

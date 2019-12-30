@@ -24,9 +24,9 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty( varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -63,9 +63,9 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty( varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -102,7 +102,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty( varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -139,7 +139,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty( varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)

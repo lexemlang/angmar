@@ -18,6 +18,6 @@ internal object GlobalsGlobalObject {
     fun initObject(memory: LexemMemory) {
         val objectValue = LxmObject(memory)
         AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, ObjectName, objectValue, isConstant = true)
+                .setProperty( ObjectName, objectValue, isConstant = true)
     }
 }

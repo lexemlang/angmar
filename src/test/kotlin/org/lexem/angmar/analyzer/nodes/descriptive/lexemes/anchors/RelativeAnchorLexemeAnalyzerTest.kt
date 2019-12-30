@@ -88,7 +88,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {
@@ -140,7 +140,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {
@@ -194,7 +194,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {

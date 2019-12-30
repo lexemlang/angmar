@@ -204,7 +204,7 @@ internal object LexemePatternAnalyzer {
                 // Create the union.
                 union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
-                unions.setProperty(analyzer.memory, unionName, union)
+                unions.setProperty( unionName, union)
             } else {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.PatternUnionWithoutQuantifier,
                         "The union called '$unionName' cannot be initialized if there is no quantifier") {

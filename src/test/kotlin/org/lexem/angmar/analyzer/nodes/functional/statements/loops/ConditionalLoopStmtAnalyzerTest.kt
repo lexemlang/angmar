@@ -25,8 +25,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -51,8 +51,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -76,7 +76,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -99,8 +99,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -124,8 +124,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -150,8 +150,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -175,7 +175,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -198,8 +198,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -275,7 +275,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmLogic.True)
+        context.setProperty( varName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -298,8 +298,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -330,8 +330,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -355,7 +355,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.nextKeyword,
@@ -381,8 +381,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -411,8 +411,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -436,7 +436,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.redoKeyword,
@@ -462,8 +462,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -492,8 +492,8 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -517,7 +517,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, ControlWithoutExpressionStmtNode.restartKeyword,
@@ -539,7 +539,7 @@ internal class ConditionalLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {

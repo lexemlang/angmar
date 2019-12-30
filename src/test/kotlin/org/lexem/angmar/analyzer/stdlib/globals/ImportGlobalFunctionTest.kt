@@ -27,7 +27,7 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+            initialContext.setProperty( varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -56,7 +56,7 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+            initialContext.setProperty( varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -82,7 +82,7 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+            initialContext.setProperty( varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -107,7 +107,7 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+            initialContext.setProperty( varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -133,7 +133,7 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+            initialContext.setProperty( varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
@@ -164,7 +164,7 @@ internal class ImportGlobalFunctionTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+        initialContext.setProperty( varName, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

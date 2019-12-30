@@ -47,7 +47,7 @@ internal class PropertySelectorAnalyzerTest {
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (isOk) {
             val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, propName, LxmLogic.True)
+            props.setProperty( propName, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
@@ -75,7 +75,7 @@ internal class PropertySelectorAnalyzerTest {
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (!isOk) {
             val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, propName, LxmLogic.True)
+            props.setProperty( propName, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)

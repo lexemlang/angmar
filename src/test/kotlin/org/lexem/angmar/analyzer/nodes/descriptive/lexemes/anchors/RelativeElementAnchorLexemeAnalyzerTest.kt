@@ -102,7 +102,7 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -149,7 +149,7 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -198,7 +198,7 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
             val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -257,10 +257,10 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         val props = node.getProperties(analyzer.memory, toWrite = true)
         if (!isForward) {
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
         if (isInsensible) {
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -319,10 +319,10 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         val props = node.getProperties(analyzer.memory, toWrite = true)
         if (!isForward) {
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
         if (isInsensible) {
-            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+            props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))

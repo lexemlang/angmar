@@ -23,7 +23,7 @@ internal class BitListAnalyzerTest {
         // Prepare context.
         val bitList = BitList(4, BitSet().apply { set(0); set(1); set(3) })
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, escapedVariable, LxmBitList(bitList))
+        context.setProperty( escapedVariable, LxmBitList(bitList))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -56,7 +56,7 @@ internal class BitListAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, variableName, LxmInteger.Num10)
+            context.setProperty( variableName, LxmInteger.Num10)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

@@ -505,21 +505,21 @@ internal class LexemMemoryTest {
 
         // Previous big node.
 
-        object1.setProperty(memory, "a", object2.getPrimitive())
-        object2.setProperty(memory, "a", object1.getPrimitive())
+        object1.setProperty( "a", object2.getPrimitive())
+        object2.setProperty( "a", object1.getPrimitive())
         memory.remove(object3.getPrimitive())
-        object4.setProperty(memory, "b", object1.getPrimitive())
-        object4.setProperty(memory, "c", object2.getPrimitive())
+        object4.setProperty( "b", object1.getPrimitive())
+        object4.setProperty( "c", object2.getPrimitive())
 
         memory.freezeCopy()
 
         // New big node.
         val object5 = LxmObject(memory)
         val object6 = LxmObject(memory)
-        object5.setProperty(memory, "d", object5.getPrimitive())
+        object5.setProperty( "d", object5.getPrimitive())
 
         val object1_2 = object1.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        object1_2.setProperty(memory, "e", object6.getPrimitive())
+        object1_2.setProperty( "e", object6.getPrimitive())
 
         Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
@@ -552,21 +552,21 @@ internal class LexemMemoryTest {
 
         // Previous big node.
 
-        object1.setProperty(memory, "a", object2.getPrimitive())
-        object2.setProperty(memory, "a", object1.getPrimitive())
+        object1.setProperty( "a", object2.getPrimitive())
+        object2.setProperty( "a", object1.getPrimitive())
         memory.remove(object3.getPrimitive())
-        object4.setProperty(memory, "b", object1.getPrimitive())
-        object4.setProperty(memory, "c", object2.getPrimitive())
+        object4.setProperty( "b", object1.getPrimitive())
+        object4.setProperty( "c", object2.getPrimitive())
 
         memory.freezeCopy()
 
         // New big node.
         val object5 = LxmObject(memory)
         val object6 = LxmObject(memory)
-        object5.setProperty(memory, "d", object5.getPrimitive())
+        object5.setProperty( "d", object5.getPrimitive())
 
         val object1_2 = object1.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        object1_2.setProperty(memory, "e", object6.getPrimitive())
+        object1_2.setProperty( "e", object6.getPrimitive())
 
         Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
@@ -596,7 +596,7 @@ internal class LexemMemoryTest {
         val limit = (memory.lastNode.garbageThreshold * 0.9).toInt()
         for (i in 0 until limit) {
             val obj = LxmObject(memory)
-            prev.setProperty(memory, "next", obj)
+            prev.setProperty( "next", obj)
             prev = obj
         }
 
@@ -627,8 +627,8 @@ internal class LexemMemoryTest {
 
         // Previous big node.
 
-        context.setProperty(memory, "ori", object0.getPrimitive())
-        object1.setProperty(memory, "a", object2.getPrimitive())
+        context.setProperty( "ori", object0.getPrimitive())
+        object1.setProperty( "a", object2.getPrimitive())
 
         memory.addToStackAsLast(object1.getPrimitive())
         memory.addToStackAsLast(object3.getPrimitive())
@@ -642,8 +642,8 @@ internal class LexemMemoryTest {
         // New big node.
         val object4 = LxmObject(memory)
         val object5 = LxmObject(memory)
-        object3.setProperty(memory, "d", object4.getPrimitive())
-        object4.setProperty(memory, "d", object3.getPrimitive())
+        object3.setProperty( "d", object4.getPrimitive())
+        object4.setProperty( "d", object3.getPrimitive())
 
         memory.addToStackAsLast(object5.getPrimitive())
         memory.removeLastFromStack()

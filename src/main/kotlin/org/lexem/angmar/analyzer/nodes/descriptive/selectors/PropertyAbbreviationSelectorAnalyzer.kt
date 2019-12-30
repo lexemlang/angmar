@@ -41,7 +41,7 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                     val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
                     val name = analyzer.memory.getLastFromStack() as LxmString
 
-                    props.setProperty(analyzer.memory, name.primitive, LxmLogic.from(!node.isNegated))
+                    props.setProperty( name.primitive, LxmLogic.from(!node.isNegated))
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -54,7 +54,7 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                     val name = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
                     val value = analyzer.memory.getLastFromStack()
 
-                    props.setProperty(analyzer.memory, name.primitive, value)
+                    props.setProperty( name.primitive, value)
 
                     // Remove Key and Last from the stack.
                     analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)

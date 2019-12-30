@@ -121,7 +121,7 @@ internal class GroupHeaderLexemAnalyzerTest {
             val parentNode = lxmNode.getParent(analyzer.memory, toWrite = false)!!
             val parentChildren = parentNode.getChildren(analyzer.memory, toWrite = false)
             parentChildren.removeCell(analyzer.memory, parentChildren.size - 1, ignoreConstant = true)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node,
+            context.setProperty( AnalyzerCommons.Identifiers.Node,
                     lxmNode.getParentReference(analyzer.memory)!!, ignoreConstant = true)
         }
     }

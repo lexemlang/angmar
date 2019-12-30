@@ -87,7 +87,7 @@ internal object VarDeclarationStmtAnalyzer {
 
                         for (varName in varNames) {
                             val descriptor = context.getPropertyDescriptor(analyzer.memory, varName)!!
-                            exports.setProperty(analyzer.memory, varName, descriptor.value,
+                            exports.setProperty( varName, descriptor.value,
                                     isConstant = descriptor.isConstant)
                         }
                     }
@@ -102,7 +102,7 @@ internal object VarDeclarationStmtAnalyzer {
                         val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                                 AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                        exports.setProperty(analyzer.memory, identifier.primitive, value, isConstant = node.isConstant)
+                        exports.setProperty( identifier.primitive, value, isConstant = node.isConstant)
                     }
                 }
 

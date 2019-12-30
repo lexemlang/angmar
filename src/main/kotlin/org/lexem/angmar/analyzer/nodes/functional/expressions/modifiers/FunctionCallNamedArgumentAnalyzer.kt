@@ -36,7 +36,7 @@ internal object FunctionCallNamedArgumentAnalyzer {
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
                                 toWrite = true) as LxmArguments
 
-                arguments.addNamedArgument(analyzer.memory, identifier.primitive, value)
+                arguments.addNamedArgument(identifier.primitive, value)
 
                 // Remove Last and Key from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)

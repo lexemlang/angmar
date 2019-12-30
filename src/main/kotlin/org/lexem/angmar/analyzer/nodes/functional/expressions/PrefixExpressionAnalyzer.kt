@@ -55,7 +55,7 @@ internal object PrefixExpressionAnalyzer {
 
         // Create argument values.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, thisValue)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, thisValue)
 
         // Remove Last from the stack.
         analyzer.memory.removeLastFromStack()

@@ -197,7 +197,7 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
@@ -223,7 +223,7 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
@@ -248,7 +248,7 @@ internal class AnyLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {

@@ -17,8 +17,8 @@ internal class StringAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmInteger.from(4))
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.Empty)
+        context.setProperty( variableName, LxmInteger.from(4))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.Empty)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -41,7 +41,7 @@ internal class StringAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmString.from("4"))
+        context.setProperty( variableName, LxmString.from("4"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

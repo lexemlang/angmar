@@ -247,10 +247,10 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmObject -> {
                 index as LxmString
 
-                element.setProperty(memory, index.primitive, value)
+                element.setProperty( index.primitive, value)
             }
             is LxmMap -> {
-                element.setProperty(memory, index, value)
+                element.setProperty( index, value)
             }
             else -> throw AngmarUnreachableException()
         }

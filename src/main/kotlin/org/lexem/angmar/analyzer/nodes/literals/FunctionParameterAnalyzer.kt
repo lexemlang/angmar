@@ -59,14 +59,14 @@ internal object FunctionParameterAnalyzer {
                 analyzer.memory.removeLastFromStack()
 
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.setProperty(analyzer.memory, identifier.primitive, LxmNil)
+                context.setProperty( identifier.primitive, LxmNil)
             }
             signalEndExpression -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
                 val value = analyzer.memory.getLastFromStack()
                 val identifier = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
 
-                context.setProperty(analyzer.memory, identifier.primitive, value)
+                context.setProperty( identifier.primitive, value)
 
                 // Remove Last and Key from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)

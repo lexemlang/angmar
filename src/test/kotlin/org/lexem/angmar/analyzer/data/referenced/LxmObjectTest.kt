@@ -58,15 +58,15 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject(memory)
-        prototype.setProperty(memory, "prototype", LxmLogic.False)
+        prototype.setProperty( "prototype", LxmLogic.False)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "old", LxmLogic.True)
+        old.setProperty( "old", LxmLogic.True)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "new", LxmInteger.Num1)
+        new.setProperty( "new", LxmInteger.Num1)
 
         Assertions.assertEquals(LxmLogic.True, new.getPropertyValue(memory, "old"), "The new property is incorrect")
         Assertions.assertEquals(LxmLogic.False, new.getPropertyValue(memory, "prototype"),
@@ -80,7 +80,7 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val old = LxmObject(memory)
-        old.setProperty(memory, propName, LxmLogic.True)
+        old.setProperty( propName, LxmLogic.True)
 
         memory.freezeCopy()
 
@@ -107,15 +107,15 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject(memory)
-        prototype.setProperty(memory, "prototype", LxmLogic.False)
+        prototype.setProperty( "prototype", LxmLogic.False)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "old", LxmLogic.True)
+        old.setProperty( "old", LxmLogic.True)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "new", LxmInteger.Num1)
+        new.setProperty( "new", LxmInteger.Num1)
 
         val oldDescriptor = new.getOwnPropertyDescriptor(memory, "old") ?: throw Error("The old property is incorrect")
         val newDescriptor = new.getOwnPropertyDescriptor(memory, "new") ?: throw Error("The new property is incorrect")
@@ -132,8 +132,8 @@ internal class LxmObjectTest {
         val other = LxmObject(memory)
 
         val obj = LxmObject(memory)
-        obj.setProperty(memory, "a", LxmLogic.False)
-        obj.setProperty(memory, "b", other)
+        obj.setProperty( "a", LxmLogic.False)
+        obj.setProperty( "b", other)
 
         val derefPrimitive = obj.getDereferencedProperty<LxmLogic>(memory, "a", toWrite = false)
         val derefOther = obj.getDereferencedProperty<LxmObject>(memory, "b", toWrite = false)
@@ -153,28 +153,28 @@ internal class LxmObjectTest {
         val memory = analyzer.memory
 
         val prototype = LxmObject(memory)
-        prototype.setProperty(memory, "prototype", LxmLogic.False)
+        prototype.setProperty( "prototype", LxmLogic.False)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "old", LxmLogic.True)
+        old.setProperty( "old", LxmLogic.True)
         Assertions.assertEquals(LxmLogic.True, old.getPropertyValue(memory, "old"), "The old property is incorrect")
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "old", LxmInteger.Num1)
+        new.setProperty( "old", LxmInteger.Num1)
 
         Assertions.assertEquals(LxmLogic.True, old.getPropertyValue(memory, "old"), "The old property is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, new.getPropertyValue(memory, "old"), "The old property is incorrect")
         Assertions.assertNull(prototype.getPropertyValue(memory, "old"), "The old property is incorrect")
 
-        new.setProperty(memory, "old", LxmInteger.Num10)
+        new.setProperty( "old", LxmInteger.Num10)
 
         Assertions.assertEquals(LxmLogic.True, old.getPropertyValue(memory, "old"), "The old property is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, new.getPropertyValue(memory, "old"), "The old property is incorrect")
         Assertions.assertNull(prototype.getPropertyValue(memory, "old"), "The old property is incorrect")
 
-        new.setProperty(memory, "prototype", LxmInteger.Num1)
+        new.setProperty( "prototype", LxmInteger.Num1)
 
         Assertions.assertEquals(LxmInteger.Num1, new.getPropertyValue(memory, "prototype"),
                 "The prototype property is incorrect")
@@ -203,28 +203,28 @@ internal class LxmObjectTest {
         Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
 
-        obj.setProperty(memory, prop1Name, LxmLogic.True)
-        obj.setProperty(memory, prop2Name, obj1)
+        obj.setProperty( prop1Name, LxmLogic.True)
+        obj.setProperty( prop2Name, obj1)
 
         Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
 
-        obj.setProperty(memory, prop1Name, obj2)
+        obj.setProperty( prop1Name, obj2)
 
         Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(2, obj2Cell.referenceCount, "The referenceCount property is incorrect")
 
-        obj.setProperty(memory, prop2Name, LxmLogic.True)
+        obj.setProperty( prop2Name, LxmLogic.True)
 
         Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(2, obj2Cell.referenceCount, "The referenceCount property is incorrect")
 
-        obj.setProperty(memory, prop1Name, obj1)
+        obj.setProperty( prop1Name, obj1)
 
         Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
 
-        obj.setProperty(memory, prop1Name, obj1)
+        obj.setProperty( prop1Name, obj1)
 
         Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
@@ -274,7 +274,7 @@ internal class LxmObjectTest {
         val obj = LxmObject(memory)
         obj.makeConstant(memory)
 
-        obj.setProperty(memory, propName, LxmInteger.Num10, ignoreConstant = true)
+        obj.setProperty( propName, LxmInteger.Num10, ignoreConstant = true)
 
         Assertions.assertEquals(LxmInteger.Num10, obj.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
@@ -287,7 +287,7 @@ internal class LxmObjectTest {
         val propName = "test"
 
         val obj = LxmObject(memory)
-        obj.setProperty(memory, propName, LxmInteger.Num10)
+        obj.setProperty( propName, LxmInteger.Num10)
 
         var cell = obj.getOwnPropertyDescriptor(memory, propName)!!
 
@@ -296,7 +296,7 @@ internal class LxmObjectTest {
         Assertions.assertEquals(LxmInteger.Num10, obj.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
 
-        obj.setProperty(memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
+        obj.setProperty( propName, LxmLogic.True, isIterable = false, isConstant = true)
 
         cell = obj.getOwnPropertyDescriptor(memory, propName)!!
 
@@ -313,7 +313,7 @@ internal class LxmObjectTest {
         val propName = "test"
 
         val old = LxmObject(memory)
-        old.setProperty(memory, propName, LxmInteger.Num10)
+        old.setProperty( propName, LxmInteger.Num10)
 
         var cellOld = old.getOwnPropertyDescriptor(memory, propName)!!
 
@@ -325,7 +325,7 @@ internal class LxmObjectTest {
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, propName, LxmLogic.True, isIterable = false, isConstant = true)
+        new.setProperty( propName, LxmLogic.True, isIterable = false, isConstant = true)
 
         cellOld = old.getOwnPropertyDescriptor(memory, propName)!!
         val cellNew = new.getOwnPropertyDescriptor(memory, propName)!!
@@ -345,15 +345,15 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject(memory)
-        prototype.setProperty(memory, "prototype", LxmLogic.False)
+        prototype.setProperty( "prototype", LxmLogic.False)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "old", LxmLogic.True)
+        old.setProperty( "old", LxmLogic.True)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "new", LxmLogic.False)
+        new.setProperty( "new", LxmLogic.False)
 
         Assertions.assertTrue(new.containsOwnProperty("old"), "The old property is incorrect")
         Assertions.assertTrue(new.containsOwnProperty("new"), "The old property is incorrect")
@@ -367,7 +367,7 @@ internal class LxmObjectTest {
         val prototype = LxmObject(memory)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "old", LxmLogic.True)
+        old.setProperty( "old", LxmLogic.True)
 
         memory.freezeCopy()
 
@@ -383,7 +383,7 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject(memory)
-        obj.setProperty(memory, propName, LxmLogic.True)
+        obj.setProperty( propName, LxmLogic.True)
 
         obj.removeProperty(memory, propName)
 
@@ -396,15 +396,15 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val prototype = LxmObject(memory)
-        prototype.setProperty(memory, propName, LxmLogic.False)
+        prototype.setProperty( propName, LxmLogic.False)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, propName, LxmLogic.True)
+        old.setProperty( propName, LxmLogic.True)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, propName, LxmInteger.Num10)
+        new.setProperty( propName, LxmInteger.Num10)
 
         new.removeProperty(memory, propName)
 
@@ -437,7 +437,7 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject(memory)
-        obj.setProperty(memory, propName, LxmLogic.True)
+        obj.setProperty( propName, LxmLogic.True)
 
         val descriptorPre = obj.getOwnPropertyDescriptor(memory, propName)!!
         Assertions.assertFalse(descriptorPre.isConstant, "The isConstant property is incorrect")
@@ -462,19 +462,19 @@ internal class LxmObjectTest {
 
         val prototype = LxmObject(memory)
         for (i in 0 until protoPropsCount) {
-            prototype.setProperty(memory, "prototype$i", LxmLogic.False)
+            prototype.setProperty( "prototype$i", LxmLogic.False)
         }
 
         val old = LxmObject(memory, prototype)
         for (i in 0 until oldPropsCount) {
-            old.setProperty(memory, "old$i", LxmLogic.True)
+            old.setProperty( "old$i", LxmLogic.True)
         }
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         for (i in 0 until newPropsCount) {
-            new.setProperty(memory, "new$i", LxmInteger.Num1)
+            new.setProperty( "new$i", LxmInteger.Num1)
         }
 
         val properties = new.getAllIterableProperties()
@@ -537,16 +537,16 @@ internal class LxmObjectTest {
         val prototypeCell = memory.lastNode.getHeapCell(prototype.getPrimitive().position)
 
         val old = LxmObject(memory, prototype)
-        old.setProperty(memory, "test-old", LxmLogic.True)
-        old.setProperty(memory, "testObj-old", obj)
+        old.setProperty( "test-old", LxmLogic.True)
+        old.setProperty( "testObj-old", obj)
         old.getPrimitive().increaseReferences(memory.lastNode)
         val oldCell = memory.lastNode.getHeapCell(old.getPrimitive().position)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "test-new", LxmLogic.False)
-        new.setProperty(memory, "testObj-new", obj)
+        new.setProperty( "test-new", LxmLogic.False)
+        new.setProperty( "testObj-new", obj)
         val newCell = memory.lastNode.getHeapCell(new.getPrimitive().position)
         val objCellNew = memory.lastNode.getHeapCell(obj.getPrimitive().position)
 
@@ -573,7 +573,7 @@ internal class LxmObjectTest {
         val obj1 = LxmObject(memory)
         val obj2 = LxmObject(memory)
 
-        obj1.setProperty(memory, "test", obj2)
+        obj1.setProperty( "test", obj2)
         obj1.makeConstantAndNotWritable(memory)
         obj1.getPrimitive().increaseReferences(memory.lastNode)
 
@@ -628,7 +628,7 @@ internal class LxmObjectTest {
             val testName = "test"
             val testValue = LxmLogic.True
 
-            obj.setProperty(memory, testName, testValue)
+            obj.setProperty( testName, testValue)
         }
     }
 
@@ -643,9 +643,9 @@ internal class LxmObjectTest {
             val testName = "test"
             val testValue = LxmLogic.True
 
-            obj.setProperty(memory, testName, testValue, isConstant = true)
+            obj.setProperty( testName, testValue, isConstant = true)
 
-            obj.setProperty(memory, testName, testValue)
+            obj.setProperty( testName, testValue)
         }
     }
 
@@ -675,7 +675,7 @@ internal class LxmObjectTest {
             val testName = "test"
             val testValue = LxmLogic.True
 
-            obj.setProperty(memory, testName, testValue, isConstant = true)
+            obj.setProperty( testName, testValue, isConstant = true)
 
             obj.removeProperty(memory, testName)
         }
@@ -715,7 +715,7 @@ internal class LxmObjectTest {
             val obj = LxmObject(memory)
 
             obj.makeConstantAndNotWritable(memory)
-            obj.setProperty(memory, "test", LxmNil, ignoreConstant = true)
+            obj.setProperty( "test", LxmNil, ignoreConstant = true)
         }
     }
 }

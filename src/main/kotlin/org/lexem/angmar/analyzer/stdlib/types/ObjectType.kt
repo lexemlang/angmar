@@ -30,14 +30,14 @@ internal object ObjectType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
-        type.setProperty(memory, Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
+        type.setProperty(NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
+        type.setProperty(Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
     }
 
     /**
@@ -45,7 +45,7 @@ internal object ObjectType {
      */
     private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, AssignArgs)
+        val parsedArguments = arguments.mapArguments(AssignArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -72,8 +72,7 @@ internal object ObjectType {
     private fun assignFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        val parsedArguments =
-                arguments.mapArguments(analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
+        val parsedArguments = arguments.mapArguments(AssignArgs, spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -92,7 +91,7 @@ internal object ObjectType {
                     }
 
                     for ((key, prop) in source.getAllIterableProperties()) {
-                        target.setProperty(analyzer.memory, key, prop.value)
+                        target.setProperty(key, prop.value)
                     }
                 }
 

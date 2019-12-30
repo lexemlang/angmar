@@ -57,7 +57,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
+            to.setProperty(alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
@@ -71,16 +71,15 @@ internal class LxmDestructuring : LexemPrimitive {
         for (property in value.getAllIterableProperties()) {
             if (property.key in elementsAsMap) {
                 val element = elementsAsMap[property.key]!!
-                to.setProperty(memory, element.alias, property.value.value,
-                        isConstant = element.isConstant || forceConstant)
+                to.setProperty(element.alias, property.value.value, isConstant = element.isConstant || forceConstant)
                 setVars.add(element.alias)
             } else {
-                spreadObject.setProperty(memory, property.key, property.value.value)
+                spreadObject.setProperty(property.key, property.value.value)
             }
         }
 
         if (spread != null) {
-            to.setProperty(memory, spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
             val spreadObjectRef = spreadObject.getPrimitive()
@@ -100,7 +99,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
+            to.setProperty(alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
@@ -110,17 +109,17 @@ internal class LxmDestructuring : LexemPrimitive {
         for (cell in value.getAllCells()) {
             if (index < elements.size) {
                 val element = elements[index]
-                to.setProperty(memory, element.alias, cell, isConstant = element.isConstant || forceConstant)
+                to.setProperty(element.alias, cell, isConstant = element.isConstant || forceConstant)
                 setVars.add(element.alias)
             } else {
-                spreadList.addCell(memory, cell)
+                spreadList.addCell(cell)
             }
 
             index += 1
         }
 
         if (spread != null) {
-            to.setProperty(memory, spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
             val spreadListRef = spreadList.getPrimitive()

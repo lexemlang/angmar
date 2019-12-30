@@ -31,15 +31,15 @@ internal object ListType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, New, LxmFunction(memory, ::newFunction), isConstant = true)
-        type.setProperty(memory, NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
-        type.setProperty(memory, Concat, LxmFunction(memory, ::concatFunction), isConstant = true)
+        type.setProperty(New, LxmFunction(memory, ::newFunction), isConstant = true)
+        type.setProperty(NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
+        type.setProperty(Concat, LxmFunction(memory, ::concatFunction), isConstant = true)
     }
 
     /**
@@ -47,7 +47,7 @@ internal object ListType {
      */
     private fun newFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, NewArgs)
+        val parsedArguments = arguments.mapArguments(NewArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -66,7 +66,7 @@ internal object ListType {
 
                 val newList = LxmList(analyzer.memory)
                 for (i in 0 until size.primitive) {
-                    newList.addCell(analyzer.memory, value)
+                    newList.addCell(value)
                 }
 
                 analyzer.memory.addToStackAsLast(newList)
@@ -82,13 +82,13 @@ internal object ListType {
     private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val newList = LxmList(analyzer.memory)
                 for (i in spreadArguments) {
-                    newList.addCell(analyzer.memory, i)
+                    newList.addCell(i)
                 }
 
                 analyzer.memory.addToStackAsLast(newList)
@@ -104,7 +104,7 @@ internal object ListType {
     private fun concatFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -116,7 +116,7 @@ internal object ListType {
                     }
 
                     for (i in list.getAllCells()) {
-                        newList.addCell(analyzer.memory, i)
+                        newList.addCell(i)
                     }
                 }
 

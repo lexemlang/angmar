@@ -80,7 +80,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         // Prepare stack.
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty(analyzer.memory, elementAlias, LxmInteger.from(valueInt))
+        obj.setProperty(elementAlias, LxmInteger.from(valueInt))
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, obj)
 
@@ -111,7 +111,7 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         // Prepare stack.
         val list = LxmList(analyzer.memory)
-        list.addCell(analyzer.memory, LxmInteger.from(valueInt))
+        list.addCell(LxmInteger.from(valueInt))
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, list)
 

@@ -352,10 +352,10 @@ object TestUtils {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty( varName, LxmNil)
 
         for ((name, value) in initialVars) {
-            context.setProperty(analyzer.memory, name, value)
+            context.setProperty( name, value)
         }
 
         processAndCheckEmpty(analyzer)

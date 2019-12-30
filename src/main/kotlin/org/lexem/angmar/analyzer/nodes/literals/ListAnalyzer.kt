@@ -41,7 +41,7 @@ internal object ListAnalyzer {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmList
 
-                list.addCell(analyzer.memory, value)
+                list.addCell(value)
                 analyzer.memory.removeLastFromStack()
 
                 // Process the next node.

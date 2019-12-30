@@ -86,7 +86,7 @@ internal class FunctionCallAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         var executed = false

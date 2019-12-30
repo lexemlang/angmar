@@ -20,10 +20,10 @@ internal class AccessExplicitMemberAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty(analyzer.memory, propName, value)
+        obj.setProperty( propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, obj)
+        context.setProperty( varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -52,10 +52,10 @@ internal class AccessExplicitMemberAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty(analyzer.memory, propName, value)
+        obj.setProperty( propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, obj)
+        context.setProperty( varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

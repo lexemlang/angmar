@@ -19,11 +19,11 @@ internal class IndexerAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val list = LxmList(analyzer.memory)
-        list.addCell(analyzer.memory, LxmInteger.from(2))
-        list.addCell(analyzer.memory, value)
+        list.addCell(LxmInteger.from(2))
+        list.addCell(value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, list)
+        context.setProperty(varName, list)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -54,12 +54,12 @@ internal class IndexerAnalyzerTest {
         val list = LxmList(analyzer.memory)
 
         for (i in 0 until cellIndex) {
-            list.addCell(analyzer.memory, LxmNil)
+            list.addCell(LxmNil)
         }
-        list.addCell(analyzer.memory, value)
+        list.addCell(value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, list)
+        context.setProperty(varName, list)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

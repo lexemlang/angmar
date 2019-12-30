@@ -77,7 +77,7 @@ internal class BinaryAnalyzerCommonsTest {
         val right = LxmLogic.True
 
         val arguments = BinaryAnalyzerCommons.createArguments(analyzer, left, right)
-        val map = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
+        val map = arguments.mapArguments(AnalyzerCommons.Operators.ParameterList)
 
         Assertions.assertEquals(2, map.size, "The number of parameters is incorrect")
         Assertions.assertEquals(left, map[AnalyzerCommons.Identifiers.This],

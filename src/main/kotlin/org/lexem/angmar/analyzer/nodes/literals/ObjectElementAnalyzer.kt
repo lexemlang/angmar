@@ -56,7 +56,7 @@ internal object ObjectElementAnalyzer {
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmObject
 
-                obj.setProperty(analyzer.memory, identifier.primitive, value, isConstant = node.isConstant)
+                obj.setProperty( identifier.primitive, value, isConstant = node.isConstant)
 
                 // Remove the key and value from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)

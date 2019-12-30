@@ -37,12 +37,12 @@ internal object DebugGlobalObject {
     fun initObject(memory: LexemMemory) {
         val objectValue = LxmObject(memory)
         AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, ObjectName, objectValue, isConstant = true)
+                .setProperty(ObjectName, objectValue, isConstant = true)
 
         // Methods
-        objectValue.setProperty(memory, Pause, LxmFunction(memory, ::pauseFunction), isConstant = true)
-        objectValue.setProperty(memory, Log, LxmFunction(memory, ::logFunction), isConstant = true)
-        objectValue.setProperty(memory, Throw, LxmFunction(memory, ::throwFunction), isConstant = true)
+        objectValue.setProperty(Pause, LxmFunction(memory, ::pauseFunction), isConstant = true)
+        objectValue.setProperty(Log, LxmFunction(memory, ::logFunction), isConstant = true)
+        objectValue.setProperty(Throw, LxmFunction(memory, ::throwFunction), isConstant = true)
     }
 
     /**
@@ -68,7 +68,7 @@ internal object DebugGlobalObject {
      */
     private fun logFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, LogArgs)
+        val parsedArguments = arguments.mapArguments(LogArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -111,7 +111,7 @@ internal object DebugGlobalObject {
      */
     private fun throwFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, ThrowArgs)
+        val parsedArguments = arguments.mapArguments(ThrowArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

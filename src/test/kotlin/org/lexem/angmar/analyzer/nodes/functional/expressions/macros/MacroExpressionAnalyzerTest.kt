@@ -17,7 +17,7 @@ internal class MacroExpressionAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -41,7 +41,7 @@ internal class MacroExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -64,7 +64,7 @@ internal class MacroExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenFilePath, LxmString.from(mainPath))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

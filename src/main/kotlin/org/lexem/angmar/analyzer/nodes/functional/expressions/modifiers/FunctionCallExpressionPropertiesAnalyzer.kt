@@ -26,7 +26,7 @@ internal object FunctionCallExpressionPropertiesAnalyzer {
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
                                 toWrite = true) as LxmArguments
 
-                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsProperties, value)
+                arguments.addNamedArgument(AnalyzerCommons.Identifiers.ArgumentsProperties, value)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()

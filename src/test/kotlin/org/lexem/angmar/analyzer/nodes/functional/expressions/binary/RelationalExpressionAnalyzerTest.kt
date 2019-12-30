@@ -17,8 +17,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmLogic.True)
-        context.setProperty(analyzer.memory, rightVariableName, LxmLogic.True)
+        context.setProperty( leftVariableName, LxmLogic.True)
+        context.setProperty( rightVariableName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -40,8 +40,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmLogic.True)
-        context.setProperty(analyzer.memory, rightVariableName, LxmLogic.True)
+        context.setProperty( leftVariableName, LxmLogic.True)
+        context.setProperty( rightVariableName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -63,8 +63,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmLogic.True)
-        context.setProperty(analyzer.memory, rightVariableName, LxmLogic.True)
+        context.setProperty( leftVariableName, LxmLogic.True)
+        context.setProperty( rightVariableName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -86,8 +86,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmLogic.True)
-        context.setProperty(analyzer.memory, rightVariableName, LxmLogic.True)
+        context.setProperty( leftVariableName, LxmLogic.True)
+        context.setProperty( rightVariableName, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -109,8 +109,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmInteger.Num0)
-        context.setProperty(analyzer.memory, rightVariableName, LxmInteger.Num10)
+        context.setProperty( leftVariableName, LxmInteger.Num0)
+        context.setProperty( rightVariableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -132,8 +132,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmInteger.Num0)
-        context.setProperty(analyzer.memory, rightVariableName, LxmInteger.Num10)
+        context.setProperty( leftVariableName, LxmInteger.Num0)
+        context.setProperty( rightVariableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -155,8 +155,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmInteger.Num0)
-        context.setProperty(analyzer.memory, rightVariableName, LxmInteger.Num10)
+        context.setProperty( leftVariableName, LxmInteger.Num0)
+        context.setProperty( rightVariableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -178,8 +178,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, rightVariableName, LxmInteger.Num0)
+        context.setProperty( leftVariableName, LxmInteger.Num10)
+        context.setProperty( rightVariableName, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -202,8 +202,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, leftVariableName, LxmInteger.Num0)
-        context.setProperty(analyzer.memory, rightVariableName, LxmInteger.Num10)
+        context.setProperty( leftVariableName, LxmInteger.Num0)
+        context.setProperty( rightVariableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -227,9 +227,9 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName1, LxmInteger.Num1)
-        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, variableName3, LxmInteger.Num1)
+        context.setProperty( variableName1, LxmInteger.Num1)
+        context.setProperty( variableName2, LxmInteger.Num10)
+        context.setProperty( variableName3, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -252,8 +252,8 @@ internal class RelationalExpressionAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName1, LxmInteger.Num1)
-        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num10)
+        context.setProperty( variableName1, LxmInteger.Num1)
+        context.setProperty( variableName2, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

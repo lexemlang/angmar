@@ -28,8 +28,7 @@ internal object ImportGlobalFunction {
      */
     fun initFunction(memory: LexemMemory) {
         val function = LxmFunction(memory, ::importFile)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty(memory, FunctionName, function, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(FunctionName, function, isConstant = true)
     }
 
     /**
@@ -47,7 +46,7 @@ internal object ImportGlobalFunction {
                 val currentFilePath = callerContext.getDereferencedProperty<LxmString>(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenFilePath, toWrite = false)!!
 
-                val parserArguments = arguments.mapArguments(analyzer.memory, ImportArgs)
+                val parserArguments = arguments.mapArguments(ImportArgs)
                 val path = parserArguments[ImportArgs[0]] as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.BadArgumentError,
                         "The $FunctionName method requires the parameter called '${ImportArgs[0]}' be a ${StringType.TypeName}") {}

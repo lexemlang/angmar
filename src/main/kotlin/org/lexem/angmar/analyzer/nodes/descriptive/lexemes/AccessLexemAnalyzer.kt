@@ -67,7 +67,7 @@ internal object AccessLexemAnalyzer {
 
                     // Save the result as the node to re-parse or filter.
                     val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                    context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter, resultRef)
+                    context.setProperty( AnalyzerCommons.Identifiers.HiddenNode2Filter, resultRef)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()

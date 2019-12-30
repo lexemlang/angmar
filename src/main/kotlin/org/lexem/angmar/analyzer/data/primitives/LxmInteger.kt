@@ -15,7 +15,7 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
     /**
      * Returns the number in the specified radix.
      */
-    fun toLexemString(memory: LexemMemory, radix: Int) = LxmString.from(primitive.toString(radix))
+    fun toLexemString(radix: Int) = LxmString.from(primitive.toString(radix))
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -26,7 +26,7 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
 
     override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(bigNode: BigNode) = toLexemString(memory, 10)
+    override fun toLexemString(bigNode: BigNode) = toLexemString(10)
 
     override fun toString() = primitive.toString()
 

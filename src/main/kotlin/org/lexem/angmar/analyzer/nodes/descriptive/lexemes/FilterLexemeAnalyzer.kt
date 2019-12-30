@@ -75,7 +75,7 @@ internal object FilterLexemeAnalyzer {
                     if (node.nextAccess != null) {
                         // Save the result as the node to re-parse or filter.
                         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
+                        context.setProperty( AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
 
                         // Remove Node from the stack.
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)

@@ -19,7 +19,7 @@ internal class IntervalElementAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmInteger.from(left))
+        context.setProperty( variableName, LxmInteger.from(left))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -52,8 +52,8 @@ internal class IntervalElementAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
-        context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
+        context.setProperty( variableLeftName, LxmInteger.from(leftValue))
+        context.setProperty( variableRightName, LxmInteger.from(rightValue))
 
         // Prepare stack.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -86,7 +86,7 @@ internal class IntervalElementAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
+            context.setProperty( variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -107,7 +107,7 @@ internal class IntervalElementAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, variableName, LxmLogic.True)
+            context.setProperty( variableName, LxmLogic.True)
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)
@@ -131,8 +131,8 @@ internal class IntervalElementAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(analyzer.memory, variableLeftName, LxmInteger.from(leftValue))
-            context.setProperty(analyzer.memory, variableRightName, LxmInteger.from(rightValue))
+            context.setProperty( variableLeftName, LxmInteger.from(leftValue))
+            context.setProperty( variableRightName, LxmInteger.from(rightValue))
 
             // Prepare stack.
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, LxmInterval.Empty)

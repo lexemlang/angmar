@@ -185,7 +185,7 @@ internal object GroupLexemAnalyzer {
                 if (children && childrenList.size > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
+                    resultList.addCell(*childrenList.getAllCells().toTypedArray())
                     returnValue = resultList
                 } else {
                     // Set a null value.
@@ -207,10 +207,10 @@ internal object GroupLexemAnalyzer {
 
                 if (propertyValue is LxmString) {
                     val value = lxmNode.getContent(analyzer.memory)!!
-                    parentProps.setProperty(analyzer.memory, propertyValue.primitive, value)
+                    parentProps.setProperty(propertyValue.primitive, value)
                 } else {
                     val value = lxmNode.getContent(analyzer.memory)!!
-                    parentProps.setProperty(analyzer.memory, lxmNode.name, value)
+                    parentProps.setProperty(lxmNode.name, value)
                 }
             }
 

@@ -48,7 +48,7 @@ internal object IteratorLoopStmtAnalyzer {
 
                 // Set the index in the context.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
+                context.setProperty( indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.variable)
             }
@@ -208,7 +208,7 @@ internal object IteratorLoopStmtAnalyzer {
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
-            context.setProperty(analyzer.memory, indexName.primitive, newIndex)
+            context.setProperty( indexName.primitive, newIndex)
         }
     }
 
@@ -255,8 +255,8 @@ internal object IteratorLoopStmtAnalyzer {
             iteratorValue.second.dereference(analyzer.memory, toWrite = false)
         } else {
             val obj = LxmObject(analyzer.memory)
-            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, iteratorValue.first!!)
-            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, iteratorValue.second)
+            obj.setProperty( AnalyzerCommons.Identifiers.Key, iteratorValue.first!!)
+            obj.setProperty( AnalyzerCommons.Identifiers.Value, iteratorValue.second)
 
             obj
         }

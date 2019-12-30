@@ -91,7 +91,7 @@ internal class LexemAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
+        initialContext.setProperty( varName, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -123,8 +123,8 @@ internal class LexemAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName1, LxmInteger.Num0)
-        initialContext.setProperty(analyzer.memory, varName2, LxmInteger.Num0)
+        initialContext.setProperty( varName1, LxmInteger.Num0)
+        initialContext.setProperty( varName2, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer, entryPoint = entryPoint)
 

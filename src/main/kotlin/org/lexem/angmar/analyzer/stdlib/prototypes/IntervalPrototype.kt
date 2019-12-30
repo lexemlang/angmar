@@ -26,21 +26,21 @@ internal object IntervalPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, IsEmpty, LxmFunction(memory, ::isEmptyFunction), isConstant = true)
-        prototype.setProperty(memory, PointCount, LxmFunction(memory, ::pointCountFunction), isConstant = true)
-        prototype.setProperty(memory, UnicodeNot, LxmFunction(memory, ::unicodeNotFunction), isConstant = true)
+        prototype.setProperty( IsEmpty, LxmFunction(memory, ::isEmptyFunction), isConstant = true)
+        prototype.setProperty( PointCount, LxmFunction(memory, ::pointCountFunction), isConstant = true)
+        prototype.setProperty( UnicodeNot, LxmFunction(memory, ::unicodeNotFunction), isConstant = true)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
+        prototype.setProperty( AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty( AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
 
         return prototype
     }

@@ -44,7 +44,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty( varName, LxmInteger.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -76,8 +76,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -111,8 +111,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -146,8 +146,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -181,8 +181,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -215,8 +215,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -249,8 +249,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -286,8 +286,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -327,8 +327,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -369,8 +369,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -411,8 +411,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -450,8 +450,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmLogic.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -485,8 +485,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmLogic.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -520,8 +520,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
-        initialContext.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        initialContext.setProperty( varName, LxmLogic.from(left))
+        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -554,7 +554,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmLogic.from(left))
+        initialContext.setProperty( varName, LxmLogic.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -585,7 +585,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, left)
+        initialContext.setProperty( varName, left)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -615,7 +615,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(analyzer.memory, varName, LxmInteger.from(left))
+        initialContext.setProperty( varName, LxmInteger.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

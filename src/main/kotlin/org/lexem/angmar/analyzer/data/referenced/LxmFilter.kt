@@ -21,8 +21,8 @@ internal class LxmFilter : LxmFunction {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, FilterType.TypeName) as LxmReference
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(FilterType.TypeName) as LxmReference
     }
 
     override fun toLexemString(bigNode: BigNode): LxmString {

@@ -29,9 +29,9 @@ internal class SelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, varNameForCase, LxmLogic.False)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty( varNameForCase, LxmLogic.False)
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -62,8 +62,8 @@ internal class SelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)

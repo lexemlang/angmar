@@ -22,7 +22,7 @@ internal class SelectiveStmtCompiledTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
+        context.setProperty( varName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

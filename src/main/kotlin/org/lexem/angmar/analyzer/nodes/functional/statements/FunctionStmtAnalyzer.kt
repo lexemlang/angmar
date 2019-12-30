@@ -35,10 +35,10 @@ internal object FunctionStmtAnalyzer {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, fn)
+                    exports.setProperty( name.primitive, fn)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, fn)
+                context.setProperty( name.primitive, fn)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()

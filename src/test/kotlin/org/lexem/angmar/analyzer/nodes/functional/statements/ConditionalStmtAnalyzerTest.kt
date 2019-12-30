@@ -24,7 +24,7 @@ internal class ConditionalStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -58,7 +58,7 @@ internal class ConditionalStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -81,7 +81,7 @@ internal class ConditionalStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -115,7 +115,7 @@ internal class ConditionalStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty( varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

@@ -39,10 +39,10 @@ internal object ExpressionStmtAnalyzer {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, exp)
+                    exports.setProperty( name.primitive, exp)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, exp)
+                context.setProperty( name.primitive, exp)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,

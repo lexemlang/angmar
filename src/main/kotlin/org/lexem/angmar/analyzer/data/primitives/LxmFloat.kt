@@ -26,7 +26,7 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
     /**
      * Returns the number in the specified radix.
      */
-    fun toLexemString(memory: LexemMemory, radix: Int): LxmString {
+    fun toLexemString(radix: Int): LxmString {
         val absPrimitive = abs(primitive)
         val integer = truncate(absPrimitive).toInt()
         val decimal = absPrimitive - integer
@@ -66,7 +66,7 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
     /**
      * Returns a string representation of the current number in exponential notation.
      */
-    fun toExponentialLexemString(memory: LexemMemory, precision: Int): LxmString {
+    fun toExponentialLexemString(precision: Int): LxmString {
         val result = if (precision == 0) {
             val decimalFormat = DecimalFormat("0.E0", symbols)
             decimalFormat.format(primitive)!!.replace(symbols.decimalSeparator.toString(), "")
@@ -82,7 +82,7 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
     /**
      * Returns a string representation of the current number in fixed precision notation.
      */
-    fun toFixedLexemString(memory: LexemMemory, precision: Int): LxmString {
+    fun toFixedLexemString(precision: Int): LxmString {
         val result = if (precision == 0) {
             val decimalFormat = DecimalFormat("0", symbols)
             decimalFormat.format(primitive)!!.replace(symbols.decimalSeparator.toString(), "")
@@ -111,7 +111,7 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
 
     override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(bigNode: BigNode) = toLexemString(memory, 10)
+    override fun toLexemString(bigNode: BigNode) = toLexemString(10)
 
     override fun toString() = primitive.toString()
 

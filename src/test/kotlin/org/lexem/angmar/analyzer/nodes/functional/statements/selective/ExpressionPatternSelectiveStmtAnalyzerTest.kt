@@ -17,7 +17,7 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
@@ -42,7 +42,7 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 
@@ -69,8 +69,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
@@ -104,8 +104,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
@@ -139,8 +139,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmInteger.Num10)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 

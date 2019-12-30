@@ -20,7 +20,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
+        context.setProperty( AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -40,7 +40,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
+        result.setProperty( AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
     }
@@ -56,7 +56,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
+        context.setProperty( AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
         var executed = false
 
         val function = LxmFunction(analyzer.memory) { analyzer, _, _, _ ->
@@ -73,9 +73,9 @@ internal class AdditionFilterLexemeAnalyzerTest {
             true
         }
 
-        context.setProperty(analyzer.memory, funName, function)
+        context.setProperty( funName, function)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -89,7 +89,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        result.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
+        result.setProperty( AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(funName, AnalyzerCommons.Identifiers.Node, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
@@ -120,8 +120,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
                 true
             }
-            context.setProperty(analyzer.memory, funName, function)
-            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+            context.setProperty( funName, function)
+            context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                     LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)

@@ -29,9 +29,8 @@ internal class InternalFunctionCallAnalyzerTest {
         }
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, functionName, function)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(functionName, function)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -66,7 +65,7 @@ internal class InternalFunctionCallAnalyzerTest {
                             toWrite = false) as LxmFunction
 
                     val arguments = LxmArguments(analyzer.memory)
-                    arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
+                    arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, value)
 
                     AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
                             LxmCodePoint(InternalFunctionCallCompiled, 1, CompiledNode.Companion.EmptyCompiledNode, ""))
@@ -82,9 +81,8 @@ internal class InternalFunctionCallAnalyzerTest {
         }
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, functionName, function)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(functionName, function)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

@@ -22,9 +22,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -58,9 +58,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -96,9 +96,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -136,9 +136,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -182,9 +182,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -227,9 +227,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -276,9 +276,9 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(LxmInteger.Num10)
+        arguments.addNamedArgument("named1", LxmInteger.Num10)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)

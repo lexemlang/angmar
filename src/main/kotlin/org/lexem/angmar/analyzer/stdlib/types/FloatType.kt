@@ -6,7 +6,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.compiler.CompiledNode
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*
@@ -44,19 +44,19 @@ internal object FloatType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
-        type.setProperty(memory, Infinity, LxmFloat.from(-Float.POSITIVE_INFINITY), isConstant = true)
-        type.setProperty(memory, Epsilon, LxmFloat.from(EpsilonValue), isConstant = true)
-        type.setProperty(memory, MinValue, LxmFloat.from(-Float.MAX_VALUE), isConstant = true)
-        type.setProperty(memory, MinPositiveValue, LxmFloat.from(Float.MIN_VALUE), isConstant = true)
-        type.setProperty(memory, MaxValue, LxmFloat.from(Float.MAX_VALUE), isConstant = true)
+        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(Infinity, LxmFloat.from(-Float.POSITIVE_INFINITY), isConstant = true)
+        type.setProperty(Epsilon, LxmFloat.from(EpsilonValue), isConstant = true)
+        type.setProperty(MinValue, LxmFloat.from(-Float.MAX_VALUE), isConstant = true)
+        type.setProperty(MinPositiveValue, LxmFloat.from(Float.MIN_VALUE), isConstant = true)
+        type.setProperty(MaxValue, LxmFloat.from(Float.MAX_VALUE), isConstant = true)
 
         // Methods
-        type.setProperty(memory, Parse, LxmFunction(memory, ::parseFunction), isConstant = true)
-        type.setProperty(memory, EpsilonEquals, LxmFunction(memory, ::epsilonEqualsFunction), isConstant = true)
+        type.setProperty(Parse, LxmFunction(memory, ::parseFunction), isConstant = true)
+        type.setProperty(EpsilonEquals, LxmFunction(memory, ::epsilonEqualsFunction), isConstant = true)
     }
 
     /**
@@ -64,7 +64,7 @@ internal object FloatType {
      */
     private fun parseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, ParseArgs)
+        val parsedArguments = arguments.mapArguments(ParseArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -112,7 +112,7 @@ internal object FloatType {
      */
     private fun epsilonEqualsFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, EpsilonEqualsArgs)
+        val parsedArguments = arguments.mapArguments(EpsilonEqualsArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

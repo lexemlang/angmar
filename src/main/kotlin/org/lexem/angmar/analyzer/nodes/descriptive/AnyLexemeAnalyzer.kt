@@ -75,7 +75,7 @@ internal object AnyLexemeAnalyzer {
                     val list = analyzer.memory.getFromStack(
                             AnalyzerCommons.Identifiers.LexemeDataCapturingList).dereference(analyzer.memory,
                             toWrite = true) as LxmList
-                    list.addCell(analyzer.memory, result)
+                    list.addCell(result)
                 }
 
                 if (!node.isBlock) {

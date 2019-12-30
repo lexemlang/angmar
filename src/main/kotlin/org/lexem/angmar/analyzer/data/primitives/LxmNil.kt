@@ -13,8 +13,8 @@ internal object LxmNil : LexemPrimitive {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, NilType.TypeName) as LxmReference
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(NilType.TypeName) as LxmReference
     }
 
     override fun getHashCode() = null.hashCode()

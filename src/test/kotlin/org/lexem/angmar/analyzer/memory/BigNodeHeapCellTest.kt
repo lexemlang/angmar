@@ -100,7 +100,7 @@ internal class BigNodeHeapCellTest {
         val cell0 = cell0Value.getPrimitive().getCell(memory)
         val cell1 = cell1Value.getPrimitive().getCell(memory)
 
-        cell0Value.setProperty(memory, "test", cell1Value.getPrimitive())
+        cell0Value.setProperty( "test", cell1Value.getPrimitive())
         cell0.increaseReferences()
 
         checkCell(cell0, 0, cell0Value, referenceCount = 1)

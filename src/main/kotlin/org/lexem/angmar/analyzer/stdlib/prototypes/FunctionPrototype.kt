@@ -30,7 +30,7 @@ internal object FunctionPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(memory, Wrap, LxmFunction(memory, ::wrapFunction), isConstant = true)
+        prototype.setProperty(Wrap, LxmFunction(memory, ::wrapFunction), isConstant = true)
 
         return prototype
     }
@@ -40,7 +40,7 @@ internal object FunctionPrototype {
      */
     private fun wrapFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(analyzer.memory, emptyList())
+        val parsedArguments = arguments.mapArguments(emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -55,7 +55,7 @@ internal object FunctionPrototype {
                 val fn = LxmFunction(analyzer.memory, arguments, ::wrapFunctionAux)
 
                 // Add the function to be called.
-                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFunction, thisValue)
+                arguments.addNamedArgument(AnalyzerCommons.Identifiers.HiddenFunction, thisValue)
 
                 analyzer.memory.addToStackAsLast(fn)
             }
@@ -68,7 +68,7 @@ internal object FunctionPrototype {
         val signalEnd = AnalyzerNodesCommons.signalStart + 1
         val wrappedArguments =
                 function.contextReference!!.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false)!!
-        val parsedArguments = wrappedArguments.mapArguments(analyzer.memory, WrapAuxArgs)
+        val parsedArguments = wrappedArguments.mapArguments(WrapAuxArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

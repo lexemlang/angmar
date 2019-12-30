@@ -26,14 +26,14 @@ internal object SetType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(memory, NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
-        type.setProperty(memory, Join, LxmFunction(memory, ::joinFunction), isConstant = true)
+        type.setProperty(NewFrom, LxmFunction(memory, ::newFromFunction), isConstant = true)
+        type.setProperty(Join, LxmFunction(memory, ::joinFunction), isConstant = true)
     }
 
     /**
@@ -42,7 +42,7 @@ internal object SetType {
     private fun newFromFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -64,7 +64,7 @@ internal object SetType {
     private fun joinFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        arguments.mapArguments(analyzer.memory, emptyList(), spreadPositionalParameter = spreadArguments)
+        arguments.mapArguments(emptyList(), spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

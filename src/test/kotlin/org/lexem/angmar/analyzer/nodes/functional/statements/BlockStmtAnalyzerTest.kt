@@ -31,7 +31,7 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmString.from(tagName))
+        context.setProperty( variableName, LxmString.from(tagName))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -55,7 +55,7 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty( varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -77,7 +77,7 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty( varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

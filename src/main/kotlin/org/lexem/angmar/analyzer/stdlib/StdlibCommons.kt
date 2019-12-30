@@ -70,8 +70,8 @@ internal object StdlibCommons {
     fun callMethod(analyzer: LexemAnalyzer, function: LxmFunction, positionalArguments: List<LexemPrimitive>,
             returnSignal: Int, functionName: String) {
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
-        positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmNil)
+        positionalArguments.forEach { arguments.addPositionalArgument(it) }
 
         AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
                 LxmCodePoint(InternalFunctionCallCompiled, returnSignal, callerNode = function.node,
@@ -89,7 +89,7 @@ internal object StdlibCommons {
                 analyzer.memory, toWrite = false) as LxmFunction
 
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
+        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, value)
 
         AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
                 LxmCodePoint(returnNode, returnSignal, callerNode = function.node,

@@ -80,8 +80,7 @@ internal open class LxmFunction : LexemReferenced {
     /**
      * Gets the dereferenced parent context.
      */
-    fun getParentContext(memory: LexemMemory, toWrite: Boolean) =
-            parentContextReference?.dereferenceAs<LxmContext>(memory, toWrite)
+    fun getParentContext(toWrite: Boolean) = parentContextReference?.dereferenceAs<LxmContext>(bigNode, toWrite)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -97,8 +96,8 @@ internal open class LxmFunction : LexemReferenced {
     }
 
     override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(FunctionType.TypeName) as LxmReference
     }
 
     override fun toLexemString(bigNode: BigNode) = if (isInternalFunction) {

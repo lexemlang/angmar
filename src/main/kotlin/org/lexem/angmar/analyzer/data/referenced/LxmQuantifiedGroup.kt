@@ -62,7 +62,7 @@ internal class LxmQuantifiedGroup : LxmObject {
             setFinishedCount(memory, LxmInteger.from(index.primitive + 1))
         }
 
-        getUnionList(memory, toWrite = true).addCell(memory, union.getPrimitive())
+        getUnionList(memory, toWrite = true).addCell(union.getPrimitive())
     }
 
     /**

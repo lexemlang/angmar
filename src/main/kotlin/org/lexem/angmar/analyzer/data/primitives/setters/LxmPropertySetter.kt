@@ -57,7 +57,7 @@ internal class LxmPropertySetter : LexemSetter {
             }
         }
 
-        obj.setProperty(memory, property, value)
+        obj.setProperty( property, value)
     }
 
     override fun increaseReferences(bigNode: BigNode) {

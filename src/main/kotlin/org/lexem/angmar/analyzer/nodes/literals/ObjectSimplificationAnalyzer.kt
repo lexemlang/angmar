@@ -54,7 +54,7 @@ internal object ObjectSimplificationAnalyzer {
                 val ctx = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 val fn = LxmFunction(analyzer.memory, node, ctx)
 
-                obj.setProperty(analyzer.memory, identifier.primitive, fn, isConstant = node.isConstant)
+                obj.setProperty( identifier.primitive, fn, isConstant = node.isConstant)
             }
             else -> {
                 return AnalyzerNodesCommons.functionExecutionController(analyzer, signal, node.parameterList,

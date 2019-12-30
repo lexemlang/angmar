@@ -19,7 +19,7 @@ internal class AccessExpressionAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, value)
+        context.setProperty(varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -51,13 +51,12 @@ internal class AccessExpressionAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val list = LxmList(analyzer.memory)
         for (i in 0 until cellIndex) {
-            list.addCell(analyzer.memory, LxmNil)
+            list.addCell(LxmNil)
         }
 
-        list.addCell(analyzer.memory, LxmInteger.from(left))
-        context.setProperty(analyzer.memory, varName, list)
-        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        list.addCell(LxmInteger.from(left))
+        context.setProperty(varName, list)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -81,7 +80,7 @@ internal class AccessExpressionAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, varName, value)
+        context.setProperty(varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

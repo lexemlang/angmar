@@ -20,21 +20,21 @@ internal object BitListPrototype {
         val prototype = LxmObject(memory)
 
         // Operators
-        prototype.setProperty(memory, AnalyzerCommons.Operators.BitwiseNegation, LxmFunction(memory, ::bitwiseNegation),
+        prototype.setProperty( AnalyzerCommons.Operators.BitwiseNegation, LxmFunction(memory, ::bitwiseNegation),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+        prototype.setProperty( AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftShift, LxmFunction(memory, ::leftShift),
+        prototype.setProperty( AnalyzerCommons.Operators.LeftShift, LxmFunction(memory, ::leftShift),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.RightShift, LxmFunction(memory, ::rightShift),
+        prototype.setProperty( AnalyzerCommons.Operators.RightShift, LxmFunction(memory, ::rightShift),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.LeftRotate, LxmFunction(memory, ::leftRotate),
+        prototype.setProperty( AnalyzerCommons.Operators.LeftRotate, LxmFunction(memory, ::leftRotate),
                 isConstant = true)
-        prototype.setProperty(memory, AnalyzerCommons.Operators.RightRotate, LxmFunction(memory, ::rightRotate),
+        prototype.setProperty( AnalyzerCommons.Operators.RightRotate, LxmFunction(memory, ::rightRotate),
                 isConstant = true)
 
         return prototype

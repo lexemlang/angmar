@@ -154,7 +154,7 @@ internal class RelationalExpressionCompiledTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmInteger.Num10)
+        context.setProperty( variableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -176,7 +176,7 @@ internal class RelationalExpressionCompiledTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(analyzer.memory, variableName, LxmInteger.Num10)
+        context.setProperty( variableName, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

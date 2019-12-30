@@ -39,10 +39,10 @@ internal object FilterStmtAnalyzer {
                     val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(analyzer.memory, name.primitive, filter)
+                    exports.setProperty( name.primitive, filter)
                 }
 
-                context.setProperty(analyzer.memory, name.primitive, filter)
+                context.setProperty( name.primitive, filter)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,
