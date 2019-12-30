@@ -104,14 +104,14 @@ internal class LxmFloat private constructor(val primitive: Float) : LexemPrimiti
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, FloatType.TypeName) as LxmReference
+    override fun getType(bigNode: BigNode): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(FloatType.TypeName) as LxmReference
     }
 
-    override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
+    override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(memory: LexemMemory) = toLexemString(memory, 10)
+    override fun toLexemString(bigNode: BigNode) = toLexemString(memory, 10)
 
     override fun toString() = primitive.toString()
 

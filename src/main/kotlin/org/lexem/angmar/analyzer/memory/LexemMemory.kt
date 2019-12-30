@@ -9,9 +9,6 @@ import org.lexem.angmar.errors.*
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory {
-    var isInGarbageCollectionMode = false
-        private set
-
     val firstNode = BigNode(previousNode = null, nextNode = null)
     var lastNode = firstNode
         private set
@@ -21,8 +18,7 @@ internal class LexemMemory {
     /**
      * Adds a new primitive into the stack.
      */
-    fun addToStack(name: String, primitive: LexemMemoryValue) =
-            lastNode.addToStack(name, primitive.getPrimitive(), this)
+    fun addToStack(name: String, primitive: LexemMemoryValue) = lastNode.addToStack(name, primitive.getPrimitive())
 
     /**
      * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
@@ -42,7 +38,7 @@ internal class LexemMemory {
     /**
      * Removes the specified primitive from the stack.
      */
-    fun removeFromStack(name: String) = lastNode.removeFromStack(name, this)
+    fun removeFromStack(name: String) = lastNode.removeFromStack(name)
 
     /**
      * Removes the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
@@ -76,7 +72,7 @@ internal class LexemMemory {
      * Replace the specified stack cell by another primitive.
      */
     fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
-            lastNode.replaceStackCell(name, newValue.getPrimitive(), this)
+            lastNode.replaceStackCell(name, newValue.getPrimitive())
 
     /**
      * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
@@ -86,33 +82,17 @@ internal class LexemMemory {
     /**
      * Gets a value from the memory.
      */
-    fun get(reference: LxmReference, toWrite: Boolean) =
-            lastNode.getCell(this, reference.position, forceShift = toWrite).value
+    fun get(reference: LxmReference, toWrite: Boolean) = lastNode.getHeapValue(reference, toWrite)
 
     /**
      * Adds a value in the memory returning the position in which it has been added.
      */
-    fun add(value: LexemReferenced) = LxmReference(lastNode.alloc(this, value).position)
+    fun add(value: LexemReferenced) = lastNode.allocAndGetReference(value)
 
     /**
      * Removes a value in the memory.
      */
-    fun remove(reference: LxmReference) = lastNode.free(this, reference.position)
-
-    /**
-     * Replaces a primitive with a new one handling the pointer changes.
-     */
-    fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
-        // Increases the new reference.
-        if (newValue is LxmReference) {
-            lastNode.getCell(this, newValue.position, forceShift = true).increaseReferences()
-        }
-
-        // Removes the previous reference.
-        if (oldValue is LxmReference) {
-            lastNode.getCell(this, oldValue.position, forceShift = true).decreaseReferences(this)
-        }
-    }
+    fun remove(reference: LxmReference) = lastNode.freeHeapCell(reference)
 
     /**
      * Clears the memory.
@@ -140,33 +120,38 @@ internal class LexemMemory {
     /**
      * Freezes the memory creating a differential copy of the memory.
      */
-    fun freezeCopy(): BigNode {
-        val res = lastNode
+    fun freezeCopy(rollbackCodePoint: LxmRollbackCodePoint) {
+        // Set rollback code point.
+        lastNode.rollbackCodePoint = rollbackCodePoint
+
+        // Make copy.
+        val oldLastNode = lastNode
         lastNode = BigNode(previousNode = lastNode, nextNode = null)
-        res.nextNode = lastNode
-        return res
+        oldLastNode.nextNode = lastNode
     }
 
     /**
      * Rollback the last copy, removing all changes since then.
      */
-    fun rollbackCopy() {
+    fun rollbackCopy(): LxmRollbackCodePoint {
         // Prevents the deletion if it is the root node.
         if (lastNode == firstNode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FirstBigNodeRollback,
                     "The memory cannot rollback the first BigNode") {}
         }
 
-        restoreCopy(lastNode.previousNode ?: throw AngmarUnreachableException())
+        return restoreCopy(lastNode.previousNode ?: throw AngmarUnreachableException())
     }
 
     /**
      * Restores the specified copy, removing all changes since then.
      */
-    fun restoreCopy(bigNode: BigNode) {
+    fun restoreCopy(bigNode: BigNode): LxmRollbackCodePoint {
         bigNode.nextNode?.destroy()
         bigNode.nextNode = null
         lastNode = bigNode
+
+        return bigNode.rollbackCodePoint ?: throw AngmarUnreachableException()
     }
 
     /**
@@ -193,9 +178,7 @@ internal class LexemMemory {
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect(forced: Boolean = false) {
-        isInGarbageCollectionMode = true
-        lastNode.spatialGarbageCollect(this, forced)
-        isInGarbageCollectionMode = false
+    fun spatialGarbageCollect() {
+        lastNode.spatialGarbageCollect()
     }
 }

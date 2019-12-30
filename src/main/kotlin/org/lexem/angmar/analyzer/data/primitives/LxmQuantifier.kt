@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.parser.descriptive.lexemes.*
 
 /**
@@ -63,7 +62,7 @@ internal class LxmQuantifier : LexemPrimitive {
     // OVERRIDE METHODS -------------------------------------------------------
 
 
-    override fun getHashCode(memory: LexemMemory): Int {
+    override fun getHashCode(): Int {
         var result = min
         result = 31 * result + max
         result = 31 * result + isInfinite.hashCode()

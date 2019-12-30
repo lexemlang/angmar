@@ -22,7 +22,7 @@ internal class LxmPropertySetter : LexemSetter {
         this.property = property
         this.node = node
 
-        this.value.increaseReferences(memory)
+        this.value.increaseReferences(memory.lastNode)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -60,16 +60,16 @@ internal class LxmPropertySetter : LexemSetter {
         obj.setProperty(memory, property, value)
     }
 
-    override fun increaseReferences(memory: LexemMemory) {
-        value.increaseReferences(memory)
+    override fun increaseReferences(bigNode: BigNode) {
+        value.increaseReferences(bigNode)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
-        value.decreaseReferences(memory)
+    override fun decreaseReferences(bigNode: BigNode) {
+        value.decreaseReferences(bigNode)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        value.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        value.spatialGarbageCollect(gcFifo)
     }
 
     override fun toString() = "[Setter - Property] (value: $value, property: $property)"

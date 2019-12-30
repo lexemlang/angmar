@@ -404,7 +404,7 @@ internal object AnalyzerNodesCommons {
             if (!capture) {
                 // Set the returned value.
                 val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                if (children && childrenList.actualListSize > 0) {
+                if (children && childrenList.size > 0) {
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
                     resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())

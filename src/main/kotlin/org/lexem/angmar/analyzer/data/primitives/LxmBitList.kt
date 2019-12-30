@@ -13,14 +13,14 @@ internal class LxmBitList(val primitive: BitList) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, BitListType.TypeName) as LxmReference
+    override fun getType(bigNode: BigNode): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(BitListType.TypeName) as LxmReference
     }
 
-    override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
+    override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(memory: LexemMemory) = LxmString.from(toString())
+    override fun toLexemString(bigNode: BigNode) = LxmString.from(toString())
 
     override fun toString() = primitive.toString()
 

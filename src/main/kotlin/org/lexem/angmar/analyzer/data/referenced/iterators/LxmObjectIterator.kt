@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of an Object iterator.
@@ -16,16 +15,14 @@ internal class LxmObjectIterator : LexemIterator {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory, obj: LxmObject) : super(memory) {
-        setProperty(memory, AnalyzerCommons.Identifiers.Value, obj.getPrimitive())
+        setProperty(AnalyzerCommons.Identifiers.Value, obj.getPrimitive())
 
-        keys = obj.getAllIterableProperties().map { it.key }
-        size = keys.size.toLong()
+        keys = obj.getAllIterableProperties().map { it.key }.toList()
+        intervalSize = keys.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmObjectIterator, toClone: Boolean) : super(memory,
-            oldVersion, toClone) {
+    private constructor(bigNode: BigNode, oldVersion: LxmObjectIterator) : super(bigNode, oldVersion) {
         this.keys = oldVersion.keys
-        this.size = oldVersion.size
     }
 
     // METHODS ----------------------------------------------------------------
@@ -33,27 +30,23 @@ internal class LxmObjectIterator : LexemIterator {
     /**
      * Gets the iterator's object.
      */
-    private fun getObject(memory: LexemMemory) =
-            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
+    private fun getObject() = getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val size: Long
-
-    override fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
-        if (isEnded(memory)) {
+    override fun getCurrent(): Pair<LexemPrimitive?, LexemPrimitive>? {
+        if (isEnded()) {
             return null
         }
 
-        val index = getIndex(memory)
-        val value = getObject(memory)
+        val index = getIndex()
+        val value = getObject()
         val currentKey = keys[index.primitive]
-        val currentValue = value.getPropertyValue(memory, currentKey) ?: LxmNil
+        val currentValue = value.getPropertyValue(currentKey) ?: LxmNil
         return Pair(LxmString.from(currentKey), currentValue)
     }
 
-    override fun memoryShift(memory: LexemMemory) = LxmObjectIterator(memory, this,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(bigNode: BigNode) = LxmObjectIterator(bigNode, this)
 
     override fun toString() = "[Iterator - Object] ${super.toString()}"
 }

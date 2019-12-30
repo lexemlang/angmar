@@ -4,7 +4,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 
 /**
@@ -18,12 +17,7 @@ internal class LxmArguments : LxmObject {
         init(memory)
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmArguments, mustInit: Boolean, toClone: Boolean) : super(
-            memory, oldVersion, toClone) {
-        if (mustInit) {
-            init(memory)
-        }
-    }
+    private constructor(bigNode: BigNode, oldVersion: LxmArguments) : super(bigNode, oldVersion)
 
     // METHODS ----------------------------------------------------------------
 
@@ -76,13 +70,10 @@ internal class LxmArguments : LxmObject {
         val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
         val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
 
-        val mappedArguments = namedArguments.mapValues { (_, property) ->
-            val deref = property.value.dereference(memory, toWrite = false)
-            if (deref is LexemPrimitive) {
-                deref
-            } else {
-                LxmNil
-            }
+        val mappedArguments = mutableMapOf<String, LexemPrimitive>()
+        namedArguments.forEach { (key, property) ->
+            val value = property.value.dereference(memory, toWrite = false) as? LexemPrimitive ?: LxmNil
+            mappedArguments[key] = value
         }
 
         return LxmBacktrackingData(positionalArguments, mappedArguments)
@@ -113,21 +104,28 @@ internal class LxmArguments : LxmObject {
         spreadPositionalParameter?.addAll(positionalArguments.drop(parameterNames.size))
 
         // Map named arguments.
-        for (argument in namedArguments) {
-            val value = argument.value.value
-            if (result.containsKey(argument.key)) {
-                result[argument.key] = value
+        var isThisAssigned = false
+        for ((key, argument) in namedArguments) {
+            val value = argument.value
+            if (result.containsKey(key)) {
+                result[key] = value
             } else {
                 // Add named arguments to spread parameter.
-                spreadNamedParameter?.put(argument.key, value)
+                spreadNamedParameter?.put(key, value)
+            }
+
+            // Always add the 'this' parameter.
+            if (key == AnalyzerCommons.Identifiers.This) {
+                isThisAssigned = true
+                result[key] = value
             }
         }
 
-        // Always add the 'this' parameter.
-        val thisArgument = namedArguments[AnalyzerCommons.Identifiers.This] ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
-                "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
-        result[AnalyzerCommons.Identifiers.This] = thisArgument.value
+        // Ensure the 'this' parameter is always added.
+        if (!isThisAssigned) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
+                    "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
+        }
 
         return result
     }
@@ -166,6 +164,7 @@ internal class LxmArguments : LxmObject {
         }
 
         // Map named arguments.
+        var isThisAssigned = false
         if (parameters.namedSpread != null) {
             val obj = LxmObject(memory)
 
@@ -179,6 +178,12 @@ internal class LxmArguments : LxmObject {
                         obj.setProperty(memory, key, value)
                     }
                 }
+
+                // Always add the 'this' parameter.
+                if (key == AnalyzerCommons.Identifiers.This) {
+                    isThisAssigned = true
+                    context.setProperty(memory, key, value)
+                }
             }
 
             context.setProperty(memory, parameters.namedSpread!!, obj)
@@ -188,20 +193,25 @@ internal class LxmArguments : LxmObject {
                 if (result.contains(key)) {
                     context.setProperty(memory, key, value)
                 }
+
+                // Always add the 'this' parameter.
+                if (key == AnalyzerCommons.Identifiers.This) {
+                    isThisAssigned = true
+                    context.setProperty(memory, key, value)
+                }
             }
         }
 
-        // Always add the 'this' parameter.
-        val thisArgument = namedArguments[AnalyzerCommons.Identifiers.This] ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
-                "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
-        context.setProperty(memory, AnalyzerCommons.Identifiers.This, thisArgument.value)
+        // Ensure the 'this' parameter is always added.
+        if (!isThisAssigned) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
+                    "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
+        }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(bigNode: BigNode) = LxmArguments(bigNode, this)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

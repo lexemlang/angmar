@@ -26,7 +26,7 @@ internal class LxmAccessSetter : LexemSetter {
         this.node = node
         this.nodeElement = nodeElement
 
-        this.context.increaseReferences(memory)
+        this.context.increaseReferences(memory.lastNode)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
@@ -55,16 +55,16 @@ internal class LxmAccessSetter : LexemSetter {
         ctxObject.setPropertyAsContext(memory, variableName, value)
     }
 
-    override fun increaseReferences(memory: LexemMemory) {
-        context.increaseReferences(memory)
+    override fun increaseReferences(bigNode: BigNode) {
+        context.increaseReferences(bigNode)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
-        context.decreaseReferences(memory)
+    override fun decreaseReferences(bigNode: BigNode) {
+        context.decreaseReferences(bigNode)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        context.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        context.spatialGarbageCollect(gcFifo)
     }
 
     override fun toString() = "[Setter - Access] (context: $context, variableName: $variableName)"

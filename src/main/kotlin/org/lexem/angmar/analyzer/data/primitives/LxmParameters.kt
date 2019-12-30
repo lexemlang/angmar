@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
 /**
@@ -44,7 +43,7 @@ internal class LxmParameters : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() =
             "[Parameters] (parameters: $parameters, positionalSpread: $positionalSpread, namedSpread: $namedSpread)"

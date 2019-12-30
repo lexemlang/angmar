@@ -524,19 +524,19 @@ internal class LexemMemoryTest {
         Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
 
-        memory.spatialGarbageCollect(forced = true)
+        memory.spatialGarbageCollect()
 
         Assertions.assertEquals(initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object1.getPrimitive().position).isFreed,
                 "The cell[0] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object2.getPrimitive().position).isFreed,
                 "The cell[1] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object3.getPrimitive().position).isFreed,
                 "The cell[2] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object4.getPrimitive().position).isFreed,
                 "The cell[3] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object5.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object5.getPrimitive().position).isFreed,
                 "The cell[4] property is incorrect")
     }
 
@@ -575,15 +575,15 @@ internal class LexemMemoryTest {
 
         Assertions.assertEquals(5 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object1.getPrimitive().position).isFreed,
                 "The cell[0] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object2.getPrimitive().position).isFreed,
                 "The cell[1] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object3.getPrimitive().position).isFreed,
                 "The cell[2] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object4.getPrimitive().position).isFreed,
                 "The cell[3] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object5.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object5.getPrimitive().position).isFreed,
                 "The cell[4] property is incorrect")
     }
 
@@ -650,20 +650,20 @@ internal class LexemMemoryTest {
         memory.removeLastFromStack()
 
 
-        memory.spatialGarbageCollect(forced = true)
+        memory.spatialGarbageCollect()
 
 
         Assertions.assertEquals(3 + initialSize, memory.lastNode.actualUsedCellCount,
                 "The actualUsedCellCount property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object0.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object0.getPrimitive().position).isFreed,
                 "The cell[0] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object1.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object1.getPrimitive().position).isFreed,
                 "The cell[1] property is incorrect")
-        Assertions.assertFalse(memory.lastNode.getCell(memory, object2.getPrimitive().position).isFreed,
+        Assertions.assertFalse(memory.lastNode.getHeapCell(object2.getPrimitive().position).isFreed,
                 "The cell[2] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object3.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object3.getPrimitive().position).isFreed,
                 "The cell[3] property is incorrect")
-        Assertions.assertTrue(memory.lastNode.getCell(memory, object4.getPrimitive().position).isFreed,
+        Assertions.assertTrue(memory.lastNode.getHeapCell(object4.getPrimitive().position).isFreed,
                 "The cell[4] property is incorrect")
     }
 

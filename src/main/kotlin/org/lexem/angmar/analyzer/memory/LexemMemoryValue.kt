@@ -19,51 +19,51 @@ internal interface LexemMemoryValue {
     /**
      * Dereferences all indirect references until get a value that is not a [LxmReference] or [LexemSetter].
      */
-    fun dereference(memory: LexemMemory, toWrite: Boolean): LexemMemoryValue = this
+    fun dereference(bigNode: BigNode, toWrite: Boolean): LexemMemoryValue = this
 
     /**
      * Gets the type of the value.
      */
-    fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, AnyType.TypeName) as LxmReference
+    fun getType(bigNode: BigNode): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(AnyType.TypeName) as LxmReference
     }
 
     /**
      * Gets the type of the value as a [LxmObject].
      */
-    fun getTypeAsObject(memory: LexemMemory, toWrite: Boolean) =
-            getType(memory).dereferenceAs<LxmObject>(memory, toWrite)!!
+    fun getTypeAsObject(bigNode: BigNode, toWrite: Boolean) =
+            getType(bigNode).dereferenceAs<LxmObject>(bigNode, toWrite)!!
 
     /**
      * Gets the prototype of the value.
      */
-    fun getPrototype(memory: LexemMemory) =
-            getType(memory).dereferenceAs<LxmObject>(memory, toWrite = false)!!.getPropertyValue(memory,
+    fun getPrototype(bigNode: BigNode) =
+            getType(bigNode).dereferenceAs<LxmObject>(bigNode, toWrite = false)!!.getPropertyValue(
                     AnalyzerCommons.Identifiers.Prototype) as LxmReference
 
     /**
      * Gets the prototype of the value as a [LxmObject].
      */
-    fun getPrototypeAsObject(memory: LexemMemory, toWrite: Boolean) =
-            getPrototype(memory).dereferenceAs<LxmObject>(memory, toWrite)!!
+    fun getPrototypeAsObject(bigNode: BigNode, toWrite: Boolean) =
+            getPrototype(bigNode).dereferenceAs<LxmObject>(bigNode, toWrite)!!
 
     /**
      * Returns the current object if it is a [LxmObject] or the prototype otherwise.
      */
-    fun getObjectOrPrototype(memory: LexemMemory, toWrite: Boolean) = if (this is LxmObject) {
+    fun getObjectOrPrototype(bigNode: BigNode, toWrite: Boolean) = if (this is LxmObject) {
         this
     } else {
-        getPrototypeAsObject(memory, toWrite)
+        getPrototypeAsObject(bigNode, toWrite)
     }
 
     /**
      * Returns the textual implementation of the value in Lexem.
      */
-    fun toLexemString(memory: LexemMemory): LxmString = throw AngmarUnreachableException()
+    fun toLexemString(bigNode: BigNode): LxmString = throw AngmarUnreachableException()
 
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) = Unit
+    fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) = Unit
 }

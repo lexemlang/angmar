@@ -29,11 +29,11 @@ internal class BigNodeStack(val bigNode: BigNode) {
     /**
      * Adds a [LexemPrimitive] into the stack by a name.
      */
-    fun addCell(memory: LexemMemory, name: String, value: LexemPrimitive) {
+    fun addCell(name: String, value: LexemPrimitive) {
         cloneCells()
 
         // Increase the reference count of the incoming value.
-        value.increaseReferences(memory)
+        value.increaseReferences(bigNode)
 
         // Get the cell.
         val previousCell = cells[name]
@@ -44,7 +44,7 @@ internal class BigNodeStack(val bigNode: BigNode) {
     /**
      * Removes a [LexemPrimitive] from the stack by a name.
      */
-    fun removeCell(memory: LexemMemory, name: String) {
+    fun removeCell(name: String) {
         cloneCells()
 
         val cell = cells[name] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackNotFoundElement,
@@ -58,17 +58,17 @@ internal class BigNodeStack(val bigNode: BigNode) {
         size -= 1
 
         // Decrease reference count.
-        cell.value.decreaseReferences(memory)
+        cell.value.decreaseReferences(bigNode)
     }
 
     /**
      * Replaces a [LexemPrimitive] into the stack by a name.
      */
-    fun replaceCell(memory: LexemMemory, name: String, newValue: LexemPrimitive) {
+    fun replaceCell(name: String, newValue: LexemPrimitive) {
         cloneCells()
 
         // Increase the reference count of the incoming value.
-        newValue.increaseReferences(memory)
+        newValue.increaseReferences(bigNode)
 
         val cell = cells[name] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackNotFoundElement,
                 "Not found element called '$name' in the stack.") {}
@@ -77,7 +77,7 @@ internal class BigNodeStack(val bigNode: BigNode) {
         cells[name] = newCell // Critical operation, may interfere with the GC.
 
         // Decrease reference count.
-        cell.value.decreaseReferences(memory)
+        cell.value.decreaseReferences(bigNode)
     }
 
     /**
@@ -101,6 +101,19 @@ internal class BigNodeStack(val bigNode: BigNode) {
             isCellsCloned = true
         }
     }
+
+    /**
+     * Iterator for garbage collector.
+     */
+    fun gcIterator() = sequence {
+        for ((_, cellAux) in cells) {
+            var cell: BigNodeStackCell? = cellAux
+            while (cell != null) {
+                yield(cell.value)
+                cell = cell.previousCell
+            }
+        }
+    }.iterator()
 
     // OVERRIDE METHODS -------------------------------------------------------
 

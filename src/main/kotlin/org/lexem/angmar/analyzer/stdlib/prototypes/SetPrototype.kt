@@ -140,9 +140,9 @@ internal object SetPrototype {
                 val list = toList(analyzer, thisValue)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
-                if (list.actualListSize > 0) {
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, Every)
+                if (list.size > 0) {
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement,
+                            Every)
 
                     return false
                 }
@@ -156,7 +156,7 @@ internal object SetPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -166,10 +166,9 @@ internal object SetPrototype {
                     analyzer.memory.removeLastFromStack()
 
                     if (resultTruthy) {
-                        if (position < list.actualListSize) {
-                            StdlibCommons.callMethod(analyzer, function,
-                                    listOf(list.getCell(analyzer.memory, position)!!), signalEndFirstElement + position,
-                                    Every)
+                        if (position < list.size) {
+                            StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
+                                    signalEndFirstElement + position, Every)
 
                             return false
                         }
@@ -219,11 +218,11 @@ internal object SetPrototype {
                 // Generate the map.
                 val set = LxmSet(analyzer.memory)
 
-                if (list.actualListSize > 0) {
+                if (list.size > 0) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, set)
 
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, Filter)
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement,
+                            Filter)
 
                     return false
                 }
@@ -239,7 +238,7 @@ internal object SetPrototype {
                 val set = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmSet
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -249,11 +248,11 @@ internal object SetPrototype {
                     analyzer.memory.removeLastFromStack()
 
                     if (resultTruthy) {
-                        set.addValue(analyzer.memory, list.getCell(analyzer.memory, position - 1)!!)
+                        set.addValue(analyzer.memory, list.getCell(position - 1)!!)
                     }
 
-                    if (position < list.actualListSize) {
-                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, position)!!),
+                    if (position < list.size) {
+                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
                                 signalEndFirstElement + position, Filter)
 
                         return false
@@ -299,9 +298,9 @@ internal object SetPrototype {
                 val list = toList(analyzer, thisValue)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
-                if (list.actualListSize > 0) {
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, ForEach)
+                if (list.size > 0) {
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement,
+                            ForEach)
 
                     return false
                 }
@@ -315,14 +314,14 @@ internal object SetPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
-                    if (position < list.actualListSize) {
-                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, position)!!),
+                    if (position < list.size) {
+                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
                                 signalEndFirstElement + position, ForEach)
 
                         return false
@@ -367,9 +366,8 @@ internal object SetPrototype {
                 val list = toList(analyzer, thisValue)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
-                if (list.actualListSize > 0) {
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, Find)
+                if (list.size > 0) {
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement, Find)
 
                     return false
                 }
@@ -383,7 +381,7 @@ internal object SetPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -394,17 +392,16 @@ internal object SetPrototype {
 
                     if (!resultTruthy) {
 
-                        if (position < list.actualListSize) {
-                            StdlibCommons.callMethod(analyzer, function,
-                                    listOf(list.getCell(analyzer.memory, position)!!), signalEndFirstElement + position,
-                                    Find)
+                        if (position < list.size) {
+                            StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
+                                    signalEndFirstElement + position, Find)
 
                             return false
                         }
 
                         analyzer.memory.addToStackAsLast(LxmNil)
                     } else {
-                        analyzer.memory.addToStackAsLast(list.getCell(analyzer.memory, position - 1)!!)
+                        analyzer.memory.addToStackAsLast(list.getCell(position - 1)!!)
                     }
 
                     // Remove List from the stack.
@@ -506,11 +503,10 @@ internal object SetPrototype {
                 // Generate the map.
                 val set = LxmSet(analyzer.memory)
 
-                if (list.actualListSize > 0) {
+                if (list.size > 0) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, set)
 
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, Map)
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement, Map)
 
                     return false
                 }
@@ -526,7 +522,7 @@ internal object SetPrototype {
                 val set = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmSet
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -537,8 +533,8 @@ internal object SetPrototype {
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
-                    if (position < list.actualListSize) {
-                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, position)!!),
+                    if (position < list.size) {
+                        StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
                                 signalEndFirstElement + position, Map)
 
                         return false
@@ -585,8 +581,8 @@ internal object SetPrototype {
                 val list = toList(analyzer, thisValue)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
-                if (list.actualListSize > 0) {
-                    StdlibCommons.callMethod(analyzer, function, listOf(default, list.getCell(analyzer.memory, 0)!!),
+                if (list.size > 0) {
+                    StdlibCommons.callMethod(analyzer, function, listOf(default, list.getCell(0)!!),
                             signalEndFirstElement, Reduce)
 
                     return false
@@ -601,14 +597,13 @@ internal object SetPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
 
-                    if (position < list.actualListSize) {
-                        StdlibCommons.callMethod(analyzer, function,
-                                listOf(result, list.getCell(analyzer.memory, position)!!),
+                    if (position < list.size) {
+                        StdlibCommons.callMethod(analyzer, function, listOf(result, list.getCell(position)!!),
                                 signalEndFirstElement + position, Reduce)
 
                         // Remove Last from the stack.
@@ -654,9 +649,8 @@ internal object SetPrototype {
                 val list = toList(analyzer, thisValue)
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.List, list)
 
-                if (list.actualListSize > 0) {
-                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(analyzer.memory, 0)!!),
-                            signalEndFirstElement, Any)
+                if (list.size > 0) {
+                    StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(0)!!), signalEndFirstElement, Any)
 
                     return false
                 }
@@ -670,7 +664,7 @@ internal object SetPrototype {
                 val list = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.List).dereference(analyzer.memory,
                         toWrite = false) as LxmList
 
-                if (signal in signalEndFirstElement..signalEndFirstElement + list.actualListSize) {
+                if (signal in signalEndFirstElement..signalEndFirstElement + list.size) {
                     val position = (signal - signalEndFirstElement) + 1
 
                     val result = analyzer.memory.getLastFromStack()
@@ -680,10 +674,9 @@ internal object SetPrototype {
                     analyzer.memory.removeLastFromStack()
 
                     if (!resultTruthy) {
-                        if (position < list.actualListSize) {
-                            StdlibCommons.callMethod(analyzer, function,
-                                    listOf(list.getCell(analyzer.memory, position)!!), signalEndFirstElement + position,
-                                    Any)
+                        if (position < list.size) {
+                            StdlibCommons.callMethod(analyzer, function, listOf(list.getCell(position)!!),
+                                    signalEndFirstElement + position, Any)
 
                             return false
                         }
@@ -870,7 +863,7 @@ internal object SetPrototype {
 
                         for ((_, list) in left.getAllValues()) {
                             for (prop in list) {
-                                if (right.containsValue(analyzer.memory, prop.value)) {
+                                if (right.containsValue(prop.value)) {
                                     newSet.addValue(analyzer.memory, prop.value)
                                 }
                             }
@@ -930,7 +923,7 @@ internal object SetPrototype {
 
                         for ((_, list) in right.getAllValues()) {
                             for (prop in list) {
-                                if (newSet.containsValue(analyzer.memory, prop.value)) {
+                                if (newSet.containsValue(prop.value)) {
                                     newSet.removeValue(analyzer.memory, prop.value)
                                 } else {
                                     newSet.addValue(analyzer.memory, prop.value)

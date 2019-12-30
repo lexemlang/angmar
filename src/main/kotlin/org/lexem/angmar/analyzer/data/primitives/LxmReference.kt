@@ -17,35 +17,26 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
     /**
      * Dereferences the value to the specified type.
      */
-    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: LexemMemory, toWrite: Boolean) =
-            dereference(memory, toWrite) as? T
-
-    /**
-     * Gets the memory cell that this reference points to.
-     */
-    fun getCell(memory: LexemMemory) = memory.lastNode.getCell(memory, position)
+    inline fun <reified T : LexemMemoryValue> dereferenceAs(bigNode: BigNode, toWrite: Boolean) =
+            dereference(bigNode, toWrite) as? T
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun dereference(memory: LexemMemory, toWrite: Boolean) = memory.get(this, toWrite)!!
+    override fun dereference(bigNode: BigNode, toWrite: Boolean) = bigNode.getHeapValue(this, toWrite)
 
-    override fun increaseReferences(memory: LexemMemory) {
-        memory.replacePrimitives(LxmNil, this)
+    override fun increaseReferences(bigNode: BigNode) {
+        MemoryUtils.replacePrimitives(bigNode, LxmNil, this)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
-        memory.replacePrimitives(this, LxmNil)
+    override fun decreaseReferences(bigNode: BigNode) {
+        MemoryUtils.replacePrimitives(bigNode, this, LxmNil)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
         gcFifo.push(position)
     }
 
-    override fun getType(memory: LexemMemory) = throw AngmarUnreachableException()
-
-    override fun getPrototype(memory: LexemMemory) = throw AngmarUnreachableException()
-
-    override fun getHashCode(memory: LexemMemory) = position.hashCode()
+    override fun getHashCode() = position.hashCode()
 
     override fun toString() = "Ref($position)"
 

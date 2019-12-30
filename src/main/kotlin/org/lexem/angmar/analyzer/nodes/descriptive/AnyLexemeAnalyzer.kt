@@ -209,7 +209,7 @@ internal object AnyLexemeAnalyzer {
         val list = listRef.dereference(analyzer.memory, toWrite = false) as LxmList
 
         if (node.quantifier == null) {
-            setter.setSetterValue(analyzer.memory, list.getCell(analyzer.memory, 0)!!)
+            setter.setSetterValue(analyzer.memory, list.getCell(0)!!)
         } else {
             setter.setSetterValue(analyzer.memory, listRef)
         }

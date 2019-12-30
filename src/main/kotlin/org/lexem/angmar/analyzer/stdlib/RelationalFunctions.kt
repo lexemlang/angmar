@@ -41,7 +41,7 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    if (leftDeref.actualListSize != rightDeref.actualListSize) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 

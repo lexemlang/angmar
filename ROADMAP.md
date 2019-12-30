@@ -58,11 +58,10 @@ This is the plan to work towards a future release.
 
 
 
-## Temporal memory model
-
-- No differential.
-- Incremental copy of the memory copying the map reference.
-  - If there's a writing access, shallow-copies the map and clones the cell and object inside.
-  - If the cell is modified but the object not, only clones the cell. For example during a reference change.
-  
-- Functions must be primitives.
+- Poner en los nodos referencias para hacer una linked-list.
+- No añadir un nodo hasta que se termine su expresión o grupo.
+- Recolector de basura asíncrono para los nodos anteriores. Se puede modificar el mapa ya que las celdas eliminadas no se van a tocar en el futuro.
+- Para el nodo actual recolector asíncrono sin parada. Para ello no debe haber ningún punto en el que se elimine antes de añadir. Nodos??
+- Cuando el main thread detecta una referencia a 0. La manda a otro hilo para que recorra sus punteros y reduzca las referencias del resto.
+- Asociar el returnCodePoint al bignode para no modificar el heap si no es necesario.
+- Hacer un intervalo modificable como un Red-Black tree para el recolector.

@@ -22,5 +22,5 @@ internal interface LexemSetter : LexemPrimitive {
     override fun dereference(memory: LexemMemory, toWrite: Boolean) =
             getSetterPrimitive(memory).dereference(memory, toWrite = true)
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 }

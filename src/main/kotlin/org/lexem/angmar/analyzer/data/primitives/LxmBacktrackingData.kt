@@ -71,7 +71,7 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() = "[BacktrackingData] (positional: $positional, named: $named)"
 }

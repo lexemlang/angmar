@@ -38,7 +38,7 @@ internal object FilterLexemeAnalyzer {
                 val lxmNode = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNode).dereference(
                         analyzer.memory, toWrite = false) as LxmNode
                 val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                val node2Process = children.getCell(analyzer.memory, actualPosition)
+                val node2Process = children.getCell(actualPosition)
 
                 if (node2Process != null) {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, node2Process)

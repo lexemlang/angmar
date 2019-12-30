@@ -303,7 +303,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 element as? LxmString ?: throw Error("All elements in the result list must be LxmString")
@@ -339,7 +339,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(obj.containsValue(element), "The result list is incorrect")
@@ -374,7 +374,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 val elementObj = element.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(

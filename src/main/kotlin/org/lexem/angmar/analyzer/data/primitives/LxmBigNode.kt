@@ -10,7 +10,7 @@ internal class LxmBigNode(val node: BigNode) : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = node.hashCode()
+    override fun getHashCode() = node.hashCode()
 
     override fun toString() = node.toString()
 }

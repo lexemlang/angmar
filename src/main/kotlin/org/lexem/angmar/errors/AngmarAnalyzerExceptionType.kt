@@ -2,6 +2,7 @@ package org.lexem.angmar.errors
 
 /**
  * The exception types for the analyzer.
+ * TODO remove not used
  */
 enum class AngmarAnalyzerExceptionType {
     // GENERICS ---------------------------------------------------------------

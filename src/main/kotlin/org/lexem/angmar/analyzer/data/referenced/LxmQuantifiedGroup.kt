@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.data.referenced
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value for a quantified group.
@@ -20,8 +19,7 @@ internal class LxmQuantifiedGroup : LxmObject {
         setProperty(memory, AnalyzerCommons.Identifiers.List, list)
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmQuantifiedGroup, toClone: Boolean) : super(memory,
-            oldVersion, toClone)
+    private constructor(bigNode: BigNode, oldVersion: LxmQuantifiedGroup) : super(bigNode, oldVersion)
 
     // METHODS ----------------------------------------------------------------
 
@@ -114,7 +112,7 @@ internal class LxmQuantifiedGroup : LxmObject {
     fun increaseIndex(memory: LexemMemory, optionIndex: Int) {
         val mainUnion = getMainUnion(memory, toWrite = true)
         val list = getUnionList(memory, toWrite = false)
-        val cell = list.getCell(memory, optionIndex)!!.dereference(memory, toWrite = true) as LxmPatternUnion
+        val cell = list.getCell(optionIndex)!!.dereference(memory, toWrite = true) as LxmPatternUnion
         val prevFinished = cell.isFinished(memory)
 
         mainUnion.increaseIndex(memory)
@@ -131,7 +129,7 @@ internal class LxmQuantifiedGroup : LxmObject {
      */
     fun canHaveANextPattern(memory: LexemMemory, optionIndex: Int): Boolean {
         val list = getUnionList(memory, toWrite = false)
-        val cell = list.getCell(memory, optionIndex)!!.dereference(memory, toWrite = false) as LxmPatternUnion
+        val cell = list.getCell(optionIndex)!!.dereference(memory, toWrite = false) as LxmPatternUnion
 
         return cell.canHaveANextPattern(memory)
     }
@@ -144,7 +142,7 @@ internal class LxmQuantifiedGroup : LxmObject {
             return false
         }
 
-        val listSize = getUnionList(memory, toWrite = false).actualListSize
+        val listSize = getUnionList(memory, toWrite = false).size
         val finished = getFinishedCount(memory)
 
         return listSize == finished.primitive
@@ -152,8 +150,7 @@ internal class LxmQuantifiedGroup : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = LxmQuantifiedGroup(memory, this,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(bigNode: BigNode) = LxmQuantifiedGroup(bigNode, this)
 
     override fun toString() = "[Quantified Group] ${super.toString()}"
 }

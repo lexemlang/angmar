@@ -15,13 +15,14 @@ import org.lexem.angmar.compiler.others.*
 internal open class LxmFunction : LexemReferenced {
     var name: String = "<Anonymous function>"
     val node: CompiledNode
-    val contextReference: LxmReference?
+    var contextReference: LxmReference?
+        private set
     val internalFunction: ((LexemAnalyzer, LxmArguments, LxmFunction, Int) -> Boolean)?
 
-    val isInternalFunction get() = internalFunction != null
+    private val isInternalFunction get() = internalFunction != null
 
     val parserNode get() = node
-    val parentContextReference get() = contextReference
+    private val parentContextReference get() = contextReference
 
     // CONSTRUCTORS -----------------------------------------------------------
 
@@ -33,7 +34,7 @@ internal open class LxmFunction : LexemReferenced {
         this.contextReference = context.getPrimitive()
         this.internalFunction = null
 
-        contextReference.increaseReferences(memory)
+        contextReference!!.increaseReferences(memory.lastNode)
     }
 
     /**
@@ -57,7 +58,7 @@ internal open class LxmFunction : LexemReferenced {
         this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
 
-        contextReference.increaseReferences(memory)
+        contextReference!!.increaseReferences(memory.lastNode)
     }
 
     /**
@@ -71,7 +72,7 @@ internal open class LxmFunction : LexemReferenced {
         this.contextReference = arguments.getPrimitive()
         this.internalFunction = internalFunction
 
-        contextReference.increaseReferences(memory)
+        contextReference!!.increaseReferences(memory.lastNode)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -84,26 +85,27 @@ internal open class LxmFunction : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = this
+    override fun memoryClone(bigNode: BigNode) = this
 
-    override fun memoryDealloc(memory: LexemMemory) {
-        contextReference?.decreaseReferences(memory)
+    override fun memoryDealloc() {
+        contextReference?.decreaseReferences(bigNode)
+        contextReference = null
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        contextReference?.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        contextReference?.spatialGarbageCollect(gcFifo)
     }
 
-    override fun getType(memory: LexemMemory): LxmReference {
+    override fun getType(bigNode: BigNode): LxmReference {
         val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(memory: LexemMemory) = if (isInternalFunction) {
+    override fun toLexemString(bigNode: BigNode) = if (isInternalFunction) {
         LxmString.InternalFunctionToString
     } else {
         var source = node.parser.reader.getSource()
-        val from = node.parserNode!!.from.lineColumn()
+        val from = node.parserNode.from.lineColumn()
 
         if (source.isBlank()) {
             source = "??"

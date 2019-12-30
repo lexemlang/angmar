@@ -24,8 +24,8 @@ internal class LxmIndexerSetter : LexemSetter {
         this.index = index.getPrimitive()
         this.node = node
 
-        this.element.increaseReferences(memory)
-        this.index.increaseReferences(memory)
+        this.element.increaseReferences(memory.lastNode)
+        this.index.increaseReferences(memory.lastNode)
 
         // Check the types.
         when (element) {
@@ -177,12 +177,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -198,7 +198,7 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                element.getCell(memory, primitive)!!
+                element.getCell(primitive)!!
             }
             is LxmObject -> {
                 index as LxmString
@@ -221,12 +221,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -256,19 +256,19 @@ internal class LxmIndexerSetter : LexemSetter {
         }
     }
 
-    override fun increaseReferences(memory: LexemMemory) {
-        element.increaseReferences(memory)
-        index.increaseReferences(memory)
+    override fun increaseReferences(bigNode: BigNode) {
+        element.increaseReferences(bigNode)
+        index.increaseReferences(bigNode)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
-        element.decreaseReferences(memory)
-        index.decreaseReferences(memory)
+    override fun decreaseReferences(bigNode: BigNode) {
+        element.decreaseReferences(bigNode)
+        index.decreaseReferences(bigNode)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        element.spatialGarbageCollect(memory, gcFifo)
-        index.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        element.spatialGarbageCollect(gcFifo)
+        index.spatialGarbageCollect(gcFifo)
     }
 
     override fun toString() = "[Setter - Indexer] (element: $element, index: $index)"

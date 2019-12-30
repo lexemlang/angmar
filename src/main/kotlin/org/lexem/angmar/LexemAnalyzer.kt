@@ -15,7 +15,6 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
-import org.lexem.angmar.utils.*
 
 
 /**
@@ -50,8 +49,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         val hiddenContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
         val stdLibContextReference = stdLibContext.getPrimitive()
         val hiddenContextReference = hiddenContext.getPrimitive()
-        stdLibContextReference.increaseReferences(memory)
-        hiddenContextReference.increaseReferences(memory)
+        stdLibContextReference.increaseReferences(memory.lastNode)
+        hiddenContextReference.increaseReferences(memory.lastNode)
 
         if (stdLibContextReference.position != LxmReference.StdLibContext.position || hiddenContextReference.position != LxmReference.HiddenContext.position) {
             // This must never happen.
@@ -90,11 +89,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         memory.clear()
 
         // Set the rollback code point.
-        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
-        hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint,
-                LxmRollbackCodePoint(grammarRootNode, signal, text.saveCursor()))
-
-        memory.freezeCopy()
+        freezeMemoryCopy(grammarRootNode, signal)
 
         // Init the result node.
         initRootNode()
@@ -148,30 +143,29 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
                         nextNode!!.analyze(this, signal)
 
-                        // Execute the spatial garbage collector if the memory has asked for.
-                        // Done here to prevent calling the garbage collector before
-                        // set all the references.
-                        if (memory.lastNode.spatialGarbageCollectorMark) {
-                            if (Consts.verbose) {
-                                Logger.debug("init spatialGarbageCollect") {
-                                    showDate = true
-                                }
-                                val gcTime = TimeUtils.measureTimeSeconds {
-                                    memory.spatialGarbageCollect()
-                                }
-                                timeSpatialGC += gcTime
-                                Logger.debug("end  spatialGarbageCollect after ${gcTime}s - total: $timeSpatialGC") {
-                                    showDate = true
-                                }
-                            } else {
-                                memory.spatialGarbageCollect()
-                            }
-                        }
+                        // TODO remove
+                        //                        // Execute the spatial garbage collector if the memory has asked for.
+                        //                        // Done here to prevent calling the garbage collector before
+                        //                        // set all the references.
+                        //                        if (memory.lastNode.spatialGarbageCollectorMark) {
+                        //                            if (Consts.verbose) {
+                        //                                Logger.debug("init spatialGarbageCollect") {
+                        //                                    showDate = true
+                        //                                }
+                        //                                val gcTime = TimeUtils.measureTimeSeconds {
+                        //                                    memory.spatialGarbageCollect()
+                        //                                }
+                        //                                timeSpatialGC += gcTime
+                        //                                Logger.debug("end  spatialGarbageCollect after ${gcTime}s - total: $timeSpatialGC") {
+                        //                                    showDate = true
+                        //                                }
+                        //                            } else {
+                        //                                memory.spatialGarbageCollect()
+                        //                            }
+                        //                        }
                     }
                     ProcessStatus.Backward -> {
-                        memory.rollbackCopy()
-
-                        val lastCodePoint = getLastRollbackCodePoint()
+                        val lastCodePoint = memory.rollbackCopy()
                         lastCodePoint.restore(this)
 
                         // Handle the possibility of matching nothing.
@@ -308,34 +302,18 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     }
 
     /**
-     * Gets the last rollback code point kept in the memory.
-     */
-    internal fun getLastRollbackCodePoint() =
-            AnalyzerCommons.getHiddenContext(memory, toWrite = false).getDereferencedProperty<LxmRollbackCodePoint>(
-                    memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint, toWrite = false)!!
-
-    /**
-     * Sets the last rollback code point kept in the memory.
-     */
-    private fun setLastRollbackCodePoint(codePoint: LxmRollbackCodePoint) =
-            AnalyzerCommons.getHiddenContext(memory, toWrite = true).setProperty(memory,
-                    AnalyzerCommons.Identifiers.HiddenRollbackCodePoint, codePoint)
-
-    /**
      * Freezes a new copy of the memory.
      */
     internal fun freezeMemoryCopy(node: CompiledNode, signal: Int) {
-        setLastRollbackCodePoint(LxmRollbackCodePoint(node, signal, text.saveCursor()))
-        memory.freezeCopy()
+        val rollbackCodePoint = LxmRollbackCodePoint(node, signal, text.saveCursor())
+        memory.freezeCopy(rollbackCodePoint)
     }
 
     /**
      * Restores a frozen memory copy.
      */
     internal fun restoreMemoryCopy(bigNode: BigNode) {
-        memory.restoreCopy(bigNode)
-
-        val rollbackCodePoint = getLastRollbackCodePoint()
+        val rollbackCodePoint = memory.restoreCopy(bigNode)
         rollbackCodePoint.restore(this)
     }
 

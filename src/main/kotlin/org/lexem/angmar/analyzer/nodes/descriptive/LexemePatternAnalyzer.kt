@@ -92,9 +92,7 @@ internal object LexemePatternAnalyzer {
                         // Restore the memory copy.
                         val memoryIndex =
                                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LastNode) as LxmBigNode
-                        analyzer.memory.restoreCopy(memoryIndex.node)
-
-                        val lastCodePoint = analyzer.getLastRollbackCodePoint()
+                        val lastCodePoint = analyzer.memory.restoreCopy(memoryIndex.node)
                         lastCodePoint.restore(analyzer)
 
                         // Init backtracking.

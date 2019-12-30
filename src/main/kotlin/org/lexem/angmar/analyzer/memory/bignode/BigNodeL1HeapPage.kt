@@ -17,6 +17,11 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
     val size get() = cells.size
 
     /**
+     * The number of [BigNodeHeapCell]s in this [BigNodeL1HeapPage].
+     */
+    val cellCount get() = cells.size
+
+    /**
      * The last position of this [BigNodeL1HeapPage].
      */
     val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits) - 1
@@ -45,19 +50,10 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * Sets a [BigNodeHeapCell].
      */
-    fun setCell(position: Int, newCell: BigNodeHeapCell) {
+    fun setCell(newCell: BigNodeHeapCell) {
         cloneCells()
 
-        cells[position] = newCell
-    }
-
-    /**
-     * Removes a [BigNodeHeapCell].
-     */
-    fun removeCell(position: Int) {
-        cloneCells()
-
-        cells.remove(position)
+        cells[newCell.position] = newCell
     }
 
     /**

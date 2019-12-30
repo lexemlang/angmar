@@ -27,9 +27,6 @@ internal object Consts {
 
     object Memory {
         const val maxPoolSize = 500
-        const val spatialGarbageCollectorMinimumFreeSpace = 20.0
-        const val spatialGarbageCollectorInitialThreshold = 40000
-        const val spatialGarbageCollectorThresholdIncrement = 3.0
         const val heapPageBits = 8
         const val heapPageL1Mask = 0.inv() // 0xFFFFFFFF
         const val heapPageL2Mask = ((1 shl 8) - 1).inv() // 0xFFFFFF00

@@ -331,8 +331,8 @@ object TestUtils {
         Assertions.assertEquals(0, context.getAllIterableProperties().size, "The context is not empty: $context")
 
         // Remove the stdlib and hidden context.
-        LxmReference.StdLibContext.decreaseReferences(memory)
-        LxmReference.HiddenContext.decreaseReferences(memory)
+        LxmReference.StdLibContext.decreaseReferences(memory.lastNode)
+        LxmReference.HiddenContext.decreaseReferences(memory.lastNode)
 
         // Check whether the memory is empty.
         Assertions.assertEquals(0, memory.lastNode.actualUsedCellCount,
@@ -366,7 +366,7 @@ object TestUtils {
         checkFunction(analyzer, result)
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect(forced = true)
+        analyzer.memory.spatialGarbageCollect()
 
         checkEmptyStackAndContext(analyzer, listOf(varName) + initialVars.keys)
     }

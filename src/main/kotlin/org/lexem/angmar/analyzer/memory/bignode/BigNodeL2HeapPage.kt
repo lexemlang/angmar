@@ -19,7 +19,8 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeL2HeapPage].
      */
-    val cellCount get() = pages.asSequence().map { it.value.size }.sum()
+    var cellCount = 0
+        private set
 
     /**
      * The mask for a [BigNodeL2HeapPage].
@@ -55,8 +56,8 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * Sets a [BigNodeHeapCell].
      */
-    fun setCell(position: Int, newCell: BigNodeHeapCell) {
-        val index = position and mask
+    fun setCell(newCell: BigNodeHeapCell) {
+        val index = newCell.position and mask
         clonePages()
 
         var page = pages[index] ?: let {
@@ -70,28 +71,11 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
             pages[index] = page
         }
 
-        page.setCell(position, newCell)
-    }
+        val oldSize = page.size
+        page.setCell(newCell)
 
-    /**
-     * Removes a [BigNodeHeapCell].
-     */
-    fun removeCell(position: Int) {
-        val index = position and mask
-        clonePages()
-
-        var page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
-                "The analyzer is trying to access a forbidden memory position") {}
-
-        if (page.bigNode != bigNode) {
-            page = page.clone(bigNode)
-            pages[index] = page
-        }
-
-        page.removeCell(position)
-
-        if (page.size == 0) {
-            pages.remove(index)
+        if (page.size != oldSize) {
+            cellCount += 1
         }
     }
 
@@ -102,6 +86,7 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
         val res = BigNodeL2HeapPage(newBigNode, position)
         res.isPagesCloned = false
         res.pages = pages
+        res.cellCount = cellCount
 
         return res
     }

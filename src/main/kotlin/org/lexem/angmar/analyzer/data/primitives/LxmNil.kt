@@ -12,14 +12,14 @@ internal object LxmNil : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
+    override fun getType(bigNode: BigNode): LxmReference {
         val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, NilType.TypeName) as LxmReference
     }
 
-    override fun getHashCode(memory: LexemMemory) = null.hashCode()
+    override fun getHashCode() = null.hashCode()
 
-    override fun toLexemString(memory: LexemMemory) = LxmString.Nil
+    override fun toLexemString(bigNode: BigNode) = LxmString.Nil
 
     override fun toString() = "nil"
 }

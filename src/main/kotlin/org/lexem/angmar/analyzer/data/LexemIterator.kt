@@ -9,51 +9,52 @@ import org.lexem.angmar.analyzer.memory.*
  * An iterator for an element.
  */
 internal abstract class LexemIterator : LxmObject {
+    /**
+     * The number of iterations.
+     */
+    var intervalSize = 0L
+        protected set
 
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: LexemMemory) : super(memory) {
-        restart(memory)
+        restart()
     }
 
-    protected constructor(memory: LexemMemory, oldVersion: LexemIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone)
+    protected constructor(bigNode: BigNode, oldVersion: LexemIterator) : super(bigNode, oldVersion) {
+        intervalSize = oldVersion.intervalSize
+    }
 
     // METHODS ----------------------------------------------------------------
 
     /**
      * The current position of the iterator.
      */
-    fun getIndex(memory: LexemMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
-
-    /**
-     * The number of iterations.
-     */
-    abstract val size: Long
+    fun getIndex() = getPropertyValue(AnalyzerCommons.Identifiers.Index) as LxmInteger
 
     /**
      * Whether the iterator is ended or not.
      */
-    fun isEnded(memory: LexemMemory) = getIndex(memory).primitive >= size
+    fun isEnded() = getIndex().primitive >= intervalSize
 
     /**
      * Returns the current element in a index-value pair.
      */
-    abstract fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>?
+    abstract fun getCurrent(): Pair<LexemPrimitive?, LexemPrimitive>?
 
     /**
      * Advance one iteration.
      */
-    fun advance(memory: LexemMemory) {
-        val prev = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
+    open fun advance() {
+        val prev = getPropertyValue(AnalyzerCommons.Identifiers.Index) as LxmInteger
         val new = LxmInteger.from(prev.primitive + 1)
-        setProperty(memory, AnalyzerCommons.Identifiers.Index, new)
+        setProperty(AnalyzerCommons.Identifiers.Index, new)
     }
 
     /**
      * Restarts the iterator.
      */
-    fun restart(memory: LexemMemory) {
-        setProperty(memory, AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
+    open fun restart() {
+        setProperty(AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
     }
 }

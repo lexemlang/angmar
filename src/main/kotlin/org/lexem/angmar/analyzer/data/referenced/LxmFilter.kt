@@ -20,12 +20,12 @@ internal class LxmFilter : LxmFunction {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
+    override fun getType(bigNode: BigNode): LxmReference {
         val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, FilterType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(memory: LexemMemory): LxmString {
+    override fun toLexemString(bigNode: BigNode): LxmString {
         var source = node.parser.reader.getSource()
         val from = node.from.lineColumn()
 

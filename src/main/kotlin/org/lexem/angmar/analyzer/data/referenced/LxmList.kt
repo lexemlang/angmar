@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
 
@@ -13,34 +12,24 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the List type.
  */
 internal class LxmList : LexemReferenced {
+    private var cells = mutableListOf<LexemPrimitive>()
+    private var isCellsCloned = true
+
     var isConstant = false
         private set
     var isWritable = true
         private set
-    var actualListSize = 0
-        private set
-
-    private var cellList: MutableMap<Int, LexemPrimitive>
-
-    val listSize get() = cellList.size
+    val size get() = cells.size
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory) {
-        cellList = mutableMapOf()
-    }
+    constructor(memory: LexemMemory) : super(memory)
 
-    private constructor(memory: LexemMemory, oldVersion: LxmList, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
+    private constructor(bigNode: BigNode, oldVersion: LxmList) : super(bigNode, oldVersion) {
         isConstant = oldVersion.isConstant
         isWritable = oldVersion.isWritable
-        actualListSize = oldVersion.actualListSize
-
-        cellList = if (toClone) {
-            oldVersion.getAllCellsAsMap()
-        } else {
-            mutableMapOf()
-        }
+        cells = oldVersion.cells
+        isCellsCloned = false
     }
 
     // METHODS ----------------------------------------------------------------
@@ -48,89 +37,58 @@ internal class LxmList : LexemReferenced {
     /**
      * Gets the value of a cell.
      */
-    fun getCell(memory: LexemMemory, index: Int): LexemPrimitive? = getCellRecursively(memory, index)
+    fun getCell(index: Int) = cells.getOrNull(index)
 
     /**
      * Gets the final value of a cell.
      */
-    inline fun <reified T : LexemMemoryValue> getDereferencedCell(memory: LexemMemory, index: Int,
-            toWrite: Boolean): T? = getCell(memory, index)?.dereference(memory, toWrite) as? T
+    inline fun <reified T : LexemMemoryValue> getDereferencedCell(index: Int, toWrite: Boolean): T? =
+            getCell(index)?.dereference(bigNode, toWrite) as? T
 
     /**
      * Sets a new value to a cell.
      */
-    fun setCell(memory: LexemMemory, index: Int, value: LexemMemoryValue, ignoreConstant: Boolean = false) {
-        // Prevent modifications if the list is constant.
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
-        }
-
-        if (!ignoreConstant && isConstant) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
-                    "The list is constant therefore cannot be modified") {}
-        }
-
-        if (index >= actualListSize) {
+    fun setCell(index: Int, value: LexemMemoryValue, ignoreConstant: Boolean = false) {
+        if (index >= size) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                    "The list's length is ${cellList.size} but the position '$index' was required") {}
+                    "The list's length is ${cells.size} but the position '$index' was required") {}
         }
 
-        val valuePrimitive = value.getPrimitive()
-        val currentCell = cellList[index]
-        val lastCell = (oldVersion as? LxmList)?.getCellRecursively(memory, index)
-
-        when {
-            // Current cell
-            currentCell != null -> {
-                replaceCellValue(memory, index, valuePrimitive)
-            }
-
-            // Cell in past version of the list
-            lastCell != null -> {
-                cellList[index] = lastCell
-                replaceCellValue(memory, index, valuePrimitive)
-            }
-        }
+        replaceCell(index, 1, value, ignoreConstant = ignoreConstant)
     }
 
     /**
      * Adds a new cell to the list.
      */
-    fun addCell(memory: LexemMemory, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
-            replaceCell(memory, actualListSize, 0, *values, ignoreConstant = ignoreConstant)
+    fun addCell(vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
+            replaceCell(size, 0, *values, ignoreConstant = ignoreConstant)
 
     /**
      * Replaces a set of cells removing a group and inserting another one.
      */
-    fun replaceCell(memory: LexemMemory, index: Int, removeCount: Int = 0, vararg values2Add: LexemMemoryValue,
+    fun replaceCell(index: Int, removeCount: Int = 0, vararg values2Add: LexemMemoryValue,
             ignoreConstant: Boolean = false) {
-        // Prevent modifications if the list is constant.
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
-        }
-
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
 
-        if (!isWritable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList,
-                    "The list is non writable therefore cannot be modified") {}
-        }
-
-        if (index > actualListSize) {
+        if (index > size) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                    "The list's length is ${cellList.size} but the position '$index' was required") {}
+                    "The list's length is ${cells.size} but the position '$index' was required") {}
         }
 
-        val countToReplace = minOf(removeCount, values2Add.size, actualListSize - index)
+        if (values2Add.isEmpty() && removeCount == 0) {
+            return
+        }
+
+        cloneCells()
+
+        val countToReplace = minOf(removeCount, values2Add.size, size - index)
 
         // Replace cells.
         for (i in 0 until countToReplace) {
-            setCell(memory, index + i, values2Add[i], ignoreConstant = true)
+            replaceCellValue(index + i, values2Add[i].getPrimitive())
         }
 
         val removeCount = removeCount - countToReplace
@@ -138,15 +96,13 @@ internal class LxmList : LexemReferenced {
         val values2AddSize = values2Add.size - countToReplace
 
         // At the end.
-        if (index == actualListSize) {
+        if (index == size) {
             // Add rest.
-            if (values2Add.isNotEmpty()) {
-                for (value in values2Add.drop(countToReplace)) {
-                    val valuePrimitive = value.getPrimitive()
-                    replaceCellValue(memory, actualListSize, valuePrimitive)
-                    actualListSize += 1
-                }
-            }
+            cells.addAll(values2Add.asSequence().drop(countToReplace).map {
+                val res = it.getPrimitive()
+                res.increaseReferences(bigNode)
+                res
+            })
 
             return
         }
@@ -155,79 +111,53 @@ internal class LxmList : LexemReferenced {
         if (values2AddSize == 0) {
             // Remove rest.
             if (removeCount != 0) {
-                val realCount = minOf(removeCount, actualListSize - index)
+                val realCount = minOf(removeCount, size - index)
+                val subList = cells.subList(index, index + realCount)
 
-                // Move backwards.
-                for (i in index + realCount until actualListSize) {
-                    val oldIndex = i - realCount
-                    val oldValue = getCellRecursively(memory, oldIndex)!!
-                    val newValue = getCellRecursively(memory, i)!!
-
-                    // Remove the cell and its value.
-                    cellList[oldIndex] = newValue
-                    memory.replacePrimitives(oldValue, newValue)
+                subList.forEach {
+                    it.decreaseReferences(bigNode)
                 }
 
-                // Remove last count values.
-                for (i in actualListSize - realCount until actualListSize) {
-                    val value = getCellRecursively(memory, i)!!
-                    memory.replacePrimitives(value, LxmNil)
-
-                    cellList.remove(i)
-                }
-
-                actualListSize -= realCount
+                subList.clear()
             }
+        }
+        // Add rest values.
+        else if (removeCount == 0) {
+            cells.addAll(index, values2Add.asSequence().drop(countToReplace).map {
+                val res = it.getPrimitive()
+                res.increaseReferences(bigNode)
+                res
+            }.toList())
         } else {
-            // Add rest values.
-            if (removeCount == 0) {
-                val values2Add = values2Add.drop(countToReplace)
-
-                // Move the cells to create space.
-                for (i in actualListSize - 1 downTo index) {
-                    val value = getCellRecursively(memory, i)!!
-                    cellList[i + values2Add.size] = value
-                }
-
-                // Add the new cells.
-                for ((i, value) in values2Add.withIndex()) {
-                    val valuePrimitive = value.getPrimitive()
-                    memory.replacePrimitives(LxmNil, valuePrimitive)
-                    cellList[index + i] = valuePrimitive
-                }
-
-                actualListSize += values2Add.size
-            } else {
-                throw AngmarUnreachableException()
-            }
+            throw AngmarUnreachableException()
         }
     }
 
     /**
      * Removes a cell.
      */
-    fun removeCell(memory: LexemMemory, index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
-        if (index >= actualListSize) {
+    fun removeCell(index: Int, count: Int = 1, ignoreConstant: Boolean = false) {
+        if (index >= size) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
-                    "The list's length is ${cellList.size} but the position '$index' was required") {}
+                    "The list's length is ${cells.size} but the position '$index' was required") {}
         }
 
-        replaceCell(memory, index, count, ignoreConstant = ignoreConstant)
+        replaceCell(index, count, ignoreConstant = ignoreConstant)
     }
 
     /**
      * Inserts a set of cells at the specified position.
      */
-    fun insertCell(memory: LexemMemory, index: Int, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
-            replaceCell(memory, index, 0, *values, ignoreConstant = ignoreConstant)
+    fun insertCell(index: Int, vararg values: LexemMemoryValue, ignoreConstant: Boolean = false) =
+            replaceCell(index, 0, *values, ignoreConstant = ignoreConstant)
 
     /**
      * Makes the list constant.
      */
-    fun makeConstant(memory: LexemMemory) {
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
+    fun makeConstant() {
+        if (isConstant) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
+                    "The list is constant therefore cannot be modified") {}
         }
 
         isConstant = true
@@ -236,10 +166,10 @@ internal class LxmList : LexemReferenced {
     /**
      * Makes the list constant and not writable.
      */
-    fun makeConstantAndNotWritable(memory: LexemMemory) {
-        if (isMemoryImmutable(memory)) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
-                    "The list is immutable therefore cannot be modified") {}
+    fun makeConstantAndNotWritable() {
+        if (isConstant) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
+                    "The list is constant therefore cannot be modified") {}
         }
 
         isConstant = true
@@ -247,91 +177,48 @@ internal class LxmList : LexemReferenced {
     }
 
     /**
-     * Gets cell recursively.
-     */
-    private fun getCellRecursively(memory: LexemMemory, index: Int): LexemPrimitive? {
-        var list: LxmList? = this
-        while (list != null) {
-            val value = list.cellList[index]
-            if (value != null) {
-                return value
-            }
-
-            list = list.oldVersion as? LxmList
-        }
-
-        return null
-    }
-
-
-    /**
      * Gets all cells of the list in order.
      */
-    fun getAllCellsAsMap(): MutableMap<Int, LexemPrimitive> {
-        val versions = getListOfVersions<LxmList>()
-
-        // Iterate to get a list of versions.
-        val result = HashMap<Int, LexemPrimitive>(actualListSize)
-
-        while (versions.isNotEmpty()) {
-            val element = versions.removeLast()
-            result.putAll(element.cellList)
-        }
-
-        return result
-    }
-
-    /**
-     * Gets all cells of the list in order.
-     */
-    fun getAllCells(): List<LexemPrimitive> {
-        val result = getAllCellsAsMap()
-        return List(actualListSize) { result[it]!! }
-    }
+    fun getAllCells() = cells.asSequence()
 
     /**
      * Replaces the value of a cell.
      */
-    private fun replaceCellValue(memory: LexemMemory, index: Int, newValue: LexemPrimitive) {
+    private fun replaceCellValue(index: Int, newValue: LexemPrimitive) {
         // Keep this to replace the elements before possibly remove the references.
-        val oldValue = cellList[index] ?: LxmNil
-        cellList[index] = newValue
-        memory.replacePrimitives(oldValue, newValue)
+        val oldValue = cells.getOrNull(index) ?: LxmNil
+        cells[index] = newValue
+        MemoryUtils.replacePrimitives(bigNode, oldValue, newValue)
+    }
+
+    /**
+     * Clones the cell list.
+     */
+    private fun cloneCells() {
+        if (!isCellsCloned) {
+            cells = cells.toMutableList()
+            isCellsCloned = true
+        }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = if (!isWritable) {
-        this
-    } else {
-        LxmList(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(bigNode: BigNode) = LxmList(bigNode, this)
+
+    override fun memoryDealloc() {
+        getAllCells().forEach { it.decreaseReferences(bigNode) }
     }
 
-    override fun memoryDealloc(memory: LexemMemory) {
-        for (i in getAllCells()) {
-            if (i is LxmReference) {
-                i.decreaseReferences(memory)
-            }
-        }
-
-        if (isWritable) {
-            cellList.clear()
-            actualListSize = 0
-        }
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        getAllCells().forEach { it.spatialGarbageCollect(gcFifo) }
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        for (cell in getAllCells()) {
-            cell.spatialGarbageCollect(memory, gcFifo)
-        }
+    override fun getType(bigNode: BigNode): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
+        return context.getPropertyValue(ListType.TypeName) as LxmReference
     }
 
-    override fun getType(memory: LexemMemory): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        return context.getPropertyValue(memory, ListType.TypeName) as LxmReference
-    }
-
-    override fun toLexemString(memory: LexemMemory) = LxmString.ListToString
+    override fun toLexemString(bigNode: BigNode) = LxmString.ListToString
 
     override fun toString() = StringBuilder().apply {
         if (isConstant) {
@@ -340,14 +227,13 @@ internal class LxmList : LexemReferenced {
 
         append(ListNode.startToken)
 
-        val list = getAllCells()
-        val text = list.asSequence().take(4).joinToString(", ")
+        val text = getAllCells().take(4).joinToString(", ")
 
         append(text)
         append(ListNode.endToken)
 
-        if (list.size > 4) {
-            append(" and ${list.size - 4} more")
+        if (size > 4) {
+            append(" and ${size - 4} more")
         }
     }.toString()
 }

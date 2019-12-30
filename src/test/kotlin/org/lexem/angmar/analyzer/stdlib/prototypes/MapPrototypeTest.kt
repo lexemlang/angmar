@@ -704,7 +704,7 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(map.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 val obj = element.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
@@ -774,7 +774,7 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(map.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(element in map.keys, "The result list is incorrect")
@@ -806,7 +806,7 @@ internal class MapPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(map.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(map.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(element in map.values, "The result list is incorrect")

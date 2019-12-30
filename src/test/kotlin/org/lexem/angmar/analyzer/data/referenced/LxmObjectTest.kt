@@ -37,14 +37,14 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val old = LxmObject(memory)
-        val oldCell = memory.lastNode.getCell(memory, old.getPrimitive().position)
+        val oldCell = memory.lastNode.getHeapCell(old.getPrimitive().position)
 
         Assertions.assertNull(old.oldVersion, "The oldObject property is incorrect")
         Assertions.assertNull(old.prototypeReference, "The prototypeReference property is incorrect")
         Assertions.assertEquals(0, oldCell.referenceCount, "The referenceCount property is incorrect")
 
         val new1 = LxmObject(memory, old)
-        val new1Cell = memory.lastNode.getCell(memory, new1.getPrimitive().position)
+        val new1Cell = memory.lastNode.getHeapCell(new1.getPrimitive().position)
 
         Assertions.assertNull(new1.oldVersion, "The oldObject property is incorrect")
         Assertions.assertEquals(old.getPrimitive(), new1.prototypeReference,
@@ -189,16 +189,16 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val obj1 = LxmObject(memory)
-        obj1.getPrimitive().increaseReferences(memory)
-        val obj1Cell = memory.lastNode.getCell(memory, obj1.getPrimitive().position)
+        obj1.getPrimitive().increaseReferences(memory.lastNode)
+        val obj1Cell = memory.lastNode.getHeapCell(obj1.getPrimitive().position)
 
         val obj2 = LxmObject(memory)
-        obj2.getPrimitive().increaseReferences(memory)
-        val obj2Cell = memory.lastNode.getCell(memory, obj2.getPrimitive().position)
+        obj2.getPrimitive().increaseReferences(memory.lastNode)
+        val obj2Cell = memory.lastNode.getHeapCell(obj2.getPrimitive().position)
 
         val obj = LxmObject(memory)
-        obj.getPrimitive().increaseReferences(memory)
-        val objCell = memory.lastNode.getCell(memory, obj.getPrimitive().position)
+        obj.getPrimitive().increaseReferences(memory.lastNode)
+        val objCell = memory.lastNode.getHeapCell(obj.getPrimitive().position)
 
         Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
@@ -355,9 +355,9 @@ internal class LxmObjectTest {
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.setProperty(memory, "new", LxmLogic.False)
 
-        Assertions.assertTrue(new.containsOwnProperty(memory, "old"), "The old property is incorrect")
-        Assertions.assertTrue(new.containsOwnProperty(memory, "new"), "The old property is incorrect")
-        Assertions.assertFalse(new.containsOwnProperty(memory, "prototype"), "The old property is incorrect")
+        Assertions.assertTrue(new.containsOwnProperty("old"), "The old property is incorrect")
+        Assertions.assertTrue(new.containsOwnProperty("new"), "The old property is incorrect")
+        Assertions.assertFalse(new.containsOwnProperty("prototype"), "The old property is incorrect")
     }
 
     @Test
@@ -374,7 +374,7 @@ internal class LxmObjectTest {
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.removeProperty(memory, "old")
 
-        Assertions.assertFalse(new.containsOwnProperty(memory, "old"), "The old property is incorrect")
+        Assertions.assertFalse(new.containsOwnProperty("old"), "The old property is incorrect")
     }
 
     @Test
@@ -529,26 +529,26 @@ internal class LxmObjectTest {
         val memory = TestUtils.generateTestMemory()
 
         val obj = LxmObject(memory)
-        obj.getPrimitive().increaseReferences(memory)
-        val objCell = memory.lastNode.getCell(memory, obj.getPrimitive().position)
+        obj.getPrimitive().increaseReferences(memory.lastNode)
+        val objCell = memory.lastNode.getHeapCell(obj.getPrimitive().position)
 
         val prototype = LxmObject(memory)
-        prototype.getPrimitive().increaseReferences(memory)
-        val prototypeCell = memory.lastNode.getCell(memory, prototype.getPrimitive().position)
+        prototype.getPrimitive().increaseReferences(memory.lastNode)
+        val prototypeCell = memory.lastNode.getHeapCell(prototype.getPrimitive().position)
 
         val old = LxmObject(memory, prototype)
         old.setProperty(memory, "test-old", LxmLogic.True)
         old.setProperty(memory, "testObj-old", obj)
-        old.getPrimitive().increaseReferences(memory)
-        val oldCell = memory.lastNode.getCell(memory, old.getPrimitive().position)
+        old.getPrimitive().increaseReferences(memory.lastNode)
+        val oldCell = memory.lastNode.getHeapCell(old.getPrimitive().position)
 
         memory.freezeCopy()
 
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.setProperty(memory, "test-new", LxmLogic.False)
         new.setProperty(memory, "testObj-new", obj)
-        val newCell = memory.lastNode.getCell(memory, new.getPrimitive().position)
-        val objCellNew = memory.lastNode.getCell(memory, obj.getPrimitive().position)
+        val newCell = memory.lastNode.getHeapCell(new.getPrimitive().position)
+        val objCellNew = memory.lastNode.getHeapCell(obj.getPrimitive().position)
 
         Assertions.assertEquals(oldCell.referenceCount, newCell.referenceCount,
                 "The referenceCount property is incorrect")
@@ -559,7 +559,7 @@ internal class LxmObjectTest {
 
         new.memoryDealloc(memory)
 
-        val prototypeCellNew = memory.lastNode.getCell(memory, prototype.getPrimitive().position)
+        val prototypeCellNew = memory.lastNode.getHeapCell(prototype.getPrimitive().position)
 
         Assertions.assertEquals(1, newCell.referenceCount, "The referenceCount property is incorrect")
         Assertions.assertEquals(1, objCellNew.referenceCount, "The referenceCount property is incorrect")
@@ -575,7 +575,7 @@ internal class LxmObjectTest {
 
         obj1.setProperty(memory, "test", obj2)
         obj1.makeConstantAndNotWritable(memory)
-        obj1.getPrimitive().increaseReferences(memory)
+        obj1.getPrimitive().increaseReferences(memory.lastNode)
 
         obj1.memoryDealloc(memory)
 

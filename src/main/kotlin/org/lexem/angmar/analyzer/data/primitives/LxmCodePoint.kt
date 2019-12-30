@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.analyzer.data.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
 
@@ -13,7 +12,7 @@ internal open class LxmCodePoint(val node: CompiledNode, val signal: Int, val ca
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() =
             "[Code Point] (signal: $signal, node: $node, callerNode: $callerNode, callerContextName: $callerContextName)"

@@ -66,7 +66,7 @@ internal class BigNodeHeapCellTest {
 
         // Reduce the reference count.
         cell0.increaseReferences()
-        cell0.decreaseReferences(memory)
+        cell0.decreaseReferences(memory.lastNode)
         checkCell(cell0, 0, null, referenceCount = 1, isFreed = true) // 1 = lastFreeCell
     }
 
@@ -153,11 +153,11 @@ internal class BigNodeHeapCellTest {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
-            val cell0 = bigNode.alloc(memory, empty)
+            val cell0 = bigNode.allocAndGetHeapCell(memory, empty)
             cell0.increaseReferences()
 
             // Free
-            cell0.decreaseReferences(memory)
+            cell0.decreaseReferences(memory.lastNode)
 
             cell0.freeCell(memory)
         }
@@ -170,11 +170,11 @@ internal class BigNodeHeapCellTest {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
-            val cell0 = bigNode.alloc(memory, empty)
+            val cell0 = bigNode.allocAndGetHeapCell(memory, empty)
             cell0.increaseReferences()
 
             // Free
-            cell0.decreaseReferences(memory)
+            cell0.decreaseReferences(memory.lastNode)
 
             cell0.increaseReferences()
         }
@@ -187,13 +187,13 @@ internal class BigNodeHeapCellTest {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
-            val cell0 = bigNode.alloc(memory, empty)
+            val cell0 = bigNode.allocAndGetHeapCell(memory, empty)
             cell0.increaseReferences()
 
             // Free
-            cell0.decreaseReferences(memory)
+            cell0.decreaseReferences(memory.lastNode)
 
-            cell0.decreaseReferences(memory)
+            cell0.decreaseReferences(memory.lastNode)
         }
     }
 
@@ -204,7 +204,7 @@ internal class BigNodeHeapCellTest {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
-            val cell0 = bigNode.alloc(memory, empty)
+            val cell0 = bigNode.allocAndGetHeapCell(memory, empty)
             cell0.increaseReferences()
 
             // Free
@@ -219,8 +219,8 @@ internal class BigNodeHeapCellTest {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
-            val cell0 = bigNode.alloc(memory, empty)
-            cell0.decreaseReferences(memory)
+            val cell0 = bigNode.allocAndGetHeapCell(memory, empty)
+            cell0.decreaseReferences(memory.lastNode)
         }
     }
 }

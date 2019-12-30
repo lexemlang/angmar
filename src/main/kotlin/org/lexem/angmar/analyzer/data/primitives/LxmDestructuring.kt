@@ -84,8 +84,8 @@ internal class LxmDestructuring : LexemPrimitive {
             setVars.add(spread!!.alias)
         } else {
             val spreadObjectRef = spreadObject.getPrimitive()
-            spreadObjectRef.increaseReferences(memory)
-            spreadObjectRef.decreaseReferences(memory)
+            spreadObjectRef.increaseReferences(memory.lastNode)
+            spreadObjectRef.decreaseReferences(memory.lastNode)
         }
 
         return setVars
@@ -124,8 +124,8 @@ internal class LxmDestructuring : LexemPrimitive {
             setVars.add(spread!!.alias)
         } else {
             val spreadListRef = spreadList.getPrimitive()
-            spreadListRef.increaseReferences(memory)
-            spreadListRef.decreaseReferences(memory)
+            spreadListRef.increaseReferences(memory.lastNode)
+            spreadListRef.decreaseReferences(memory.lastNode)
         }
 
         return setVars
@@ -145,7 +145,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() = "[Destructuring] (alias: $alias, elements: $elements, spread: $spread)"
 

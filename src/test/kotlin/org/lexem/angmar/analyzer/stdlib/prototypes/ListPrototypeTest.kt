@@ -113,7 +113,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -146,7 +146,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, oriList.size, "The result is incorrect")
         }
     }
 
@@ -191,7 +191,7 @@ internal class ListPrototypeTest {
             val resultList = list.filter { it > 2 }
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(resultList.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(resultList.size, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in resultList.zip(resList.getAllCells())) {
                 resElement as? LxmInteger ?: throw Error("All elements in the result list must be LxmInteger")
@@ -202,7 +202,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 oriElement as? LxmInteger ?: throw Error("All elements in the original list must be LxmInteger")
@@ -256,7 +256,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 oriElement as? LxmInteger ?: throw Error("All elements in the original list must be LxmInteger")
@@ -331,7 +331,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -401,7 +401,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -460,7 +460,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -503,7 +503,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -531,7 +531,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -566,7 +566,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -594,7 +594,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -629,7 +629,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -659,7 +659,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.zip(resList.getAllCells())) {
                 resElement as? LxmInteger ?: throw Error("All elements in the result list must be LxmInteger")
@@ -670,7 +670,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 oriElement as? LxmInteger ?: throw Error("All elements in the original list must be LxmInteger")
@@ -725,7 +725,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 oriElement as? LxmInteger ?: throw Error("All elements in the original list must be LxmInteger")
@@ -785,7 +785,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -818,7 +818,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, oriList.size, "The result is incorrect")
         }
     }
 
@@ -860,7 +860,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -891,7 +891,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(resultList.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(resultList.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in resultList.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -921,7 +921,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - 1, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -956,7 +956,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - count, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -991,7 +991,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1022,7 +1022,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(at, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(at, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -1184,7 +1184,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1192,7 +1192,7 @@ internal class ListPrototypeTest {
 
             val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
                     ?: throw Error("The target variable must contain a LxmList")
-            Assertions.assertEquals(at + list.size - from, targetList.actualListSize, "The target list is incorrect")
+            Assertions.assertEquals(at + list.size - from, targetList.size, "The target list is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The target list has not been modified")
@@ -1232,7 +1232,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1240,7 +1240,7 @@ internal class ListPrototypeTest {
 
             val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
                     ?: throw Error("The target variable must contain a LxmList")
-            Assertions.assertEquals(at + count, targetList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(at + count, targetList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The target list has not been modified")
@@ -1280,7 +1280,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1288,7 +1288,7 @@ internal class ListPrototypeTest {
 
             val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
                     ?: throw Error("The target variable must contain a LxmList")
-            Assertions.assertEquals(target.size + count, targetList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(target.size + count, targetList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in target.zip(targetList.getAllCells().take(target.size))) {
                 Assertions.assertEquals(listElement, oriElement, "The target list has not been modified")
@@ -1329,7 +1329,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1337,7 +1337,7 @@ internal class ListPrototypeTest {
 
             val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
                     ?: throw Error("The target variable must contain a LxmList")
-            Assertions.assertEquals(target.size, targetList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(target.size, targetList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in target.zip(targetList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The target list has not been modified")
@@ -1373,7 +1373,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1381,7 +1381,7 @@ internal class ListPrototypeTest {
 
             val targetList = context.getDereferencedProperty<LxmList>(analyzer.memory, targetVariable, toWrite = false)
                     ?: throw Error("The target variable must contain a LxmList")
-            Assertions.assertEquals(at + list.size - from, targetList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(at + list.size - from, targetList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in target.take(at).zip(targetList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The target list has not been modified")
@@ -1577,7 +1577,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1607,7 +1607,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
@@ -1640,7 +1640,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - 1, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.dropLast(1).zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1666,7 +1666,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(count, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.takeLast(count).asReversed().zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -1676,7 +1676,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - count, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.dropLast(count).zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -1702,7 +1702,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.asReversed().zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -1712,7 +1712,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, oriList.size, "The result is incorrect")
         }
     }
 
@@ -1772,7 +1772,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1802,7 +1802,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in additionElements.zip(oriList.getAllCells().take(additionElements.size))) {
@@ -1835,7 +1835,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - 1, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - 1, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.drop(1).zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -1861,7 +1861,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(count, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.take(count).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -1871,7 +1871,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - count, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.drop(count).zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -1897,7 +1897,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(list.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -1907,7 +1907,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, oriList.size, "The result is incorrect")
         }
     }
 
@@ -1969,7 +1969,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2000,7 +2000,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -2041,7 +2041,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells().take(list.size))) {
@@ -2113,7 +2113,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - count, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - count, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -2149,7 +2149,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size - count + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size - count + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
@@ -2190,7 +2190,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size + additionElements.size, oriList.actualListSize,
+            Assertions.assertEquals(list.size + additionElements.size, oriList.size,
                     "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells().take(list.size))) {
@@ -2227,7 +2227,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(at + additionElements.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(at + additionElements.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.take(at).zip(oriList.getAllCells().take(at))) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -2330,7 +2330,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.reversed().zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -2357,7 +2357,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.reversed().zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has not been modified")
@@ -2383,7 +2383,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(list.size - from, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - from, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -2393,7 +2393,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2419,13 +2419,13 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(0, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, resList.size, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2452,7 +2452,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(count, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(count, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).take(count).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -2462,7 +2462,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2489,13 +2489,13 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(0, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, resList.size, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2522,7 +2522,7 @@ internal class ListPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(list.size - from, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size - from, resList.size, "The result is incorrect")
 
             for ((listElement, resElement) in list.drop(from).zip(resList.getAllCells())) {
                 Assertions.assertEquals(listElement, resElement, "The result list is incorrect")
@@ -2532,7 +2532,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(list.size, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(list.size, oriList.size, "The result is incorrect")
 
             for ((listElement, oriElement) in list.zip(oriList.getAllCells())) {
                 Assertions.assertEquals(listElement, oriElement, "The original list has been modified")
@@ -2631,7 +2631,7 @@ internal class ListPrototypeTest {
             val oriList =
                     context.getDereferencedProperty<LxmList>(analyzer.memory, variable, toWrite = false) ?: throw Error(
                             "The variable must contain a LxmList")
-            Assertions.assertEquals(0, oriList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(0, oriList.size, "The result is incorrect")
         }
     }
 }

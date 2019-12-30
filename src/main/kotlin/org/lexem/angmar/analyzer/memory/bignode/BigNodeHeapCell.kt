@@ -8,20 +8,41 @@ import java.util.concurrent.atomic.*
 /**
  * The representation of a memory heap cell.
  */
-internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private var value: LexemReferenced) {
+internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private var value: LexemReferenced?) {
     var isValueCloned = true
     var referenceCount = AtomicInteger(0)
         private set
 
+    /**
+     * Whether the cell is freed or not.
+     */
+    val isFreed get() = value == null
+
     // METHODS ----------------------------------------------------------------
+
+    /**
+     * Gets the value of the cell.
+     */
+    fun getValue(toWrite: Boolean): LexemReferenced {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "No modification operation can be performed in a freed cell") {}
+        }
+
+        if (toWrite) {
+            cloneValue(bigNode)
+        }
+
+        return value!!
+    }
 
     /**
      * Increases the reference count.
      */
-    fun increaseReferences(memory: LexemMemory, count: Int = 1) {
-        if (memory.lastNode != bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ForbiddenMemoryAccess,
-                    "No modification operation can be performed in a past BigNode") {}
+    fun increaseReferences(count: Int = 1) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "No modification operation can be performed in a freed cell") {}
         }
 
         referenceCount.addAndGet(count)
@@ -30,10 +51,10 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
     /**
      * Decreases the reference count freeing the cell if it reaches 0.
      */
-    fun decreaseReferences(memory: LexemMemory, count: Int = 1) {
-        if (memory.lastNode != bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ForbiddenMemoryAccess,
-                    "No modification operation can be performed in a past BigNode") {}
+    fun decreaseReferences(count: Int = 1) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "No modification operation can be performed in a freed cell") {}
         }
 
         val newReferenceCount = referenceCount.addAndGet(-count)
@@ -43,10 +64,40 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
                     "A cell in the memory has an underflow reference count") {}
         }
 
-        if (newReferenceCount == 0) {
+        // Free in-chain only if not in garbage collection mode.
+        if (newReferenceCount == 0 && !bigNode.inGarbageCollectionMode.get()) {
             // TODO free async
-            memory.lastNode.free(memory, position)
+            bigNode.freeHeapCell(position)
         }
+    }
+
+    /**
+     * Frees a cell.
+     */
+    fun freeCell() {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot free an already freed cell") {}
+        }
+
+        val oldValue = value ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                "Not freed cell without a value") {}
+        value = null
+        referenceCount.set(bigNode.lastFreePosition.get())
+        oldValue.memoryDealloc()
+    }
+
+    /**
+     * Re-allocs a cell.
+     */
+    fun reallocCell(value: LexemReferenced) {
+        if (!isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "Cannot realloc a used cell") {}
+        }
+
+        this.value = value
+        referenceCount.set(0)
     }
 
     /**
@@ -54,7 +105,7 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
      */
     fun clone(newBigNode: BigNode): BigNodeHeapCell {
         val res = BigNodeHeapCell(newBigNode, position, value)
-        res.referenceCount = referenceCount
+        res.referenceCount = AtomicInteger(referenceCount.get())
         res.isValueCloned = false
 
         return res
@@ -63,15 +114,24 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
     /**
      * Clones the value.
      */
-    private fun clonePages(bigNode: BigNode) {
+    private fun cloneValue(bigNode: BigNode) {
+        if (isFreed) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "No modification operation can be performed in a freed cell") {}
+        }
+
         if (!isValueCloned) {
-            value = value.clone(bigNode)
+            value = value!!.memoryClone(bigNode)
             isValueCloned = true
         }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun toString() = "[$position] Refs<$referenceCount> = $value"
+    override fun toString() = if (isFreed) {
+        "[$position] Freed -> $referenceCount"
+    } else {
+        "[$position] Refs<$referenceCount> = $value"
+    }
 }
 

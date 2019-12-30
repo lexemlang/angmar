@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.data
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
-import java.util.*
 
 /**
  * The common part of every referenced value in lexem.
@@ -21,11 +20,6 @@ internal abstract class LexemReferenced : LexemMemoryValue {
      */
     private val reference: LxmReference
 
-    /**
-     * The old version of this value.
-     */
-    val oldVersion: LexemReferenced?
-
     // CONSTRUCTORS -----------------------------------------------------------
 
     /**
@@ -34,26 +28,20 @@ internal abstract class LexemReferenced : LexemMemoryValue {
     constructor(memory: LexemMemory) {
         bigNode = memory.lastNode
         reference = memory.add(this)
-        oldVersion = null
     }
 
     /**
-     * Constructor to memory shift cloning or not.
+     * Constructor to clone.
      */
-    protected constructor(memory: LexemMemory, oldVersion: LexemReferenced, toClone: Boolean) {
-        bigNode = memory.lastNode
-        reference = oldVersion.reference
-        this.oldVersion = if (toClone) {
-            null
-        } else {
-            oldVersion
-        }
-
-        // Check that a memoryShift is not called over the same bigNode.
-        if (oldVersion.bigNode == memory.lastNode) {
+    protected constructor(bigNode: BigNode, oldVersion: LexemReferenced) {
+        // Check that a clone is not called over the same bigNode.
+        if (oldVersion.bigNode == bigNode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ValueShiftOverSameBigNode,
                     "Cannot shift a value in the same bigNode") {}
         }
+
+        this.bigNode = bigNode
+        reference = oldVersion.reference
     }
 
 
@@ -63,51 +51,19 @@ internal abstract class LexemReferenced : LexemMemoryValue {
      * Indicates whether the value is an immutable view of the memory value or can be modified.
      */
     fun isMemoryImmutable(memory: LexemMemory) = bigNode != memory.lastNode
-
-    /**
-     * Counts the number of old versions of this value.
-     */
-    fun countOldVersions(): Int {
-        var count = 1
-
-        var version = oldVersion
-        while (version != null) {
-            count += 1
-            version = version.oldVersion
-        }
-
-        return count
-    }
-
-    /**
-     * Counts the number of old versions of this value.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T> getListOfVersions(): LinkedList<T> {
-        val list = LinkedList<T>()
-
-        var version: LexemReferenced? = this
-        while (version != null) {
-            list.addLast(version as T)
-
-            version = version.oldVersion
-        }
-
-        return list
-    }
-
+    
     /**
      * Gets the reference of this value.
      */
     override fun getPrimitive() = reference
 
     /**
-     * Shifts the value in the memory.
+     * Clones the value in the memory.
      */
-    abstract fun memoryShift(memory: LexemMemory): LexemReferenced
+    abstract fun memoryClone(bigNode: BigNode): LexemReferenced
 
     /**
      * Clears the memory value.
      */
-    abstract fun memoryDealloc(memory: LexemMemory)
+    abstract fun memoryDealloc()
 }
