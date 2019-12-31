@@ -89,7 +89,7 @@ internal object SetPrototype {
     private fun sizeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Size, SetType.TypeName,
                     toWrite = false) { _: LexemAnalyzer, thisValue: LxmSet ->
-                LxmInteger.from(thisValue.getSize())
+                LxmInteger.from(thisValue.size)
             }
 
     /**
@@ -98,7 +98,7 @@ internal object SetPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, SetType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmSet ->
-                thisValue.makeConstant(analyzer.memory)
+                thisValue.makeConstant()
                 LxmNil
             }
 
@@ -247,7 +247,7 @@ internal object SetPrototype {
                     analyzer.memory.removeLastFromStack()
 
                     if (resultTruthy) {
-                        set.addValue(analyzer.memory, list.getCell(position - 1)!!)
+                        set.addValue(list.getCell(position - 1)!!)
                     }
 
                     if (position < list.size) {
@@ -428,13 +428,11 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAny' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        for ((i, propList) in thisValue.getAllValues()) {
-            for (prop in propList) {
-                val inside = spreadPositional.any { RelationalFunctions.identityEquals(it, prop.value) }
-                if (inside) {
-                    analyzer.memory.addToStackAsLast(LxmLogic.True)
-                    return true
-                }
+        for (prop in thisValue.getAllValues()) {
+            val inside = spreadPositional.any { RelationalFunctions.identityEquals(it, prop) }
+            if (inside) {
+                analyzer.memory.addToStackAsLast(LxmLogic.True)
+                return true
             }
         }
 
@@ -458,9 +456,9 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAll' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        val allProps = thisValue.getAllValues().flatMap { it.value }
+        val allProps = thisValue.getAllValues()
         for (value in spreadPositional) {
-            val inside = allProps.any { RelationalFunctions.identityEquals(it.value, value) }
+            val inside = allProps.any { RelationalFunctions.identityEquals(it, value) }
             if (!inside) {
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
                 return true
@@ -527,7 +525,7 @@ internal object SetPrototype {
                     val result = analyzer.memory.getLastFromStack()
 
                     // Add the value.
-                    set.addValue(analyzer.memory, result)
+                    set.addValue(result)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -711,7 +709,7 @@ internal object SetPrototype {
         }
 
         for (i in spreadPositional) {
-            thisValue.addValue(analyzer.memory, i)
+            thisValue.addValue(i)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -735,7 +733,7 @@ internal object SetPrototype {
         }
 
         for (key in spreadPositional) {
-            thisValue.removeValue(analyzer.memory, key)
+            thisValue.removeValue(key)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -779,9 +777,8 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Clear' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        val values = thisValue.getAllValues().values.flatten().map { it.value }
-        for (i in values) {
-            thisValue.removeValue(analyzer.memory, i)
+        for (i in thisValue.getAllValues()) {
+            thisValue.removeValue(i)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -802,16 +799,12 @@ internal object SetPrototype {
                     is LxmSet -> {
                         val newSet = LxmSet(analyzer.memory)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in left.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in right.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
                         newSet
@@ -831,16 +824,12 @@ internal object SetPrototype {
                     is LxmSet -> {
                         val newSet = LxmSet(analyzer.memory)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in left.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                newSet.removeValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in right.getAllValues()) {
+                            newSet.removeValue(prop)
                         }
 
                         newSet
@@ -860,11 +849,9 @@ internal object SetPrototype {
                     is LxmSet -> {
                         val newSet = LxmSet(analyzer.memory)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                if (right.containsValue(prop.value)) {
-                                    newSet.addValue(analyzer.memory, prop.value)
-                                }
+                        for (prop in left.getAllValues()) {
+                            if (right.containsValue(prop)) {
+                                newSet.addValue(prop)
                             }
                         }
 
@@ -885,16 +872,12 @@ internal object SetPrototype {
                     is LxmSet -> {
                         val newSet = LxmSet(analyzer.memory)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in left.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in right.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
                         newSet
@@ -914,19 +897,15 @@ internal object SetPrototype {
                     is LxmSet -> {
                         val newSet = LxmSet(analyzer.memory)
 
-                        for ((_, list) in left.getAllValues()) {
-                            for (prop in list) {
-                                newSet.addValue(analyzer.memory, prop.value)
-                            }
+                        for (prop in left.getAllValues()) {
+                            newSet.addValue(prop)
                         }
 
-                        for ((_, list) in right.getAllValues()) {
-                            for (prop in list) {
-                                if (newSet.containsValue(prop.value)) {
-                                    newSet.removeValue(analyzer.memory, prop.value)
-                                } else {
-                                    newSet.addValue(analyzer.memory, prop.value)
-                                }
+                        for (prop in right.getAllValues()) {
+                            if (newSet.containsValue(prop)) {
+                                newSet.removeValue(prop)
+                            } else {
+                                newSet.addValue(prop)
                             }
                         }
 
@@ -940,10 +919,8 @@ internal object SetPrototype {
 
     private fun toList(analyzer: LexemAnalyzer, set: LxmSet): LxmList {
         val list = LxmList(analyzer.memory)
-        for ((i, propList) in set.getAllValues()) {
-            for (prop in propList) {
-                list.addCell(prop.value)
-            }
+        for (prop in set.getAllValues()) {
+            list.addCell(prop)
         }
 
         return list

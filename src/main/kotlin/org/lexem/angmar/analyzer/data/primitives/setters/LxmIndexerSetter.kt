@@ -113,8 +113,8 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
-        val element = element.dereference(memory, toWrite = false)
+    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
+        val element = element.dereference(bigNode, toWrite = false)
         val index = index
 
         return when (element) {
@@ -203,17 +203,17 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmObject -> {
                 index as LxmString
 
-                element.getPropertyValue(memory, index.primitive) ?: LxmNil
+                element.getPropertyValue(index.primitive) ?: LxmNil
             }
             is LxmMap -> {
-                element.getPropertyValue(memory, index) ?: LxmNil
+                element.getPropertyValue(index) ?: LxmNil
             }
             else -> throw AngmarUnreachableException()
         }
     }
 
-    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
-        val element = element.dereference(memory, toWrite = true)
+    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
+        val element = element.dereference(bigNode, toWrite = true)
         val index = index
 
         when (element) {
@@ -242,15 +242,15 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                element.setCell(memory, primitive, value)
+                element.setCell(primitive, value)
             }
             is LxmObject -> {
                 index as LxmString
 
-                element.setProperty( index.primitive, value)
+                element.setProperty(index.primitive, value)
             }
             is LxmMap -> {
-                element.setProperty( index, value)
+                element.setProperty(index, value)
             }
             else -> throw AngmarUnreachableException()
         }

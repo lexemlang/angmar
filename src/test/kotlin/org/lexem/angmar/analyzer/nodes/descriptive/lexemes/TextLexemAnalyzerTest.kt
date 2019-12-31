@@ -22,7 +22,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -49,7 +49,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -74,7 +74,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -101,7 +101,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -126,10 +126,10 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
-        props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+        props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.False)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -156,10 +156,10 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
-        props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+        props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.False)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -183,10 +183,10 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
-        props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+        props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.False)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -213,10 +213,10 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
-        props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.False)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+        props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.False)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -241,7 +241,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -259,7 +259,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -279,7 +279,7 @@ internal class TextLexemAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 

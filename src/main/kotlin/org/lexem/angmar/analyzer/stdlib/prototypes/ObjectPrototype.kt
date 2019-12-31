@@ -67,7 +67,7 @@ internal object ObjectPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, ObjectType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
-                thisValue.makeConstant(analyzer.memory)
+                thisValue.makeConstant()
                 LxmNil
             }
 
@@ -101,7 +101,7 @@ internal object ObjectPrototype {
                     "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$IsPropertyFrozen' method requires the parameter called '${IsPropertyFrozenArgs[0]}' be a ${StringType.TypeName}") {}
         }
 
-        val descriptor = thisValue.getOwnPropertyDescriptor(analyzer.memory, property.primitive)
+        val descriptor = thisValue.getPropertyDescriptor(property.primitive)
         analyzer.memory.addToStackAsLast(LxmLogic.from(descriptor?.isConstant ?: false))
         return true
     }
@@ -128,7 +128,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAllOwnProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            thisValue.makePropertyConstant(analyzer.memory, key.primitive)
+            thisValue.makePropertyConstant(key.primitive)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -144,7 +144,7 @@ internal object ObjectPrototype {
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
                 val allProperties = thisValue.getAllIterableProperties()
                 for ((key, _) in allProperties) {
-                    thisValue.makePropertyConstant(analyzer.memory, key)
+                    thisValue.makePropertyConstant(key)
                 }
 
                 LxmNil
@@ -172,7 +172,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$RemoveProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            thisValue.removeProperty(analyzer.memory, key.primitive)
+            thisValue.removeProperty(key.primitive)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -274,7 +274,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAnyOwnProperty' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            val prop = thisValue.getOwnPropertyDescriptor(analyzer.memory, key.primitive)
+            val prop = thisValue.getPropertyDescriptor(key.primitive)
             if (prop != null) {
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
                 return true
@@ -307,7 +307,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAllOwnProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            val prop = thisValue.getOwnPropertyDescriptor(analyzer.memory, key.primitive)
+            val prop = thisValue.getPropertyDescriptor(key.primitive)
             if (prop == null) {
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
                 return true

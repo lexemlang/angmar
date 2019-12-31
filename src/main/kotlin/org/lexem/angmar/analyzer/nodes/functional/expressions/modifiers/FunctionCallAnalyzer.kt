@@ -193,8 +193,8 @@ internal object FunctionCallAnalyzer {
 
         // Call the function.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, node,
+        val contextName = AnalyzerCommons.getContextName(context)
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(node.parent!!, node.parentSignal, callerNode = node,
                         callerContextName = contextName.primitive))
 

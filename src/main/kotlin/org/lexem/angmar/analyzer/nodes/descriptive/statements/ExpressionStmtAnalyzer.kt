@@ -36,13 +36,13 @@ internal object ExpressionStmtAnalyzer {
 
                 // Add it to the exports if the parent is a public macro
                 if (node.parent is PublicMacroStmtCompiled) {
-                    val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
+                    val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports,
+                            toWrite = true)!!
 
-                    exports.setProperty( name.primitive, exp)
+                    exports.setProperty(name.primitive, exp)
                 }
 
-                context.setProperty( name.primitive, exp)
+                context.setProperty(name.primitive, exp)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,

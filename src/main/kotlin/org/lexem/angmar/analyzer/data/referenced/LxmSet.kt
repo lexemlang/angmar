@@ -13,7 +13,7 @@ import org.lexem.angmar.parser.literals.*
  * The Lexem value of the Set type.
  */
 internal class LxmSet : LexemReferenced {
-    private var properties = mutableMapOf<Int, MutableList<LexemPrimitive>>()
+    private var properties = hashMapOf<Int, MutableList<LexemPrimitive>>()
     private var isPropertiesCloned = true
 
     var isConstant = false

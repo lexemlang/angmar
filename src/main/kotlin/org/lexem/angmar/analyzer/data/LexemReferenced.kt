@@ -1,6 +1,7 @@
 package org.lexem.angmar.analyzer.data
 
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
@@ -51,7 +52,17 @@ internal abstract class LexemReferenced : LexemMemoryValue {
      * Indicates whether the value is an immutable view of the memory value or can be modified.
      */
     fun isMemoryImmutable(memory: LexemMemory) = bigNode != memory.lastNode
-    
+
+    /**
+     * Gets the prototype of the value.
+     */
+    fun getPrototype() = getPrototype(bigNode)
+
+    /**
+     * Gets the prototype of the value as a [LxmObject].
+     */
+    fun getPrototypeAsObject(toWrite: Boolean) = getPrototypeAsObject(bigNode, toWrite)
+
     /**
      * Gets the reference of this value.
      */

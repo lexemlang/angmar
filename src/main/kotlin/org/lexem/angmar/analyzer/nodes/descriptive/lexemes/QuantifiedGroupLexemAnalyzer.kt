@@ -66,7 +66,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                 val union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = true) as LxmQuantifiedGroup
-                quantifiedGroup.addUnion(analyzer.memory, union)
+                quantifiedGroup.addUnion(union)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -79,7 +79,7 @@ internal object QuantifiedGroupLexemAnalyzer {
                 // Update the index.
                 val quantifiedGroup = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = true) as LxmQuantifiedGroup
-                quantifiedGroup.increaseIndex(analyzer.memory, position - 1)
+                quantifiedGroup.increaseIndex(position - 1)
 
                 return callNextPattern(analyzer, quantifiedGroup, node, 0)
             }
@@ -108,18 +108,18 @@ internal object QuantifiedGroupLexemAnalyzer {
         for (i in node.modifiers.drop(from)) {
             if (i == null) {
                 val union = LxmPatternUnion(analyzer.memory, LxmQuantifier.AlternativePattern, LxmInteger.Num0)
-                quantifiedGroup.addUnion(analyzer.memory, union)
+                quantifiedGroup.addUnion(union)
             } else {
                 return analyzer.nextNode(i)
             }
         }
 
         // Calculate the main union.
-        val oldMainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory, toWrite = false).quantifier
+        val oldMainQuantifier = quantifiedGroup.getMainUnion(toWrite = false).quantifier
         quantifiedGroup.calculateMainUnion(analyzer.memory)
 
         // Check bounds.
-        val mainQuantifier = quantifiedGroup.getMainUnion(analyzer.memory, toWrite = false).quantifier
+        val mainQuantifier = quantifiedGroup.getMainUnion(toWrite = false).quantifier
         if (mainQuantifier.max < mainQuantifier.min) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectQuantifierBounds,
                     "The maximum value cannot be lower than the minimum. Actual: {min: ${mainQuantifier.min}, max: ${mainQuantifier.max}}") {
@@ -161,7 +161,7 @@ internal object QuantifiedGroupLexemAnalyzer {
         val signalBadEndFirstPattern = signalEndFirstPattern + 2 * node.patterns.size
 
         for ((index, pattern) in node.patterns.withIndex().drop(from)) {
-            if (quantifiedGroup.canHaveANextPattern(analyzer.memory, index)) {
+            if (quantifiedGroup.canHaveANextPattern(index)) {
                 // On backwards try next.
                 analyzer.freezeMemoryCopy(node, signalBadEndFirstPattern + index)
 
@@ -170,7 +170,7 @@ internal object QuantifiedGroupLexemAnalyzer {
         }
 
         // Check whether the group is finished.
-        if (quantifiedGroup.isGroupFinished(analyzer.memory)) {
+        if (quantifiedGroup.isGroupFinished()) {
             if (node.isNegated) {
                 // Restore the memory index of the start and continue.
                 val index = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LastNode) as LxmBigNode

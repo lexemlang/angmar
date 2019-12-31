@@ -24,7 +24,7 @@ internal object BinaryAnalyzerCommons {
         val value = valueRef.dereference(analyzer.memory, toWrite = false)
         val prototype = value.getObjectOrPrototype(analyzer.memory, toWrite = false)
 
-        val operatorFunctionRef = prototype.getPropertyValue(analyzer.memory, operatorFunctionName)
+        val operatorFunctionRef = prototype.getPropertyValue(operatorFunctionName)
         val operatorFunction =
                 operatorFunctionRef?.dereference(analyzer.memory, toWrite = false) ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.UndefinedObjectProperty,

@@ -21,7 +21,13 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * The number of cells in the current [BigNode]'s heap.
      */
-    val heapSize get() = heap.cellCount
+    val heapSize get() = heap.cellCount.get()
+
+    /**
+     * The number of freed cells in the current [BigNode]'s heap.
+     */
+    var heapFreedCells: AtomicInteger = AtomicInteger(previousNode?.heapFreedCells?.get() ?: 0)
+        private set
 
     /**
      * The position of the last empty cell that can be used to hold new information.
@@ -107,6 +113,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         lastFreePosition.set(cell.referenceCount.get())
         cell.reallocCell(value)
 
+        heapFreedCells.decrementAndGet()
         return cell
     }
 
@@ -125,6 +132,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             cell = getHeapCell(position, toWrite = true)
             cell.freeCell()
             lastFreePosition.set(cell.position)
+            heapFreedCells.incrementAndGet()
         }
     }
 

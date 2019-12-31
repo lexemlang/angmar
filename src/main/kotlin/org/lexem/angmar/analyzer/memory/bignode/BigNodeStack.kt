@@ -3,12 +3,13 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
+import org.lexem.angmar.utils.*
 
 /**
  * The representation of a memory stack.
  */
 internal class BigNodeStack(val bigNode: BigNode) {
-    private var cells = mutableMapOf<String, BigNodeStackCell>()
+    private var cells = hashMapOf<String, BigNodeStackCell>()
     private var isCellsCloned = true
 
     /**
@@ -97,7 +98,7 @@ internal class BigNodeStack(val bigNode: BigNode) {
      */
     private fun cloneCells() {
         if (!isCellsCloned) {
-            cells = cells.toMutableMap()
+            cells = cells.toHashMap()
             isCellsCloned = true
         }
     }

@@ -96,7 +96,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Abs}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -133,7 +133,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Acos}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -170,7 +170,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Acosh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -207,7 +207,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Asin}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -244,7 +244,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Asinh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -281,7 +281,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Atan}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -318,7 +318,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Atanh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -362,7 +362,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Atan2}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -375,7 +375,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Atan2}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -412,7 +412,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Cbrt}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -445,7 +445,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Ceil}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -480,7 +480,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Clz32}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -513,7 +513,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Cos}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -546,7 +546,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Cosh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -583,7 +583,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Exp}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -616,7 +616,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Floor}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -656,7 +656,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Hypot}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -668,7 +668,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Hypot}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -705,7 +705,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Ln}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -742,7 +742,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Log10}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -779,7 +779,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Log2}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -812,7 +812,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Max}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -824,7 +824,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Max}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -858,7 +858,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Min}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -870,7 +870,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Min}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -914,7 +914,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Pow}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -927,7 +927,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Pow}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -983,7 +983,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Round}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1017,7 +1017,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Sign}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1050,7 +1050,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Sin}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1083,7 +1083,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Sinh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1120,7 +1120,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Sqrt}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1153,7 +1153,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Tan}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1186,7 +1186,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Tanh}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -1219,7 +1219,7 @@ internal class MathGlobalObjectTest {
             val fnCall =
                     "${MathGlobalObject.ObjectName}${AccessExplicitMemberNode.accessToken}${MathGlobalObject.Trunc}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }

@@ -36,7 +36,7 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         }
 
@@ -60,7 +60,7 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in negativePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
@@ -84,8 +84,8 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (prop in setProps) {
-            val property = result.getPropertyValue(analyzer.memory, prop.first) as? LxmInteger ?: throw Error(
-                    "The result must be a LxmInteger")
+            val property =
+                    result.getPropertyValue(prop.first) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
@@ -109,12 +109,12 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         }
 
         for (propName in negativePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
@@ -138,13 +138,13 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         }
 
         for (prop in setProps) {
-            val property = result.getPropertyValue(analyzer.memory, prop.first) as? LxmInteger ?: throw Error(
-                    "The result must be a LxmInteger")
+            val property =
+                    result.getPropertyValue(prop.first) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
@@ -168,13 +168,13 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in negativePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
         for (prop in setProps) {
-            val property = result.getPropertyValue(analyzer.memory, prop.first) as? LxmInteger ?: throw Error(
-                    "The result must be a LxmInteger")
+            val property =
+                    result.getPropertyValue(prop.first) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 
@@ -198,18 +198,18 @@ internal class PropertyStyleObjectBlockAnalyzerTest {
                 "The result must be a LxmObject")
 
         for (propName in positivePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         }
 
         for (propName in negativePropNames) {
-            val property = result.getPropertyValue(analyzer.memory, propName)
+            val property = result.getPropertyValue(propName)
             Assertions.assertEquals(LxmLogic.False, property, "The property [$propName] is incorrect")
         }
 
         for (prop in setProps) {
-            val property = result.getPropertyValue(analyzer.memory, prop.first) as? LxmInteger ?: throw Error(
-                    "The result must be a LxmInteger")
+            val property =
+                    result.getPropertyValue(prop.first) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
             Assertions.assertEquals(prop.second, property.primitive, "The property [${prop.first}] is incorrect")
         }
 

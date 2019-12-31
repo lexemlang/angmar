@@ -36,9 +36,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -64,9 +63,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
@@ -93,9 +91,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -123,7 +120,7 @@ internal class QuantifiedLoopStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", reader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, reader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -148,7 +145,7 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty(varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -175,9 +172,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -271,7 +267,7 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty(varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -297,7 +293,7 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
+        context.setProperty(varName, LxmInteger.from(initialValue))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -342,9 +338,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -373,9 +368,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 3)
 
@@ -421,9 +415,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 5)
 
@@ -452,9 +445,8 @@ internal class QuantifiedLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.from(initialValue))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 5)
 

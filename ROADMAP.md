@@ -8,6 +8,10 @@ This is the plan to work towards a future release.
 
 ---------------
 - Test:
+├── LxmMap
+├── LxmObject
+├── LxmList
+├── LxmSet
 ├── descriptive
 │   ├── LexemePatternContentCompiled.kt
 │   ├── lexemes

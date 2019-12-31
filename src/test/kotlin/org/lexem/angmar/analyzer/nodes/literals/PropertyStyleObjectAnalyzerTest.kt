@@ -20,7 +20,7 @@ internal class PropertyStyleObjectAnalyzerTest {
         val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
 
-        val property = result.getPropertyValue(analyzer.memory, propName)
+        val property = result.getPropertyValue(propName)
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         Assertions.assertFalse(result.isConstant, "The isConstant property is incorrect")
 
@@ -43,7 +43,7 @@ internal class PropertyStyleObjectAnalyzerTest {
         val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
 
-        val property = result.getPropertyValue(analyzer.memory, propName)
+        val property = result.getPropertyValue(propName)
         Assertions.assertEquals(LxmLogic.True, property, "The property [$propName] is incorrect")
         Assertions.assertTrue(result.isConstant, "The isConstant property is incorrect")
 

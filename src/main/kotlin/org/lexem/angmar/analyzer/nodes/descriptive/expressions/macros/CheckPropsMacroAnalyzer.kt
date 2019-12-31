@@ -27,7 +27,7 @@ internal object CheckPropsMacroAnalyzer {
                 val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
 
                 for ((key, value) in values.getAllIterableProperties()) {
-                    val property = properties.getPropertyValue(analyzer.memory, key)
+                    val property = properties.getPropertyValue(key)
 
                     if (!RelationalFunctions.identityEquals(value.value, property ?: LxmNil)) {
                         // Return false.

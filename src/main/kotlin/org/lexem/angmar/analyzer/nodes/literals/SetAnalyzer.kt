@@ -24,13 +24,13 @@ internal object SetAnalyzer {
                 val set = LxmSet(analyzer.memory)
 
                 for (i in list.getAllCells()) {
-                    set.addValue(analyzer.memory, i)
+                    set.addValue(i)
                 }
 
                 analyzer.memory.replaceLastStackCell(set)
 
                 if (list.isConstant) {
-                    set.makeConstant(analyzer.memory)
+                    set.makeConstant()
                 }
             }
         }

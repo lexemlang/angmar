@@ -31,13 +31,12 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName, LxmString.from(tagName))
+        context.setProperty(variableName, LxmString.from(tagName))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName =
-                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
+        val contextName = context.getPropertyValue(AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
 
         Assertions.assertEquals(tagName, contextName.primitive, "The contextName is incorrect")
 
@@ -55,7 +54,7 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
+        context.setProperty(varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -77,7 +76,7 @@ internal class BlockStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
+        context.setProperty(varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -86,8 +85,7 @@ internal class BlockStmtAnalyzerTest {
         Assertions.assertEquals(value, result, "The result is incorrect")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName = finalContext.getPropertyValue(analyzer.memory,
-                AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
+        val contextName = finalContext.getPropertyValue(AnalyzerCommons.Identifiers.HiddenContextTag) as LxmString
 
         Assertions.assertEquals(tagName, contextName.primitive, "The contextName is incorrect")
 

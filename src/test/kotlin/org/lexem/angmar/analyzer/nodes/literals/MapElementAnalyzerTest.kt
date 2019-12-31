@@ -27,8 +27,8 @@ internal class MapElementAnalyzerTest {
         val mapDeref = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmMap")
         val element =
-                mapDeref.getDereferencedProperty<LxmInteger>(analyzer.memory, LxmInteger.from(key), toWrite = false)
-                        ?: throw Error("The element must be a LxmInteger")
+                mapDeref.getDereferencedProperty<LxmInteger>(LxmInteger.from(key), toWrite = false) ?: throw Error(
+                        "The element must be a LxmInteger")
 
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
 

@@ -28,11 +28,11 @@ internal class CheckPropsMacroAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( affirmativeVar, LxmLogic.True)
-        props.setProperty( negativeVar, LxmLogic.False)
-        props.setProperty( withValueVar, LxmInteger.from(withValueValue))
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(affirmativeVar, LxmLogic.True)
+        props.setProperty(negativeVar, LxmLogic.False)
+        props.setProperty(withValueVar, LxmInteger.from(withValueValue))
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -62,11 +62,11 @@ internal class CheckPropsMacroAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
-        val props = node.getProperties(analyzer.memory, toWrite = true)
-        props.setProperty( affirmativeVar, LxmNil)
-        props.setProperty( negativeVar, LxmLogic.False)
-        props.setProperty( withValueVar, LxmInteger.from(withValueValue))
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
+        props.setProperty(affirmativeVar, LxmNil)
+        props.setProperty(negativeVar, LxmLogic.False)
+        props.setProperty(withValueVar, LxmInteger.from(withValueValue))
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

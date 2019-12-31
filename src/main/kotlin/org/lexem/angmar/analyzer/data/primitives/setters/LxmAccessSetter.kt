@@ -31,12 +31,12 @@ internal class LxmAccessSetter : LexemSetter {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
-        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = false)!!
+    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
+        val ctxObject = context.dereferenceAs<LxmObject>(bigNode, toWrite = false)!!
 
-        return ctxObject.getPropertyValue(memory, variableName) ?: throw AngmarAnalyzerException(
+        return ctxObject.getPropertyValue(variableName) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType,
-                "The variable called \"$variableName\" does not exist in the current context") {
+                "The variable called '$variableName' does not exist in the current context") {
             val fullText = node.parser.reader.readAllText()
             addSourceCode(fullText, node.parser.reader.getSource()) {
                 title = Consts.Logger.codeTitle
@@ -50,9 +50,9 @@ internal class LxmAccessSetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
-        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        ctxObject.setPropertyAsContext(memory, variableName, value)
+    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
+        val ctxObject = context.dereferenceAs<LxmObject>(bigNode, toWrite = true)!!
+        ctxObject.setPropertyAsContext(variableName, value)
     }
 
     override fun increaseReferences(bigNode: BigNode) {

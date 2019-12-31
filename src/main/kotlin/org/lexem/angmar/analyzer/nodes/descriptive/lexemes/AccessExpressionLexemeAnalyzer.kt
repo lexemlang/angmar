@@ -42,14 +42,14 @@ internal object AccessExpressionLexemeAnalyzer {
                     // If the setter has a function execute it.
                     val finalValue = finalValueRef.dereference(analyzer.memory, toWrite = false)
                     if (finalValue is LxmFunction) {
-                        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
+                        val contextName = AnalyzerCommons.getContextName(context)
                         val arguments = LxmArguments(analyzer.memory)
                         arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmNil)
 
                         // Remove Last from the stack.
                         analyzer.memory.removeLastFromStack()
 
-                        return AnalyzerNodesCommons.callFunction(analyzer, finalValue, arguments, node,
+                        return AnalyzerNodesCommons.callFunction(analyzer, finalValue, arguments,
                                 LxmCodePoint(node, signalEndFunction, callerNode = node,
                                         callerContextName = contextName.primitive))
                     }

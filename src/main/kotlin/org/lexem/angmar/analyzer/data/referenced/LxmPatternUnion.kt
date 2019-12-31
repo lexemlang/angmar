@@ -14,7 +14,7 @@ internal class LxmPatternUnion : LxmObject {
 
     constructor(memory: LexemMemory, quantifier: LxmQuantifier, index: LxmInteger) : super(memory) {
         this.quantifier = quantifier
-        setIndex(memory, index)
+        setIndex(index)
     }
 
     private constructor(bigNode: BigNode, oldVersion: LxmPatternUnion) : super(bigNode, oldVersion) {
@@ -26,40 +26,37 @@ internal class LxmPatternUnion : LxmObject {
     /**
      * Gets the index.
      */
-    fun getIndex(memory: LexemMemory) =
-            getDereferencedProperty<LxmInteger>(memory, AnalyzerCommons.Identifiers.Index, toWrite = false)!!
+    fun getIndex() = getDereferencedProperty<LxmInteger>(AnalyzerCommons.Identifiers.Index, toWrite = false)!!
 
     /**
      * Sets the index.
      */
-    fun setIndex(memory: LexemMemory, index: LxmInteger) {
-        setProperty(memory, AnalyzerCommons.Identifiers.Index, index)
-    }
+    fun setIndex(index: LxmInteger) = setProperty(AnalyzerCommons.Identifiers.Index, index)
 
     /**
      * Increases the index.
      */
-    fun increaseIndex(memory: LexemMemory) {
-        val index = getIndex(memory)
+    fun increaseIndex() {
+        val index = getIndex()
         val newIndex = LxmInteger.from(index.primitive + 1)
-        setIndex(memory, newIndex)
+        setIndex(newIndex)
     }
 
     /**
      * Checks whether the union can have another pattern regarding its bounds.
      */
-    fun canHaveANextPattern(memory: LexemMemory) = quantifier.canHaveANextIteration(getIndex(memory).primitive)
+    fun canHaveANextPattern() = quantifier.canHaveANextIteration(getIndex().primitive)
 
     /**
      * Checks whether the union is finished or not.
      */
-    fun isFinished(memory: LexemMemory) = quantifier.isFinished(getIndex(memory).primitive)
+    fun isFinished() = quantifier.isFinished(getIndex().primitive)
 
     /**
      * Checks whether the union can finish with current state and the remaining patterns.
      */
-    fun canFinish(memory: LexemMemory, remaining: Int): Boolean {
-        val possible = getIndex(memory).primitive + remaining
+    fun canFinish(remaining: Int): Boolean {
+        val possible = getIndex().primitive + remaining
 
         return possible >= quantifier.min
     }

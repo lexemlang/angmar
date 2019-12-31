@@ -31,15 +31,15 @@ internal class FunctionCallExpressionPropertiesAnalyzerTest {
         val result = resultRef.dereferenceAs<LxmArguments>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmArguments")
         val namedArguments =
-                result.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.ArgumentsNamed,
+                result.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite = false)
+                        ?: throw Error("The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
+
+        val argument =
+                namedArguments.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.ArgumentsProperties,
                         toWrite = false) ?: throw Error(
-                        "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
+                        "The ${AnalyzerCommons.Identifiers.ArgumentsProperties} must be a LxmObject")
 
-        val argument = namedArguments.getDereferencedProperty<LxmObject>(analyzer.memory,
-                AnalyzerCommons.Identifiers.ArgumentsProperties, toWrite = false) ?: throw Error(
-                "The ${AnalyzerCommons.Identifiers.ArgumentsProperties} must be a LxmObject")
-
-        val argumentValue = argument.getPropertyValue(analyzer.memory, propName)
+        val argumentValue = argument.getPropertyValue(propName)
 
         Assertions.assertEquals(LxmLogic.True, argumentValue, "The argumentValue is incorrect")
 

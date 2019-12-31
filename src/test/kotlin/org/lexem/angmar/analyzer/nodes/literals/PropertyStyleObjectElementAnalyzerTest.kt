@@ -32,9 +32,8 @@ internal class PropertyStyleObjectElementAnalyzerTest {
 
         val result = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property =
-                result.getDereferencedProperty<LxmInteger>(analyzer.memory, propName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = result.getDereferencedProperty<LxmInteger>(propName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
         Assertions.assertEquals(345, property.primitive, "The primitive property is incorrect")
 
         // Remove Accumulator from the stack.

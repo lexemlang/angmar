@@ -20,10 +20,10 @@ internal class AccessExplicitMemberAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty( propName, value)
+        obj.setProperty(propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, obj)
+        context.setProperty(varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -52,10 +52,10 @@ internal class AccessExplicitMemberAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty( propName, value)
+        obj.setProperty(propName, value)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, obj)
+        context.setProperty(varName, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -64,8 +64,8 @@ internal class AccessExplicitMemberAnalyzerTest {
 
         val finalObject = obj.getPrimitive().dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                 "The result must be a LxmObject")
-        val property = finalObject.getDereferencedProperty<LxmInteger>(analyzer.memory, propName, toWrite = false)
-                ?: throw Error("The result must be a LxmInteger")
+        val property = finalObject.getDereferencedProperty<LxmInteger>(propName, toWrite = false) ?: throw Error(
+                "The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.

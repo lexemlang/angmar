@@ -3,23 +3,19 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
+import org.lexem.angmar.utils.*
 
 /**
  * The representation of a level-1 heap page.
  */
 internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
-    private var cells = mutableMapOf<Int, BigNodeHeapCell>()
+    private var cells = hashMapOf<Int, BigNodeHeapCell>()
     private var isCellsCloned = true
 
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeL1HeapPage].
      */
     val size get() = cells.size
-
-    /**
-     * The number of [BigNodeHeapCell]s in this [BigNodeL1HeapPage].
-     */
-    val cellCount get() = cells.size
 
     /**
      * The last position of this [BigNodeL1HeapPage].
@@ -49,11 +45,15 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
 
     /**
      * Sets a [BigNodeHeapCell].
+     * @return Whether a new cell has been added.
      */
-    fun setCell(newCell: BigNodeHeapCell) {
+    fun setCell(newCell: BigNodeHeapCell): Boolean {
         cloneCells()
 
+        val result = newCell.position in cells
         cells[newCell.position] = newCell
+
+        return result
     }
 
     /**
@@ -72,7 +72,7 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
      */
     private fun cloneCells() {
         if (!isCellsCloned) {
-            cells = cells.toMutableMap()
+            cells = cells.toHashMap()
             isCellsCloned = true
         }
     }

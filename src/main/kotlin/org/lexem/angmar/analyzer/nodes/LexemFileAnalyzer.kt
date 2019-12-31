@@ -73,7 +73,7 @@ internal object LexemFileAnalyzer {
      */
     private fun finalizeFile(analyzer: LexemAnalyzer, node: LexemFileCompiled) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Exports) as LxmReference
+        val exports = context.getPropertyValue(AnalyzerCommons.Identifiers.Exports) as LxmReference
 
         analyzer.memory.addToStackAsLast(exports)
 

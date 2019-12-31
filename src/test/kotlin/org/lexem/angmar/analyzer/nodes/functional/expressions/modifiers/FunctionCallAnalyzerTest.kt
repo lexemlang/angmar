@@ -86,23 +86,26 @@ internal class FunctionCallAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         var executed = false
         val function = LxmFunction(analyzer.memory) { _, arguments, _, _ ->
             executed = true
 
-            val positionalArguments = arguments.getDereferencedProperty<LxmList>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.ArgumentsPositional, toWrite = false) ?: throw Error(
-                    "The ${AnalyzerCommons.Identifiers.ArgumentsPositional} must be a LxmList")
+            val positionalArguments =
+                    arguments.getDereferencedProperty<LxmList>(AnalyzerCommons.Identifiers.ArgumentsPositional,
+                            toWrite = false) ?: throw Error(
+                            "The ${AnalyzerCommons.Identifiers.ArgumentsPositional} must be a LxmList")
 
-            val namedArguments = arguments.getDereferencedProperty<LxmObject>(analyzer.memory,
-                    AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite = false) ?: throw Error(
-                    "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
+            val namedArguments =
+                    arguments.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.ArgumentsNamed,
+                            toWrite = false) ?: throw Error(
+                            "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
 
-            val allPositional = positionalArguments.getAllCells()
-            val allNamed = namedArguments.getAllIterableProperties()
+            val allPositional = positionalArguments.getAllCells().toList()
+            val allNamed = HashMap<String, LxmObject.LxmObjectProperty>().also { map ->
+                namedArguments.getAllIterableProperties().forEach { map[it.key] = it.value }
+            }
 
             // Sizes
             var positionalSize = 0
@@ -156,7 +159,7 @@ internal class FunctionCallAnalyzerTest {
                 val properties = propRef.dereference(analyzer.memory, toWrite = false) as LxmObject
 
                 for (p in props) {
-                    val value = properties.getPropertyValue(analyzer.memory, p)
+                    val value = properties.getPropertyValue(p)
                     Assertions.assertEquals(LxmLogic.True, value, "The property $p must be true")
                 }
 

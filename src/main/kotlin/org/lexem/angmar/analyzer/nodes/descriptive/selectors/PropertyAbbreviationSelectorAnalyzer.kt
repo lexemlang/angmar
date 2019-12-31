@@ -38,10 +38,10 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                     val lxmNode =
                             analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                                     toWrite = false) as LxmNode
-                    val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
+                    val props = lxmNode.getProperties(toWrite = true)
                     val name = analyzer.memory.getLastFromStack() as LxmString
 
-                    props.setProperty( name.primitive, LxmLogic.from(!node.isNegated))
+                    props.setProperty(name.primitive, LxmLogic.from(!node.isNegated))
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -50,11 +50,11 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                     val lxmNode =
                             analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                                     toWrite = false) as LxmNode
-                    val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
+                    val props = lxmNode.getProperties(toWrite = true)
                     val name = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Key) as LxmString
                     val value = analyzer.memory.getLastFromStack()
 
-                    props.setProperty( name.primitive, value)
+                    props.setProperty(name.primitive, value)
 
                     // Remove Key and Last from the stack.
                     analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)
@@ -79,13 +79,13 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                                 LxmString.from(lxmNode.name)
                             }
                             AnalyzerCommons.SelectorAtIdentifiers.Content -> {
-                                lxmNode.getContent(analyzer.memory)
+                                lxmNode.getContent()
                             }
                             AnalyzerCommons.SelectorAtIdentifiers.Start -> {
-                                LxmInteger.from(lxmNode.getFrom(analyzer.memory).primitive.position())
+                                LxmInteger.from(lxmNode.getFrom().primitive.position())
                             }
                             AnalyzerCommons.SelectorAtIdentifiers.End -> {
-                                val value = lxmNode.getTo(analyzer.memory)?.primitive?.position()
+                                val value = lxmNode.getTo()?.primitive?.position()
                                 if (value != null) {
                                     LxmInteger.from(value)
                                 } else {
@@ -108,8 +108,8 @@ internal object PropertyAbbreviationSelectorAnalyzer {
                             }
                         }
                     } else {
-                        val props = lxmNode.getProperties(analyzer.memory, toWrite = false)
-                        props.getPropertyValue(analyzer.memory, name.primitive)
+                        val props = lxmNode.getProperties(toWrite = false)
+                        props.getPropertyValue(name.primitive)
                     }
 
                     if (node.isNegated) {

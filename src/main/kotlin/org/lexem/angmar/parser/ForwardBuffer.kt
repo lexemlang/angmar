@@ -15,7 +15,7 @@ internal class ForwardBuffer {
      */
     fun <T : ParserNode> add(node: T) {
         val map = tree[node.from.position()] ?: let {
-            val newMap = mutableMapOf<Class<Any>, ParserNode>()
+            val newMap = hashMapOf<Class<Any>, ParserNode>()
             tree[node.from.position()] = newMap
             newMap
         }

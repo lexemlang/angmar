@@ -42,7 +42,7 @@ internal object ConditionalLoopStmtAnalyzer {
 
                 // Set the index in the context.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.setProperty( indexName.primitive, LxmInteger.Num0)
+                context.setProperty(indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.condition)
             }
@@ -170,7 +170,7 @@ internal object ConditionalLoopStmtAnalyzer {
             } else {
                 // Remove the name of the intermediate statement.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
+                context.removeProperty(AnalyzerCommons.Identifiers.HiddenContextTag)
 
                 analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForLast)
                 analyzer.nextNode(node.lastClauses)
@@ -196,7 +196,7 @@ internal object ConditionalLoopStmtAnalyzer {
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
-            context.setProperty( indexName.primitive, newIndex)
+            context.setProperty(indexName.primitive, newIndex)
         }
     }
 

@@ -82,27 +82,25 @@ internal object VarDeclarationStmtAnalyzer {
 
                     // Add it to the exports if the parent is a public macro
                     if (node.parent is PublicMacroStmtCompiled) {
-                        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
-                                AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
+                        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports,
+                                toWrite = true)!!
 
                         for (varName in varNames) {
-                            val descriptor = context.getPropertyDescriptor(analyzer.memory, varName)!!
-                            exports.setProperty( varName, descriptor.value,
-                                    isConstant = descriptor.isConstant)
+                            val descriptor = context.getPropertyDescriptor(varName)!!
+                            exports.setProperty(varName, descriptor.value, isConstant = descriptor.isConstant)
                         }
                     }
                 } else {
                     identifier as LxmString
 
-                    context.setPropertyAsContext(analyzer.memory, identifier.primitive, value,
-                            isConstant = node.isConstant)
+                    context.setProperty(identifier.primitive, value, isConstant = node.isConstant)
 
                     // Add it to the exports if the parent is a public macro.
                     if (node.parent is PublicMacroStmtCompiled) {
-                        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
-                                AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
+                        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports,
+                                toWrite = true)!!
 
-                        exports.setProperty( identifier.primitive, value, isConstant = node.isConstant)
+                        exports.setProperty(identifier.primitive, value, isConstant = node.isConstant)
                     }
                 }
 

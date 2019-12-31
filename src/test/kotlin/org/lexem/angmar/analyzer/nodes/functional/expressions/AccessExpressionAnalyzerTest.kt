@@ -88,8 +88,8 @@ internal class AccessExpressionAnalyzerTest {
         Assertions.assertEquals(right, result.primitive, "The element property is incorrect")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = finalContext.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false)
-                ?: throw Error("The result must be a LxmInteger")
+        val property = finalContext.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The result must be a LxmInteger")
         Assertions.assertEquals(right, property.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.

@@ -199,14 +199,13 @@ internal object AnalyzerCommons {
      * Gets the current context reference.
      */
     private fun getCurrentContextReference(memory: LexemMemory): LxmReference =
-            getHiddenContext(memory, toWrite = false).getPropertyValue(memory,
-                    Identifiers.HiddenCurrentContext) as LxmReference
+            getHiddenContext(memory, toWrite = false).getPropertyValue(Identifiers.HiddenCurrentContext) as LxmReference
 
     /**
      * Gets the current context from the memory.
      */
     fun getCurrentContext(bigNode: BigNode, toWrite: Boolean) =
-            getHiddenContext(memory, toWrite = false).getDereferencedProperty<LxmContext>(bigNode,
+            getHiddenContext(bigNode, toWrite = false).getDereferencedProperty<LxmContext>(
                     Identifiers.HiddenCurrentContext, toWrite)!!
 
     /**
@@ -217,9 +216,8 @@ internal object AnalyzerCommons {
     /**
      * Gets the name of the current context.
      */
-    fun getContextName(memory: LexemMemory, context: LxmContext) =
-            getCurrentContext(memory, toWrite = false).getDereferencedProperty<LxmString>(memory,
-                    Identifiers.HiddenCurrentContextName, toWrite = false)!!
+    fun getContextName(context: LxmContext) =
+            context.getDereferencedProperty<LxmString>(Identifiers.HiddenCurrentContextName, toWrite = false)!!
 
     /**
      * Gets the actual call hierarchy.
@@ -250,7 +248,7 @@ internal object AnalyzerCommons {
      */
     inline fun <reified T : LexemMemoryValue> getCurrentContextElement(memory: LexemMemory, identifier: String,
             toWrite: Boolean) =
-            getCurrentContext(memory, toWrite = false).getDereferencedProperty<T>(memory, identifier, toWrite)!!
+            getCurrentContext(memory, toWrite = false).getDereferencedProperty<T>(identifier, toWrite)!!
 
     /**
      * Creates a new context and assigns it as the current context.
@@ -293,15 +291,13 @@ internal object AnalyzerCommons {
     fun removeCurrentFunctionContextAndAssignPrevious(memory: LexemMemory) {
         val hiddenContext = getHiddenContext(memory, toWrite = true)
         val lastContext = getCurrentContext(memory, toWrite = true)
-        val lastContextReference =
-                hiddenContext.getPropertyValue(memory, Identifiers.HiddenCurrentContext) as LxmReference
-        val callerContextReference =
-                lastContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
+        val lastContextReference = hiddenContext.getPropertyValue(Identifiers.HiddenCurrentContext) as LxmReference
+        val callerContextReference = lastContext.getPropertyValue(Identifiers.HiddenCallerContext) as LxmReference
 
         // Done like this to avoid premature removal.
         lastContextReference.increaseReferences(memory.lastNode)
         hiddenContext.setProperty(Identifiers.HiddenCurrentContext, callerContextReference)
-        lastContext.removePropertyIgnoringConstants(memory, Identifiers.HiddenCallerContext)
+        lastContext.removeProperty(Identifiers.HiddenCallerContext, ignoreConstant = true)
 
         lastContextReference.decreaseReferences(memory.lastNode)
     }
@@ -314,7 +310,7 @@ internal object AnalyzerCommons {
         val previousContext =
                 currentContext.prototypeReference?.dereferenceAs<LxmContext>(memory, toWrite = true) ?: return
 
-        val previousName = previousContext.getOwnPropertyDescriptor(memory, Identifiers.HiddenContextTag)
+        val previousName = previousContext.getPropertyValue(Identifiers.HiddenContextTag)
         if (previousName == null) {
             previousContext.setProperty(Identifiers.HiddenContextTag, name)
         }
@@ -329,8 +325,7 @@ internal object AnalyzerCommons {
         val lastContextReference = getCurrentContextReference(analyzer.memory)
 
         val newContext = LxmContext(analyzer.memory, stdLibContext, LxmContext.LxmContextType.Root)
-        val fileMap = hiddenContext.getDereferencedProperty<LxmObject>(analyzer.memory, Identifiers.HiddenFileMap,
-                toWrite = true)!!
+        val fileMap = hiddenContext.getDereferencedProperty<LxmObject>(Identifiers.HiddenFileMap, toWrite = true)!!
         val exports = LxmObject(analyzer.memory)
         newContext.setProperty(Identifiers.HiddenCallerContext, lastContextReference)
         newContext.setProperty(Identifiers.Exports, exports, isConstant = true)
@@ -355,7 +350,7 @@ internal object AnalyzerCommons {
         val hiddenContext = getHiddenContext(memory, toWrite = true)
         val currentContext = getCurrentContext(memory, toWrite = true)
         val currentContextReference = getCurrentContextReference(memory)
-        val lastContextRef = currentContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
+        val lastContextRef = currentContext.getPropertyValue(Identifiers.HiddenCallerContext) as LxmReference
 
         // Done like this to avoid premature removal.
         currentContextReference.increaseReferences(memory.lastNode)
@@ -363,7 +358,7 @@ internal object AnalyzerCommons {
         hiddenContext.setProperty(Identifiers.HiddenCurrentContext, lastContextRef)
 
         // Remove the property to unlink the previous context.
-        currentContext.removePropertyIgnoringConstants(memory, Identifiers.HiddenCallerContext)
+        currentContext.removeProperty(Identifiers.HiddenCallerContext, ignoreConstant = true)
 
         currentContextReference.decreaseReferences(memory.lastNode)
     }
@@ -373,7 +368,7 @@ internal object AnalyzerCommons {
      */
     fun getCurrentContextTag(memory: LexemMemory): String? {
         val context = getCurrentContext(memory, toWrite = false)
-        val tag = context.getPropertyValue(memory, Identifiers.HiddenContextTag) as? LxmString
+        val tag = context.getPropertyValue(Identifiers.HiddenContextTag) as? LxmString
 
         return tag?.primitive
     }
@@ -383,9 +378,9 @@ internal object AnalyzerCommons {
      */
     fun getCurrentNodeProps(memory: LexemMemory, toWrite: Boolean): LxmObject {
         val context = getCurrentContext(memory, toWrite = false)
-        val node = context.getDereferencedProperty<LxmNode>(memory, Identifiers.Node, toWrite = false)!!
+        val node = context.getDereferencedProperty<LxmNode>(Identifiers.Node, toWrite = false)!!
 
-        return node.getProperties(memory, toWrite)
+        return node.getProperties(toWrite)
     }
 
     /**

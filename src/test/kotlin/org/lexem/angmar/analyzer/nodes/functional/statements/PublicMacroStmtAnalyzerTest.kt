@@ -20,15 +20,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val function =
-                exports.getPropertyDescriptor(analyzer.memory, fnName) ?: throw Error("The function has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val function = exports.getPropertyDescriptor(fnName) ?: throw Error("The function has not been set")
 
         Assertions.assertFalse(function.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(function.value.dereference(analyzer.memory, toWrite = false) is LxmFunction,
@@ -47,15 +45,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val variable =
-                exports.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The variable has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val variable = exports.getPropertyDescriptor(varName) ?: throw Error("The variable has not been set")
 
         Assertions.assertFalse(variable.isConstant, "The isConstant property is incorrect")
         Assertions.assertEquals(LxmLogic.True, variable.value, "The value property is incorrect")
@@ -73,15 +69,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val variable =
-                exports.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The variable has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val variable = exports.getPropertyDescriptor(varName) ?: throw Error("The variable has not been set")
 
         Assertions.assertTrue(variable.isConstant, "The isConstant property is incorrect")
         Assertions.assertEquals(LxmLogic.True, variable.value, "The value property is incorrect")
@@ -103,15 +97,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val variable = exports.getPropertyDescriptor(analyzer.memory, elementAlias) ?: throw Error(
-                "The variable has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val variable = exports.getPropertyDescriptor(elementAlias) ?: throw Error("The variable has not been set")
 
         Assertions.assertFalse(variable.isConstant, "The isConstant property is incorrect")
         Assertions.assertEquals(valueInt, variable.value, "The value property is incorrect")
@@ -133,15 +125,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val variable = exports.getPropertyDescriptor(analyzer.memory, elementAlias) ?: throw Error(
-                "The variable has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val variable = exports.getPropertyDescriptor(elementAlias) ?: throw Error("The variable has not been set")
 
         Assertions.assertTrue(variable.isConstant, "The isConstant property is incorrect")
         Assertions.assertEquals(valueInt, variable.value, "The value property is incorrect")
@@ -159,15 +149,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val function =
-                exports.getPropertyDescriptor(analyzer.memory, expName) ?: throw Error("The function has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val function = exports.getPropertyDescriptor(expName) ?: throw Error("The function has not been set")
 
         Assertions.assertFalse(function.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(function.value.dereference(analyzer.memory, toWrite = false) is LxmFunction,
@@ -186,15 +174,13 @@ internal class PublicMacroStmtAnalyzerTest {
         // Prepare context
         val obj = LxmObject(analyzer.memory)
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
+        initialContext.setProperty(AnalyzerCommons.Identifiers.Exports, obj, isConstant = true)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Exports,
-                toWrite = false)!!
-        val function = exports.getPropertyDescriptor(analyzer.memory, filterName) ?: throw Error(
-                "The function has not been set")
+        val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports, toWrite = false)!!
+        val function = exports.getPropertyDescriptor(filterName) ?: throw Error("The function has not been set")
 
         Assertions.assertFalse(function.isConstant, "The isConstant property is incorrect")
         Assertions.assertTrue(function.value.dereference(analyzer.memory, toWrite = false) is LxmFunction,

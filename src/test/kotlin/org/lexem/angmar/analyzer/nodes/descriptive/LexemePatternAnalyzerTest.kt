@@ -87,7 +87,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -108,7 +108,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -129,7 +129,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -150,7 +150,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -170,7 +170,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -191,7 +191,7 @@ internal class LexemePatternAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -214,8 +214,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -224,11 +224,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
 
@@ -259,8 +258,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -268,11 +267,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
 
@@ -310,9 +308,9 @@ internal class LexemePatternAnalyzerTest {
         }
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -321,11 +319,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -355,9 +352,9 @@ internal class LexemePatternAnalyzerTest {
         }
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -365,11 +362,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -393,9 +389,9 @@ internal class LexemePatternAnalyzerTest {
         val quantifier = LxmQuantifier.AlternativePattern
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num1)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -403,11 +399,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -430,8 +425,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -440,11 +435,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -467,8 +461,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -476,11 +470,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -504,9 +497,9 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -515,11 +508,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -543,9 +535,9 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -553,11 +545,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -581,9 +572,9 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.from(quantifier.max))
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -591,11 +582,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(quantifier.max, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -623,9 +613,9 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -634,11 +624,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -662,9 +651,9 @@ internal class LexemePatternAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
         var union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
-        unions.setProperty( unionName, union)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        unions.setProperty(unionName, union)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -672,11 +661,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        union = unions.getDereferencedProperty(analyzer.memory, unionName, toWrite = false) ?: throw Error(
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        union = unions.getDereferencedProperty(unionName, toWrite = false) ?: throw Error(
                 "The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(0, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier is incorrect")
@@ -700,8 +688,8 @@ internal class LexemePatternAnalyzerTest {
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
             val unions = LxmObject(analyzer.memory)
-            context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-            context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+            context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+            context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
             TestUtils.processAndCheckEmpty(analyzer, textReader)
         }
@@ -725,9 +713,9 @@ internal class LexemePatternAnalyzerTest {
             val unions = LxmObject(analyzer.memory)
             val quantifier2 = LxmQuantifier(3)
             val union = LxmPatternUnion(analyzer.memory, quantifier2, LxmInteger.Num0)
-            unions.setProperty( unionName, union)
-            context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-            context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+            unions.setProperty(unionName, union)
+            context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+            context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
             TestUtils.processAndCheckEmpty(analyzer, textReader)
         }
@@ -748,8 +736,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -757,11 +745,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(LxmQuantifier.AlternativePattern),
@@ -788,8 +775,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -797,11 +784,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(LxmQuantifier.AlternativePattern),
@@ -827,8 +813,8 @@ internal class LexemePatternAnalyzerTest {
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         var unions = LxmObject(analyzer.memory)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.HiddenPatternUnions, unions)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -836,11 +822,10 @@ internal class LexemePatternAnalyzerTest {
 
         // Check unions
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        unions = context.getDereferencedProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenPatternUnions,
-                toWrite = false)!!
-        val union = unions.getDereferencedProperty<LxmPatternUnion>(analyzer.memory, unionName, toWrite = false)
-                ?: throw Error("The union called $unionName does not exist.")
-        val unionIndex = union.getIndex(analyzer.memory)
+        unions = context.getDereferencedProperty(AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)!!
+        val union = unions.getDereferencedProperty<LxmPatternUnion>(unionName, toWrite = false) ?: throw Error(
+                "The union called $unionName does not exist.")
+        val unionIndex = union.getIndex()
 
         Assertions.assertEquals(1, unionIndex.primitive, "The union index is incorrect")
         Assertions.assertTrue(union.quantifierIsEqualsTo(LxmQuantifier.AlternativePattern),

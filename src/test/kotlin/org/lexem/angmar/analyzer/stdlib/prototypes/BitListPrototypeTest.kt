@@ -214,7 +214,7 @@ internal class BitListPrototypeTest {
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.leftShiftOperator}$value2"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -257,7 +257,7 @@ internal class BitListPrototypeTest {
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.rightShiftOperator}$value2"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -302,7 +302,7 @@ internal class BitListPrototypeTest {
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.leftRotationOperator}$value2"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -347,7 +347,7 @@ internal class BitListPrototypeTest {
             val value2 = LxmLogic.True
             val fnCall = "$value1${ShiftExpressionNode.rightRotationOperator}$value2"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }

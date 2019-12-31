@@ -24,10 +24,9 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty(varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -39,8 +38,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
 
@@ -63,10 +62,9 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty(varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -78,8 +76,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
 
@@ -102,7 +100,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty(varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -115,8 +113,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(10, variable.primitive, "The primitive property is incorrect")
 
@@ -139,7 +137,7 @@ internal class SelectiveCaseStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
+        context.setProperty(varName, LxmInteger.Num10)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.Num10)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -152,8 +150,8 @@ internal class SelectiveCaseStmtAnalyzerTest {
                 "The mainValue is not in the stack")
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(10, variable.primitive, "The primitive property is incorrect")
 

@@ -45,8 +45,8 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    for (i in leftDeref.getAllCells().zip(rightDeref.getAllCells())) {
-                        if (identityNotEquals(i.first, i.second)) {
+                    for ((lValue, rValue) in leftDeref.getAllCells().zip(rightDeref.getAllCells())) {
+                        if (identityNotEquals(lValue, rValue)) {
                             return false
                         }
                     }
@@ -58,22 +58,15 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllValues()
-                    val rightValues = rightDeref.getAllValues()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
-                    for (i in leftValues) {
-                        val rightList = rightValues[i.key] ?: return false
+                    val leftValues = leftDeref.getAllValues()
 
-                        if (i.value.size != rightList.size) {
+                    for (lValue in leftValues) {
+                        if (!rightDeref.containsValue(lValue)) {
                             return false
-                        }
-
-                        for (j in i.value) {
-                            rightList.find { identityEquals(it.value, j.value) } ?: return false
                         }
                     }
 
@@ -84,21 +77,24 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllIterableProperties()
-                    val rightValues = rightDeref.getAllIterableProperties()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
-                    for (i in leftValues) {
-                        val rightProperty = rightValues[i.key] ?: return false
+                    val leftValues = leftDeref.getAllProperties()
 
-                        if (i.value.isConstant != rightProperty.isConstant) {
+                    for ((lKey, leftProperty) in leftValues) {
+                        val rightProperty = rightDeref.getPropertyDescriptor(lKey) ?: return false
+
+                        if (leftProperty.isConstant != rightProperty.isConstant) {
                             return false
                         }
 
-                        if (identityNotEquals(i.value.value, rightProperty.value)) {
+                        if (leftProperty.isIterable != rightProperty.isIterable) {
+                            return false
+                        }
+
+                        if (identityNotEquals(leftProperty.value, rightProperty.value)) {
                             return false
                         }
                     }
@@ -110,24 +106,17 @@ internal object RelationalFunctions {
                         return false
                     }
 
-                    val leftValues = leftDeref.getAllProperties()
-                    val rightValues = rightDeref.getAllProperties()
-
-                    if (leftValues.size != rightValues.size) {
+                    if (leftDeref.size != rightDeref.size) {
                         return false
                     }
 
-                    for (i in leftValues) {
-                        val rightList = rightValues[i.key] ?: return false
+                    val leftValues = leftDeref.getAllProperties()
 
-                        if (i.value.size != rightList.size) {
+                    for ((lKey, lValue) in leftValues) {
+                        val rValue = rightDeref.getPropertyValue(lKey) ?: return false
+
+                        if (identityNotEquals(lValue, rValue)) {
                             return false
-                        }
-
-                        for (j in i.value) {
-                            rightList.find {
-                                identityEquals(it.key, j.key) && identityEquals(it.value, j.value)
-                            } ?: return false
                         }
                     }
 

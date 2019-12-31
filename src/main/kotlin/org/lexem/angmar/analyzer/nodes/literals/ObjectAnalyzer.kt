@@ -27,7 +27,7 @@ internal object ObjectAnalyzer {
                 }
 
                 if (node.isConstant) {
-                    obj.makeConstantAndNotWritable(analyzer.memory)
+                    obj.makeConstantAndNotWritable()
                 }
 
                 // Move accumulator to last.
@@ -45,7 +45,7 @@ internal object ObjectAnalyzer {
                     val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                             analyzer.memory, toWrite = true) as LxmObject
 
-                    obj.makeConstantAndNotWritable(analyzer.memory)
+                    obj.makeConstantAndNotWritable()
                 }
 
                 // Move Accumulator to last.

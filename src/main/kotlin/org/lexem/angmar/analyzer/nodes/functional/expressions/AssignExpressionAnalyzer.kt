@@ -140,8 +140,8 @@ internal object AssignExpressionAnalyzer {
         analyzer.memory.removeLastFromStack()
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
+        val contextName = AnalyzerCommons.getContextName(context)
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments,
                 LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
 

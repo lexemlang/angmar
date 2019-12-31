@@ -15,17 +15,17 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode, re
         JsonSerializable {
     val text = analyzer.text
     val name = node.name
-    val from = node.getFrom(analyzer.memory).primitive
-    val to = node.getTo(analyzer.memory)!!.primitive
-    val children = node.getChildrenAsList(analyzer.memory).map { position ->
+    val from = node.getFrom().primitive
+    val to = node.getTo()!!.primitive
+    val children = node.getChildrenAsList().map { position ->
         LexemMatch(analyzer, position.dereference(analyzer.memory, toWrite = false) as LxmNode, removeDefaultProperties)
-    }
+    }.toList()
     val properties: Map<String, Any>
 
     init {
-        val result = mutableMapOf<String, Any>()
+        val result = hashMapOf<String, Any>()
         val defaultProperties = AnalyzerCommons.getDefaultPropertiesByType(node.type)
-        node.getProperties(analyzer.memory, toWrite = false).getAllIterableProperties().forEach { (key, property) ->
+        node.getProperties(toWrite = false).getAllIterableProperties().forEach { (key, property) ->
             if (removeDefaultProperties && key in defaultProperties && defaultProperties[key] == property.value) {
                 return@forEach
             }

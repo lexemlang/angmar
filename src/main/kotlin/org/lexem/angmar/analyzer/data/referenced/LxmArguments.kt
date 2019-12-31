@@ -65,11 +65,11 @@ internal class LxmArguments : LxmObject {
     /**
      * Maps the [LxmArguments] to a [LxmBacktrackingData].
      */
-    fun mapToBacktrackingData(memory: LexemMemory): LxmBacktrackingData {
-        val positionalArguments = getPositionalList(toWrite = false).getAllCells()
+    fun mapToBacktrackingData(): LxmBacktrackingData {
+        val positionalArguments = getPositionalList(toWrite = false).getAllCells().toList()
         val namedArguments = getNamedObject(toWrite = false).getAllIterableProperties()
 
-        val mappedArguments = mutableMapOf<String, LexemPrimitive>()
+        val mappedArguments = hashMapOf<String, LexemPrimitive>()
         namedArguments.forEach { (key, property) ->
             val value = property.value.dereference(bigNode, toWrite = false) as? LexemPrimitive ?: LxmNil
             mappedArguments[key] = value
@@ -83,19 +83,19 @@ internal class LxmArguments : LxmObject {
      */
     fun mapArguments(parameterNames: List<String>, spreadPositionalParameter: MutableList<LexemPrimitive>? = null,
             spreadNamedParameter: MutableMap<String, LexemPrimitive>? = null): Map<String, LexemPrimitive> {
-        val result = mutableMapOf<String, LexemPrimitive>()
-        val positionalArguments = getPositionalList(toWrite = false).getAllCells()
+        val result = hashMapOf<String, LexemPrimitive>()
+        val positionalArguments = getPositionalList(toWrite = false).getAllCells().toList()
         val namedArguments = getNamedObject(toWrite = false).getAllIterableProperties()
 
         // Map positional arguments.
-        for (parameter in parameterNames.withIndex()) {
-            val value = positionalArguments.getOrNull(parameter.index)
+        for ((index, parameterName) in parameterNames.withIndex()) {
+            val value = positionalArguments.getOrNull(index)
             if (value == null) {
-                result[parameter.value] = LxmNil
+                result[parameterName] = LxmNil
                 continue
             }
 
-            result[parameter.value] = value
+            result[parameterName] = value
         }
 
         // Add positional arguments to spread parameter.
@@ -134,20 +134,20 @@ internal class LxmArguments : LxmObject {
     fun mapArgumentsToContext(memory: LexemMemory, parameters: LxmParameters, context: LxmObject) {
         val parameterNames = parameters.getParameters()
         val result = mutableSetOf<String>()
-        val positionalArguments = getPositionalList(toWrite = false).getAllCells()
+        val positionalArguments = getPositionalList(toWrite = false).getAllCells().toList()
         val namedArguments = getNamedObject(toWrite = false).getAllIterableProperties()
 
         // Map positional arguments.
-        for (parameter in parameterNames.withIndex()) {
-            val value = positionalArguments.getOrNull(parameter.index)
+        for ((index, parameterName) in parameterNames.withIndex()) {
+            val value = positionalArguments.getOrNull(index)
 
-            result.add(parameter.value)
+            result.add(parameterName)
 
             if (value == null) {
                 continue
             }
 
-            context.setProperty(parameter.value, value)
+            context.setProperty(parameterName, value)
         }
 
         // Add positional arguments to spread parameter.

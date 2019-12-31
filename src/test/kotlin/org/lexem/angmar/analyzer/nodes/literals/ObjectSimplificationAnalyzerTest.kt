@@ -33,7 +33,7 @@ internal class ObjectSimplificationAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
+        val property = objDeref.getPropertyDescriptor(key)!!
         property.value.dereference(analyzer.memory, toWrite = false) as? LxmFunction ?: throw Error(
                 "The element must be a LxmInteger")
 
@@ -63,7 +63,7 @@ internal class ObjectSimplificationAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
+        val property = objDeref.getPropertyDescriptor(key)!!
         property.value.dereference(analyzer.memory, toWrite = false) as? LxmFunction ?: throw Error(
                 "The element must be a LxmInteger")
 
@@ -96,15 +96,13 @@ internal class ObjectSimplificationAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmNil)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
-                "The $varName is incorrect")
+        Assertions.assertEquals(value, finalContext.getPropertyValue(varName), "The $varName is incorrect")
 
         // Remove the dangling references.
         analyzer.memory.spatialGarbageCollect()
@@ -135,8 +133,7 @@ internal class ObjectSimplificationAnalyzerTest {
 
             // Prepare the context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                    LxmString.from("test"))
+            context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -166,8 +163,7 @@ internal class ObjectSimplificationAnalyzerTest {
 
             // Prepare the context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                    LxmString.from("test"))
+            context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -194,15 +190,13 @@ internal class ObjectSimplificationAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmNil)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(value, finalContext.getPropertyValue(analyzer.memory, varName),
-                "The $varName is incorrect")
+        Assertions.assertEquals(value, finalContext.getPropertyValue(varName), "The $varName is incorrect")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()

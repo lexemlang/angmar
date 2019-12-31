@@ -68,9 +68,8 @@ internal class IndexerAnalyzerTest {
 
         val finalList = list.getPrimitive().dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                 "The result must be a LxmList")
-        val cell =
-                finalList.getDereferencedCell<LxmInteger>(analyzer.memory, cellIndex, toWrite = false) ?: throw Error(
-                        "The result must be a LxmInteger")
+        val cell = finalList.getDereferencedCell<LxmInteger>(cellIndex, toWrite = false) ?: throw Error(
+                "The result must be a LxmInteger")
         Assertions.assertEquals(right, cell.primitive, "The primitive property is incorrect")
 
         // Remove Last from the stack.

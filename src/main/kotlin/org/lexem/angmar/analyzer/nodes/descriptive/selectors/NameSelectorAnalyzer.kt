@@ -26,7 +26,7 @@ internal object NameSelectorAnalyzer {
                     val name = analyzer.memory.getLastFromStack() as LxmString
                     val cursor = analyzer.text.saveCursor()
                     val lxmNode = LxmNode(analyzer.memory, name.primitive, cursor, LxmNode.LxmNodeType.Custom)
-                    lxmNode.setTo(analyzer.memory, cursor)
+                    lxmNode.setTo(cursor)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()

@@ -57,19 +57,19 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
             throw AngmarUnreachableException()
         }
 
-        hiddenContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContext)
+        hiddenContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContext)
 
         val fileMap = LxmObject(memory)
-        hiddenContext.setProperty( AnalyzerCommons.Identifiers.HiddenFileMap, fileMap)
+        hiddenContext.setProperty(AnalyzerCommons.Identifiers.HiddenFileMap, fileMap)
 
         if (importMode == ImportMode.AllIn) {
             val parserMap = LxmObject(memory)
 
             for ((name, grammarRootNode) in grammars!!) {
-                parserMap.setProperty( name, LxmGrammarRootNode(grammarRootNode))
+                parserMap.setProperty(name, LxmGrammarRootNode(grammarRootNode))
             }
 
-            hiddenContext.setProperty( AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
+            hiddenContext.setProperty(AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
         }
 
         StdlibCommons.initTypesAndPrototypes(memory)
@@ -120,8 +120,6 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         status = Status.Executing
         val timeout = System.nanoTime() + timeoutInMilliseconds * 1000000
-        var timeTempGC = 0.0
-        var timeSpatialGC = 0.0
 
         try {
             loop@ while (true) {
@@ -227,7 +225,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
         // Finish the root node.
         val rootNode = getRootNode(toWrite = true)!!
-        rootNode.setTo(memory, text.saveCursor())
+        rootNode.setTo(text.saveCursor())
 
         status = Status.Ended
         return true
@@ -242,7 +240,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         }
 
         val context = AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.EntryPoint, LxmString.from(entryPoint))
+        context.setProperty(AnalyzerCommons.Identifiers.EntryPoint, LxmString.from(entryPoint))
 
         return this
     }
@@ -258,7 +256,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         // Return the correct result.
         val rootNode = getRootNode(toWrite = true) ?: LxmNode(memory, AnalyzerCommons.Identifiers.Root, initialCursor,
                 LxmNode.LxmNodeType.Root)
-        rootNode.setTo(memory, initialCursor)
+        rootNode.setTo(initialCursor)
 
         return LexemMatch(this, rootNode, removeDefaultProperties)
     }
@@ -322,9 +320,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      */
     private fun getRootNode(toWrite: Boolean): LxmNode? {
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        val analyzerObject = stdlibContext.getDereferencedProperty<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
-                toWrite = false)!!
-        return analyzerObject.getDereferencedProperty(memory, AnalyzerGlobalObject.RootNode, toWrite)
+        val analyzerObject =
+                stdlibContext.getDereferencedProperty<LxmObject>(AnalyzerGlobalObject.ObjectName, toWrite = false)!!
+        return analyzerObject.getDereferencedProperty(AnalyzerGlobalObject.RootNode, toWrite)
     }
 
     /**
@@ -333,9 +331,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     private fun initRootNode() {
         val nodeReference = createNewNode(AnalyzerCommons.Identifiers.Root, LxmNode.LxmNodeType.Root)
         val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        val analyzerObject = stdlibContext.getDereferencedProperty<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
-                toWrite = true)!!
-        analyzerObject.setProperty( AnalyzerGlobalObject.RootNode, nodeReference)
+        val analyzerObject =
+                stdlibContext.getDereferencedProperty<LxmObject>(AnalyzerGlobalObject.ObjectName, toWrite = true)!!
+        analyzerObject.setProperty(AnalyzerGlobalObject.RootNode, nodeReference)
     }
 
     /**
@@ -343,16 +341,15 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      */
     internal fun createNewNode(name: String, type: LxmNode.LxmNodeType): LxmNode {
         val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
-        val parent =
-                hiddenContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                        toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
+        val parent = hiddenContext.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
 
         val node = LxmNode(memory, name, text.saveCursor(), type)
         if (parent != null) {
-            node.addToParent(memory, parent)
+            node.addToParent(parent)
         }
 
-        hiddenContext.setProperty( AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
+        hiddenContext.setProperty(AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
 
         return node
     }
@@ -362,12 +359,11 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      */
     internal fun setUpperNode() {
         val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
-        val node =
-                hiddenContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                        toWrite = false)!!
-        val parentRef = node.getParentReference(memory)!!
+        val node = hiddenContext.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                toWrite = false)!!
+        val parentRef = node.getParentReference()!!
 
-        hiddenContext.setProperty( AnalyzerCommons.Identifiers.HiddenLastResultNode, parentRef)
+        hiddenContext.setProperty(AnalyzerCommons.Identifiers.HiddenLastResultNode, parentRef)
     }
 
     /**
@@ -375,7 +371,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      */
     internal fun isForward(): Boolean {
         val props = AnalyzerCommons.getCurrentNodeProps(memory, toWrite = false)
-        val reverse = props.getPropertyValue(memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil
+        val reverse = props.getPropertyValue(AnalyzerCommons.Properties.Reverse) ?: LxmNil
         val reverseLogic = RelationalFunctions.isTruthy(reverse)
 
         return !reverseLogic

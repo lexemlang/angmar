@@ -98,7 +98,7 @@ internal object AnyLexemeAnalyzer {
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = false) as LxmPatternUnion
 
-                if (union.canHaveANextPattern(analyzer.memory)) {
+                if (union.canHaveANextPattern()) {
                     // Execute the then block.
                     return analyzer.nextNode(node.lexeme)
                 } else {
@@ -135,7 +135,7 @@ internal object AnyLexemeAnalyzer {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
                 toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
-        val indexValue = union.getIndex(analyzer.memory)
+        val indexValue = union.getIndex()
 
         if (quantifier.isLazy) {
             when {
@@ -222,7 +222,7 @@ internal object AnyLexemeAnalyzer {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
                 toWrite = true) as LxmPatternUnion
 
-        union.increaseIndex(analyzer.memory)
+        union.increaseIndex()
     }
 
     /**

@@ -19,15 +19,15 @@ internal class PropertySelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-        lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
+        lxmNode.setTo(analyzer.text.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                 toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
-        val props = result.getProperties(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(analyzer.memory, propName),
+        val props = result.getProperties(toWrite = false)
+        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(propName),
                 "The property called $propName is incorrect")
 
         // Remove Node from the stack.
@@ -46,8 +46,8 @@ internal class PropertySelectorAnalyzerTest {
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (isOk) {
-            val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty( propName, LxmLogic.True)
+            val props = lxmNode.getProperties(toWrite = true)
+            props.setProperty(propName, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
@@ -74,8 +74,8 @@ internal class PropertySelectorAnalyzerTest {
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (!isOk) {
-            val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty( propName, LxmLogic.True)
+            val props = lxmNode.getProperties(toWrite = true)
+            props.setProperty(propName, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)

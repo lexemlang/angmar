@@ -22,9 +22,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(right, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(right, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -44,7 +43,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty(varName, LxmInteger.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -52,9 +51,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(right, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(right, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -76,9 +74,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -86,9 +83,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -111,9 +107,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -121,9 +116,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -146,9 +140,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -156,9 +149,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -181,9 +173,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -191,9 +182,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -215,9 +205,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -225,9 +214,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -249,9 +237,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmInteger.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -259,9 +246,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -286,9 +272,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -298,9 +283,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive.content, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmBitList")
+        val property = context.getDereferencedProperty<LxmBitList>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmBitList")
 
         Assertions.assertEquals(leftSize, property.primitive.size,
                 "The size of the value inserted in the stack is incorrect")
@@ -327,9 +311,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -339,9 +322,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive.content, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmBitList")
+        val property = context.getDereferencedProperty<LxmBitList>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmBitList")
 
         Assertions.assertEquals(leftSize, property.primitive.size,
                 "The size of the value inserted in the stack is incorrect")
@@ -369,9 +351,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -381,9 +362,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive.content, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmBitList")
+        val property = context.getDereferencedProperty<LxmBitList>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmBitList")
 
         Assertions.assertEquals(resultSize, property.primitive.size,
                 "The size of the value inserted in the stack is incorrect")
@@ -411,9 +391,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmBitList(BitList(3, left)))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmBitList(BitList(3, left)))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -423,9 +402,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive.content, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmBitList>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmBitList")
+        val property = context.getDereferencedProperty<LxmBitList>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmBitList")
 
         Assertions.assertEquals(resultSize, property.primitive.size,
                 "The size of the value inserted in the stack is incorrect")
@@ -450,9 +428,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmLogic.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmLogic.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -460,9 +437,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmLogic>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmLogic")
+        val property = context.getDereferencedProperty<LxmLogic>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -485,9 +461,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmLogic.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmLogic.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -495,9 +470,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmLogic>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmLogic")
+        val property = context.getDereferencedProperty<LxmLogic>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -520,9 +494,8 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmLogic.from(left))
-        initialContext.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        initialContext.setProperty(varName, LxmLogic.from(left))
+        initialContext.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -530,9 +503,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmLogic>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmLogic")
+        val property = context.getDereferencedProperty<LxmLogic>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -554,7 +526,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmLogic.from(left))
+        initialContext.setProperty(varName, LxmLogic.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -562,9 +534,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmLogic>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmLogic")
+        val property = context.getDereferencedProperty<LxmLogic>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmLogic")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -585,7 +556,7 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, left)
+        initialContext.setProperty(varName, left)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -593,9 +564,8 @@ internal class AssignOperatorAnalyzerTest {
         Assertions.assertEquals(resultValue, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property =
-                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
-                        "The property must be a LxmInteger")
+        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
+                "The property must be a LxmInteger")
 
         Assertions.assertEquals(resultValue, property.primitive, "The value inserted in the stack is incorrect")
 
@@ -615,13 +585,13 @@ internal class AssignOperatorAnalyzerTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty( varName, LxmInteger.from(left))
+        initialContext.setProperty(varName, LxmInteger.from(left))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         analyzer.memory.getLastFromStack() as? LxmNil ?: throw Error("The result must be a LxmNil")
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        context.getDereferencedProperty<LxmNil>(analyzer.memory, varName, toWrite = false) ?: throw Error(
+        context.getDereferencedProperty<LxmNil>(varName, toWrite = false) ?: throw Error(
                 "The property must be a LxmNil")
 
         // Remove Last from the stack.

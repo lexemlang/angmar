@@ -18,8 +18,8 @@ internal class ExpressionStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exp = context.getPropertyValue(analyzer.memory, expName)?.dereference(analyzer.memory,
-                toWrite = false) as? LxmExpression ?: throw Error("The result must be a LxmExpression")
+        val exp = context.getPropertyValue(expName)?.dereference(analyzer.memory, toWrite = false) as? LxmExpression
+                ?: throw Error("The result must be a LxmExpression")
 
         Assertions.assertEquals(expName, exp.name, "The name property is incorrect")
 
@@ -36,8 +36,8 @@ internal class ExpressionStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exp = context.getPropertyValue(analyzer.memory, expName)?.dereference(analyzer.memory,
-                toWrite = false) as? LxmExpression ?: throw Error("The result must be a LxmExpression")
+        val exp = context.getPropertyValue(expName)?.dereference(analyzer.memory, toWrite = false) as? LxmExpression
+                ?: throw Error("The result must be a LxmExpression")
 
         Assertions.assertEquals(expName, exp.name, "The name property is incorrect")
 

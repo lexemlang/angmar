@@ -125,7 +125,7 @@ internal object ListPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, ListType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-                thisValue.makeConstantAndNotWritable(analyzer.memory)
+                thisValue.makeConstantAndNotWritable()
                 LxmNil
             }
 
@@ -776,7 +776,7 @@ internal object ListPrototype {
 
         // Perform the least possible removals.
         for (range in interval.rangeIterator().asSequence().toList().asReversed()) {
-            thisValue.removeCell(analyzer.memory, range.from, range.to - range.from + 1)
+            thisValue.removeCell(range.from, range.to - range.from + 1)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -813,7 +813,7 @@ internal object ListPrototype {
 
         when (count) {
             is LxmNil -> {
-                thisValue.removeCell(analyzer.memory, at.primitive, count = 1)
+                thisValue.removeCell(at.primitive, count = 1)
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
@@ -824,7 +824,7 @@ internal object ListPrototype {
                 }
 
                 if (at.primitive < thisValue.size) {
-                    thisValue.removeCell(analyzer.memory, at.primitive, count.primitive)
+                    thisValue.removeCell(at.primitive, count.primitive)
                 }
 
                 analyzer.memory.addToStackAsLast(LxmNil)
@@ -968,10 +968,10 @@ internal object ListPrototype {
                 val cells2Copy = (indexCurrent until thisValue.size).map { thisValue.getCell(it)!! }
 
                 if (at.primitive < target.size) {
-                    target.removeCell(analyzer.memory, at.primitive, cells2Copy.size)
+                    target.removeCell(at.primitive, cells2Copy.size)
                 }
 
-                target.insertCell(analyzer.memory, minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
+                target.insertCell(minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
@@ -986,10 +986,10 @@ internal object ListPrototype {
                         (indexCurrent until thisValue.size).take(count.primitive).map { thisValue.getCell(it)!! }
 
                 if (at.primitive < target.size) {
-                    target.removeCell(analyzer.memory, at.primitive, cells2Copy.size)
+                    target.removeCell(at.primitive, cells2Copy.size)
                 }
 
-                target.insertCell(analyzer.memory, minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
+                target.insertCell(minOf(at.primitive, target.size), *cells2Copy.toTypedArray())
 
                 analyzer.memory.addToStackAsLast(LxmNil)
             }
@@ -1048,7 +1048,7 @@ internal object ListPrototype {
                 val value = thisValue.getCell(thisValue.size - 1)!!
 
                 analyzer.memory.addToStackAsLast(value)
-                thisValue.removeCell(analyzer.memory, thisValue.size - 1, count = 1)
+                thisValue.removeCell(thisValue.size - 1, count = 1)
             }
             is LxmInteger -> {
                 if (count.primitive < 0) {
@@ -1063,7 +1063,7 @@ internal object ListPrototype {
                 }.toTypedArray()
 
                 result.addCell(*cellsToKeep)
-                thisValue.removeCell(analyzer.memory, thisValue.size - count2Pop, count2Pop)
+                thisValue.removeCell(thisValue.size - count2Pop, count2Pop)
 
                 analyzer.memory.addToStackAsLast(result)
             }
@@ -1090,7 +1090,7 @@ internal object ListPrototype {
                     "The '<${ListType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Unshift' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${ListType.TypeName}") {}
         }
 
-        thisValue.insertCell(analyzer.memory, 0, *spreadPositional.toTypedArray())
+        thisValue.insertCell(0, *spreadPositional.toTypedArray())
 
         analyzer.memory.addToStackAsLast(LxmNil)
 
@@ -1122,7 +1122,7 @@ internal object ListPrototype {
                 val value = thisValue.getCell(0)!!
 
                 analyzer.memory.addToStackAsLast(value)
-                thisValue.removeCell(analyzer.memory, 0, count = 1)
+                thisValue.removeCell(0, count = 1)
             }
             is LxmInteger -> {
                 if (count.primitive < 0) {
@@ -1137,7 +1137,7 @@ internal object ListPrototype {
                 }.toTypedArray()
 
                 result.addCell(*cellsToKeep)
-                thisValue.removeCell(analyzer.memory, 0, count2Shift)
+                thisValue.removeCell(0, count2Shift)
 
                 analyzer.memory.addToStackAsLast(result)
             }
@@ -1177,7 +1177,7 @@ internal object ListPrototype {
 
         val index = minOf(at.primitive, thisValue.size)
 
-        thisValue.insertCell(analyzer.memory, index, *spreadPositional.toTypedArray())
+        thisValue.insertCell(index, *spreadPositional.toTypedArray())
 
         analyzer.memory.addToStackAsLast(LxmNil)
 
@@ -1225,12 +1225,12 @@ internal object ListPrototype {
         var index = minOf(at.primitive, thisValue.size)
 
         if (index < thisValue.size) {
-            thisValue.removeCell(analyzer.memory, index, count.primitive)
+            thisValue.removeCell(index, count.primitive)
         }
 
         index = minOf(at.primitive, thisValue.size)
 
-        thisValue.insertCell(analyzer.memory, index, *spreadPositional.toTypedArray())
+        thisValue.insertCell(index, *spreadPositional.toTypedArray())
 
         analyzer.memory.addToStackAsLast(LxmNil)
 
@@ -1257,8 +1257,8 @@ internal object ListPrototype {
                     // Add to the stack to not loose the reference.
                     analyzer.memory.addToStackAsLast(left)
 
-                    thisValue.setCell(analyzer.memory, leftPos, right)
-                    thisValue.setCell(analyzer.memory, rightPos, left)
+                    thisValue.setCell(leftPos, right)
+                    thisValue.setCell(rightPos, left)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -1332,7 +1332,7 @@ internal object ListPrototype {
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Clear, ListType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
                 for (i in thisValue.size - 1 downTo 0) {
-                    thisValue.removeCell(analyzer.memory, i)
+                    thisValue.removeCell(i)
                 }
 
                 LxmNil

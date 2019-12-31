@@ -48,7 +48,7 @@ internal object SetType {
             AnalyzerNodesCommons.signalCallFunction -> {
                 val newSet = LxmSet(analyzer.memory)
                 for (i in spreadArguments) {
-                    newSet.addValue(analyzer.memory, i)
+                    newSet.addValue(i)
                 }
 
                 analyzer.memory.addToStackAsLast(newSet)
@@ -75,10 +75,8 @@ internal object SetType {
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Join' method requires that all its parameters be a $TypeName") {}
                     }
 
-                    for ((i, propList) in set.getAllValues()) {
-                        for (prop in propList) {
-                            newSet.addValue(analyzer.memory, prop.value)
-                        }
+                    for (prop in set.getAllValues()) {
+                        newSet.addValue(prop)
                     }
                 }
 

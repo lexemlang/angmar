@@ -99,10 +99,10 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(toWrite = true)
+            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -146,10 +146,10 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(toWrite = true)
+            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -195,10 +195,10 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(analyzer.memory, toWrite = true)
-            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(toWrite = true)
+            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -254,13 +254,13 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        val props = node.getProperties(analyzer.memory, toWrite = true)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
         if (!isForward) {
-            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
         if (isInsensible) {
-            props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+            props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))
@@ -316,13 +316,13 @@ internal class RelativeElementAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
-        val props = node.getProperties(analyzer.memory, toWrite = true)
+        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        val props = node.getProperties(toWrite = true)
         if (!isForward) {
-            props.setProperty( AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
         if (isInsensible) {
-            props.setProperty( AnalyzerCommons.Properties.Insensible, LxmLogic.True)
+            props.setProperty(AnalyzerCommons.Properties.Insensible, LxmLogic.True)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.AnchorIsStart, LxmLogic.from(isStart))

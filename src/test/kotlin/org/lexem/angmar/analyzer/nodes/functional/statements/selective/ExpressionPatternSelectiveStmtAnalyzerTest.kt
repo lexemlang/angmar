@@ -17,8 +17,7 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -42,8 +41,7 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -69,9 +67,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.Num10)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -85,8 +82,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
 
@@ -104,9 +101,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.Num10)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmInteger.from(5))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -120,8 +116,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(20, variable.primitive, "The primitive property is incorrect")
 
@@ -139,9 +135,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
 
         // Prepare context and stack.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.Num10)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
-                LxmString.from("test"))
+        context.setProperty(varName, LxmInteger.Num10)
+        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, LxmString.Nil)
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -155,8 +150,8 @@ internal class ExpressionPatternSelectiveStmtAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         val finalContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = finalContext.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
-                "The variable must be LxmInteger")
+        val variable =
+                finalContext.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be LxmInteger")
 
         Assertions.assertEquals(10, variable.primitive, "The primitive property is incorrect")
 

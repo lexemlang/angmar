@@ -20,6 +20,22 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
     inline fun <reified T : LexemMemoryValue> dereferenceAs(bigNode: BigNode, toWrite: Boolean) =
             dereference(bigNode, toWrite) as? T
 
+    /**
+     * Dereferences the value to the specified type.
+     */
+    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: LexemMemory, toWrite: Boolean): T? =
+            dereferenceAs(memory.lastNode, toWrite)
+
+    /**
+     * Gets the cell which this [LxmReference] points to.
+     */
+    fun getCell(bigNode: BigNode, toWrite: Boolean) = bigNode.getHeapCell(this, toWrite)
+
+    /**
+     * Gets the cell  which this [LxmReference] points to.
+     */
+    fun getCell(memory: LexemMemory, toWrite: Boolean) = memory.lastNode.getHeapCell(this, toWrite)
+
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun dereference(bigNode: BigNode, toWrite: Boolean) = bigNode.getHeapValue(this, toWrite)

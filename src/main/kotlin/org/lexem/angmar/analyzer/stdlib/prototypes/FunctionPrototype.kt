@@ -75,7 +75,7 @@ internal object FunctionPrototype {
                 val fnValue = parsedArguments[AnalyzerCommons.Identifiers.HiddenFunction]!!.dereference(analyzer.memory,
                         toWrite = false) as LxmFunction
 
-                AnalyzerNodesCommons.callFunction(analyzer, fnValue, wrappedArguments, InternalFunctionCallCompiled,
+                AnalyzerNodesCommons.callFunction(analyzer, fnValue, wrappedArguments,
                         LxmCodePoint(InternalFunctionCallCompiled, signalEnd, callerNode = function.node,
                                 callerContextName = "<${FunctionType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Wrap"))
 

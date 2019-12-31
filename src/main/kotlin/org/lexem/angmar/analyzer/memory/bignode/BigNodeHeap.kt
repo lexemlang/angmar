@@ -3,12 +3,14 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
+import org.lexem.angmar.utils.*
+import java.util.concurrent.atomic.*
 
 /**
  * The representation of a memory heap.
  */
 internal class BigNodeHeap(val bigNode: BigNode) {
-    private var pages = mutableMapOf<Int, BigNodeL3HeapPage>()
+    private var pages = hashMapOf<Int, BigNodeL3HeapPage>()
     private var isPagesCloned = true
 
     /**
@@ -19,7 +21,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeHeap].
      */
-    var cellCount = 0
+    var cellCount: AtomicInteger = AtomicInteger(0)
         private set
 
     /**
@@ -66,12 +68,8 @@ internal class BigNodeHeap(val bigNode: BigNode) {
             pages[index] = page
         }
 
-
-        val oldSize = page.size
-        page.setCell(newCell)
-
-        if (page.size != oldSize) {
-            cellCount += 1
+        if (page.setCell(newCell)) {
+            cellCount.incrementAndGet()
         }
     }
 
@@ -82,6 +80,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
         val res = BigNodeHeap(newBigNode)
         res.isPagesCloned = false
         res.pages = pages
+        res.cellCount.set(cellCount.get())
 
         return res
     }
@@ -91,7 +90,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
      */
     private fun clonePages() {
         if (!isPagesCloned) {
-            pages = pages.toMutableMap()
+            pages = pages.toHashMap()
             isPagesCloned = true
         }
     }

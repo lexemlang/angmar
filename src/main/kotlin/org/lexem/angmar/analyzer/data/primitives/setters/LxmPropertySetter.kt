@@ -27,12 +27,12 @@ internal class LxmPropertySetter : LexemSetter {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
-        val value = value.dereference(memory, toWrite = false)
-        val obj = value.getObjectOrPrototype(memory, toWrite = false)
+    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
+        val value = value.dereference(bigNode, toWrite = false)
+        val obj = value.getObjectOrPrototype(bigNode, toWrite = false)
 
-        return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called \"$property\" in object.") {
+        return obj.getPropertyValue(property) ?: throw AngmarAnalyzerException(
+                AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called '$property' in object.") {
             val fullText = node.parser.reader.readAllText()
             addSourceCode(fullText, node.parser.reader.getSource()) {
                 title = Consts.Logger.hintTitle
@@ -42,8 +42,8 @@ internal class LxmPropertySetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
-        val obj = this.value.dereference(memory, toWrite = true)
+    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
+        val obj = this.value.dereference(bigNode, toWrite = true)
 
         if (obj !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -57,7 +57,7 @@ internal class LxmPropertySetter : LexemSetter {
             }
         }
 
-        obj.setProperty( property, value)
+        obj.setProperty(property, value)
     }
 
     override fun increaseReferences(bigNode: BigNode) {

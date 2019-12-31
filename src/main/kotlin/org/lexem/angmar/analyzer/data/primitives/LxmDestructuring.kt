@@ -61,7 +61,7 @@ internal class LxmDestructuring : LexemPrimitive {
             setVars.add(alias!!)
         }
 
-        val elementsAsMap = mutableMapOf<String, Property>()
+        val elementsAsMap = hashMapOf<String, Property>()
         elements.forEach {
             elementsAsMap[it.original] = it
         }

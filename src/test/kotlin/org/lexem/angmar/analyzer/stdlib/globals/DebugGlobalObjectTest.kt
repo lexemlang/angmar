@@ -22,14 +22,14 @@ internal class DebugGlobalObjectTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
+        context.setProperty(varName, LxmNil)
 
         val hasFinished = analyzer.start(IOStringReader.from(""), timeoutInMilliseconds = Long.MAX_VALUE)
         Assertions.assertFalse(hasFinished, "The analyzer has finished")
 
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val result = context.getPropertyValue(analyzer.memory, varName)
+        val result = context.getPropertyValue(varName)
         Assertions.assertEquals(LxmNil, result, "The result is incorrect")
     }
 

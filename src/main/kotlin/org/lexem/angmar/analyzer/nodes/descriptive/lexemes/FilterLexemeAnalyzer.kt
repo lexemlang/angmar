@@ -26,7 +26,7 @@ internal object FilterLexemeAnalyzer {
             AnalyzerNodesCommons.signalStart -> {
                 val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
                 val reverse = RelationalFunctions.isTruthy(
-                        props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
+                        props.getPropertyValue(AnalyzerCommons.Properties.Reverse) ?: LxmNil)
 
                 val nodePosition =
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
@@ -37,7 +37,7 @@ internal object FilterLexemeAnalyzer {
                 }
                 val lxmNode = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNode).dereference(
                         analyzer.memory, toWrite = false) as LxmNode
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                val children = lxmNode.getChildren(toWrite = false)
                 val node2Process = children.getCell(actualPosition)
 
                 if (node2Process != null) {
@@ -75,7 +75,7 @@ internal object FilterLexemeAnalyzer {
                     if (node.nextAccess != null) {
                         // Save the result as the node to re-parse or filter.
                         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                        context.setProperty( AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
+                        context.setProperty(AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
 
                         // Remove Node from the stack.
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -145,7 +145,7 @@ internal object FilterLexemeAnalyzer {
 
                 // Remove HiddenNode2Filter.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)
+                context.removeProperty(AnalyzerCommons.Identifiers.HiddenNode2Filter)
             }
             signalBadEnd -> {
                 // Skip
@@ -160,11 +160,10 @@ internal object FilterLexemeAnalyzer {
      */
     private fun finalizeNode(analyzer: LexemAnalyzer, lxmNode: LxmNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
-                toWrite = false)!!
+        val parent = context.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.Node, toWrite = false)!!
 
         // Link to the new parent.
-        lxmNode.addToParent(analyzer.memory, parent)
+        lxmNode.addToParent(parent)
 
         // Update the node position.
         updatePosition(analyzer)
@@ -178,8 +177,7 @@ internal object FilterLexemeAnalyzer {
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
-        val reverse = RelationalFunctions.isTruthy(
-                props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
+        val reverse = RelationalFunctions.isTruthy(props.getPropertyValue(AnalyzerCommons.Properties.Reverse) ?: LxmNil)
         if (reverse) {
             analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.FilterNodePosition,
                     LxmInteger.from(nodePosition.primitive - 1))

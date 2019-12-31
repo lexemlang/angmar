@@ -7,12 +7,13 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.stdlib.types.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.parser.literals.*
+import org.lexem.angmar.utils.*
 
 /**
  * The Lexem value of the Object type.
  */
 internal open class LxmObject : LexemReferenced {
-    private var properties = mutableMapOf<String, LxmObjectProperty>()
+    private var properties = hashMapOf<String, LxmObjectProperty>()
     private var isPropertiesCloned = true
 
     var prototypeReference: LxmReference?
@@ -71,7 +72,7 @@ internal open class LxmObject : LexemReferenced {
                 return null
             }
 
-            val prototype = getPrototypeAsObject(bigNode, toWrite = false)
+            val prototype = getPrototypeAsObject(toWrite = false)
             return prototype.getPropertyDescriptor(identifier)
         }
 
@@ -138,7 +139,7 @@ internal open class LxmObject : LexemReferenced {
         val currentProperty = properties[identifier]
 
         if (currentProperty == null) {
-            var prototype = getPrototypeAsObject(bigNode, toWrite = false)
+            var prototype = getPrototypeAsObject(toWrite = false)
             while (true) {
                 val prototypeProperty = prototype.properties[identifier]
 
@@ -153,7 +154,7 @@ internal open class LxmObject : LexemReferenced {
                     break
                 }
 
-                prototype = prototype.getPrototypeAsObject(bigNode, toWrite = false)
+                prototype = prototype.getPrototypeAsObject(toWrite = false)
             }
         }
 
@@ -255,7 +256,7 @@ internal open class LxmObject : LexemReferenced {
      */
     private fun cloneProperties() {
         if (!isPropertiesCloned) {
-            properties = properties.toMutableMap()
+            properties = properties.toHashMap()
             isPropertiesCloned = true
         }
     }
