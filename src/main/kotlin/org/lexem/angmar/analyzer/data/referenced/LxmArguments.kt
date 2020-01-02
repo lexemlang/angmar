@@ -17,7 +17,7 @@ internal class LxmArguments : LxmObject {
         init(memory)
     }
 
-    private constructor(memory: IMemory, oldVersion: LxmArguments) : super(memory, oldVersion)
+    private constructor(memory: IMemory, oldVersion: LxmArguments) : super(memory, oldVersion = oldVersion)
 
     // METHODS ----------------------------------------------------------------
 

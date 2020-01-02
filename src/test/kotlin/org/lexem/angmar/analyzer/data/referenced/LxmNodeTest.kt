@@ -8,6 +8,94 @@ import org.lexem.angmar.utils.*
 
 internal class LxmNodeTest {
     @Test
+    fun `test addToParent without parent`() {
+
+    }
+
+    @Test
+    fun `test addToParent with parent `() {
+
+    }
+
+    @Test
+    fun `test removeFromParent without parent`() {
+
+    }
+
+    @Test
+    fun `test removeFromParent with parent`() {
+
+    }
+
+    @Test
+    fun `test insertChild at the beginning`() {
+
+    }
+
+    @Test
+    fun `test insertChild in the middle`() {
+
+    }
+
+    @Test
+    fun `test insertChild at the end`() {
+
+    }
+
+    @Test
+    fun `test replaceNodeByItsChildren without children`() {
+
+    }
+
+    @Test
+    fun `test replaceNodeByItsChildren with children`() {
+
+    }
+
+    @Test
+    fun `test clear children`() {
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
+        val reader = IOStringReader.from("")
+        val parent = LxmNode(memory, "parent", reader.saveCursor())
+        val child0 = LxmNode(memory, "child1", reader.saveCursor())
+        val child1 = LxmNode(memory, "child2", reader.saveCursor())
+        val child2 = LxmNode(memory, "child3", reader.saveCursor())
+
+        child0.addToParent(memory, parent)
+        child1.addToParent(memory, parent)
+        child2.addToParent(memory, parent)
+
+        parent.clearChildren(memory)
+
+        Assertions.assertNull(parent.getFirstChild(memory, toWrite = false), "The firstChild property is incorrect")
+        Assertions.assertNull(parent.getLastChild(memory, toWrite = false), "The lastChild property is incorrect")
+        Assertions.assertEquals(0, parent.getChildCount(memory), "The childCount property is incorrect")
+
+        Assertions.assertEquals(parent, child0.getParent(memory, toWrite = false), "The parent property is incorrect")
+        Assertions.assertEquals(parent, child1.getParent(memory, toWrite = false), "The parent property is incorrect")
+        Assertions.assertEquals(parent, child2.getParent(memory, toWrite = false), "The parent property is incorrect")
+    }
+
+    @Test
+    fun `test getParentIndex`() {
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
+        val reader = IOStringReader.from("")
+        val parent = LxmNode(memory, "parent", reader.saveCursor())
+        val child0 = LxmNode(memory, "child1", reader.saveCursor())
+        val child1 = LxmNode(memory, "child2", reader.saveCursor())
+        val child2 = LxmNode(memory, "child3", reader.saveCursor())
+
+        child0.addToParent(memory, parent)
+        child1.addToParent(memory, parent)
+        child2.addToParent(memory, parent)
+
+        Assertions.assertEquals(-1, parent.getParentIndex(memory), "The parent index is incorrect")
+        Assertions.assertEquals(0, child0.getParentIndex(memory), "The parent index is incorrect")
+        Assertions.assertEquals(1, child1.getParentIndex(memory), "The parent index is incorrect")
+        Assertions.assertEquals(2, child2.getParentIndex(memory), "The parent index is incorrect")
+    }
+
+    @Test
     fun `test apply offset`() {
         // Readers.
         val text2 = "a text for"

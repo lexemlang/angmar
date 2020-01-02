@@ -17,7 +17,7 @@ internal class LxmPatternUnion : LxmObject {
         setIndex(memory, index)
     }
 
-    private constructor(memory: IMemory, oldVersion: LxmPatternUnion) : super(memory, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmPatternUnion) : super(memory, oldVersion = oldVersion) {
         this.quantifier = oldVersion.quantifier
     }
 

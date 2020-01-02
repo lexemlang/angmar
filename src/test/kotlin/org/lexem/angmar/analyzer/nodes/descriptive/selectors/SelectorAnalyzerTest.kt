@@ -108,6 +108,7 @@ internal class SelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = SelectorNode.Companion::parse)
 
         // Prepare stack.
+        var lxmNode: LxmNode? = null
         if (isOk) {
             val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
 
@@ -117,11 +118,10 @@ internal class SelectorAnalyzerTest {
         } else {
             when {
                 hasMethod -> {
-                    val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
+                    lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                     val lxmNodeAux = LxmNode(analyzer.memory, "aux", analyzer.text.saveCursor())
+                    lxmNodeAux.addToParent(analyzer.memory, lxmNode)
 
-                    lxmNode.getChildren(analyzer.memory, toWrite = true)
-                            .addCell(analyzer.memory, lxmNodeAux, ignoreConstant = true)
                     lxmNode.getProperties(analyzer.memory, toWrite = true)
                             .setProperty(analyzer.memory, propertyName, LxmLogic.True)
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
@@ -146,6 +146,12 @@ internal class SelectorAnalyzerTest {
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
         analyzer.memory.removeLastFromStack()
+
+        // Remove cyclic references.
+        if (lxmNode != null) {
+            lxmNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)
+                    ?.clearChildren(analyzer.memory)
+        }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }

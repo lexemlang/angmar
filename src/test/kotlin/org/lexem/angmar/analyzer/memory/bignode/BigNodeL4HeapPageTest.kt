@@ -7,12 +7,12 @@ import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
-internal class BigNodeL2HeapPageTest {
+internal class BigNodeL4HeapPageTest {
     @Test
     fun `test set, get and clone`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val page = BigNodeL2HeapPage(bigNode, 0)
+        val page = BigNodeL4HeapPage(bigNode, 0)
 
         // Set
         val listOfObject = List(5) { LxmObject(memory) }
@@ -55,7 +55,7 @@ internal class BigNodeL2HeapPageTest {
     fun `test set reusing`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val page = BigNodeL2HeapPage(bigNode, 0)
+        val page = BigNodeL4HeapPage(bigNode, 0)
 
         // Set
         val obj = LxmObject(memory)
@@ -73,7 +73,7 @@ internal class BigNodeL2HeapPageTest {
     fun `test different pages`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val page = BigNodeL2HeapPage(bigNode, 0)
+        val page = BigNodeL4HeapPage(bigNode, 0)
 
         // Set
         val obj = LxmObject(memory)
@@ -98,7 +98,7 @@ internal class BigNodeL2HeapPageTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val page = BigNodeL2HeapPage(bigNode, 0)
+            val page = BigNodeL4HeapPage(bigNode, 0)
 
             page.getCell(0, toWrite = false)
         }
@@ -110,7 +110,7 @@ internal class BigNodeL2HeapPageTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val page = BigNodeL2HeapPage(bigNode, 0)
+            val page = BigNodeL4HeapPage(bigNode, 0)
 
             page.clone(bigNode)
         }
@@ -124,9 +124,8 @@ internal class BigNodeL2HeapPageTest {
             val bigNode = BigNode(previousNode = null, nextNode = null)
             val obj = LxmObject(memory)
 
-            val page = BigNodeL2HeapPage(bigNode, 0)
+            val page = BigNodeL4HeapPage(bigNode, 0)
             page.setCell(BigNodeHeapCell(memory.lastNode, 5, obj))
         }
     }
 }
-

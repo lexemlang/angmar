@@ -22,8 +22,8 @@ internal class LxmContext : LxmObject {
         this.type = type
     }
 
-    private constructor(memory: IMemory, version: LxmContext) : super(memory, version) {
-        type = version.type
+    private constructor(memory: IMemory, oldVersion: LxmContext) : super(memory, oldVersion = oldVersion) {
+        type = oldVersion.type
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

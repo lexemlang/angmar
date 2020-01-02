@@ -20,7 +20,7 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * The last position of this [BigNodeL1HeapPage].
      */
-    val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits) - 1
+    val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits / 2) - 1
 
     // METHODS ----------------------------------------------------------------
 
@@ -28,7 +28,7 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
      * Gets a [BigNodeHeapCell].
      */
     fun getCell(position: Int, toWrite: Boolean): BigNodeHeapCell {
-        val index = position and Consts.Memory.heapPageL1Mask
+        val index = position
         var cell = cells[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                 "The analyzer is trying to access a forbidden memory position") {}
 

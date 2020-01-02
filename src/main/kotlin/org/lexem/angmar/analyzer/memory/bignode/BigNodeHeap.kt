@@ -10,11 +10,11 @@ import java.util.concurrent.atomic.*
  * The representation of a memory heap.
  */
 internal class BigNodeHeap(val bigNode: BigNode) {
-    private var pages = hashMapOf<Int, BigNodeL3HeapPage>()
+    private var pages = hashMapOf<Int, BigNodeL4HeapPage>()
     private var isPagesCloned = true
 
     /**
-     * The number of [BigNodeL3HeapPage]s in this [BigNodeHeap].
+     * The number of [BigNodeL4HeapPage]s in this [BigNodeHeap].
      */
     val size get() = pages.size
 
@@ -27,7 +27,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
     /**
      * The mask for a [BigNodeHeap].
      */
-    private val mask get() = Consts.Memory.heapPageL4Mask
+    private val mask get() = Consts.Memory.heapPageL5Mask
 
     // METHODS ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
         clonePages()
 
         var page = pages[index] ?: let {
-            val page = BigNodeL3HeapPage(bigNode, index)
+            val page = BigNodeL4HeapPage(bigNode, index)
             pages[index] = page
             page
         }

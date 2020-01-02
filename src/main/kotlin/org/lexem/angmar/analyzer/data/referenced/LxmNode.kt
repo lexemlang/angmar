@@ -29,7 +29,7 @@ internal class LxmNode : LxmObject {
         init(memory)
     }
 
-    private constructor(memory: IMemory, oldVersion: LxmNode) : super(memory, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmNode) : super(memory, oldVersion = oldVersion) {
         name = oldVersion.name
         type = oldVersion.type
     }

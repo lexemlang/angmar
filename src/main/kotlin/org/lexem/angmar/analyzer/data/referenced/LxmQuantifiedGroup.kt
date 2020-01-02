@@ -19,7 +19,7 @@ internal class LxmQuantifiedGroup : LxmObject {
         setProperty(memory, AnalyzerCommons.Identifiers.List, list)
     }
 
-    private constructor(memory: IMemory, oldVersion: LxmQuantifiedGroup) : super(memory, oldVersion)
+    private constructor(memory: IMemory, oldVersion: LxmQuantifiedGroup) : super(memory, oldVersion = oldVersion)
 
     // METHODS ----------------------------------------------------------------
 

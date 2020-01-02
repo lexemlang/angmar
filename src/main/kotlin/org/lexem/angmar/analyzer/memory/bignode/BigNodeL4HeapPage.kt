@@ -6,26 +6,26 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
 /**
- * The representation of a level-2 heap page.
+ * The representation of a level-4 heap page.
  */
-internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
-    private var pages = hashMapOf<Int, BigNodeL1HeapPage>()
+internal class BigNodeL4HeapPage(val bigNode: BigNode, val position: Int) {
+    private var pages = hashMapOf<Int, BigNodeL3HeapPage>()
     private var isPagesCloned = true
 
     /**
-     * The number of [BigNodeL1HeapPage]s in this [BigNodeL2HeapPage].
+     * The number of [BigNodeL3HeapPage]s in this [BigNodeL4HeapPage].
      */
     val size get() = pages.size
 
     /**
-     * The mask for a [BigNodeL2HeapPage].
+     * The mask for a [BigNodeL4HeapPage].
      */
-    private val mask get() = Consts.Memory.heapPageL2Mask
+    private val mask get() = Consts.Memory.heapPageL4Mask
 
     /**
-     * The last position of this [BigNodeL2HeapPage].
+     * The last position of this [BigNodeL4HeapPage].
      */
-    val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits) - 1
+    val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits * 3) - 1
 
     // METHODS ----------------------------------------------------------------
 
@@ -62,7 +62,7 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
         clonePages()
 
         var page = pages[index] ?: let {
-            val page = BigNodeL1HeapPage(bigNode, index)
+            val page = BigNodeL3HeapPage(bigNode, index)
             pages[index] = page
             page
         }
@@ -76,15 +76,15 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
     }
 
     /**
-     * Clones this [BigNodeL2HeapPage].
+     * Clones this [BigNodeL4HeapPage].
      */
-    fun clone(newBigNode: BigNode): BigNodeL2HeapPage {
+    fun clone(newBigNode: BigNode): BigNodeL4HeapPage {
         if (newBigNode == bigNode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
                     "Cannot clone a page over the same bigNode.") {}
         }
 
-        val res = BigNodeL2HeapPage(newBigNode, position)
+        val res = BigNodeL4HeapPage(newBigNode, position)
         res.isPagesCloned = false
         res.pages = pages
 

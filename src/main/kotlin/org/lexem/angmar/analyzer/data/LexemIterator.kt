@@ -21,7 +21,7 @@ internal abstract class LexemIterator : LxmObject {
         restart(memory)
     }
 
-    protected constructor(memory: IMemory, oldVersion: LexemIterator) : super(memory, oldVersion) {
+    protected constructor(memory: IMemory, oldVersion: LexemIterator) : super(memory, oldVersion = oldVersion) {
         intervalSize = oldVersion.intervalSize
     }
 
