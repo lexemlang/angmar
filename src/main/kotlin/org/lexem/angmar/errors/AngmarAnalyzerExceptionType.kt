@@ -44,6 +44,8 @@ enum class AngmarAnalyzerExceptionType {
 
     // OBJECTS ----------------------------------------------------------------
 
+    CannotModifyAnImmutableView,
+
     CannotModifyAConstantList,
     CannotModifyANonWritableList,
 

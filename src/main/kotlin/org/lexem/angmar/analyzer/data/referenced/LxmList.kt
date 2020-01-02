@@ -49,6 +49,11 @@ internal class LxmList : LexemReferenced {
      * Sets a new value to a cell.
      */
     fun setCell(memory: IMemory, index: Int, value: LexemMemoryValue, ignoreConstant: Boolean = false) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (index >= size) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                     "The list's length is ${cells.size} but the position '$index' was required") {}
@@ -68,6 +73,11 @@ internal class LxmList : LexemReferenced {
      */
     fun replaceCell(memory: IMemory, index: Int, removeCount: Int = 0, vararg values2Add: LexemMemoryValue,
             ignoreConstant: Boolean = false) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -154,7 +164,12 @@ internal class LxmList : LexemReferenced {
     /**
      * Makes the list constant.
      */
-    fun makeConstant() {
+    fun makeConstant(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
@@ -166,7 +181,12 @@ internal class LxmList : LexemReferenced {
     /**
      * Makes the list constant and not writable.
      */
-    fun makeConstantAndNotWritable() {
+    fun makeConstantAndNotWritable(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The list is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}

@@ -38,6 +38,11 @@ internal class LxmSet : LexemReferenced {
      * Adds a new value to the set.
      */
     fun addValue(memory: IMemory, value: LexemMemoryValue) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
@@ -68,6 +73,11 @@ internal class LxmSet : LexemReferenced {
      * Removes a value.
      */
     fun removeValue(memory: IMemory, value: LexemMemoryValue) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore it cannot be modified") {}
@@ -92,7 +102,12 @@ internal class LxmSet : LexemReferenced {
     /**
      * Makes the set constant.
      */
-    fun makeConstant() {
+    fun makeConstant(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The set is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}

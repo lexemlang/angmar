@@ -38,7 +38,7 @@ internal object ObjectPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory, anyPrototype: LxmObject): LxmObject {
-        val prototype = LxmObject(memory, prototype = anyPrototype, dummy = false)
+        val prototype = LxmObject(memory, prototype = anyPrototype)
 
         // Methods
         prototype.setProperty(memory, Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
@@ -73,7 +73,7 @@ internal object ObjectPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, ObjectType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
-                thisValue.makeConstant()
+                thisValue.makeConstant(analyzer.memory)
                 LxmNil
             }
 
@@ -134,7 +134,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAllOwnProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            thisValue.makePropertyConstant(key.primitive)
+            thisValue.makePropertyConstant(analyzer.memory, key.primitive)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -150,7 +150,7 @@ internal object ObjectPrototype {
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmObject ->
                 val allProperties = thisValue.getAllIterableProperties()
                 for ((key, _) in allProperties) {
-                    thisValue.makePropertyConstant(key)
+                    thisValue.makePropertyConstant(analyzer.memory, key)
                 }
 
                 LxmNil

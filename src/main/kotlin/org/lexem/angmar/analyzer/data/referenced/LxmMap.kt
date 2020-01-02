@@ -52,6 +52,11 @@ internal class LxmMap : LexemReferenced {
      * Sets a new value to the property or creates a new property with the specified value.
      */
     fun setProperty(memory: IMemory, key: LexemMemoryValue, value: LexemMemoryValue) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore cannot be modified") {}
@@ -98,6 +103,11 @@ internal class LxmMap : LexemReferenced {
      * Removes a property.
      */
     fun removeProperty(memory: IMemory, key: LexemMemoryValue) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore cannot be modified") {}
@@ -122,7 +132,12 @@ internal class LxmMap : LexemReferenced {
     /**
      * Makes the map constant.
      */
-    fun makeConstant() {
+    fun makeConstant(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The map is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The map is constant therefore cannot be modified") {}

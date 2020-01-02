@@ -57,7 +57,7 @@ internal object ObjectType {
                             "The '$TypeName${AccessExplicitMemberNode.accessToken}$NewFrom' method requires the parameter called '${NewFromArgs[0]}' be an $TypeName") {}
                 }
 
-                val newObject = LxmObject(analyzer.memory, prototype = prototype, dummy = false)
+                val newObject = LxmObject(analyzer.memory, prototype = prototype)
 
                 analyzer.memory.addToStackAsLast(newObject)
             }

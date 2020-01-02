@@ -48,7 +48,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Creates an object with explicit prototype.
      */
-    constructor(memory: IMemory, prototype: LxmObject, dummy: Boolean) : super(memory) {
+    constructor(memory: IMemory, prototype: LxmObject, dummy: Boolean = false) : super(memory) {
         prototypeReference = prototype.getPrimitive()
         prototypeReference!!.increaseReferences(memory)
     }
@@ -90,6 +90,11 @@ internal open class LxmObject : LexemReferenced {
      */
     fun setProperty(memory: IMemory, identifier: String, value: LexemMemoryValue, isConstant: Boolean = false,
             ignoreConstant: Boolean = false) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
@@ -126,6 +131,11 @@ internal open class LxmObject : LexemReferenced {
      */
     fun setPropertyAsContext(memory: IMemory, identifier: String, value: LexemMemoryValue,
             isConstant: Boolean = false) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
@@ -173,6 +183,11 @@ internal open class LxmObject : LexemReferenced {
      * Removes a property.
      */
     fun removeProperty(memory: IMemory, identifier: String, ignoreConstant: Boolean = false) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
@@ -197,7 +212,12 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Makes the object constant.
      */
-    fun makeConstant() {
+    fun makeConstant(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
@@ -209,7 +229,12 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Makes the list constant and not writable.
      */
-    fun makeConstantAndNotWritable() {
+    fun makeConstantAndNotWritable(memory: IMemory) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
@@ -222,7 +247,12 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Makes a property constant.
      */
-    fun makePropertyConstant(identifier: String) {
+    fun makePropertyConstant(memory: IMemory, identifier: String) {
+        if (isMemoryImmutable(memory)) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                    "The object is immutable therefore cannot be modified") {}
+        }
+
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}

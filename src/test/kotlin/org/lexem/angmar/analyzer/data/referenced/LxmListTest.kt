@@ -47,7 +47,7 @@ internal class LxmListTest {
     fun `test add cell ignoring constant`() {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
-        list.makeConstant()
+        list.makeConstant(memory)
 
         list.addCell(memory, LxmInteger.Num10, ignoreConstant = true)
 
@@ -87,7 +87,7 @@ internal class LxmListTest {
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.makeConstant()
+        new.makeConstant(memory)
         new.insertCell(memory, 1, LxmInteger.Num1, LxmInteger.Num2, ignoreConstant = true)
         new.getAllCells()
 
@@ -234,7 +234,7 @@ internal class LxmListTest {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
         list.addCell(memory, LxmInteger.Num0)
-        list.makeConstant()
+        list.makeConstant(memory)
 
         list.removeCell(memory, 0, ignoreConstant = true)
 
@@ -272,7 +272,7 @@ internal class LxmListTest {
 
         Assertions.assertFalse(list.isConstant, "The isConstant property is incorrect")
 
-        list.makeConstant()
+        list.makeConstant(memory)
 
         Assertions.assertTrue(list.isConstant, "The isConstant property is incorrect")
     }
@@ -283,7 +283,7 @@ internal class LxmListTest {
 
         val old = LxmList(memory)
         val oldConst = LxmList(memory)
-        oldConst.makeConstant()
+        oldConst.makeConstant(memory)
 
         TestUtils.freezeCopy(memory)
 
@@ -300,7 +300,7 @@ internal class LxmListTest {
         val memory = TestUtils.generateTestMemory()
 
         val old = LxmList(memory)
-        old.makeConstantAndNotWritable()
+        old.makeConstantAndNotWritable(memory)
 
         TestUtils.freezeCopy(memory)
 
@@ -354,7 +354,7 @@ internal class LxmListTest {
         val list2 = LxmList(memory)
 
         list1.addCell(memory, list2)
-        list1.makeConstantAndNotWritable()
+        list1.makeConstantAndNotWritable(memory)
         list1.getPrimitive().increaseReferences(memory.lastNode)
 
         list1.memoryDealloc(memory)
@@ -395,7 +395,7 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.makeConstant()
+            list.makeConstant(memory)
             list.addCell(memory, LxmLogic.True)
         }
     }
@@ -407,7 +407,7 @@ internal class LxmListTest {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)
-            list.makeConstant()
+            list.makeConstant(memory)
             list.setCell(memory, 0, LxmLogic.False)
         }
     }
@@ -429,7 +429,7 @@ internal class LxmListTest {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)
-            list.makeConstant()
+            list.makeConstant(memory)
             list.removeCell(memory, 0)
         }
     }
@@ -451,7 +451,7 @@ internal class LxmListTest {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
 
-            list.makeConstantAndNotWritable()
+            list.makeConstantAndNotWritable(memory)
             list.addCell(memory, LxmNil, ignoreConstant = true)
         }
     }
@@ -464,7 +464,7 @@ internal class LxmListTest {
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)
 
-            list.makeConstantAndNotWritable()
+            list.makeConstantAndNotWritable(memory)
             list.removeCell(memory, 0, ignoreConstant = true)
         }
     }
@@ -477,7 +477,7 @@ internal class LxmListTest {
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)
 
-            list.makeConstantAndNotWritable()
+            list.makeConstantAndNotWritable(memory)
             list.insertCell(memory, 0, LxmNil, ignoreConstant = true)
         }
     }

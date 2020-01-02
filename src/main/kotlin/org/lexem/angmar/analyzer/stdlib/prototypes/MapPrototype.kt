@@ -104,7 +104,7 @@ internal object MapPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, MapType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmMap ->
-                thisValue.makeConstant()
+                thisValue.makeConstant(analyzer.memory)
                 LxmNil
             }
 

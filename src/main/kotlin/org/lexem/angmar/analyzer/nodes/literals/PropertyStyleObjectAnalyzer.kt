@@ -24,7 +24,7 @@ internal object PropertyStyleObjectAnalyzer {
                     val obj =
                             analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = true) as LxmObject
 
-                    obj.makeConstant()
+                    obj.makeConstant(analyzer.memory)
                 }
             }
         }

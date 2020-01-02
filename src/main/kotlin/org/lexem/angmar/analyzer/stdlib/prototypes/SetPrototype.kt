@@ -99,7 +99,7 @@ internal object SetPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, SetType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmSet ->
-                thisValue.makeConstant()
+                thisValue.makeConstant(analyzer.memory)
                 LxmNil
             }
 

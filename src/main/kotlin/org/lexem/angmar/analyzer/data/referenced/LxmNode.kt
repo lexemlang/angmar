@@ -41,7 +41,7 @@ internal class LxmNode : LxmObject {
      */
     private fun init(memory: IMemory) {
         val children = LxmList(memory)
-        children.makeConstant()
+        children.makeConstant(memory)
         setProperty(memory, AnalyzerCommons.Identifiers.Children, children, isConstant = true)
 
         val properties = LxmObject(memory)

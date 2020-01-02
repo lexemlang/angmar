@@ -125,7 +125,7 @@ internal object ListPrototype {
     private fun freezeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) =
             BinaryAnalyzerCommons.executeUnitaryOperator(analyzer, arguments, Freeze, ListType.TypeName,
                     toWrite = true) { _: LexemAnalyzer, thisValue: LxmList ->
-                thisValue.makeConstantAndNotWritable()
+                thisValue.makeConstantAndNotWritable(analyzer.memory)
                 LxmNil
             }
 

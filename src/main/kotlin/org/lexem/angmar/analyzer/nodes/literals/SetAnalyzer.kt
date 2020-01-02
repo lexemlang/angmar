@@ -30,7 +30,7 @@ internal object SetAnalyzer {
                 analyzer.memory.replaceLastStackCell(set)
 
                 if (list.isConstant) {
-                    set.makeConstant()
+                    set.makeConstant(analyzer.memory)
                 }
             }
         }
