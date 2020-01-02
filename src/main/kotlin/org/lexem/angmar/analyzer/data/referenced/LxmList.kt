@@ -78,7 +78,7 @@ internal class LxmList : LexemReferenced {
                     "The list is immutable therefore cannot be modified") {}
         }
 
-        if (!ignoreConstant && isConstant) {
+        if (!isWritable || (!ignoreConstant && isConstant)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
@@ -170,7 +170,7 @@ internal class LxmList : LexemReferenced {
                     "The list is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!isWritable || isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }
@@ -187,7 +187,7 @@ internal class LxmList : LexemReferenced {
                     "The list is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!isWritable || isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList,
                     "The list is constant therefore cannot be modified") {}
         }

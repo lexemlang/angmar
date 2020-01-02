@@ -24,9 +24,6 @@ internal class LxmIndexerSetter : LexemSetter {
         this.index = index.getPrimitive()
         this.node = node
 
-        this.element.increaseReferences(memory)
-        this.index.increaseReferences(memory)
-
         // Check the types.
         when (element) {
             is LxmString -> {

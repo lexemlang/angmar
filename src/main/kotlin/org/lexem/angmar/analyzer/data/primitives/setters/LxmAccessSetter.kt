@@ -25,8 +25,6 @@ internal class LxmAccessSetter : LexemSetter {
         this.variableName = variableName
         this.node = node
         this.nodeElement = nodeElement
-
-        this.context.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

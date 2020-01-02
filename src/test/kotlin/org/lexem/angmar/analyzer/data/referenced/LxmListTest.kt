@@ -447,7 +447,7 @@ internal class LxmListTest {
     @Test
     @Incorrect
     fun `add a cell in a non-writable list`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
 
@@ -459,7 +459,7 @@ internal class LxmListTest {
     @Test
     @Incorrect
     fun `remove a cell in a non-writable list`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)
@@ -472,7 +472,7 @@ internal class LxmListTest {
     @Test
     @Incorrect
     fun `insert a cell in a non-writable list`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.addCell(memory, LxmLogic.True)

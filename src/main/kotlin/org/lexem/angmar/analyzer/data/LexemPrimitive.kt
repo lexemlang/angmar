@@ -30,6 +30,4 @@ internal interface LexemPrimitive : LexemMemoryValue {
     override fun getPrimitive() = this
 
     override fun getType(memory: IMemory): LxmReference = throw AngmarUnreachableException()
-
-    override fun getPrototype(memory: IMemory): LxmReference = throw AngmarUnreachableException()
 }

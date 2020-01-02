@@ -299,34 +299,31 @@ internal object TestUtils {
         }
 
         // Check context.
-        val stdLibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
-        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = false)
-        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val stdLibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
+        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = true)
 
         Assertions.assertEquals(stdLibContext, context, "The context must be the stdLib")
 
         // Remove elements from the context.
         StdlibCommons.GlobalNames.forEach {
-            context.removeProperty(analyzer.memory, it, ignoreConstant = true)
+            context.removeProperty(memory, it, ignoreConstant = true)
         }
 
         valuesToRemove?.forEach {
-            if (context.getPropertyValue(analyzer.memory, it) == null) {
+            if (context.getPropertyValue(memory, it) == null) {
                 throw Exception("The context does not contains the property called '$it'")
             }
 
-            context.removeProperty(analyzer.memory, it, ignoreConstant = true)
+            context.removeProperty(memory, it, ignoreConstant = true)
         }
 
-        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFileMap, ignoreConstant = true)
-        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContext,
-                ignoreConstant = true)
-        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, ignoreConstant = true)
+        hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, ignoreConstant = true)
 
         if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-            hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenParserMap,
-                    ignoreConstant = true)
+            hiddenContext.removeProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, ignoreConstant = true)
         }
 
         // Check whether the context is empty.
@@ -339,8 +336,9 @@ internal object TestUtils {
         LxmReference.HiddenContext.decreaseReferences(memory.lastNode)
 
         // Check whether the memory is empty.
-        Assertions.assertEquals(0, memory.lastNode.heapSize,
-                "The memory must be completely cleared. Remaining cells with values: ${memory.lastNode.heapSize}")
+        val remainingCells = memory.lastNode.heapSize - memory.lastNode.heapFreedCells.get()
+        Assertions.assertEquals(0, remainingCells,
+                "The memory must be completely cleared. Remaining cells with values: $remainingCells")
     }
 
     /**

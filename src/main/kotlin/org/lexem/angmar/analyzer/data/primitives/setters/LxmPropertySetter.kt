@@ -21,8 +21,6 @@ internal class LxmPropertySetter : LexemSetter {
         this.value = value.getPrimitive()
         this.property = property
         this.node = node
-
-        this.value.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

@@ -702,7 +702,7 @@ internal class LxmObjectTest {
     @Test
     @Incorrect
     fun `set a property in a non-writable object`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableObject) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject) {
             val analyzer = LexemAnalyzer(CompiledNode.Companion.EmptyCompiledNode)
             val memory = analyzer.memory
             val obj = LxmObject(memory)

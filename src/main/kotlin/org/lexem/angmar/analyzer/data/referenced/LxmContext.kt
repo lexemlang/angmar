@@ -18,7 +18,7 @@ internal class LxmContext : LxmObject {
     }
 
     constructor(memory: IMemory, higherContextReference: LxmContext, type: LxmContextType) : super(memory,
-            higherContextReference) {
+            prototype = higherContextReference) {
         this.type = type
     }
 

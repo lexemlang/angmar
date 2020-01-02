@@ -276,16 +276,16 @@ internal object AnalyzerCommons {
      */
     fun removeCurrentFunctionContextAndAssignPrevious(memory: IMemory) {
         val hiddenContext = getHiddenContext(memory, toWrite = true)
-        val lastContext = getCurrentContext(memory, toWrite = true)
+        val currentContext = getCurrentContext(memory, toWrite = true)
         val lastContextReference =
                 hiddenContext.getPropertyValue(memory, Identifiers.HiddenCurrentContext) as LxmReference
         val callerContextReference =
-                lastContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
+                currentContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
 
         // Done like this to avoid premature removal.
         lastContextReference.increaseReferences(memory)
         hiddenContext.setProperty(memory, Identifiers.HiddenCurrentContext, callerContextReference)
-        lastContext.removeProperty(memory, Identifiers.HiddenCallerContext, ignoreConstant = true)
+        currentContext.removeProperty(memory, Identifiers.HiddenCallerContext, ignoreConstant = true)
 
         lastContextReference.decreaseReferences(memory)
     }

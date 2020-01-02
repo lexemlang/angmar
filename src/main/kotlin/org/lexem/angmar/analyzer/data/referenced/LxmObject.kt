@@ -95,7 +95,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (!ignoreConstant && this.isConstant) {
+        if (!isWritable || (!ignoreConstant && this.isConstant)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
         }
@@ -136,7 +136,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (this.isConstant) {
+        if (!isWritable || this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
         }
@@ -188,7 +188,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (!ignoreConstant && isConstant) {
+        if (!isWritable || (!ignoreConstant && isConstant)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
         }
@@ -218,7 +218,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!isWritable || isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
         }
@@ -235,7 +235,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!isWritable || isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
         }
@@ -253,7 +253,7 @@ internal open class LxmObject : LexemReferenced {
                     "The object is immutable therefore cannot be modified") {}
         }
 
-        if (isConstant) {
+        if (!isWritable || isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
         }
