@@ -68,3 +68,6 @@ This is the plan to work towards a future release.
 - Para el nodo actual recolector asíncrono sin parada. Para ello no debe haber ningún punto en el que se elimine antes de añadir. Nodos??
 - Cuando el main thread detecta una referencia a 0. La manda a otro hilo para que recorra sus punteros y reduzca las referencias del resto.
 - Hacer un intervalo modificable como un Red-Black tree para el recolector.
+
+
+Change node children use.

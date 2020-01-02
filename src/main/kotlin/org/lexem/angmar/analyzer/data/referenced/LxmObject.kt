@@ -294,7 +294,11 @@ internal open class LxmObject : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(memory: IMemory) = LxmObject(memory, this)
+    override fun memoryClone(memory: IMemory) = if (!isWritable) {
+        this
+    } else {
+        LxmObject(memory, this)
+    }
 
     override fun memoryDealloc(memory: IMemory) {
         getAllProperties().map { it.value.value }.forEach { it.decreaseReferences(memory) }

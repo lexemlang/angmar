@@ -181,11 +181,12 @@ internal object GroupLexemAnalyzer {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture && children) {
                 // Set the returned value.
-                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                returnValue = if (children && childrenList.size > 0) {
+                returnValue = if (children && lxmNode.getChildCount(analyzer.memory) > 0) {
+                    val childrenList = lxmNode.getChildrenList(analyzer.memory, toWrite = false)
+
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toList().toTypedArray())
+                    resultList.addCell(analyzer.memory, *childrenList.toList().toTypedArray())
                     resultList
                 } else {
                     // Set a null value.
@@ -193,7 +194,7 @@ internal object GroupLexemAnalyzer {
                 }
 
                 // Replace the node in parent by its children.
-                lxmNode.replaceNodeInParentByChildren(analyzer.memory)
+                lxmNode.replaceNodeByItsChildren(analyzer.memory)
             }
 
             // Set the returned value.

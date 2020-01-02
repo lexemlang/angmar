@@ -38,15 +38,15 @@ internal class LxmObjectTest {
         val oldCell = memory.lastNode.getHeapCell(prototype.getPrimitive().position, toWrite = false)
 
         Assertions.assertNull(prototype.prototypeReference, "The prototypeReference property is incorrect")
-        Assertions.assertEquals(0, oldCell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(0, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
 
         val new1 = LxmObject(memory, prototype = prototype)
         val new1Cell = memory.lastNode.getHeapCell(new1.getPrimitive().position, toWrite = false)
 
         Assertions.assertEquals(prototype.getPrimitive(), new1.prototypeReference,
                 "The prototypeReference property is incorrect")
-        Assertions.assertEquals(0, new1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, oldCell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(0, new1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test
@@ -73,7 +73,7 @@ internal class LxmObjectTest {
     @Test
     fun `test get removed property`() {
         val propName = "test"
-        val memory = TestUtils.generateTestMemory()
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
 
         val old = LxmObject(memory)
         old.setProperty(memory, propName, LxmLogic.True)
@@ -113,11 +113,10 @@ internal class LxmObjectTest {
         val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         new.setProperty(memory, "new", LxmInteger.Num1)
 
-        val oldDescriptor = new.getPropertyDescriptor(memory, "old") ?: throw Error("The old property is incorrect")
+        val oldDescriptor = old.getPropertyDescriptor(memory, "old") ?: throw Error("The old property is incorrect")
         val newDescriptor = new.getPropertyDescriptor(memory, "new") ?: throw Error("The new property is incorrect")
 
         Assertions.assertEquals(LxmInteger.Num1, newDescriptor.value, "The new property is incorrect")
-        Assertions.assertNull(new.getPropertyDescriptor(memory, "prototype"), "The prototype property is incorrect")
         Assertions.assertEquals(LxmLogic.True, oldDescriptor.value, "The old property is incorrect")
     }
 
@@ -196,34 +195,34 @@ internal class LxmObjectTest {
         obj.getPrimitive().increaseReferences(memory.lastNode)
         val objCell = memory.lastNode.getHeapCell(obj.getPrimitive().position, toWrite = false)
 
-        Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
 
         obj.setProperty(memory, prop1Name, LxmLogic.True)
         obj.setProperty(memory, prop2Name, obj1)
 
-        Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
 
         obj.setProperty(memory, prop1Name, obj2)
 
-        Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
 
         obj.setProperty(memory, prop2Name, LxmLogic.True)
 
-        Assertions.assertEquals(1, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
 
         obj.setProperty(memory, prop1Name, obj1)
 
-        Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
 
         obj.setProperty(memory, prop1Name, obj1)
 
-        Assertions.assertEquals(2, obj1Cell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test
@@ -297,7 +296,7 @@ internal class LxmObjectTest {
         cell = obj.getPropertyDescriptor(memory, propName)!!
 
         Assertions.assertTrue(cell.isConstant, "The isConstant property is incorrect")
-        Assertions.assertFalse(cell.isIterable, "The isIterable property is incorrect")
+        Assertions.assertTrue(cell.isIterable, "The isIterable property is incorrect")
         Assertions.assertEquals(LxmLogic.True, obj.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
     }
@@ -331,7 +330,7 @@ internal class LxmObjectTest {
         Assertions.assertEquals(LxmInteger.Num10, old.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
         Assertions.assertTrue(cellNew.isConstant, "The isConstant property is incorrect")
-        Assertions.assertFalse(cellNew.isIterable, "The isIterable property is incorrect")
+        Assertions.assertTrue(cellNew.isIterable, "The isIterable property is incorrect")
         Assertions.assertEquals(LxmLogic.True, new.getPropertyValue(memory, propName),
                 "The $propName property is incorrect")
     }
@@ -376,7 +375,7 @@ internal class LxmObjectTest {
     @Test
     fun `test remove property from current`() {
         val propName = "property"
-        val memory = TestUtils.generateTestMemory()
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
 
         val obj = LxmObject(memory)
         obj.setProperty(memory, propName, LxmLogic.True)
@@ -389,7 +388,7 @@ internal class LxmObjectTest {
     @Test
     fun `test remove property existing in old`() {
         val propName = "property"
-        val memory = TestUtils.generateTestMemory()
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
 
         val prototype = LxmObject(memory)
         prototype.setProperty(memory, propName, LxmLogic.False)
@@ -411,9 +410,9 @@ internal class LxmObjectTest {
 
         val descriptor =
                 new.getPropertyDescriptor(memory, propName) ?: throw Error("The $propName property is incorrect")
-        Assertions.assertFalse(descriptor.isIterable, "The isIterable property is incorrect")
+        Assertions.assertTrue(descriptor.isIterable, "The isIterable property is incorrect")
         Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
-        Assertions.assertEquals(LxmNil, descriptor.value, "The value property is incorrect")
+        Assertions.assertEquals(LxmLogic.False, descriptor.value, "The value property is incorrect")
     }
 
     @Test
@@ -542,20 +541,20 @@ internal class LxmObjectTest {
         val newCell = memory.lastNode.getHeapCell(new.getPrimitive().position, toWrite = false)
         val objCellNew = memory.lastNode.getHeapCell(obj.getPrimitive().position, toWrite = false)
 
-        Assertions.assertEquals(oldCell.referenceCount, newCell.referenceCount,
+        Assertions.assertEquals(oldCell.referenceCount.get(), newCell.referenceCount.get(),
                 "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, objCell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(3, objCellNew.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, oldCell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, prototypeCell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, objCell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(3, objCellNew.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(2, prototypeCell.referenceCount.get(), "The referenceCount property is incorrect")
 
         new.memoryDealloc(memory)
 
         val prototypeCellNew = memory.lastNode.getHeapCell(prototype.getPrimitive().position, toWrite = false)
 
-        Assertions.assertEquals(1, newCell.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, objCellNew.referenceCount, "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, prototypeCellNew.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, newCell.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, objCellNew.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(1, prototypeCellNew.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test

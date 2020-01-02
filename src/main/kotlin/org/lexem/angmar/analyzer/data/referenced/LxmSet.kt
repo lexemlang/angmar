@@ -148,7 +148,11 @@ internal class LxmSet : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(memory: IMemory) = LxmSet(memory, this)
+    override fun memoryClone(memory: IMemory) = if (isConstant) {
+        this
+    } else {
+        LxmSet(memory, this)
+    }
 
     override fun memoryDealloc(memory: IMemory) {
         getAllValues().forEach { it.decreaseReferences(memory) }

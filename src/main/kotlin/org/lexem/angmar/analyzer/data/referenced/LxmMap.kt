@@ -178,7 +178,11 @@ internal class LxmMap : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(memory: IMemory) = LxmMap(memory, this)
+    override fun memoryClone(memory: IMemory) = if (isConstant) {
+        this
+    } else {
+        LxmMap(memory, this)
+    }
 
     override fun memoryDealloc(memory: IMemory) {
         getAllProperties().forEach { (key, value) ->

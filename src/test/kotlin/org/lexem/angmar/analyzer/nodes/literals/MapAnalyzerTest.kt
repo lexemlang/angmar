@@ -31,7 +31,7 @@ internal class MapAnalyzerTest {
         for ((index, value) in values) {
             val resValue = obj.getPropertyValue(LxmInteger.from(index)) as? LxmInteger ?: throw Error(
                     "The property must be a LxmInteger")
-            Assertions.assertEquals(value, resValue, "The primitive property is incorrect")
+            Assertions.assertEquals(value, resValue.primitive, "The primitive property is incorrect")
         }
 
         Assertions.assertFalse(obj.isConstant, "The isConstant property is incorrect")
@@ -59,7 +59,7 @@ internal class MapAnalyzerTest {
         for ((index, value) in values) {
             val resValue = obj.getPropertyValue(LxmInteger.from(index)) as? LxmInteger ?: throw Error(
                     "The property must be a LxmInteger")
-            Assertions.assertEquals(value, resValue, "The primitive property is incorrect")
+            Assertions.assertEquals(value, resValue.primitive, "The primitive property is incorrect")
         }
 
         Assertions.assertTrue(obj.isConstant, "The isConstant property is incorrect")

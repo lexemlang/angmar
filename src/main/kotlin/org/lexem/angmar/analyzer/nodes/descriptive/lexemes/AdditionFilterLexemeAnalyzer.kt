@@ -83,7 +83,7 @@ internal object AdditionFilterLexemeAnalyzer {
         val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
                 toWrite = false)!!
 
-        parent.insertChildren(analyzer.memory, listOf(lxmNode), nodePosition.primitive)
+        parent.insertChild(analyzer.memory, lxmNode, nodePosition.primitive)
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)

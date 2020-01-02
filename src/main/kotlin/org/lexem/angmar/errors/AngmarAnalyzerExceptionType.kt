@@ -55,6 +55,10 @@ enum class AngmarAnalyzerExceptionType {
 
     CannotModifyAConstantSet,
 
+    IncorrectNodeReference,
+    IncorrectNodeChildCount,
+    IncorrectNodeWithParent,
+
     // FUNCTIONS --------------------------------------------------------------
 
     BadArgumentError,

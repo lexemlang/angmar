@@ -450,8 +450,7 @@ internal class AccessLexemAnalyzerTest {
         analyzer.memory.spatialGarbageCollect()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
-                AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
+        parent.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearChildren(analyzer.memory)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(variableName, node2ProcessVar, AnalyzerCommons.Identifiers.HiddenCurrentContextName))

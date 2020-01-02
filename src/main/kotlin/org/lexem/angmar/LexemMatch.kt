@@ -17,8 +17,8 @@ class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode, re
     val name = node.name
     val from = node.getFrom(analyzer.memory).primitive
     val to = node.getTo(analyzer.memory)!!.primitive
-    val children = node.getChildrenAsList(analyzer.memory).map { position ->
-        LexemMatch(analyzer, position.dereference(analyzer.memory, toWrite = false) as LxmNode, removeDefaultProperties)
+    val children = node.getChildrenList(analyzer.memory, toWrite = false).map { node ->
+        LexemMatch(analyzer, node, removeDefaultProperties)
     }.toList()
     val properties: Map<String, Any>
 

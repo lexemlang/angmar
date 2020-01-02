@@ -278,7 +278,7 @@ internal class LxmListTest {
     }
 
     @Test
-    fun `test memoryShift`() {
+    fun `test clone`() {
         val memory = TestUtils.generateTestMemory()
 
         val old = LxmList(memory)
@@ -296,7 +296,7 @@ internal class LxmListTest {
     }
 
     @Test
-    fun `test memoryShift - non-writable`() {
+    fun `test clone - non-writable`() {
         val memory = TestUtils.generateTestMemory()
 
         val old = LxmList(memory)
@@ -311,7 +311,7 @@ internal class LxmListTest {
 
     @Test
     @Incorrect
-    fun `test memoryShift in the same bigNode`() {
+    fun `test clone in the same bigNode`() {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ValueShiftOverSameBigNode) {
             val memory = TestUtils.generateTestMemory()
             val old = LxmList(memory)
@@ -338,12 +338,12 @@ internal class LxmListTest {
         val newListCell = memory.lastNode.getHeapCell(list.getPrimitive().position, toWrite = false)
 
         Assertions.assertEquals(4, new.size, "The size property is incorrect")
-        Assertions.assertEquals(3, newListCell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(3, newListCell.referenceCount.get(), "The referenceCount property is incorrect")
 
         new.memoryDealloc(memory)
 
-        Assertions.assertEquals(0, new.size, "The size property is incorrect")
-        Assertions.assertEquals(1, newListCell.referenceCount, "The referenceCount property is incorrect")
+        Assertions.assertEquals(4, new.size, "The size property is incorrect")
+        Assertions.assertEquals(1, newListCell.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test

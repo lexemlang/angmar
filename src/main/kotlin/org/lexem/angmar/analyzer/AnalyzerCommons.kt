@@ -41,8 +41,11 @@ internal object AnalyzerCommons {
         // Nodes
         const val Root = "root"
         const val Parent = "parent"
-        const val ParentIndex = "${HiddenPrefix}parentIndex"
-        const val Children = "children"
+        const val LeftSibling = "leftSibling"
+        const val RightSibling = "rightSibling"
+        const val FirstChild = "firstChild"
+        const val LastChild = "lastChild"
+        const val HiddenChildCount = "${HiddenPrefix}childCount"
         const val Node = "node"
         const val Properties = "properties"
         const val Name = "name"

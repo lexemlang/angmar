@@ -223,7 +223,11 @@ internal class LxmList : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(memory: IMemory) = LxmList(memory, this)
+    override fun memoryClone(memory: IMemory) = if (!isWritable) {
+        this
+    } else {
+        LxmList(memory, this)
+    }
 
     override fun memoryDealloc(memory: IMemory) {
         getAllCells().forEach { it.decreaseReferences(memory) }
