@@ -37,14 +37,15 @@ internal class AccessLexemAnalyzerTest {
         }
 
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(functionName, function)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, functionName, function)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val result =
-                context.getPropertyValue(variableName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = context.getPropertyValue(analyzer.memory, variableName) as? LxmInteger ?: throw Error(
+                "The result must be a LxmInteger")
 
         Assertions.assertEquals(returnValue, result.primitive, "The result is incorrect")
 
@@ -71,14 +72,15 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val result =
-                context.getPropertyValue(variableName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = context.getPropertyValue(analyzer.memory, variableName) as? LxmInteger ?: throw Error(
+                "The result must be a LxmInteger")
 
         Assertions.assertEquals(returnValue, result.primitive, "The result is incorrect")
 
@@ -108,21 +110,24 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val resultRef = context.getPropertyValue(variableName) as LxmReference
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
-        val resultParent = result.getParent(toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList().toList()
+        val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory).toList()
 
         Assertions.assertEquals(expressionName, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(text.length, result.getTo()!!.primitive.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(text.length, result.getTo(analyzer.memory)!!.primitive.position(),
+                "The to property is incorrect")
         Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
         Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
         Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
@@ -162,21 +167,24 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val resultRef = context.getPropertyValue(variableName) as LxmReference
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
-        val resultParent = result.getParent(toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList().toList()
+        val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory).toList()
 
         Assertions.assertEquals(expressionName, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(text.length, result.getTo()!!.primitive.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(text.length, result.getTo(analyzer.memory)!!.primitive.position(),
+                "The to property is incorrect")
         Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
         Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
         Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
@@ -216,27 +224,29 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
-        val children = parent.getChildren(toWrite = true)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-        childNode.addToParent(parent)
-        children.addCell(childNode, ignoreConstant = true)
+        childNode.addToParent(analyzer.memory, parent)
+        children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(node2ProcessVar, parent)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, node2ProcessVar, parent)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val resultRef = context.getPropertyValue(variableName) as LxmReference
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
-        val resultParent = result.getParent(toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList().toList()
+        val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory).toList()
 
         Assertions.assertEquals(parent.name, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(0, result.getTo()!!.primitive.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(0, result.getTo(analyzer.memory)!!.primitive.position(), "The to property is incorrect")
         Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
         Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
         Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
@@ -246,7 +256,7 @@ internal class AccessLexemAnalyzerTest {
         analyzer.memory.spatialGarbageCollect()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
+        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
@@ -283,23 +293,24 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val resultRef = context.getPropertyValue(variableName) as LxmReference
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
-        val resultParent = result.getParent(toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList().toList()
+        val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory).toList()
 
         Assertions.assertEquals(expression2Name, result.name, "The name property is incorrect")
-        Assertions.assertEquals(leftText.length, result.getFrom().primitive.position(),
+        Assertions.assertEquals(leftText.length, result.getFrom(analyzer.memory).primitive.position(),
                 "The from property is incorrect")
-        Assertions.assertEquals(leftText.length + middleText.length, result.getTo()!!.primitive.position(),
-                "The to property is incorrect")
+        Assertions.assertEquals(leftText.length + middleText.length,
+                result.getTo(analyzer.memory)!!.primitive.position(), "The to property is incorrect")
         Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
         Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
         Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
@@ -309,11 +320,13 @@ internal class AccessLexemAnalyzerTest {
                 "The lexem has not consumed the characters")
 
         val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
-        val lxmNode = hiddenContext.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                toWrite = false) ?: throw Error("The node must be a LxmNode")
-        Assertions.assertEquals(1, lxmNode.getChildrenAsList().count(), "The number of results is incorrect")
+        val lxmNode = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
+                AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = false) ?: throw Error(
+                "The node must be a LxmNode")
+        Assertions.assertEquals(1, lxmNode.getChildrenAsList(analyzer.memory).count(),
+                "The number of results is incorrect")
         Assertions.assertEquals(result,
-                lxmNode.getChildrenAsList().first().dereference(analyzer.memory, toWrite = false),
+                lxmNode.getChildrenAsList(analyzer.memory).first().dereference(analyzer.memory, toWrite = false),
                 "The result is incorrect")
 
         // Remove the function cyclic reference.
@@ -341,12 +354,14 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, status = LexemAnalyzer.ProcessStatus.Backward, bigNodeCount = 0)
 
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
@@ -374,14 +389,16 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has consumed some characters")
 
         // Remove the function cyclic reference.
@@ -411,27 +428,29 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
-        val children = parent.getChildren(toWrite = true)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-        childNode.addToParent(parent)
-        children.addCell(childNode, ignoreConstant = true)
+        childNode.addToParent(analyzer.memory, parent)
+        children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(node2ProcessVar, parent)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, node2ProcessVar, parent)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, status = LexemAnalyzer.ProcessStatus.Backward, bigNodeCount = 0)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has consumed some characters")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
+        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer,
@@ -453,11 +472,13 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
@@ -481,11 +502,13 @@ internal class AccessLexemAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
@@ -514,26 +537,28 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
-        val children = parent.getChildren(toWrite = true)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-        childNode.addToParent(parent)
-        children.addCell(childNode, ignoreConstant = true)
+        childNode.addToParent(analyzer.memory, parent)
+        children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(node2ProcessVar, parent)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, node2ProcessVar, parent)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
 
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(variableName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, variableName),
+                "The result is incorrect")
 
         // Remove the function cyclic reference.
         analyzer.memory.spatialGarbageCollect()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
+        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
@@ -560,8 +585,9 @@ internal class AccessLexemAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty(variableName, LxmNil)
-            context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+            context.setProperty(analyzer.memory, variableName, LxmNil)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                    LxmString.from("test"))
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -587,27 +613,29 @@ internal class AccessLexemAnalyzerTest {
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
-        val children = parent.getChildren(toWrite = true)
+        val children = parent.getChildren(analyzer.memory, toWrite = true)
         val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-        childNode.addToParent(parent)
-        children.addCell(childNode, ignoreConstant = true)
+        childNode.addToParent(analyzer.memory, parent)
+        children.addCell(analyzer.memory, childNode, ignoreConstant = true)
 
-        context.setProperty(variableName, LxmNil)
-        context.setProperty(node2ProcessVar, parent)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, variableName, LxmNil)
+        context.setProperty(analyzer.memory, node2ProcessVar, parent)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val resultRef = context.getPropertyValue(variableName) as LxmReference
+        val resultRef = context.getPropertyValue(analyzer.memory, variableName) as LxmReference
         val result = resultRef.dereference(analyzer.memory, toWrite = false) as? LxmNode ?: throw Error(
                 "The result must be a LxmNode")
-        val resultParent = result.getParent(toWrite = false)!!
-        val resultParentChildren = resultParent.getChildrenAsList().toList()
+        val resultParent = result.getParent(analyzer.memory, toWrite = false)!!
+        val resultParentChildren = resultParent.getChildrenAsList(analyzer.memory).toList()
 
         Assertions.assertEquals(parent.name, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(0, result.getTo()!!.primitive.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(0, result.getTo(analyzer.memory)!!.primitive.position(), "The to property is incorrect")
         Assertions.assertEquals(AnalyzerCommons.Identifiers.Root, resultParent.name, "The parent is incorrect")
         Assertions.assertEquals(1, resultParentChildren.size, "The parent children count is incorrect")
         Assertions.assertEquals(resultRef.position, (resultParentChildren[0] as LxmReference).position,
@@ -617,7 +645,7 @@ internal class AccessLexemAnalyzerTest {
         analyzer.memory.spatialGarbageCollect()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
+        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         removeNode(analyzer)
@@ -633,12 +661,13 @@ internal class AccessLexemAnalyzerTest {
      */
     private fun removeNode(analyzer: LexemAnalyzer) {
         val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
-        val lxmNodeRef = hiddenContext.getPropertyValue(AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
+        val lxmNodeRef =
+                hiddenContext.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode)!!
         val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
-        val children = lxmNode.getChildren(toWrite = true)
+        val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
 
         for (i in children.size - 1 downTo 0) {
-            children.removeCell(i, ignoreConstant = true)
+            children.removeCell(analyzer.memory, i, ignoreConstant = true)
         }
     }
 }

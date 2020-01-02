@@ -24,7 +24,8 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = context.getPropertyDescriptor(varName) ?: throw Error("The property cannot be null")
+        val property =
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 
@@ -52,7 +53,8 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = context.getPropertyDescriptor(varName) ?: throw Error("The property cannot be null")
+        val property =
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 
@@ -78,15 +80,15 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         // Prepare stack.
         val obj = LxmObject(analyzer.memory)
-        obj.setProperty(elementAlias, LxmInteger.from(valueInt))
+        obj.setProperty(analyzer.memory, elementAlias, LxmInteger.from(valueInt))
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, obj)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = context.getDereferencedProperty<LxmInteger>(elementAlias, toWrite = false) ?: throw Error(
-                "The variable must be a LxmInteger")
+        val variable = context.getDereferencedProperty<LxmInteger>(analyzer.memory, elementAlias, toWrite = false)
+                ?: throw Error("The variable must be a LxmInteger")
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 
@@ -109,15 +111,15 @@ internal class VarPatternSelectiveStmtAnalyzerTest {
 
         // Prepare stack.
         val list = LxmList(analyzer.memory)
-        list.addCell(LxmInteger.from(valueInt))
+        list.addCell(analyzer.memory, LxmInteger.from(valueInt))
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectiveCondition, list)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = context.getDereferencedProperty<LxmInteger>(elementAlias, toWrite = false) ?: throw Error(
-                "The variable must be a LxmInteger")
+        val variable = context.getDereferencedProperty<LxmInteger>(analyzer.memory, elementAlias, toWrite = false)
+                ?: throw Error("The variable must be a LxmInteger")
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 

@@ -230,8 +230,10 @@ internal class GroupLexemAnalyzerTest {
                 ?: throw Error("The result must be a LxmNode")
 
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(text.length, result.getTo()?.primitive?.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(text.length, result.getTo(analyzer.memory)?.primitive?.position(),
+                "The to property is incorrect")
         Assertions.assertEquals(text.length, analyzer.text.currentPosition(),
                 "The lexem has not consumed the characters")
 
@@ -262,8 +264,10 @@ internal class GroupLexemAnalyzerTest {
                 ?: throw Error("The result must be a LxmNode")
 
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
-        Assertions.assertEquals(0, result.getFrom().primitive.position(), "The from property is incorrect")
-        Assertions.assertEquals(text.length, result.getTo()?.primitive?.position(), "The to property is incorrect")
+        Assertions.assertEquals(0, result.getFrom(analyzer.memory).primitive.position(),
+                "The from property is incorrect")
+        Assertions.assertEquals(text.length, result.getTo(analyzer.memory)?.primitive?.position(),
+                "The to property is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has not consumed the characters")
 
         // Remove Last from the stack.
@@ -373,12 +377,12 @@ internal class GroupLexemAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode(analyzer.memory, "createdNode", analyzer.text.saveCursor())
 
-        context.setProperty(AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
 
         // Prepare the node to filter.
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-        childNode.addToParent(parent)
+        childNode.addToParent(analyzer.memory, parent)
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNode, parent)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
@@ -399,7 +403,7 @@ internal class GroupLexemAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         // Remove the circular references of the nodes.
-        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
+        childNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(analyzer.memory,
                 AnalyzerCommons.Identifiers.Parent, LxmNil, ignoreConstant = true)
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node))
@@ -412,12 +416,13 @@ internal class GroupLexemAnalyzerTest {
      */
     private fun removeNode(analyzer: LexemAnalyzer) {
         val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
-        val lxmNode = hiddenContext.getPropertyValue(AnalyzerCommons.Identifiers.HiddenLastResultNode)!!.dereference(
-                analyzer.memory, toWrite = false) as LxmNode
-        val children = lxmNode.getChildren(toWrite = true)
+        val lxmNode = hiddenContext.getPropertyValue(analyzer.memory,
+                AnalyzerCommons.Identifiers.HiddenLastResultNode)!!.dereference(analyzer.memory,
+                toWrite = false) as LxmNode
+        val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
 
         for (i in children.size - 1 downTo 0) {
-            children.removeCell(i, ignoreConstant = true)
+            children.removeCell(analyzer.memory, i, ignoreConstant = true)
         }
     }
 }

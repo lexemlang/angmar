@@ -19,22 +19,22 @@ internal class LxmAccessSetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(memory: LexemMemory, context: LxmContext, variableName: String, node: CompiledNode,
+    constructor(memory: IMemory, context: LxmContext, variableName: String, node: CompiledNode,
             nodeElement: CompiledNode) {
         this.context = context.getPrimitive()
         this.variableName = variableName
         this.node = node
         this.nodeElement = nodeElement
 
-        this.context.increaseReferences(memory.lastNode)
+        this.context.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
-        val ctxObject = context.dereferenceAs<LxmObject>(bigNode, toWrite = false)!!
+    override fun getSetterPrimitive(memory: IMemory): LexemPrimitive {
+        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = false)!!
 
-        return ctxObject.getPropertyValue(variableName) ?: throw AngmarAnalyzerException(
+        return ctxObject.getPropertyValue(memory, variableName) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType,
                 "The variable called '$variableName' does not exist in the current context") {
             val fullText = node.parser.reader.readAllText()
@@ -50,17 +50,17 @@ internal class LxmAccessSetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
-        val ctxObject = context.dereferenceAs<LxmObject>(bigNode, toWrite = true)!!
-        ctxObject.setPropertyAsContext(variableName, value)
+    override fun setSetterValue(memory: IMemory, value: LexemMemoryValue) {
+        val ctxObject = context.dereferenceAs<LxmObject>(memory, toWrite = true)!!
+        ctxObject.setPropertyAsContext(memory, variableName, value)
     }
 
-    override fun increaseReferences(bigNode: BigNode) {
-        context.increaseReferences(bigNode)
+    override fun increaseReferences(memory: IMemory) {
+        context.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(bigNode: BigNode) {
-        context.decreaseReferences(bigNode)
+    override fun decreaseReferences(memory: IMemory) {
+        context.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

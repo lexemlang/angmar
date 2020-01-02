@@ -29,7 +29,7 @@ internal object IndexerAnalyzer {
                 val setter = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator) as LexemSetter
                 val element = setter.dereference(analyzer.memory, toWrite = false)
 
-                analyzer.memory.replaceLastStackCell(LxmIndexerSetter(element, index, node, analyzer.memory))
+                analyzer.memory.replaceLastStackCell(LxmIndexerSetter(analyzer.memory, element, index, node))
 
                 // Remove Accumulator from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)

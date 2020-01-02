@@ -19,7 +19,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( minimumVariable, LxmInteger.from(minimum))
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -50,8 +50,8 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( minimumVariable, LxmInteger.from(minimum))
-        context.setProperty( maximumVariable, LxmInteger.from(maximum))
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
+        context.setProperty(analyzer.memory, maximumVariable, LxmInteger.from(maximum))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -80,7 +80,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( minimumVariable, LxmInteger.from(minimum))
+        context.setProperty(analyzer.memory, minimumVariable, LxmInteger.from(minimum))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -111,7 +111,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( minimumVariable, minimum)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -130,7 +130,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( minimumVariable, minimum)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -150,7 +150,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( minimumVariable, minimum)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -170,7 +170,7 @@ internal class ExplicitQuantifierLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( minimumVariable, minimum)
+            context.setProperty(analyzer.memory, minimumVariable, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

@@ -36,13 +36,13 @@ internal object FilterStmtAnalyzer {
 
                 // Add it to the exports if the parent is a public macro.
                 if (node.parent is PublicMacroStmtCompiled) {
-                    val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports,
-                            toWrite = true)!!
+                    val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
+                            AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(name.primitive, filter)
+                    exports.setProperty(analyzer.memory, name.primitive, filter)
                 }
 
-                context.setProperty(name.primitive, filter)
+                context.setProperty(analyzer.memory, name.primitive, filter)
             }
             else -> {
                 return AnalyzerNodesCommons.descriptiveExecutionController(analyzer, signal, node.properties,

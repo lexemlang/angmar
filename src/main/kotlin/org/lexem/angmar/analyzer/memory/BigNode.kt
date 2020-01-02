@@ -1,5 +1,6 @@
 package org.lexem.angmar.analyzer.memory
 
+import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.bignode.*
@@ -9,7 +10,8 @@ import java.util.concurrent.atomic.*
 /**
  * A big node that represents an differential view of the memory.
  */
-internal class BigNode constructor(var previousNode: BigNode?, var nextNode: BigNode?) {
+internal class BigNode constructor(var previousNode: BigNode?, var nextNode: BigNode?) : IMemory {
+    val id = nextId.getAndIncrement()
     private val stack: BigNodeStack = previousNode?.stack?.clone(this) ?: BigNodeStack(this)
     private val heap: BigNodeHeap = previousNode?.heap?.clone(this) ?: BigNodeHeap(this)
 
@@ -54,16 +56,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     fun addToStack(name: String, value: LexemPrimitive) = stack.addCell(name, value)
 
     /**
-     * Gets the specified value of the stack.
-     */
-    fun getFromStack(name: String) = stack.getCell(name)
-
-    /**
-     * Removes the specified value of the stack recursively.
-     */
-    fun removeFromStack(name: String) = stack.removeCell(name)
-
-    /**
      * Replace the specified stack cell by another primitive.
      */
     fun replaceStackCell(name: String, newValue: LexemPrimitive) = stack.replaceCell(name, newValue)
@@ -74,19 +66,9 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     fun getHeapCell(position: Int, toWrite: Boolean) = heap.getCell(position, toWrite)
 
     /**
-     * Gets a cell in the heap.
-     */
-    fun getHeapCell(reference: LxmReference, toWrite: Boolean) = getHeapCell(reference.position, toWrite)
-
-    /**
      * Gets a cell value in the heap.
      */
     fun getHeapValue(position: Int, toWrite: Boolean) = heap.getCell(position, toWrite).getValue(toWrite)
-
-    /**
-     * Gets a cell value in the heap.
-     */
-    fun getHeapValue(reference: LxmReference, toWrite: Boolean) = getHeapValue(reference.position, toWrite)
 
     /**
      * Adds a new cell (or reuses a free one) to hold the specified value
@@ -94,7 +76,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      */
     fun allocAndGetHeapCell(value: LexemReferenced): BigNodeHeapCell {
         // Prevent errors regarding the BigNode link.
-        if (value.bigNode != this) {
+        if (value.bigNodeId != id) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapBigNodeLinkFault,
                     "The analyzer is trying to save a value in a different bigNode") {}
         }
@@ -105,6 +87,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             val cell = BigNodeHeapCell(this, lastFreePositionValue, value)
             heap.setCell(cell)
 
+            lastFreePosition.set(heapSize)
             return cell
         }
 
@@ -118,12 +101,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     }
 
     /**
-     * Adds a new cell (or reuses a free one) to hold the specified value
-     * returning a reference.
-     */
-    fun allocAndGetReference(value: LexemReferenced) = LxmReference(allocAndGetHeapCell(value).position)
-
-    /**
      * Frees a memory cell to reuse it in the future.
      */
     fun freeHeapCell(position: Int) {
@@ -135,11 +112,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             heapFreedCells.incrementAndGet()
         }
     }
-
-    /**
-     * Frees a memory cell to reuse it in the future.
-     */
-    fun freeHeapCell(position: LxmReference) = freeHeapCell(position.position)
 
     /**
      * Clears this and next [BigNode]s.
@@ -174,7 +146,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         // Track the heap.
         var position = gcFifo.pop()
         while (position != null) {
-            getHeapCell(position, toWrite = false).getValue(toWrite = false).spatialGarbageCollect(gcFifo)
+            getHeapCell(position, toWrite = false).getValue(toWrite = false)!!.spatialGarbageCollect(gcFifo)
 
             position = gcFifo.pop()
         }
@@ -185,5 +157,55 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         }
 
         inGarbageCollectionMode.set(false)
+    }
+
+    // OVERRIDDEN METHODS ------------------------------------------------------
+
+    override fun getBigNodeId() = this.id
+
+    override fun addToStack(name: String, primitive: LexemMemoryValue) = addToStack(name, primitive.getPrimitive())
+
+    override fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
+
+    override fun getFromStack(name: String) = stack.getCell(name)
+
+    override fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
+
+    override fun removeFromStack(name: String) = stack.removeCell(name)
+
+    override fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
+
+    override fun renameStackCell(oldName: String, newName: String) {
+        if (oldName == newName) {
+            return
+        }
+
+        val currentCell = getFromStack(oldName)
+        addToStack(newName, currentCell)
+        removeFromStack(oldName)
+    }
+
+    override fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
+
+    override fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
+
+    override fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
+            replaceStackCell(name, newValue.getPrimitive())
+
+    override fun replaceLastStackCell(newValue: LexemMemoryValue) =
+            replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
+
+    override fun get(reference: LxmReference, toWrite: Boolean) = getHeapValue(reference.position, toWrite)!!
+
+    override fun getCell(reference: LxmReference, toWrite: Boolean) = getHeapCell(reference.position, toWrite)
+
+    override fun add(value: LexemReferenced) = LxmReference(allocAndGetHeapCell(value).position)
+
+    override fun remove(reference: LxmReference) = freeHeapCell(reference.position)
+
+    // STATIC -----------------------------------------------------------------
+
+    companion object {
+        private val nextId = AtomicInteger(0)
     }
 }

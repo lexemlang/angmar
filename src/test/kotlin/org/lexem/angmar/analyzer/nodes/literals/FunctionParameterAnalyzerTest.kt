@@ -29,7 +29,8 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(parameterName, parameterList[0], "The first parameter is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(LxmNil, context.getPropertyValue(parameterName), "The result is incorrect")
+        Assertions.assertEquals(LxmNil, context.getPropertyValue(analyzer.memory, parameterName),
+                "The result is incorrect")
 
         Assertions.assertEquals(parameters, analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters),
                 "The parameters is not saved again")
@@ -60,7 +61,8 @@ internal class FunctionParameterAnalyzerTest {
         Assertions.assertEquals(parameterName, parameterList[0], "The first parameter is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(value, context.getPropertyValue(parameterName), "The result is incorrect")
+        Assertions.assertEquals(value, context.getPropertyValue(analyzer.memory, parameterName),
+                "The result is incorrect")
 
         Assertions.assertEquals(parameters, analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Parameters),
                 "The parameters is not saved again")

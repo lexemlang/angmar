@@ -28,16 +28,17 @@ internal class SetPropsMacroStmtAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", analyzer.text.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(affirmativeVar),
+        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(analyzer.memory, affirmativeVar),
                 "The $affirmativeVar property is incorrect")
-        Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(negativeVar),
+        Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(analyzer.memory, negativeVar),
                 "The $negativeVar property is incorrect")
-        Assertions.assertEquals(withValueValue, (props.getPropertyValue(withValueVar) as? LxmInteger)?.primitive,
+        Assertions.assertEquals(withValueValue,
+                (props.getPropertyValue(analyzer.memory, withValueVar) as? LxmInteger)?.primitive,
                 "The $withValueVar property is incorrect")
 
         Assertions.assertEquals(LxmNil, analyzer.memory.getLastFromStack(), "The result is incorrect")

@@ -37,15 +37,15 @@ internal object IntegerType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
-        type.setProperty(MinValue, LxmInteger.from(Int.MIN_VALUE), isConstant = true)
-        type.setProperty(MaxValue, LxmInteger.from(Int.MAX_VALUE), isConstant = true)
+        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(memory, MinValue, LxmInteger.from(Int.MIN_VALUE), isConstant = true)
+        type.setProperty(memory, MaxValue, LxmInteger.from(Int.MAX_VALUE), isConstant = true)
 
         // Methods
-        type.setProperty(Parse, LxmFunction(memory, ::parseFunction), isConstant = true)
+        type.setProperty(memory, Parse, LxmFunction(memory, ::parseFunction), isConstant = true)
     }
 
     /**
@@ -53,7 +53,7 @@ internal object IntegerType {
      */
     private fun parseFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(ParseArgs)
+        val parsedArguments = arguments.mapArguments(analyzer.memory, ParseArgs)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {

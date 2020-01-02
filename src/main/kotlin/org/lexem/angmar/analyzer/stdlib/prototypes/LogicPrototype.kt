@@ -19,13 +19,13 @@ internal object LogicPrototype {
         val prototype = LxmObject(memory)
 
         // Operators
-        prototype.setProperty( AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalNot, LxmFunction(memory, ::logicalNot),
                 isConstant = true)
-        prototype.setProperty( AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
                 isConstant = true)
-        prototype.setProperty( AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
                 isConstant = true)
-        prototype.setProperty( AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
                 isConstant = true)
 
         return prototype

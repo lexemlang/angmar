@@ -20,8 +20,9 @@ internal class AssignExpressionAnalyzerTest {
         Assertions.assertEquals(3, result.primitive, "The value inserted in the stack is incorrect")
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = context.getDereferencedProperty<LxmInteger>(varName, toWrite = false) ?: throw Error(
-                "The property must be a LxmInteger")
+        val property =
+                context.getDereferencedProperty<LxmInteger>(analyzer.memory, varName, toWrite = false) ?: throw Error(
+                        "The property must be a LxmInteger")
 
         Assertions.assertEquals(3, property.primitive, "The value inserted in the stack is incorrect")
 

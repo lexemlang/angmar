@@ -34,7 +34,7 @@ internal object MapElementAnalyzer {
                 val map = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmMap
 
-                map.setProperty( key, value)
+                map.setProperty(analyzer.memory, key, value)
 
                 // Remove the key and value from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Key)

@@ -13,12 +13,12 @@ internal class LxmControl private constructor(val type: String, val tag: String?
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun increaseReferences(bigNode: BigNode) {
-        value?.increaseReferences(bigNode)
+    override fun increaseReferences(memory: IMemory) {
+        value?.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(bigNode: BigNode) {
-        value?.decreaseReferences(bigNode)
+    override fun decreaseReferences(memory: IMemory) {
+        value?.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

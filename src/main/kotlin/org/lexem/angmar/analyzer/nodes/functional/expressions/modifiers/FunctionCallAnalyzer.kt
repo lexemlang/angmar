@@ -61,7 +61,7 @@ internal object FunctionCallAnalyzer {
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments).dereference(analyzer.memory,
                                 toWrite = true) as LxmArguments
 
-                arguments.addPositionalArgument(value)
+                arguments.addPositionalArgument(analyzer.memory, value)
 
                 // Remove value from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -118,14 +118,14 @@ internal object FunctionCallAnalyzer {
                         val allCells = value.getAllCells()
 
                         for (i in allCells) {
-                            arguments.addPositionalArgument(i)
+                            arguments.addPositionalArgument(analyzer.memory, i)
                         }
                     }
                     is LxmObject -> {
                         val allProps = value.getAllIterableProperties()
 
                         for (i in allProps) {
-                            arguments.addNamedArgument(i.key, i.value.value)
+                            arguments.addNamedArgument(analyzer.memory, i.key, i.value.value)
                         }
                     }
                     else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
@@ -174,13 +174,13 @@ internal object FunctionCallAnalyzer {
 
         when (functionRef) {
             is LxmPropertySetter -> {
-                arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, functionRef.value)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.value)
             }
             is LxmIndexerSetter -> {
-                arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, functionRef.element)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, functionRef.element)
             }
             else -> {
-                arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmNil)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
             }
         }
 
@@ -193,7 +193,7 @@ internal object FunctionCallAnalyzer {
 
         // Call the function.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName = AnalyzerCommons.getContextName(context)
+        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
         AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(node.parent!!, node.parentSignal, callerNode = node,
                         callerContextName = contextName.primitive))

@@ -30,7 +30,7 @@ internal object AccessExplicitMemberAnalyzer {
                         analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator))
 
                 analyzer.memory.replaceLastStackCell(
-                        LxmPropertySetter(element, identifier.primitive, node, analyzer.memory))
+                        LxmPropertySetter(analyzer.memory, element, identifier.primitive, node))
 
                 // Remove Accumulator from the stack.
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Accumulator)

@@ -31,15 +31,15 @@ internal class ExpressionPrototypeTest {
             Assertions.assertEquals(expName, resultDeref.name, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result2 = context.getPropertyValue(varName)
+            val result2 = context.getPropertyValue(analyzer.memory, varName)
 
             Assertions.assertEquals(value, result2, "The result2 is incorrect")
 
             // Remove the function cyclic reference.
             val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = true)
-            val node = hiddenContext.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                    toWrite = true)!!
-            node.setProperty(AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            val node = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
+                    AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = true)!!
+            node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
         }
     }
 }

@@ -54,7 +54,7 @@ internal class LexemePatternGroupCompiledTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -76,8 +76,8 @@ internal class LexemePatternGroupCompiledTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
-        context.setPropertyAsContext(variableName, LxmInteger.Num1)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, variableName, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 

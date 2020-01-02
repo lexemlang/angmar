@@ -23,9 +23,9 @@ internal class LxmSet : LexemReferenced {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory)
+    constructor(memory: IMemory) : super(memory)
 
-    private constructor(bigNode: BigNode, oldVersion: LxmSet) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmSet) : super(memory, oldVersion) {
         isConstant = oldVersion.isConstant
         properties = oldVersion.properties
         size = oldVersion.size
@@ -37,7 +37,7 @@ internal class LxmSet : LexemReferenced {
     /**
      * Adds a new value to the set.
      */
-    fun addValue(value: LexemMemoryValue) {
+    fun addValue(memory: IMemory, value: LexemMemoryValue) {
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore cannot be modified") {}
@@ -50,7 +50,7 @@ internal class LxmSet : LexemReferenced {
             return
         }
 
-        valuePrimitive.increaseReferences(bigNode)
+        valuePrimitive.increaseReferences(memory)
 
         cloneProperties()
         properties.putIfAbsent(valueHash, mutableListOf())
@@ -67,7 +67,7 @@ internal class LxmSet : LexemReferenced {
     /**
      * Removes a value.
      */
-    fun removeValue(value: LexemMemoryValue) {
+    fun removeValue(memory: IMemory, value: LexemMemoryValue) {
         if (isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantSet,
                     "The set is constant therefore it cannot be modified") {}
@@ -86,7 +86,7 @@ internal class LxmSet : LexemReferenced {
             properties.remove(valueHash)
         }
 
-        value.getPrimitive().decreaseReferences(bigNode)
+        value.getPrimitive().decreaseReferences(memory)
     }
 
     /**
@@ -133,22 +133,22 @@ internal class LxmSet : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = LxmSet(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmSet(memory, this)
 
-    override fun memoryDealloc() {
-        getAllValues().forEach { it.decreaseReferences(bigNode) }
+    override fun memoryDealloc(memory: IMemory) {
+        getAllValues().forEach { it.decreaseReferences(memory) }
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
         getAllValues().forEach { it.spatialGarbageCollect(gcFifo) }
     }
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(SetType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, SetType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(bigNode: BigNode) = LxmString.SetToString
+    override fun toLexemString(memory: IMemory) = LxmString.SetToString
 
     override fun toString() = StringBuilder().apply {
         append(SetNode.macroName)

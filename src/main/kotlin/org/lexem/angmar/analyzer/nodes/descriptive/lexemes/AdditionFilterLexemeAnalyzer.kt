@@ -31,7 +31,7 @@ internal object AdditionFilterLexemeAnalyzer {
 
                     // Save the result as the node to re-parse or filter.
                     val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                    context.setProperty(AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
+                    context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter, lxmNodeRef)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
@@ -67,7 +67,7 @@ internal object AdditionFilterLexemeAnalyzer {
 
                 // Remove HiddenNode2Filter.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.removeProperty(AnalyzerCommons.Identifiers.HiddenNode2Filter)
+                context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)
             }
         }
 
@@ -80,13 +80,15 @@ internal object AdditionFilterLexemeAnalyzer {
     private fun finalizeNode(analyzer: LexemAnalyzer, lxmNode: LxmNode) {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
-        val parent = context.getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.Node, toWrite = false)!!
+        val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
+                toWrite = false)!!
 
-        parent.insertChildren(listOf(lxmNode), nodePosition.primitive)
+        parent.insertChildren(analyzer.memory, listOf(lxmNode), nodePosition.primitive)
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
-        val reverse = RelationalFunctions.isTruthy(props.getPropertyValue(AnalyzerCommons.Properties.Reverse) ?: LxmNil)
+        val reverse = RelationalFunctions.isTruthy(
+                props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
         if (!reverse) {
             analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.FilterNodePosition,
                     LxmInteger.from(nodePosition.primitive + 1))

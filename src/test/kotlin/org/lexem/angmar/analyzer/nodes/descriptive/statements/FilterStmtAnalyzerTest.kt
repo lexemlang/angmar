@@ -18,8 +18,8 @@ internal class FilterStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exp = context.getPropertyValue(filterName)?.dereference(analyzer.memory, toWrite = false) as? LxmFilter
-                ?: throw Error("The result must be a LxmFilter")
+        val exp = context.getPropertyValue(analyzer.memory, filterName)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmFilter ?: throw Error("The result must be a LxmFilter")
 
         Assertions.assertEquals(filterName, exp.name, "The name property is incorrect")
 
@@ -36,8 +36,8 @@ internal class FilterStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val exp = context.getPropertyValue(filterName)?.dereference(analyzer.memory, toWrite = false) as? LxmFilter
-                ?: throw Error("The result must be a LxmFilter")
+        val exp = context.getPropertyValue(analyzer.memory, filterName)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmFilter ?: throw Error("The result must be a LxmFilter")
 
         Assertions.assertEquals(filterName, exp.name, "The name property is incorrect")
 

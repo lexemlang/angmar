@@ -27,13 +27,13 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(varName, LxmInteger.Num0)
+            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result =
-                    context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+            val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                    "The result must be a LxmInteger")
             Assertions.assertEquals(2, result.primitive, "The primitive property is incorrect")
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -56,13 +56,13 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(varName, LxmInteger.Num0)
+            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result =
-                    context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+            val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                    "The result must be a LxmInteger")
             Assertions.assertEquals(2, result.primitive, "The primitive property is incorrect")
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -82,13 +82,13 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(varName, LxmInteger.Num0)
+            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result =
-                    context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+            val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                    "The result must be a LxmInteger")
             Assertions.assertEquals(2, result.primitive, "The primitive property is incorrect")
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -107,13 +107,13 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(varName, LxmInteger.Num0)
+            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result =
-                    context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+            val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                    "The result must be a LxmInteger")
             Assertions.assertEquals(1, result.primitive, "The primitive property is incorrect")
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -133,13 +133,13 @@ internal class ImportGlobalFunctionTest {
 
             // Prepare context.
             val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            initialContext.setProperty(varName, LxmInteger.Num0)
+            initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
             TestUtils.processAndCheckEmpty(analyzer)
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val result =
-                    context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+            val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                    "The result must be a LxmInteger")
             Assertions.assertEquals(1, result.primitive, "The primitive property is incorrect")
 
             TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))
@@ -164,12 +164,13 @@ internal class ImportGlobalFunctionTest {
 
         // Prepare context.
         val initialContext = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        initialContext.setProperty(varName, LxmInteger.Num0)
+        initialContext.setProperty(analyzer.memory, varName, LxmInteger.Num0)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val result = context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The result must be a LxmInteger")
+        val result = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                "The result must be a LxmInteger")
         Assertions.assertEquals(2, result.primitive, "The primitive property is incorrect")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(varName))

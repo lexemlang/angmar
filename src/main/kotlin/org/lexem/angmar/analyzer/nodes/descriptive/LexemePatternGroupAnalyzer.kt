@@ -42,7 +42,7 @@ internal object LexemePatternGroupAnalyzer {
                 analyzer.memory.removeLastFromStack()
 
                 // Check the quantifier is valid for the number of patterns.
-                if (!union.canFinish(node.patterns.size)) {
+                if (!union.canFinish(analyzer.memory, node.patterns.size)) {
                     throw AngmarAnalyzerException(
                             AngmarAnalyzerExceptionType.QuantifierMinimumIsGreaterThanNumberOfPatterns,
                             "The minimum of the pattern quantifier is greater than the number of patterns in the union. Number of patterns: ${node.patterns.size}, Quantifier: $quantifier") {
@@ -63,7 +63,7 @@ internal object LexemePatternGroupAnalyzer {
                 // Add the union to the stack.
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.LexemeUnion, union)
 
-                if (union.canHaveANextPattern()) {
+                if (union.canHaveANextPattern(analyzer.memory)) {
                     val pattern = node.patterns.first()
 
                     // On backwards try next.
@@ -77,7 +77,7 @@ internal object LexemePatternGroupAnalyzer {
                     }
                 }
 
-                if (union.isFinished()) {
+                if (union.isFinished(analyzer.memory)) {
                     finish(analyzer, node)
                 } else {
                     return analyzer.initBacktracking()
@@ -89,9 +89,9 @@ internal object LexemePatternGroupAnalyzer {
                 // Increase index.
                 val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(
                         analyzer.memory, toWrite = true) as LxmPatternUnion
-                union.increaseIndex()
+                union.increaseIndex(analyzer.memory)
 
-                if (union.canHaveANextPattern()) {
+                if (union.canHaveANextPattern(analyzer.memory)) {
                     if (position < node.patterns.size) {
                         val pattern = node.patterns[position]
 
@@ -107,7 +107,7 @@ internal object LexemePatternGroupAnalyzer {
                     }
                 }
 
-                if (union.isFinished()) {
+                if (union.isFinished(analyzer.memory)) {
                     finish(analyzer, node)
                 } else {
                     return analyzer.initBacktracking()
@@ -120,11 +120,11 @@ internal object LexemePatternGroupAnalyzer {
                         analyzer.memory, toWrite = false) as LxmPatternUnion
 
                 // Check the quantifier can be matched with the remaining patterns.
-                if (!union.canFinish(node.patterns.size - position)) {
+                if (!union.canFinish(analyzer.memory, node.patterns.size - position)) {
                     return analyzer.initBacktracking()
                 }
 
-                if (union.canHaveANextPattern()) {
+                if (union.canHaveANextPattern(analyzer.memory)) {
                     if (position < node.patterns.size) {
                         val pattern = node.patterns[position]
 
@@ -140,7 +140,7 @@ internal object LexemePatternGroupAnalyzer {
                     }
                 }
 
-                if (union.isFinished()) {
+                if (union.isFinished(analyzer.memory)) {
                     finish(analyzer, node)
                 } else {
                     return analyzer.initBacktracking()

@@ -28,7 +28,8 @@ internal object ImportGlobalFunction {
      */
     fun initFunction(memory: LexemMemory) {
         val function = LxmFunction(memory, ::importFile)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(FunctionName, function, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true)
+                .setProperty(memory, FunctionName, function, isConstant = true)
     }
 
     /**
@@ -41,14 +42,12 @@ internal object ImportGlobalFunction {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
                 val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
-                val callerContext =
-                        context.getDereferencedProperty<LxmContext>(AnalyzerCommons.Identifiers.HiddenCallerContext,
-                                toWrite = false)!!
-                val currentFilePath =
-                        callerContext.getDereferencedProperty<LxmString>(AnalyzerCommons.Identifiers.HiddenFilePath,
-                                toWrite = false)!!
+                val callerContext = context.getDereferencedProperty<LxmContext>(analyzer.memory,
+                        AnalyzerCommons.Identifiers.HiddenCallerContext, toWrite = false)!!
+                val currentFilePath = callerContext.getDereferencedProperty<LxmString>(analyzer.memory,
+                        AnalyzerCommons.Identifiers.HiddenFilePath, toWrite = false)!!
 
-                val parserArguments = arguments.mapArguments(ImportArgs)
+                val parserArguments = arguments.mapArguments(analyzer.memory, ImportArgs)
                 val path = parserArguments[ImportArgs[0]] as? LxmString ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.BadArgumentError,
                         "The $FunctionName method requires the parameter called '${ImportArgs[0]}' be a ${StringType.TypeName}") {}
@@ -56,13 +55,14 @@ internal object ImportGlobalFunction {
 
                 // Parse and analyze the code.
                 val grammarNode = if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-                    val parserMap = hiddenContext.getDereferencedProperty<LxmObject>(
+                    val parserMap = hiddenContext.getDereferencedProperty<LxmObject>(analyzer.memory,
                             AnalyzerCommons.Identifiers.HiddenParserMap, toWrite = false)!!
 
                     val grammarRootNode =
-                            parserMap.getDereferencedProperty<LxmGrammarRootNode>(path.primitive, toWrite = false)
-                                    ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FileNotExist,
-                                            "The file '${path.primitive}' does not exist") {}
+                            parserMap.getDereferencedProperty<LxmGrammarRootNode>(analyzer.memory, path.primitive,
+                                    toWrite = false) ?: throw AngmarAnalyzerException(
+                                    AngmarAnalyzerExceptionType.FileNotExist,
+                                    "The file '${path.primitive}' does not exist") {}
 
                     grammarRootNode.grammarRootNode
                 } else {
@@ -113,8 +113,8 @@ internal object ImportGlobalFunction {
      * Finds the path in the processed files to avoid repetitions.
      */
     private fun findPathInMap(memory: LexemMemory, context: LxmContext, path: String): LxmReference? {
-        val fileMap =
-                context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.HiddenFileMap, toWrite = false)!!
-        return fileMap.getPropertyValue(path) as? LxmReference
+        val fileMap = context.getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.HiddenFileMap,
+                toWrite = false)!!
+        return fileMap.getPropertyValue(memory, path) as? LxmReference
     }
 }

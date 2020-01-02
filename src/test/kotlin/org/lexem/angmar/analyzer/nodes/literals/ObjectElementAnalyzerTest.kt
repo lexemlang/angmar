@@ -26,7 +26,7 @@ internal class ObjectElementAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getPropertyDescriptor(key)!!
+        val property = objDeref.getPropertyDescriptor(analyzer.memory, key)!!
         val element = property.value as? LxmInteger ?: throw Error("The element must be a LxmInteger")
 
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")
@@ -56,7 +56,7 @@ internal class ObjectElementAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getPropertyDescriptor(key)!!
+        val property = objDeref.getPropertyDescriptor(analyzer.memory, key)!!
         val element = property.value as? LxmInteger ?: throw Error("The element must be a LxmInteger")
 
         Assertions.assertEquals(value, element.primitive, "The primitive property is incorrect")

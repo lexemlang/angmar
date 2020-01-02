@@ -32,7 +32,7 @@ internal class RightExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, value)
+        context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

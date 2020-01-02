@@ -25,9 +25,10 @@ internal class NameSelectorAnalyzerTest {
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                 toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
         Assertions.assertEquals(nodeName, result.name, "The name property is incorrect")
-        Assertions.assertEquals(initialPosition, result.getFrom().primitive.position(),
+        Assertions.assertEquals(initialPosition, result.getFrom(analyzer.memory).primitive.position(),
                 "The from property is incorrect")
-        Assertions.assertEquals(initialPosition, result.getTo()!!.primitive.position(), "The to property is incorrect")
+        Assertions.assertEquals(initialPosition, result.getTo(analyzer.memory)!!.primitive.position(),
+                "The to property is incorrect")
 
         // Remove Node from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)

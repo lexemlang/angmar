@@ -13,14 +13,14 @@ internal class LxmLogic private constructor(val primitive: Boolean) : LexemPrimi
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(LogicType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, LogicType.TypeName) as LxmReference
     }
 
     override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(bigNode: BigNode) = if (primitive) {
+    override fun toLexemString(memory: IMemory) = if (primitive) {
         LxmString.True
     } else {
         LxmString.False

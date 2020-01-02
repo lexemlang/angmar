@@ -30,7 +30,7 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
                 continue
             }
 
-            context.setProperty(key, value)
+            context.setProperty(memory, key, value)
         }
 
         // Add positional arguments to spread parameter.
@@ -38,10 +38,10 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
             val list = LxmList(memory)
 
             for (i in positional.drop(parameters.getParameters().size)) {
-                list.addCell(i)
+                list.addCell(memory, i)
             }
 
-            context.setProperty(parameters.positionalSpread!!, list)
+            context.setProperty(memory, parameters.positionalSpread!!, list)
         }
 
         // Map named arguments.
@@ -50,20 +50,20 @@ internal class LxmBacktrackingData(val positional: List<LexemPrimitive>, val nam
 
             for ((key, value) in named) {
                 if (result.contains(key)) {
-                    context.setProperty(key, value)
+                    context.setProperty(memory, key, value)
                 } else {
                     // Add named arguments to spread parameter.
                     if (key != AnalyzerCommons.Identifiers.This) {
-                        obj.setProperty(key, value)
+                        obj.setProperty(memory, key, value)
                     }
                 }
             }
 
-            context.setProperty(parameters.namedSpread!!, obj)
+            context.setProperty(memory, parameters.namedSpread!!, obj)
         } else {
             for ((key, value) in named) {
                 if (result.contains(key)) {
-                    context.setProperty(key, value)
+                    context.setProperty(memory, key, value)
                 }
             }
         }

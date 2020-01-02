@@ -29,7 +29,8 @@ internal class ObjectAnalyzerTest {
         Assertions.assertEquals(values.size, obj.size, "The number of properties is incorrect")
 
         for ((key, value) in values) {
-            val resValue = obj.getPropertyValue(key) as? LxmInteger ?: throw Error("The property must be a LxmInteger")
+            val resValue = obj.getPropertyValue(analyzer.memory, key) as? LxmInteger ?: throw Error(
+                    "The property must be a LxmInteger")
             Assertions.assertEquals(value, resValue, "The primitive property is incorrect")
         }
 
@@ -56,7 +57,8 @@ internal class ObjectAnalyzerTest {
         Assertions.assertEquals(values.size, obj.size, "The number of properties is incorrect")
 
         for ((key, value) in values) {
-            val resValue = obj.getPropertyValue(key) as? LxmInteger ?: throw Error("The property must be a LxmInteger")
+            val resValue = obj.getPropertyValue(analyzer.memory, key) as? LxmInteger ?: throw Error(
+                    "The property must be a LxmInteger")
             Assertions.assertEquals(value, resValue, "The primitive property is incorrect")
         }
 

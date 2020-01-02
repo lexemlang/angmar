@@ -30,7 +30,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Only used to clone the object.
      */
-    protected constructor(bigNode: BigNode, oldVersion: LxmObject) : super(bigNode, oldVersion) {
+    protected constructor(memory: IMemory, oldVersion: LxmObject) : super(memory, oldVersion) {
         prototypeReference = oldVersion.prototypeReference
         isConstant = oldVersion.isConstant
         isWritable = oldVersion.isWritable
@@ -41,16 +41,16 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Creates an object without explicit prototype.
      */
-    constructor(memory: LexemMemory) : super(memory) {
+    constructor(memory: IMemory) : super(memory) {
         prototypeReference = null
     }
 
     /**
      * Creates an object with explicit prototype.
      */
-    constructor(memory: LexemMemory, prototype: LxmObject) : super(memory) {
+    constructor(memory: IMemory, prototype: LxmObject, dummy: Boolean) : super(memory) {
         prototypeReference = prototype.getPrimitive()
-        prototypeReference!!.increaseReferences(memory.lastNode)
+        prototypeReference!!.increaseReferences(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -58,12 +58,12 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Gets the value of a property. It searches also in prototypes.
      */
-    open fun getPropertyValue(identifier: String) = getPropertyDescriptor(identifier)?.value
+    open fun getPropertyValue(memory: IMemory, identifier: String) = getPropertyDescriptor(memory, identifier)?.value
 
     /**
      * Gets the property descriptor of the specified property.
      */
-    fun getPropertyDescriptor(identifier: String): LxmObjectProperty? {
+    fun getPropertyDescriptor(memory: IMemory, identifier: String): LxmObjectProperty? {
         val property = properties[identifier]
 
         if (property == null) {
@@ -72,8 +72,8 @@ internal open class LxmObject : LexemReferenced {
                 return null
             }
 
-            val prototype = getPrototypeAsObject(toWrite = false)
-            return prototype.getPropertyDescriptor(identifier)
+            val prototype = getPrototypeAsObject(memory, toWrite = false)
+            return prototype.getPropertyDescriptor(memory, identifier)
         }
 
         return property
@@ -82,13 +82,13 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Gets the final value of a property. It searches also in prototypes.
      */
-    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(identifier: String, toWrite: Boolean) =
-            getPropertyValue(identifier)?.dereference(bigNode, toWrite) as? T
+    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: IMemory, identifier: String,
+            toWrite: Boolean) = getPropertyValue(memory, identifier)?.dereference(memory, toWrite) as? T
 
     /**
      * Sets a new value to the property or creates a new property with the specified value.p
      */
-    fun setProperty(identifier: String, value: LexemMemoryValue, isConstant: Boolean = false,
+    fun setProperty(memory: IMemory, identifier: String, value: LexemMemoryValue, isConstant: Boolean = false,
             ignoreConstant: Boolean = false) {
         if (!ignoreConstant && this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
@@ -104,7 +104,7 @@ internal open class LxmObject : LexemReferenced {
             property = LxmObjectProperty(this, isConstant,
                     !identifier.startsWith(AnalyzerCommons.Identifiers.HiddenPrefix))
             properties[identifier] = property
-            property.replaceValue(valuePrimitive)
+            property.replaceValue(memory, valuePrimitive)
         } else {
             if (!ignoreConstant && property.isConstant) {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObjectProperty,
@@ -116,7 +116,7 @@ internal open class LxmObject : LexemReferenced {
                 properties[identifier] = property
             }
 
-            property.replaceValue(valuePrimitive)
+            property.replaceValue(memory, valuePrimitive)
             property.isConstant = isConstant
         }
     }
@@ -124,7 +124,8 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Sets a new value to the property in any of the prototypes that have that property.
      */
-    fun setPropertyAsContext(identifier: String, value: LexemMemoryValue, isConstant: Boolean = false) {
+    fun setPropertyAsContext(memory: IMemory, identifier: String, value: LexemMemoryValue,
+            isConstant: Boolean = false) {
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore cannot be modified") {}
@@ -132,21 +133,21 @@ internal open class LxmObject : LexemReferenced {
 
         // Avoid infinite loops.
         if (isFinalInHierarchy) {
-            return setProperty(identifier, value, isConstant)
+            return setProperty(memory, identifier, value, isConstant)
         }
 
         // Check the current object and the prototype.
         val currentProperty = properties[identifier]
 
         if (currentProperty == null) {
-            var prototype = getPrototypeAsObject(toWrite = false)
+            var prototype = getPrototypeAsObject(memory, toWrite = false)
             while (true) {
                 val prototypeProperty = prototype.properties[identifier]
 
                 // Set in prototype.
                 if (prototypeProperty != null) {
-                    prototype = prototype.getPrimitive().dereferenceAs(bigNode, toWrite = true)!!
-                    return prototype.setProperty(identifier, value, isConstant)
+                    prototype = prototype.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+                    return prototype.setProperty(memory, identifier, value, isConstant)
                 }
 
                 // Avoid infinite loops.
@@ -154,13 +155,13 @@ internal open class LxmObject : LexemReferenced {
                     break
                 }
 
-                prototype = prototype.getPrototypeAsObject(toWrite = false)
+                prototype = prototype.getPrototypeAsObject(memory, toWrite = false)
             }
         }
 
 
         // Set in current.
-        return setProperty(identifier, value, isConstant)
+        return setProperty(memory, identifier, value, isConstant)
     }
 
     /**
@@ -171,7 +172,7 @@ internal open class LxmObject : LexemReferenced {
     /**
      * Removes a property.
      */
-    fun removeProperty(identifier: String, ignoreConstant: Boolean = false) {
+    fun removeProperty(memory: IMemory, identifier: String, ignoreConstant: Boolean = false) {
         if (!ignoreConstant && isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantObject,
                     "The object is constant therefore it cannot be modified") {}
@@ -190,7 +191,7 @@ internal open class LxmObject : LexemReferenced {
         properties.remove(identifier)
 
         // Decrease references.
-        property.replaceValue(LxmNil)
+        property.replaceValue(memory, LxmNil)
     }
 
     /**
@@ -263,12 +264,12 @@ internal open class LxmObject : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = LxmObject(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmObject(memory, this)
 
-    override fun memoryDealloc() {
-        getAllProperties().map { it.value.value }.forEach { it.decreaseReferences(bigNode) }
+    override fun memoryDealloc(memory: IMemory) {
+        getAllProperties().map { it.value.value }.forEach { it.decreaseReferences(memory) }
 
-        prototypeReference?.decreaseReferences(bigNode)
+        prototypeReference?.decreaseReferences(memory)
         prototypeReference = null
     }
 
@@ -278,14 +279,14 @@ internal open class LxmObject : LexemReferenced {
         prototypeReference?.spatialGarbageCollect(gcFifo)
     }
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(ObjectType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, ObjectType.TypeName) as LxmReference
     }
 
-    override fun getPrototype(bigNode: BigNode) = prototypeReference ?: super.getPrototype(bigNode)
+    override fun getPrototype(memory: IMemory) = prototypeReference ?: super.getPrototype(memory)
 
-    override fun toLexemString(bigNode: BigNode) = LxmString.ObjectToString
+    override fun toLexemString(memory: IMemory) = LxmString.ObjectToString
 
     override fun toString() = StringBuilder().apply {
         if (isConstant) {
@@ -336,11 +337,11 @@ internal open class LxmObject : LexemReferenced {
         /**
          * Replaces the value handling the memory references.
          */
-        fun replaceValue(newValue: LexemPrimitive) {
+        fun replaceValue(memory: IMemory, newValue: LexemPrimitive) {
             // Keep this to replace the elements before possibly remove the references.
             val oldValue = value
             value = newValue
-            MemoryUtils.replacePrimitives(belongsTo.bigNode, oldValue, newValue)
+            MemoryUtils.replacePrimitives(memory, oldValue, newValue)
         }
 
         override fun toString() = StringBuilder().apply {

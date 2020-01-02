@@ -32,13 +32,13 @@ internal object FunctionStmtAnalyzer {
 
                 // Add it to the exports if the parent is a public macro
                 if (node.parent is PublicMacroStmtCompiled) {
-                    val exports = context.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Exports,
-                            toWrite = true)!!
+                    val exports = context.getDereferencedProperty<LxmObject>(analyzer.memory,
+                            AnalyzerCommons.Identifiers.Exports, toWrite = true)!!
 
-                    exports.setProperty(name.primitive, fn)
+                    exports.setProperty(analyzer.memory, name.primitive, fn)
                 }
 
-                context.setProperty(name.primitive, fn)
+                context.setProperty(analyzer.memory, name.primitive, fn)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()

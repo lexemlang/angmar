@@ -29,18 +29,18 @@ internal open class LxmFunction : LexemReferenced {
     /**
      * Builds a custom function.
      */
-    constructor(memory: LexemMemory, node: CompiledNode, context: LxmContext) : super(memory) {
+    constructor(memory: IMemory, node: CompiledNode, context: LxmContext) : super(memory) {
         this.node = node
         this.contextReference = context.getPrimitive()
         this.internalFunction = null
 
-        contextReference!!.increaseReferences(memory.lastNode)
+        contextReference!!.increaseReferences(memory)
     }
 
     /**
      * Builds a built-in function.
      */
-    constructor(memory: LexemMemory,
+    constructor(memory: IMemory,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
         this.node = InternalFunctionCallCompiled
@@ -51,28 +51,28 @@ internal open class LxmFunction : LexemReferenced {
     /**
      * Builds a built-in function with context.
      */
-    constructor(memory: LexemMemory, context: LxmContext,
+    constructor(memory: IMemory, context: LxmContext,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
         this.node = InternalFunctionCallCompiled
         this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
 
-        contextReference!!.increaseReferences(memory.lastNode)
+        contextReference!!.increaseReferences(memory)
     }
 
     /**
      * Builds a built-in function with some arguments instead of a context.
      * Used for wrap functions.
      */
-    constructor(memory: LexemMemory, arguments: LxmArguments,
+    constructor(memory: IMemory, arguments: LxmArguments,
             internalFunction: (analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction, signal: Int) -> Boolean) : super(
             memory) {
         this.node = InternalFunctionCallCompiled
         this.contextReference = arguments.getPrimitive()
         this.internalFunction = internalFunction
 
-        contextReference!!.increaseReferences(memory.lastNode)
+        contextReference!!.increaseReferences(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -80,14 +80,15 @@ internal open class LxmFunction : LexemReferenced {
     /**
      * Gets the dereferenced parent context.
      */
-    fun getParentContext(toWrite: Boolean) = parentContextReference?.dereferenceAs<LxmContext>(bigNode, toWrite)
+    fun getParentContext(memory: IMemory, toWrite: Boolean) =
+            parentContextReference?.dereferenceAs<LxmContext>(memory, toWrite)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = this
+    override fun memoryClone(memory: IMemory) = this
 
-    override fun memoryDealloc() {
-        contextReference?.decreaseReferences(bigNode)
+    override fun memoryDealloc(memory: IMemory) {
+        contextReference?.decreaseReferences(memory)
         contextReference = null
     }
 
@@ -95,12 +96,12 @@ internal open class LxmFunction : LexemReferenced {
         contextReference?.spatialGarbageCollect(gcFifo)
     }
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(FunctionType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, FunctionType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(bigNode: BigNode) = if (isInternalFunction) {
+    override fun toLexemString(memory: IMemory) = if (isInternalFunction) {
         LxmString.InternalFunctionToString
     } else {
         var source = node.parser.reader.getSource()

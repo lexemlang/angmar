@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data
 
 import org.lexem.angmar.analyzer.data.primitives.*
-import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 
@@ -12,7 +11,7 @@ internal abstract class LexemReferenced : LexemMemoryValue {
     /**
      * Holds a reference to the node that it belongs to.
      */
-    var bigNode: BigNode
+    val bigNodeId: Int
 
     // IMPORTANT: Keep this under bigNode property to prevent errors with the memory
     // add because it checks the bigNode property.
@@ -26,22 +25,22 @@ internal abstract class LexemReferenced : LexemMemoryValue {
     /**
      * Constructor to create a new one.
      */
-    constructor(memory: LexemMemory) {
-        bigNode = memory.lastNode
+    constructor(memory: IMemory) {
+        bigNodeId = memory.getBigNodeId()
         reference = memory.add(this)
     }
 
     /**
      * Constructor to clone.
      */
-    protected constructor(bigNode: BigNode, oldVersion: LexemReferenced) {
+    protected constructor(memory: IMemory, oldVersion: LexemReferenced) {
         // Check that a clone is not called over the same bigNode.
-        if (oldVersion.bigNode == bigNode) {
+        if (oldVersion.bigNodeId == memory.getBigNodeId()) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.ValueShiftOverSameBigNode,
-                    "Cannot shift a value in the same bigNode") {}
+                    "Cannot clone a value in the same bigNode.") {}
         }
 
-        this.bigNode = bigNode
+        this.bigNodeId = memory.getBigNodeId()
         reference = oldVersion.reference
     }
 
@@ -51,17 +50,7 @@ internal abstract class LexemReferenced : LexemMemoryValue {
     /**
      * Indicates whether the value is an immutable view of the memory value or can be modified.
      */
-    fun isMemoryImmutable(memory: LexemMemory) = bigNode != memory.lastNode
-
-    /**
-     * Gets the prototype of the value.
-     */
-    fun getPrototype() = getPrototype(bigNode)
-
-    /**
-     * Gets the prototype of the value as a [LxmObject].
-     */
-    fun getPrototypeAsObject(toWrite: Boolean) = getPrototypeAsObject(bigNode, toWrite)
+    fun isMemoryImmutable(memory: IMemory) = bigNodeId != memory.getBigNodeId()
 
     /**
      * Gets the reference of this value.
@@ -71,10 +60,10 @@ internal abstract class LexemReferenced : LexemMemoryValue {
     /**
      * Clones the value in the memory.
      */
-    abstract fun memoryClone(bigNode: BigNode): LexemReferenced
+    abstract fun memoryClone(memory: IMemory): LexemReferenced
 
     /**
      * Clears the memory value.
      */
-    abstract fun memoryDealloc()
+    abstract fun memoryDealloc(memory: IMemory)
 }

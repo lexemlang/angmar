@@ -13,29 +13,30 @@ internal class LxmContext : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, type: LxmContextType) : super(memory) {
+    constructor(memory: IMemory, type: LxmContextType) : super(memory) {
         this.type = type
     }
 
-    constructor(memory: LexemMemory, higherContextReference: LxmContext, type: LxmContextType) : super(memory,
+    constructor(memory: IMemory, higherContextReference: LxmContext, type: LxmContextType) : super(memory,
             higherContextReference) {
         this.type = type
     }
 
-    private constructor(bigNode: BigNode, version: LxmContext) : super(bigNode, version) {
+    private constructor(memory: IMemory, version: LxmContext) : super(memory, version) {
         type = version.type
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getPrototype(bigNode: BigNode) = prototypeReference ?: let {
-        val context = AnalyzerCommons.getCurrentContext(bigNode, toWrite = false)
-        val type = context.getPropertyValue(AnyType.TypeName)!!.dereference(bigNode, toWrite = false) as LxmObject
+    override fun getPrototype(memory: IMemory) = prototypeReference ?: let {
+        val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
+        val type =
+                context.getPropertyValue(memory, AnyType.TypeName)!!.dereference(memory, toWrite = false) as LxmObject
 
-        return type.getPropertyValue(AnalyzerCommons.Identifiers.Prototype) as LxmReference
+        return type.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype) as LxmReference
     }
 
-    override fun memoryClone(bigNode: BigNode) = LxmContext(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmContext(memory, this)
 
     override fun toString() = "[Context] ${super.toString()}"
 

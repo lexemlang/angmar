@@ -12,12 +12,12 @@ internal class LxmPatternUnion : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, quantifier: LxmQuantifier, index: LxmInteger) : super(memory) {
+    constructor(memory: IMemory, quantifier: LxmQuantifier, index: LxmInteger) : super(memory) {
         this.quantifier = quantifier
-        setIndex(index)
+        setIndex(memory, index)
     }
 
-    private constructor(bigNode: BigNode, oldVersion: LxmPatternUnion) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmPatternUnion) : super(memory, oldVersion) {
         this.quantifier = oldVersion.quantifier
     }
 
@@ -26,37 +26,38 @@ internal class LxmPatternUnion : LxmObject {
     /**
      * Gets the index.
      */
-    fun getIndex() = getDereferencedProperty<LxmInteger>(AnalyzerCommons.Identifiers.Index, toWrite = false)!!
+    fun getIndex(memory: IMemory) =
+            getDereferencedProperty<LxmInteger>(memory, AnalyzerCommons.Identifiers.Index, toWrite = false)!!
 
     /**
      * Sets the index.
      */
-    fun setIndex(index: LxmInteger) = setProperty(AnalyzerCommons.Identifiers.Index, index)
+    fun setIndex(memory: IMemory, index: LxmInteger) = setProperty(memory, AnalyzerCommons.Identifiers.Index, index)
 
     /**
      * Increases the index.
      */
-    fun increaseIndex() {
-        val index = getIndex()
+    fun increaseIndex(memory: IMemory) {
+        val index = getIndex(memory)
         val newIndex = LxmInteger.from(index.primitive + 1)
-        setIndex(newIndex)
+        setIndex(memory, newIndex)
     }
 
     /**
      * Checks whether the union can have another pattern regarding its bounds.
      */
-    fun canHaveANextPattern() = quantifier.canHaveANextIteration(getIndex().primitive)
+    fun canHaveANextPattern(memory: IMemory) = quantifier.canHaveANextIteration(getIndex(memory).primitive)
 
     /**
      * Checks whether the union is finished or not.
      */
-    fun isFinished() = quantifier.isFinished(getIndex().primitive)
+    fun isFinished(memory: IMemory) = quantifier.isFinished(getIndex(memory).primitive)
 
     /**
      * Checks whether the union can finish with current state and the remaining patterns.
      */
-    fun canFinish(remaining: Int): Boolean {
-        val possible = getIndex().primitive + remaining
+    fun canFinish(memory: IMemory, remaining: Int): Boolean {
+        val possible = getIndex(memory).primitive + remaining
 
         return possible >= quantifier.min
     }
@@ -76,7 +77,7 @@ internal class LxmPatternUnion : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = LxmPatternUnion(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmPatternUnion(memory, this)
 
     override fun toString() = "[Pattern Union] (Qtf: $quantifier) - ${super.toString()}"
 }

@@ -45,15 +45,16 @@ internal class OnBackBlockStmtAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(varName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
         // Check variable.
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable =
-                context.getPropertyValue(varName) as? LxmInteger ?: throw Error("The variable must be a LxmInteger")
+        val variable = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
+                "The variable must be a LxmInteger")
 
         Assertions.assertEquals(value, variable.primitive, "The value of the variable is incorrect")
 

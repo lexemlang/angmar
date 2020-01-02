@@ -8,91 +8,12 @@ import org.lexem.angmar.errors.*
 /**
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
-internal class LexemMemory {
+internal class LexemMemory : IMemory {
     val firstNode = BigNode(previousNode = null, nextNode = null)
     var lastNode = firstNode
         private set
 
     // METHODS ----------------------------------------------------------------
-
-    /**
-     * Adds a new primitive into the stack.
-     */
-    fun addToStack(name: String, primitive: LexemMemoryValue) = lastNode.addToStack(name, primitive.getPrimitive())
-
-    /**
-     * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
-     */
-    fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
-
-    /**
-     * Gets the specified primitive from the stack.
-     */
-    fun getFromStack(name: String) = lastNode.getFromStack(name)
-
-    /**
-     * Gets the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
-     */
-    fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Removes the specified primitive from the stack.
-     */
-    fun removeFromStack(name: String) = lastNode.removeFromStack(name)
-
-    /**
-     * Removes the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
-     */
-    fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Renames the specified stack cell by another name.
-     */
-    fun renameStackCell(oldName: String, newName: String) {
-        if (oldName == newName) {
-            return
-        }
-
-        val currentCell = getFromStack(oldName)
-        addToStack(newName, currentCell)
-        removeFromStack(oldName)
-    }
-
-    /**
-     * Renames the '[AnalyzerCommons.Identifiers.Last]' stack cell by another name.
-     */
-    fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
-
-    /**
-     * Renames the specified cell to '[AnalyzerCommons.Identifiers.Last]'.
-     */
-    fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Replace the specified stack cell by another primitive.
-     */
-    fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
-            lastNode.replaceStackCell(name, newValue.getPrimitive())
-
-    /**
-     * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
-     */
-    fun replaceLastStackCell(newValue: LexemMemoryValue) = replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
-
-    /**
-     * Gets a value from the memory.
-     */
-    fun get(reference: LxmReference, toWrite: Boolean) = lastNode.getHeapValue(reference, toWrite)
-
-    /**
-     * Adds a value in the memory returning the position in which it has been added.
-     */
-    fun add(value: LexemReferenced) = lastNode.allocAndGetReference(value)
-
-    /**
-     * Removes a value in the memory.
-     */
-    fun remove(reference: LxmReference) = lastNode.freeHeapCell(reference)
 
     /**
      * Clears the memory.
@@ -181,4 +102,39 @@ internal class LexemMemory {
     fun spatialGarbageCollect() {
         lastNode.spatialGarbageCollect()
     }
+
+    // OVERRIDDEN METHODS ------------------------------------------------------
+
+    override fun getBigNodeId() = lastNode.id
+
+    override fun addToStack(name: String, primitive: LexemMemoryValue) = lastNode.addToStack(name, primitive)
+
+    override fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
+
+    override fun getFromStack(name: String) = lastNode.getFromStack(name)
+
+    override fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
+
+    override fun removeFromStack(name: String) = lastNode.removeFromStack(name)
+
+    override fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
+
+    override fun renameStackCell(oldName: String, newName: String) = lastNode.renameStackCell(oldName, newName)
+
+    override fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
+
+    override fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
+
+    override fun replaceStackCell(name: String, newValue: LexemMemoryValue) = lastNode.replaceStackCell(name, newValue)
+
+    override fun replaceLastStackCell(newValue: LexemMemoryValue) =
+            replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
+
+    override fun get(reference: LxmReference, toWrite: Boolean) = lastNode.get(reference, toWrite)
+
+    override fun getCell(reference: LxmReference, toWrite: Boolean) = lastNode.getCell(reference, toWrite)
+
+    override fun add(value: LexemReferenced) = lastNode.add(value)
+
+    override fun remove(reference: LxmReference) = lastNode.remove(reference)
 }

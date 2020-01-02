@@ -23,17 +23,12 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
     /**
      * Gets the value of the cell.
      */
-    fun getValue(toWrite: Boolean): LexemReferenced {
-        if (isFreed) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
-                    "No modification operation can be performed in a freed cell") {}
-        }
-
+    fun getValue(toWrite: Boolean): LexemReferenced? {
         if (toWrite) {
             cloneValue(bigNode)
         }
 
-        return value!!
+        return value
     }
 
     /**
@@ -52,7 +47,12 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
      * Decreases the reference count freeing the cell if it reaches 0.
      */
     fun decreaseReferences(count: Int = 1) {
+        val inGarbageCollectionMode = bigNode.inGarbageCollectionMode.get()
         if (isFreed) {
+            if (inGarbageCollectionMode) {
+                return
+            }
+
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "No modification operation can be performed in a freed cell") {}
         }
@@ -65,7 +65,7 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
         }
 
         // Free in-chain only if not in garbage collection mode.
-        if (newReferenceCount == 0 && !bigNode.inGarbageCollectionMode.get()) {
+        if (newReferenceCount == 0 && !inGarbageCollectionMode) {
             // TODO free async
             bigNode.freeHeapCell(position)
         }
@@ -80,11 +80,16 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
                     "Cannot free an already freed cell") {}
         }
 
+        if (!bigNode.inGarbageCollectionMode.get() && referenceCount.get() > 0) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotFreeAReferencedHeapCell,
+                    "Cannot free a yet referenced cell") {}
+        }
+
         val oldValue = value ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                 "Not freed cell without a value") {}
         value = null
         referenceCount.set(bigNode.lastFreePosition.get())
-        oldValue.memoryDealloc()
+        oldValue.memoryDealloc(bigNode)
     }
 
     /**

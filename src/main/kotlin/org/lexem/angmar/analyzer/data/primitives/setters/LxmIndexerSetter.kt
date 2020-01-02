@@ -19,13 +19,13 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerCompiled, memory: LexemMemory) {
+    constructor(memory: IMemory, element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerCompiled) {
         this.element = element.getPrimitive()
         this.index = index.getPrimitive()
         this.node = node
 
-        this.element.increaseReferences(memory.lastNode)
-        this.index.increaseReferences(memory.lastNode)
+        this.element.increaseReferences(memory)
+        this.index.increaseReferences(memory)
 
         // Check the types.
         when (element) {
@@ -113,8 +113,8 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
-        val element = element.dereference(bigNode, toWrite = false)
+    override fun getSetterPrimitive(memory: IMemory): LexemPrimitive {
+        val element = element.dereference(memory, toWrite = false)
         val index = index
 
         return when (element) {
@@ -203,7 +203,7 @@ internal class LxmIndexerSetter : LexemSetter {
             is LxmObject -> {
                 index as LxmString
 
-                element.getPropertyValue(index.primitive) ?: LxmNil
+                element.getPropertyValue(memory, index.primitive) ?: LxmNil
             }
             is LxmMap -> {
                 element.getPropertyValue(index) ?: LxmNil
@@ -212,8 +212,8 @@ internal class LxmIndexerSetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
-        val element = element.dereference(bigNode, toWrite = true)
+    override fun setSetterValue(memory: IMemory, value: LexemMemoryValue) {
+        val element = element.dereference(memory, toWrite = true)
         val index = index
 
         when (element) {
@@ -242,28 +242,28 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                element.setCell(primitive, value)
+                element.setCell(memory, primitive, value)
             }
             is LxmObject -> {
                 index as LxmString
 
-                element.setProperty(index.primitive, value)
+                element.setProperty(memory, index.primitive, value)
             }
             is LxmMap -> {
-                element.setProperty(index, value)
+                element.setProperty(memory, index, value)
             }
             else -> throw AngmarUnreachableException()
         }
     }
 
-    override fun increaseReferences(bigNode: BigNode) {
-        element.increaseReferences(bigNode)
-        index.increaseReferences(bigNode)
+    override fun increaseReferences(memory: IMemory) {
+        element.increaseReferences(memory)
+        index.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(bigNode: BigNode) {
-        element.decreaseReferences(bigNode)
-        index.decreaseReferences(bigNode)
+    override fun decreaseReferences(memory: IMemory) {
+        element.decreaseReferences(memory)
+        index.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

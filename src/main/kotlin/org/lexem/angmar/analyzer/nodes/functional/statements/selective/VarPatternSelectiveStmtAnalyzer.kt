@@ -49,7 +49,7 @@ internal object VarPatternSelectiveStmtAnalyzer {
                         }
                     }
 
-                    context.setProperty(identifier.primitive, mainValue, isConstant = node.isConstant)
+                    context.setProperty(analyzer.memory, identifier.primitive, mainValue, isConstant = node.isConstant)
                 }
                 // Perform the destructuring.
                 else {

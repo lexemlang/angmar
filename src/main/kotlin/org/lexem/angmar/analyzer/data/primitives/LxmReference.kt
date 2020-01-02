@@ -17,35 +17,24 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
     /**
      * Dereferences the value to the specified type.
      */
-    inline fun <reified T : LexemMemoryValue> dereferenceAs(bigNode: BigNode, toWrite: Boolean) =
-            dereference(bigNode, toWrite) as? T
-
-    /**
-     * Dereferences the value to the specified type.
-     */
-    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: LexemMemory, toWrite: Boolean): T? =
-            dereferenceAs(memory.lastNode, toWrite)
+    inline fun <reified T : LexemMemoryValue> dereferenceAs(memory: IMemory, toWrite: Boolean) =
+            dereference(memory, toWrite) as? T
 
     /**
      * Gets the cell which this [LxmReference] points to.
      */
-    fun getCell(bigNode: BigNode, toWrite: Boolean) = bigNode.getHeapCell(this, toWrite)
-
-    /**
-     * Gets the cell  which this [LxmReference] points to.
-     */
-    fun getCell(memory: LexemMemory, toWrite: Boolean) = memory.lastNode.getHeapCell(this, toWrite)
+    fun getCell(memory: IMemory, toWrite: Boolean) = memory.getCell(this, toWrite)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun dereference(bigNode: BigNode, toWrite: Boolean) = bigNode.getHeapValue(this, toWrite)
+    override fun dereference(memory: IMemory, toWrite: Boolean) = memory.get(this, toWrite)
 
-    override fun increaseReferences(bigNode: BigNode) {
-        MemoryUtils.replacePrimitives(bigNode, LxmNil, this)
+    override fun increaseReferences(memory: IMemory) {
+        memory.getCell(this, toWrite = true).increaseReferences()
     }
 
-    override fun decreaseReferences(bigNode: BigNode) {
-        MemoryUtils.replacePrimitives(bigNode, this, LxmNil)
+    override fun decreaseReferences(memory: IMemory) {
+        memory.getCell(this, toWrite = true).decreaseReferences()
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

@@ -23,9 +23,9 @@ internal class LxmMap : LexemReferenced {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory)
+    constructor(memory: IMemory) : super(memory)
 
-    private constructor(bigNode: BigNode, oldVersion: LxmMap) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmMap) : super(memory, oldVersion) {
         isConstant = oldVersion.isConstant
         properties = oldVersion.properties
         size = oldVersion.size
@@ -45,13 +45,13 @@ internal class LxmMap : LexemReferenced {
     /**
      * Gets the final value of a property.
      */
-    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(key: LexemPrimitive, toWrite: Boolean): T? =
-            getPropertyValue(key)?.dereference(bigNode, toWrite) as? T
+    inline fun <reified T : LexemMemoryValue> getDereferencedProperty(memory: IMemory, key: LexemPrimitive,
+            toWrite: Boolean): T? = getPropertyValue(key)?.dereference(memory, toWrite) as? T
 
     /**
      * Sets a new value to the property or creates a new property with the specified value.
      */
-    fun setProperty(key: LexemMemoryValue, value: LexemMemoryValue) {
+    fun setProperty(memory: IMemory, key: LexemMemoryValue, value: LexemMemoryValue) {
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore cannot be modified") {}
@@ -63,12 +63,12 @@ internal class LxmMap : LexemReferenced {
         val listIndex = getPropertyPosition(valuePrimitive, keyHash)
 
         cloneProperties()
-        valuePrimitive.increaseReferences(bigNode)
+        valuePrimitive.increaseReferences(memory)
 
         // Add new property.
         if (listIndex == null) {
-            val newProperty = LxmMapProperty(this, keyPrimitive)
-            newProperty.replaceValue(valuePrimitive)
+            val newProperty = LxmMapProperty(memory, this, keyPrimitive)
+            newProperty.replaceValue(memory, valuePrimitive)
 
             properties.putIfAbsent(keyHash, mutableListOf())
             properties[keyHash]!!.add(newProperty)
@@ -80,11 +80,11 @@ internal class LxmMap : LexemReferenced {
             var property = list[index]
 
             if (property.belongsTo != this) {
-                property = property.clone(this)
+                property = property.clone(memory, this)
                 list[index] = property
             }
 
-            property.replaceValue(valuePrimitive)
+            property.replaceValue(memory, valuePrimitive)
         }
     }
 
@@ -97,7 +97,7 @@ internal class LxmMap : LexemReferenced {
     /**
      * Removes a property.
      */
-    fun removeProperty(key: LexemMemoryValue) {
+    fun removeProperty(memory: IMemory, key: LexemMemoryValue) {
         if (this.isConstant) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantMap,
                     "The map is constant therefore cannot be modified") {}
@@ -110,7 +110,7 @@ internal class LxmMap : LexemReferenced {
         cloneProperties()
 
         val property = list[index]
-        property.value.decreaseReferences(bigNode)
+        property.value.decreaseReferences(memory)
 
         list.removeAt(index)
 
@@ -163,12 +163,12 @@ internal class LxmMap : LexemReferenced {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = LxmMap(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmMap(memory, this)
 
-    override fun memoryDealloc() {
+    override fun memoryDealloc(memory: IMemory) {
         getAllProperties().forEach { (key, value) ->
-            key.decreaseReferences(bigNode)
-            value.decreaseReferences(bigNode)
+            key.decreaseReferences(memory)
+            value.decreaseReferences(memory)
         }
     }
 
@@ -179,12 +179,12 @@ internal class LxmMap : LexemReferenced {
         }
     }
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(MapType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, MapType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(bigNode: BigNode) = LxmString.MapToString
+    override fun toLexemString(memory: IMemory) = LxmString.MapToString
 
     override fun toString() = StringBuilder().apply {
         append(MapNode.macroName)
@@ -212,11 +212,11 @@ internal class LxmMap : LexemReferenced {
     /**
      * A property of [LxmMap]s.
      */
-    class LxmMapProperty(val belongsTo: LxmMap, val key: LexemPrimitive) {
+    class LxmMapProperty(memory: IMemory, val belongsTo: LxmMap, val key: LexemPrimitive) {
         var value: LexemPrimitive = LxmNil
 
         init {
-            key.increaseReferences(belongsTo.bigNode)
+            key.increaseReferences(memory)
         }
 
         // For deconstructing
@@ -229,8 +229,8 @@ internal class LxmMap : LexemReferenced {
         /**
          * Clones the object property only if it is not constant.
          */
-        fun clone(belongsTo: LxmMap): LxmMapProperty {
-            val property = LxmMapProperty(belongsTo, key)
+        fun clone(memory: IMemory, belongsTo: LxmMap): LxmMapProperty {
+            val property = LxmMapProperty(memory, belongsTo, key)
 
             property.value = value
 
@@ -240,11 +240,11 @@ internal class LxmMap : LexemReferenced {
         /**
          * Replaces the value handling the memory references.
          */
-        fun replaceValue(newValue: LexemPrimitive) {
+        fun replaceValue(memory: IMemory, newValue: LexemPrimitive) {
             // Keep this to replace the elements before possibly remove the references.
             val oldValue = value
             value = newValue
-            MemoryUtils.replacePrimitives(belongsTo.bigNode, oldValue, newValue)
+            MemoryUtils.replacePrimitives(memory, oldValue, newValue)
         }
     }
 }

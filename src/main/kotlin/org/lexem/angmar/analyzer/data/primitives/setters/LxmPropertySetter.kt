@@ -17,21 +17,21 @@ internal class LxmPropertySetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(value: LexemPrimitive, property: String, node: CompiledNode, memory: LexemMemory) {
+    constructor(memory: IMemory, value: LexemPrimitive, property: String, node: CompiledNode) {
         this.value = value.getPrimitive()
         this.property = property
         this.node = node
 
-        this.value.increaseReferences(memory.lastNode)
+        this.value.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(bigNode: BigNode): LexemPrimitive {
-        val value = value.dereference(bigNode, toWrite = false)
-        val obj = value.getObjectOrPrototype(bigNode, toWrite = false)
+    override fun getSetterPrimitive(memory: IMemory): LexemPrimitive {
+        val value = value.dereference(memory, toWrite = false)
+        val obj = value.getObjectOrPrototype(memory, toWrite = false)
 
-        return obj.getPropertyValue(property) ?: throw AngmarAnalyzerException(
+        return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
                 AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called '$property' in object.") {
             val fullText = node.parser.reader.readAllText()
             addSourceCode(fullText, node.parser.reader.getSource()) {
@@ -42,8 +42,8 @@ internal class LxmPropertySetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(bigNode: BigNode, value: LexemMemoryValue) {
-        val obj = this.value.dereference(bigNode, toWrite = true)
+    override fun setSetterValue(memory: IMemory, value: LexemMemoryValue) {
+        val obj = this.value.dereference(memory, toWrite = true)
 
         if (obj !is LxmObject) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncompatibleType,
@@ -57,15 +57,15 @@ internal class LxmPropertySetter : LexemSetter {
             }
         }
 
-        obj.setProperty(property, value)
+        obj.setProperty(memory, property, value)
     }
 
-    override fun increaseReferences(bigNode: BigNode) {
-        value.increaseReferences(bigNode)
+    override fun increaseReferences(memory: IMemory) {
+        value.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(bigNode: BigNode) {
-        value.decreaseReferences(bigNode)
+    override fun decreaseReferences(memory: IMemory) {
+        value.decreaseReferences(memory)
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

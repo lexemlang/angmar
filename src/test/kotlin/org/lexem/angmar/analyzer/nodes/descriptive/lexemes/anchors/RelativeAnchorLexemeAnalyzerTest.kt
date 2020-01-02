@@ -85,10 +85,10 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(toWrite = true)
-            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(analyzer.memory, toWrite = true)
+            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {
@@ -137,10 +137,10 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(toWrite = true)
-            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(analyzer.memory, toWrite = true)
+            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {
@@ -191,10 +191,10 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
         if (!isForward) {
-            val props = node.getProperties(toWrite = true)
-            props.setProperty(AnalyzerCommons.Properties.Reverse, LxmLogic.True)
+            val props = node.getProperties(analyzer.memory, toWrite = true)
+            props.setProperty(analyzer.memory, AnalyzerCommons.Properties.Reverse, LxmLogic.True)
         }
 
         if (isOk xor isNegated) {
@@ -230,7 +230,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 
@@ -258,7 +258,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -284,7 +284,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -309,7 +309,7 @@ internal class RelativeAnchorLexemeAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader)
 

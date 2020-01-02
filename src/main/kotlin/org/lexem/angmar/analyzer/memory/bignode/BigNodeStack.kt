@@ -85,6 +85,11 @@ internal class BigNodeStack(val bigNode: BigNode) {
      * Clones this [BigNodeStack].
      */
     fun clone(newBigNode: BigNode): BigNodeStack {
+        if (newBigNode == bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
+                    "Cannot the heap over the same bigNode.") {}
+        }
+
         val res = BigNodeStack(newBigNode)
         res.isCellsCloned = false
         res.cells = cells

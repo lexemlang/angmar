@@ -12,17 +12,17 @@ internal open class LxmAnyPrototype : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory)
-    private constructor(bigNode: BigNode, oldVersion: LxmAnyPrototype) : super(bigNode, oldVersion)
+    constructor(memory: IMemory) : super(memory)
+    private constructor(memory: IMemory, oldVersion: LxmAnyPrototype) : super(memory, oldVersion)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(ObjectType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, ObjectType.TypeName) as LxmReference
     }
 
-    override fun memoryClone(bigNode: BigNode) = LxmAnyPrototype(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmAnyPrototype(memory, this)
 
     override fun toString() = "[Any Prototype] ${super.toString()}"
 }

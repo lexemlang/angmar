@@ -14,14 +14,14 @@ internal class LxmInterval private constructor(val primitive: IntegerInterval) :
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(IntervalType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, IntervalType.TypeName) as LxmReference
     }
 
     override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(bigNode: BigNode) = if (primitive.isEmpty) {
+    override fun toLexemString(memory: IMemory) = if (primitive.isEmpty) {
         LxmString.from("[]")
     } else {
         val res = StringBuilder().apply {

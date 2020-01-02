@@ -30,7 +30,7 @@ internal object MacroBacktrackAnalyzer {
 
     private fun executeBacktrackingWithArguments(analyzer: LexemAnalyzer, arguments: LxmArguments,
             function: LxmFunction, signal: Int): Boolean {
-        analyzer.backtrackingData = arguments.mapToBacktrackingData()
+        analyzer.backtrackingData = arguments.mapToBacktrackingData(analyzer.memory)
         analyzer.initBacktracking()
 
         return true

@@ -24,7 +24,7 @@ internal object BinaryAnalyzerCommons {
         val value = valueRef.dereference(analyzer.memory, toWrite = false)
         val prototype = value.getObjectOrPrototype(analyzer.memory, toWrite = false)
 
-        val operatorFunctionRef = prototype.getPropertyValue(operatorFunctionName)
+        val operatorFunctionRef = prototype.getPropertyValue(analyzer.memory, operatorFunctionName)
         val operatorFunction =
                 operatorFunctionRef?.dereference(analyzer.memory, toWrite = false) ?: throw AngmarAnalyzerException(
                         AngmarAnalyzerExceptionType.UndefinedObjectProperty,
@@ -67,9 +67,9 @@ internal object BinaryAnalyzerCommons {
      */
     fun createArguments(analyzer: LexemAnalyzer, left: LexemMemoryValue, right: LexemMemoryValue): LxmArguments {
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(right)
+        arguments.addPositionalArgument(analyzer.memory, right)
 
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, left)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, left)
 
         return arguments
     }
@@ -80,7 +80,7 @@ internal object BinaryAnalyzerCommons {
     inline fun <reified T : LexemMemoryValue> executeUnitaryOperator(analyzer: LexemAnalyzer, arguments: LxmArguments,
             functionName: String, thisTypeName: String, toWrite: Boolean,
             processFunction: (LexemAnalyzer, T) -> LexemMemoryValue): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue =
                 parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite) ?: LxmNil
@@ -103,7 +103,7 @@ internal object BinaryAnalyzerCommons {
             functionName: String, leftTypeName: String, typeNamesForRightOperand: List<String>, toWriteLeft: Boolean,
             toWriteRight: Boolean,
             processFunction: (LexemAnalyzer, T, LexemMemoryValue) -> LexemMemoryValue?): Boolean {
-        val parserArguments = arguments.mapArguments(AnalyzerCommons.Operators.ParameterList)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         val left =
                 parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWriteLeft) ?: LxmNil

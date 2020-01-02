@@ -158,7 +158,7 @@ internal class BitlistCompiledTest {
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
-    
+
     @Test
     @Incorrect
     fun `test incorrect expression value`() {

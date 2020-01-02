@@ -26,10 +26,12 @@ internal class BinaryAnalyzerCommonsTest {
                 BinaryAnalyzerCommons.getOperatorFunction(analyzer, LxmLogic.True, analyzer.grammarRootNode, operand,
                         LogicalExpressionNode.xorOperator, AnalyzerCommons.Operators.LogicalXor)
 
-        val directFunction = getCurrentContext(analyzer.memory, toWrite = false).getDereferencedProperty<LxmObject>(
-                LogicType.TypeName, toWrite = false)
-                ?.getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Prototype, toWrite = false)
-                ?.getPropertyValue(AnalyzerCommons.Operators.LogicalXor)
+        val directFunction =
+                getCurrentContext(analyzer.memory, toWrite = false).getDereferencedProperty<LxmObject>(analyzer.memory,
+                        LogicType.TypeName, toWrite = false)
+                        ?.getDereferencedProperty<LxmObject>(analyzer.memory, AnalyzerCommons.Identifiers.Prototype,
+                                toWrite = false)
+                        ?.getPropertyValue(analyzer.memory, AnalyzerCommons.Operators.LogicalXor)
         Assertions.assertEquals(directFunction, function.getPrimitive(), "The function is incorrect")
     }
 
@@ -56,7 +58,7 @@ internal class BinaryAnalyzerCommonsTest {
             val text = "$variableName ${LogicalExpressionNode.xorOperator} ${LogicNode.trueLiteral}"
             val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = LogicalExpressionNode.Companion::parse)
 
-            val logicTypeRef = getCurrentContext(analyzer.memory, toWrite = false).getPropertyValue(
+            val logicTypeRef = getCurrentContext(analyzer.memory, toWrite = false).getPropertyValue(analyzer.memory,
                     LogicType.TypeName)!! // Trick: change to a type
             val operand = (analyzer.grammarRootNode as LogicalExpressionCompiled).expressions.first()
 
@@ -75,7 +77,7 @@ internal class BinaryAnalyzerCommonsTest {
         val right = LxmLogic.True
 
         val arguments = BinaryAnalyzerCommons.createArguments(analyzer, left, right)
-        val map = arguments.mapArguments(AnalyzerCommons.Operators.ParameterList)
+        val map = arguments.mapArguments(analyzer.memory, AnalyzerCommons.Operators.ParameterList)
 
         Assertions.assertEquals(2, map.size, "The number of parameters is incorrect")
         Assertions.assertEquals(left, map[AnalyzerCommons.Identifiers.This],

@@ -20,7 +20,7 @@ internal class BigNodeL3HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * The mask for a [BigNodeL3HeapPage].
      */
-    private val mask get() = 1 shl Consts.Memory.heapPageL3Mask
+    private val mask get() = Consts.Memory.heapPageL3Mask
 
     /**
      * The last position of this [BigNodeL3HeapPage].
@@ -53,6 +53,11 @@ internal class BigNodeL3HeapPage(val bigNode: BigNode, val position: Int) {
      * @return Whether a new cell has been added.
      */
     fun setCell(newCell: BigNodeHeapCell): Boolean {
+        if (newCell.bigNode != bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink,
+                    "Cannot set a cell into a page with different bigNode.") {}
+        }
+
         val index = newCell.position and mask
         clonePages()
 
@@ -74,6 +79,11 @@ internal class BigNodeL3HeapPage(val bigNode: BigNode, val position: Int) {
      * Clones this [BigNodeL3HeapPage].
      */
     fun clone(newBigNode: BigNode): BigNodeL3HeapPage {
+        if (newBigNode == bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
+                    "Cannot clone a page over the same bigNode.") {}
+        }
+
         val res = BigNodeL3HeapPage(newBigNode, position)
         res.isPagesCloned = false
         res.pages = pages
@@ -93,6 +103,6 @@ internal class BigNodeL3HeapPage(val bigNode: BigNode, val position: Int) {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun toString() = "[$position..$lastIndex] Size: $size"
+    override fun toString() = "[$position..$lastIndex] Pages: $size"
 }
 

@@ -28,7 +28,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -49,7 +49,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -70,7 +70,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -91,7 +91,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -112,7 +112,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 2)
 
@@ -132,7 +132,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 3)
 
@@ -153,7 +153,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.processAndCheckEmpty(analyzer, textReader, status = LexemAnalyzer.ProcessStatus.Backward,
                 bigNodeCount = 0)
@@ -178,8 +178,8 @@ internal class LexemePatternGroupAnalyzerTest {
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-            context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
-            context.setPropertyAsContext(variableName, LxmInteger.from(4))
+            context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
+            context.setPropertyAsContext(analyzer.memory, variableName, LxmInteger.from(4))
 
             TestUtils.processAndCheckEmpty(analyzer, textReader)
         }
@@ -197,7 +197,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -221,7 +221,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, tagName, null) {
             TestUtils.processAndCheckEmpty(analyzer)
@@ -244,7 +244,7 @@ internal class LexemePatternGroupAnalyzerTest {
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
-        context.setPropertyAsContext(AnalyzerCommons.Identifiers.Node, node)
+        context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
         TestUtils.assertControlSignalRaisedCheckingStack(analyzer, keyword, null, value) {
             TestUtils.processAndCheckEmpty(analyzer)

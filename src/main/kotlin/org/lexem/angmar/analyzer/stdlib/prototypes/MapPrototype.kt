@@ -56,32 +56,34 @@ internal object MapPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(Size, LxmFunction(memory, ::sizeFunction), isConstant = true)
-        prototype.setProperty(Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
-        prototype.setProperty(IsFrozen, LxmFunction(memory, ::isFrozenFunction), isConstant = true)
-        prototype.setProperty(Every, LxmFunction(memory, ::everyFunction), isConstant = true)
-        prototype.setProperty(Filter, LxmFunction(memory, ::filterFunction), isConstant = true)
-        prototype.setProperty(ForEach, LxmFunction(memory, ::forEachFunction), isConstant = true)
-        prototype.setProperty(ContainsAnyKey, LxmFunction(memory, ::containsAnyKeyFunction), isConstant = true)
-        prototype.setProperty(ContainsAllKeys, LxmFunction(memory, ::containsAllKeysFunction), isConstant = true)
-        prototype.setProperty(Map, LxmFunction(memory, ::mapFunction), isConstant = true)
-        prototype.setProperty(Reduce, LxmFunction(memory, ::reduceFunction), isConstant = true)
-        prototype.setProperty(Any, LxmFunction(memory, ::anyFunction), isConstant = true)
-        prototype.setProperty(Put, LxmFunction(memory, ::putFunction), isConstant = true)
-        prototype.setProperty(Remove, LxmFunction(memory, ::removeFunction), isConstant = true)
-        prototype.setProperty(ToList, LxmFunction(memory, ::toListFunction), isConstant = true)
-        prototype.setProperty(ToObject, LxmFunction(memory, ::toObjectFunction), isConstant = true)
-        prototype.setProperty(Keys, LxmFunction(memory, ::keysFunction), isConstant = true)
-        prototype.setProperty(Values, LxmFunction(memory, ::valuesFunction), isConstant = true)
-        prototype.setProperty(Clear, LxmFunction(memory, ::clearFunction), isConstant = true)
+        prototype.setProperty(memory, Size, LxmFunction(memory, ::sizeFunction), isConstant = true)
+        prototype.setProperty(memory, Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
+        prototype.setProperty(memory, IsFrozen, LxmFunction(memory, ::isFrozenFunction), isConstant = true)
+        prototype.setProperty(memory, Every, LxmFunction(memory, ::everyFunction), isConstant = true)
+        prototype.setProperty(memory, Filter, LxmFunction(memory, ::filterFunction), isConstant = true)
+        prototype.setProperty(memory, ForEach, LxmFunction(memory, ::forEachFunction), isConstant = true)
+        prototype.setProperty(memory, ContainsAnyKey, LxmFunction(memory, ::containsAnyKeyFunction), isConstant = true)
+        prototype.setProperty(memory, ContainsAllKeys, LxmFunction(memory, ::containsAllKeysFunction),
+                isConstant = true)
+        prototype.setProperty(memory, Map, LxmFunction(memory, ::mapFunction), isConstant = true)
+        prototype.setProperty(memory, Reduce, LxmFunction(memory, ::reduceFunction), isConstant = true)
+        prototype.setProperty(memory, Any, LxmFunction(memory, ::anyFunction), isConstant = true)
+        prototype.setProperty(memory, Put, LxmFunction(memory, ::putFunction), isConstant = true)
+        prototype.setProperty(memory, Remove, LxmFunction(memory, ::removeFunction), isConstant = true)
+        prototype.setProperty(memory, ToList, LxmFunction(memory, ::toListFunction), isConstant = true)
+        prototype.setProperty(memory, ToObject, LxmFunction(memory, ::toObjectFunction), isConstant = true)
+        prototype.setProperty(memory, Keys, LxmFunction(memory, ::keysFunction), isConstant = true)
+        prototype.setProperty(memory, Values, LxmFunction(memory, ::valuesFunction), isConstant = true)
+        prototype.setProperty(memory, Clear, LxmFunction(memory, ::clearFunction), isConstant = true)
 
         // Operators
-        prototype.setProperty(AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalAnd, LxmFunction(memory, ::logicalAnd),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalOr, LxmFunction(memory, ::logicalOr),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.LogicalXor, LxmFunction(memory, ::logicalXor),
                 isConstant = true)
 
         return prototype
@@ -121,7 +123,7 @@ internal object MapPrototype {
     private fun everyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(EveryArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, EveryArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -145,8 +147,8 @@ internal object MapPrototype {
 
                 if (list.size > 0) {
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(value, key), signalEndFirstElement, Every)
 
                     return false
@@ -174,8 +176,8 @@ internal object MapPrototype {
                         if (position < list.size) {
                             val cell =
                                     list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                            val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                            val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                            val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                            val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                             StdlibCommons.callMethod(analyzer, function, listOf(value, key),
                                     signalEndFirstElement + position, Every)
 
@@ -202,7 +204,7 @@ internal object MapPrototype {
     private fun filterFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(FilterArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, FilterArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -231,8 +233,8 @@ internal object MapPrototype {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, map)
 
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(value, key), signalEndFirstElement, Filter)
 
                     return false
@@ -261,15 +263,15 @@ internal object MapPrototype {
                     if (resultTruthy) {
                         val cell =
                                 list.getCell(position - 1)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                        val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                        val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
-                        map.setProperty(key, value)
+                        val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                        val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
+                        map.setProperty(analyzer.memory, key, value)
                     }
 
                     if (position < list.size) {
                         val cell = list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                        val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                        val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                        val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                        val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                         StdlibCommons.callMethod(analyzer, function, listOf(value, key),
                                 signalEndFirstElement + position, Filter)
 
@@ -294,7 +296,7 @@ internal object MapPrototype {
     private fun forEachFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(ForEachArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ForEachArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -318,8 +320,8 @@ internal object MapPrototype {
 
                 if (list.size > 0) {
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(value, key), signalEndFirstElement, ForEach)
 
                     return false
@@ -342,8 +344,8 @@ internal object MapPrototype {
 
                     if (position < list.size) {
                         val cell = list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                        val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                        val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                        val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                        val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                         StdlibCommons.callMethod(analyzer, function, listOf(value, key),
                                 signalEndFirstElement + position, ForEach)
 
@@ -367,7 +369,7 @@ internal object MapPrototype {
     private fun containsAnyKeyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -396,7 +398,7 @@ internal object MapPrototype {
     private fun containsAllKeysFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -425,7 +427,7 @@ internal object MapPrototype {
     private fun mapFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(MapArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, MapArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -454,8 +456,8 @@ internal object MapPrototype {
                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, map)
 
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(value, key), signalEndFirstElement, Map)
 
                     return false
@@ -479,16 +481,16 @@ internal object MapPrototype {
 
                     // Add the value.
                     val cell = list.getCell(position - 1)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    map.setProperty(key, result)
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    map.setProperty(analyzer.memory, key, result)
 
                     // Remove Last from the stack.
                     analyzer.memory.removeLastFromStack()
 
                     if (position < list.size) {
                         val cell = list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                        val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                        val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                        val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                        val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                         StdlibCommons.callMethod(analyzer, function, listOf(value, key),
                                 signalEndFirstElement + position, Map)
 
@@ -513,7 +515,7 @@ internal object MapPrototype {
     private fun reduceFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(ReduceArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ReduceArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -538,8 +540,8 @@ internal object MapPrototype {
 
                 if (list.size > 0) {
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(default, value, key), signalEndFirstElement,
                             Reduce)
 
@@ -562,8 +564,8 @@ internal object MapPrototype {
 
                     if (position < list.size) {
                         val cell = list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                        val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                        val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                        val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                        val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                         StdlibCommons.callMethod(analyzer, function, listOf(result, value, key),
                                 signalEndFirstElement + position, Reduce)
 
@@ -588,7 +590,7 @@ internal object MapPrototype {
     private fun anyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val signalEndFirstElement = AnalyzerNodesCommons.signalStart + 1
-        val parserArguments = arguments.mapArguments(AnyArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, AnyArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -612,8 +614,8 @@ internal object MapPrototype {
 
                 if (list.size > 0) {
                     val cell = list.getCell(0)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                    val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                    val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                    val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                    val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                     StdlibCommons.callMethod(analyzer, function, listOf(value, key), signalEndFirstElement, Any)
 
                     return false
@@ -641,8 +643,8 @@ internal object MapPrototype {
                         if (position < list.size) {
                             val cell =
                                     list.getCell(position)!!.dereference(analyzer.memory, toWrite = false) as LxmObject
-                            val key = cell.getPropertyValue(AnalyzerCommons.Identifiers.Key)!!
-                            val value = cell.getPropertyValue(AnalyzerCommons.Identifiers.Value)!!
+                            val key = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Key)!!
+                            val value = cell.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Value)!!
                             StdlibCommons.callMethod(analyzer, function, listOf(value, key),
                                     signalEndFirstElement + position, Any)
 
@@ -668,7 +670,7 @@ internal object MapPrototype {
      */
     private fun putFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(PutArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, PutArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -680,7 +682,7 @@ internal object MapPrototype {
                     "The '<${MapType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Put' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${MapType.TypeName}") {}
         }
 
-        thisValue.setProperty(key, value)
+        thisValue.setProperty(analyzer.memory, key, value)
 
         analyzer.memory.addToStackAsLast(LxmNil)
         return true
@@ -692,7 +694,7 @@ internal object MapPrototype {
     private fun removeFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -703,7 +705,7 @@ internal object MapPrototype {
         }
 
         for (key in spreadPositional) {
-            thisValue.removeProperty(key)
+            thisValue.removeProperty(analyzer.memory, key)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -715,7 +717,7 @@ internal object MapPrototype {
      */
     private fun toListFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -737,7 +739,7 @@ internal object MapPrototype {
      */
     private fun toObjectFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -750,7 +752,7 @@ internal object MapPrototype {
         val obj = LxmObject(analyzer.memory)
         for ((key, value) in thisValue.getAllProperties()) {
             if (key is LxmString) {
-                obj.setProperty(key.primitive, value)
+                obj.setProperty(analyzer.memory, key.primitive, value)
             }
         }
 
@@ -764,7 +766,7 @@ internal object MapPrototype {
      */
     private fun keysFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -776,7 +778,7 @@ internal object MapPrototype {
 
         val list = LxmList(analyzer.memory)
         for ((key, _) in thisValue.getAllProperties()) {
-            list.addCell(key)
+            list.addCell(analyzer.memory, key)
         }
 
         analyzer.memory.addToStackAsLast(list)
@@ -789,7 +791,7 @@ internal object MapPrototype {
      */
     private fun valuesFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -801,7 +803,7 @@ internal object MapPrototype {
 
         val list = LxmList(analyzer.memory)
         for ((_, value) in thisValue.getAllProperties()) {
-            list.addCell(value)
+            list.addCell(analyzer.memory, value)
         }
 
         analyzer.memory.addToStackAsLast(list)
@@ -814,7 +816,7 @@ internal object MapPrototype {
      */
     private fun clearFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(emptyList())
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -825,7 +827,7 @@ internal object MapPrototype {
         }
 
         for ((key, _) in thisValue.getAllProperties()) {
-            thisValue.removeProperty(key)
+            thisValue.removeProperty(analyzer.memory, key)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -847,11 +849,11 @@ internal object MapPrototype {
                         val newMap = LxmMap(analyzer.memory)
 
                         for ((key, value) in left.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         for ((key, value) in right.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         newMap
@@ -872,11 +874,11 @@ internal object MapPrototype {
                         val newMap = LxmMap(analyzer.memory)
 
                         for ((key, value) in left.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         for ((key, value) in right.getAllProperties()) {
-                            newMap.removeProperty(key)
+                            newMap.removeProperty(analyzer.memory, key)
                         }
 
                         newMap
@@ -900,7 +902,7 @@ internal object MapPrototype {
                             val value = right.getPropertyValue(key)
 
                             if (value != null) {
-                                newMap.setProperty(key, value)
+                                newMap.setProperty(analyzer.memory, key, value)
                             }
                         }
 
@@ -922,11 +924,11 @@ internal object MapPrototype {
                         val newMap = LxmMap(analyzer.memory)
 
                         for ((key, value) in left.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         for ((key, value) in right.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         newMap
@@ -947,16 +949,16 @@ internal object MapPrototype {
                         val newMap = LxmMap(analyzer.memory)
 
                         for ((key, value) in left.getAllProperties()) {
-                            newMap.setProperty(key, value)
+                            newMap.setProperty(analyzer.memory, key, value)
                         }
 
                         for ((key, value) in right.getAllProperties()) {
                             val newMapValue = newMap.getPropertyValue(key)
 
                             if (newMapValue != null) {
-                                newMap.removeProperty(key)
+                                newMap.removeProperty(analyzer.memory, key)
                             } else {
-                                newMap.setProperty(key, value)
+                                newMap.setProperty(analyzer.memory, key, value)
                             }
                         }
 
@@ -973,10 +975,10 @@ internal object MapPrototype {
         for ((key, value) in map.getAllProperties()) {
             val obj = LxmObject(analyzer.memory)
 
-            obj.setProperty(AnalyzerCommons.Identifiers.Key, key)
-            obj.setProperty(AnalyzerCommons.Identifiers.Value, value)
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, key)
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, value)
 
-            list.addCell(obj)
+            list.addCell(analyzer.memory, obj)
         }
 
         return list

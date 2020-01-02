@@ -17,8 +17,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmNil)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmNil)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -40,8 +40,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.True)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -64,8 +64,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.True)
-        context.setProperty( variableName2, LxmNil)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName2, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -87,7 +87,7 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.False)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -109,8 +109,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmInteger.Num1)
-        context.setProperty( variableName2, LxmNil)
+        context.setProperty(analyzer.memory, variableName1, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName2, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -132,8 +132,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.False)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -156,8 +156,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.False)
-        context.setProperty( variableName2, LxmNil)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName2, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -179,7 +179,7 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -201,8 +201,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmInteger.Num1)
-        context.setProperty( variableName2, LxmNil)
+        context.setProperty(analyzer.memory, variableName1, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName2, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -224,8 +224,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.False)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -248,8 +248,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.True)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -271,8 +271,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmNil)
-        context.setProperty( variableName2, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName1, LxmNil)
+        context.setProperty(analyzer.memory, variableName2, LxmLogic.False)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -295,8 +295,8 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmLogic.True)
-        context.setProperty( variableName2, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName1, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName2, LxmInteger.Num1)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -324,13 +324,13 @@ internal class ConditionalExpressionAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( variableName1, LxmInteger.Num1)
-        context.setProperty( variableName2, LxmNil)
-        context.setProperty( variableName3, LxmInteger.Num2)
-        context.setProperty( variableName4, LxmInteger.Num0)
-        context.setProperty( variableName5, LxmInteger.Num10)
-        context.setProperty( variableName6, LxmLogic.False)
-        context.setProperty( variableName7, LxmLogic.True)
+        context.setProperty(analyzer.memory, variableName1, LxmInteger.Num1)
+        context.setProperty(analyzer.memory, variableName2, LxmNil)
+        context.setProperty(analyzer.memory, variableName3, LxmInteger.Num2)
+        context.setProperty(analyzer.memory, variableName4, LxmInteger.Num0)
+        context.setProperty(analyzer.memory, variableName5, LxmInteger.Num10)
+        context.setProperty(analyzer.memory, variableName6, LxmLogic.False)
+        context.setProperty(analyzer.memory, variableName7, LxmLogic.True)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

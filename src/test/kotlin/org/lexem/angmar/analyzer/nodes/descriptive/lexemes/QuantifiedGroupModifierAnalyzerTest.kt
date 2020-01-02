@@ -129,7 +129,7 @@ internal class QuantifiedGroupModifierAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( variableName, minimum)
+            context.setProperty(analyzer.memory, variableName, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -147,7 +147,7 @@ internal class QuantifiedGroupModifierAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( variableName, minimum)
+            context.setProperty(analyzer.memory, variableName, minimum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -167,7 +167,7 @@ internal class QuantifiedGroupModifierAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( variableName, maximum)
+            context.setProperty(analyzer.memory, variableName, maximum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }
@@ -187,7 +187,7 @@ internal class QuantifiedGroupModifierAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            context.setProperty( variableName, maximum)
+            context.setProperty(analyzer.memory, variableName, maximum)
 
             TestUtils.processAndCheckEmpty(analyzer)
         }

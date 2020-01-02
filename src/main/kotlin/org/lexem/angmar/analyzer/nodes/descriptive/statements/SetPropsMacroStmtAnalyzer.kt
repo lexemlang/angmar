@@ -27,7 +27,7 @@ internal object SetPropsMacroStmtAnalyzer {
                 val properties = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = true)
 
                 for ((key, value) in values.getAllIterableProperties()) {
-                    properties.setProperty( key, value.value)
+                    properties.setProperty(analyzer.memory, key, value.value)
                 }
 
                 // Remove Last from the stack.

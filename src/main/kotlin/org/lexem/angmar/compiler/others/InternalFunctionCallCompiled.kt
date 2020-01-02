@@ -3,7 +3,7 @@ package org.lexem.angmar.compiler.others
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.nodes.functional.expressions.modifiers.*
 import org.lexem.angmar.compiler.*
-import org.lexem.angmar.parser.ParserNode
+import org.lexem.angmar.parser.*
 
 /**
  * Special node for calling internal functions. It cannot be parsed.

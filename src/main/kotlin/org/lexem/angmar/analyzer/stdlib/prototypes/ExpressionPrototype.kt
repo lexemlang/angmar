@@ -28,7 +28,7 @@ internal object ExpressionPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(Wrap, LxmFunction(memory, ::wrapFunction), isConstant = true)
+        prototype.setProperty(memory, Wrap, LxmFunction(memory, ::wrapFunction), isConstant = true)
 
         return prototype
     }
@@ -38,7 +38,7 @@ internal object ExpressionPrototype {
      */
     private fun wrapFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parsedArguments = arguments.mapArguments(emptyList())
+        val parsedArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -53,7 +53,7 @@ internal object ExpressionPrototype {
                 val fn = LxmFunction(analyzer.memory, arguments, FunctionPrototype::wrapFunctionAux)
 
                 // Add the function to be called.
-                arguments.addNamedArgument(AnalyzerCommons.Identifiers.HiddenFunction, thisValue)
+                arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFunction, thisValue)
 
                 analyzer.memory.addToStackAsLast(fn)
             }

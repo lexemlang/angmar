@@ -20,7 +20,8 @@ internal class VarDeclarationStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = context.getPropertyDescriptor(varName) ?: throw Error("The property cannot be null")
+        val property =
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 
@@ -39,7 +40,8 @@ internal class VarDeclarationStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val property = context.getPropertyDescriptor(varName) ?: throw Error("The property cannot be null")
+        val property =
+                context.getPropertyDescriptor(analyzer.memory, varName) ?: throw Error("The property cannot be null")
         val value = property.value.dereference(analyzer.memory, toWrite = false) as? LxmLogic ?: throw Error(
                 "The result must be a LxmLogic")
 
@@ -62,8 +64,8 @@ internal class VarDeclarationStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = context.getDereferencedProperty<LxmInteger>(elementAlias, toWrite = false) ?: throw Error(
-                "The variable must be a LxmInteger")
+        val variable = context.getDereferencedProperty<LxmInteger>(analyzer.memory, elementAlias, toWrite = false)
+                ?: throw Error("The variable must be a LxmInteger")
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 
@@ -82,8 +84,8 @@ internal class VarDeclarationStmtAnalyzerTest {
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val variable = context.getDereferencedProperty<LxmInteger>(elementAlias, toWrite = false) ?: throw Error(
-                "The variable must be a LxmInteger")
+        val variable = context.getDereferencedProperty<LxmInteger>(analyzer.memory, elementAlias, toWrite = false)
+                ?: throw Error("The variable must be a LxmInteger")
 
         Assertions.assertEquals(valueInt, variable.primitive, "The primitive property is incorrect")
 

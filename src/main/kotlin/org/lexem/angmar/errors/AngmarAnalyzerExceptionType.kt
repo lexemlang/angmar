@@ -24,18 +24,15 @@ enum class AngmarAnalyzerExceptionType {
 
     StackNotFoundElement,
     ValueShiftOverSameBigNode,
+    CloneOverTheSameBigNode,
+    DifferentBigNodeLink,
 
     HeapSegmentationFault,
     HeapBigNodeLinkFault,
-    ReferencedHeapCellFreed,
+    CannotFreeAReferencedHeapCell,
     ReferenceCountUnderflow,
 
     FirstBigNodeRollback,
-
-    ForbiddenMemoryAccess,
-
-    LastBigNodeTemporalGarbageCollection,
-    CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
 
     // INTERVALS --------------------------------------------------------------
 
@@ -46,8 +43,6 @@ enum class AngmarAnalyzerExceptionType {
     IncorrectQuantifierBounds,
 
     // OBJECTS ----------------------------------------------------------------
-
-    CannotModifyAnImmutableView,
 
     CannotModifyAConstantList,
     CannotModifyANonWritableList,

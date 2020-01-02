@@ -12,28 +12,28 @@ internal class LxmStringIterator : LexemIterator {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, value: String) : super(memory) {
+    constructor(memory: IMemory, value: String) : super(memory) {
         this.value = value
         intervalSize = value.length.toLong()
     }
 
-    private constructor(bigNode: BigNode, oldVersion: LxmStringIterator) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmStringIterator) : super(memory, oldVersion) {
         this.value = oldVersion.value
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getCurrent(): Pair<LexemPrimitive?, LexemPrimitive>? {
-        if (isEnded()) {
+    override fun getCurrent(memory: IMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
+        if (isEnded(memory)) {
             return null
         }
 
-        val index = getIndex()
+        val index = getIndex(memory)
         val currentValue = value[index.primitive]
         return Pair(null, LxmString.from("$currentValue"))
     }
 
-    override fun memoryClone(bigNode: BigNode) = LxmStringIterator(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmStringIterator(memory, this)
 
     override fun toString() = "[Iterator - String] (value: $value) - ${super.toString()}"
 }

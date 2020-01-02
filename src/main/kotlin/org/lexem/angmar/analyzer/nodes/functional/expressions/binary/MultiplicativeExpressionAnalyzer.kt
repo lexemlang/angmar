@@ -75,7 +75,7 @@ internal object MultiplicativeExpressionAnalyzer {
         analyzer.memory.removeLastFromStack()
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val contextName = AnalyzerCommons.getContextName(context)
+        val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
         return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments,
                 LxmCodePoint(node, signal + 1, callerNode = node, callerContextName = contextName.primitive))
     }

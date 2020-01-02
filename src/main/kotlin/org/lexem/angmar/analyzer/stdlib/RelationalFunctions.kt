@@ -23,7 +23,7 @@ internal object RelationalFunctions {
     /**
      * Compares the equality of both values.
      */
-    fun lxmEquals(memory: LexemMemory, leftValue: LexemMemoryValue, rightValue: LexemMemoryValue): Boolean {
+    fun lxmEquals(memory: IMemory, leftValue: LexemMemoryValue, rightValue: LexemMemoryValue): Boolean {
         val left = leftValue.getPrimitive()
         val right = rightValue.getPrimitive()
 
@@ -84,7 +84,7 @@ internal object RelationalFunctions {
                     val leftValues = leftDeref.getAllProperties()
 
                     for ((lKey, leftProperty) in leftValues) {
-                        val rightProperty = rightDeref.getPropertyDescriptor(lKey) ?: return false
+                        val rightProperty = rightDeref.getPropertyDescriptor(memory, lKey) ?: return false
 
                         if (leftProperty.isConstant != rightProperty.isConstant) {
                             return false
@@ -131,8 +131,7 @@ internal object RelationalFunctions {
     /**
      * Compares the inequality of both values.
      */
-    fun lxmNotEquals(memory: LexemMemory, left: LexemMemoryValue, right: LexemMemoryValue) =
-            !lxmEquals(memory, left, right)
+    fun lxmNotEquals(memory: IMemory, left: LexemMemoryValue, right: LexemMemoryValue) = !lxmEquals(memory, left, right)
 
     /**
      * Compares the equality of the identity of both values.

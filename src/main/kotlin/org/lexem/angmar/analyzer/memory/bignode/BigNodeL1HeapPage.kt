@@ -48,9 +48,14 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
      * @return Whether a new cell has been added.
      */
     fun setCell(newCell: BigNodeHeapCell): Boolean {
+        if (newCell.bigNode != bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink,
+                    "Cannot set a cell into a page with different bigNode.") {}
+        }
+
         cloneCells()
 
-        val result = newCell.position in cells
+        val result = newCell.position !in cells
         cells[newCell.position] = newCell
 
         return result
@@ -60,6 +65,11 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
      * Clones this [BigNodeL1HeapPage].
      */
     fun clone(newBigNode: BigNode): BigNodeL1HeapPage {
+        if (newBigNode == bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
+                    "Cannot clone a page over the same bigNode.") {}
+        }
+
         val res = BigNodeL1HeapPage(newBigNode, position)
         res.isCellsCloned = false
         res.cells = cells
@@ -79,6 +89,6 @@ internal class BigNodeL1HeapPage(val bigNode: BigNode, val position: Int) {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun toString() = "[$position..$lastIndex] Size: $size"
+    override fun toString() = "[$position..$lastIndex] Cells: $size"
 }
 

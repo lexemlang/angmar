@@ -17,7 +17,7 @@ internal class PrefixOperatorAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -38,7 +38,7 @@ internal class PrefixOperatorAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -59,7 +59,7 @@ internal class PrefixOperatorAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -81,7 +81,7 @@ internal class PrefixOperatorAnalyzerTest {
 
         // Prepare the context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)

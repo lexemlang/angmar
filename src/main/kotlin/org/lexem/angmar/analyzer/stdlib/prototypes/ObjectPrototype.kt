@@ -38,24 +38,30 @@ internal object ObjectPrototype {
      * Initiates the prototype.
      */
     fun initPrototype(memory: LexemMemory, anyPrototype: LxmObject): LxmObject {
-        val prototype = LxmObject(memory, anyPrototype)
+        val prototype = LxmObject(memory, prototype = anyPrototype, dummy = false)
 
         // Methods
-        prototype.setProperty(Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
-        prototype.setProperty(IsFrozen, LxmFunction(memory, ::isFrozenFunction), isConstant = true)
-        prototype.setProperty(IsPropertyFrozen, LxmFunction(memory, ::isPropertyFrozenFunction), isConstant = true)
-        prototype.setProperty(FreezeProperties, LxmFunction(memory, ::freezePropertiesFunction), isConstant = true)
-        prototype.setProperty(FreezeAllProperties, LxmFunction(memory, ::freezeAllPropertiesFunction),
+        prototype.setProperty(memory, Freeze, LxmFunction(memory, ::freezeFunction), isConstant = true)
+        prototype.setProperty(memory, IsFrozen, LxmFunction(memory, ::isFrozenFunction), isConstant = true)
+        prototype.setProperty(memory, IsPropertyFrozen, LxmFunction(memory, ::isPropertyFrozenFunction),
                 isConstant = true)
-        prototype.setProperty(RemoveProperties, LxmFunction(memory, ::removePropertiesFunction), isConstant = true)
-        prototype.setProperty(GetOwnPropertyKeys, LxmFunction(memory, ::getOwnPropertyKeysFunction), isConstant = true)
-        prototype.setProperty(GetOwnPropertyValues, LxmFunction(memory, ::getOwnPropertyValuesFunction),
+        prototype.setProperty(memory, FreezeProperties, LxmFunction(memory, ::freezePropertiesFunction),
                 isConstant = true)
-        prototype.setProperty(GetOwnProperties, LxmFunction(memory, ::getOwnPropertiesFunction), isConstant = true)
-        prototype.setProperty(OwnPropertiesToMap, LxmFunction(memory, ::ownPropertiesToMapFunction), isConstant = true)
-        prototype.setProperty(ContainsAnyOwnProperty, LxmFunction(memory, ::containsAnyOwnPropertyFunction),
+        prototype.setProperty(memory, FreezeAllProperties, LxmFunction(memory, ::freezeAllPropertiesFunction),
                 isConstant = true)
-        prototype.setProperty(ContainsAllOwnProperties, LxmFunction(memory, ::containsAllOwnPropertiesFunction),
+        prototype.setProperty(memory, RemoveProperties, LxmFunction(memory, ::removePropertiesFunction),
+                isConstant = true)
+        prototype.setProperty(memory, GetOwnPropertyKeys, LxmFunction(memory, ::getOwnPropertyKeysFunction),
+                isConstant = true)
+        prototype.setProperty(memory, GetOwnPropertyValues, LxmFunction(memory, ::getOwnPropertyValuesFunction),
+                isConstant = true)
+        prototype.setProperty(memory, GetOwnProperties, LxmFunction(memory, ::getOwnPropertiesFunction),
+                isConstant = true)
+        prototype.setProperty(memory, OwnPropertiesToMap, LxmFunction(memory, ::ownPropertiesToMapFunction),
+                isConstant = true)
+        prototype.setProperty(memory, ContainsAnyOwnProperty, LxmFunction(memory, ::containsAnyOwnPropertyFunction),
+                isConstant = true)
+        prototype.setProperty(memory, ContainsAllOwnProperties, LxmFunction(memory, ::containsAllOwnPropertiesFunction),
                 isConstant = true)
 
         return prototype
@@ -85,7 +91,7 @@ internal object ObjectPrototype {
      */
     private fun isPropertyFrozenFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(IsPropertyFrozenArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, IsPropertyFrozenArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -101,7 +107,7 @@ internal object ObjectPrototype {
                     "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$IsPropertyFrozen' method requires the parameter called '${IsPropertyFrozenArgs[0]}' be a ${StringType.TypeName}") {}
         }
 
-        val descriptor = thisValue.getPropertyDescriptor(property.primitive)
+        val descriptor = thisValue.getPropertyDescriptor(analyzer.memory, property.primitive)
         analyzer.memory.addToStackAsLast(LxmLogic.from(descriptor?.isConstant ?: false))
         return true
     }
@@ -112,7 +118,7 @@ internal object ObjectPrototype {
     private fun freezePropertiesFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -156,7 +162,7 @@ internal object ObjectPrototype {
     private fun removePropertiesFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = true)
                 ?: LxmNil
@@ -172,7 +178,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$RemoveProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            thisValue.removeProperty(key.primitive)
+            thisValue.removeProperty(analyzer.memory, key.primitive)
         }
 
         analyzer.memory.addToStackAsLast(LxmNil)
@@ -190,7 +196,7 @@ internal object ObjectPrototype {
                 val list = LxmList(analyzer.memory)
 
                 for ((key, _) in allProperties) {
-                    list.addCell(LxmString.from(key))
+                    list.addCell(analyzer.memory, LxmString.from(key))
                 }
 
                 list
@@ -207,7 +213,7 @@ internal object ObjectPrototype {
                 val list = LxmList(analyzer.memory)
 
                 for ((_, value) in allProperties) {
-                    list.addCell(value.value)
+                    list.addCell(analyzer.memory, value.value)
                 }
 
                 list
@@ -226,10 +232,10 @@ internal object ObjectPrototype {
                 for ((key, value) in allProperties) {
                     val obj = LxmObject(analyzer.memory)
 
-                    obj.setProperty(AnalyzerCommons.Identifiers.Key, LxmString.from(key))
-                    obj.setProperty(AnalyzerCommons.Identifiers.Value, value.value)
+                    obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, LxmString.from(key))
+                    obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, value.value)
 
-                    list.addCell(obj)
+                    list.addCell(analyzer.memory, obj)
                 }
 
                 list
@@ -246,7 +252,7 @@ internal object ObjectPrototype {
                 val map = LxmMap(analyzer.memory)
 
                 for ((key, value) in allProperties) {
-                    map.setProperty(LxmString.from(key), value.value)
+                    map.setProperty(analyzer.memory, LxmString.from(key), value.value)
                 }
 
                 map
@@ -258,7 +264,7 @@ internal object ObjectPrototype {
     private fun containsAnyOwnPropertyFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -274,7 +280,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAnyOwnProperty' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            val prop = thisValue.getPropertyDescriptor(key.primitive)
+            val prop = thisValue.getPropertyDescriptor(analyzer.memory, key.primitive)
             if (prop != null) {
                 analyzer.memory.addToStackAsLast(LxmLogic.True)
                 return true
@@ -291,7 +297,7 @@ internal object ObjectPrototype {
     private fun containsAllOwnPropertiesFunction(analyzer: LexemAnalyzer, arguments: LxmArguments,
             function: LxmFunction, signal: Int): Boolean {
         val spreadPositional = mutableListOf<LexemPrimitive>()
-        val parserArguments = arguments.mapArguments(emptyList(), spreadPositional)
+        val parserArguments = arguments.mapArguments(analyzer.memory, emptyList(), spreadPositional)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
                 ?: LxmNil
@@ -307,7 +313,7 @@ internal object ObjectPrototype {
                         "The '<${ObjectType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ContainsAllOwnProperties' method requires all its parameters be a ${StringType.TypeName}") {}
             }
 
-            val prop = thisValue.getPropertyDescriptor(key.primitive)
+            val prop = thisValue.getPropertyDescriptor(analyzer.memory, key.primitive)
             if (prop == null) {
                 analyzer.memory.addToStackAsLast(LxmLogic.False)
                 return true

@@ -71,7 +71,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmObject
 
-                obj.setProperty( identifier.primitive, LxmLogic.True)
+                obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.True)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()
@@ -118,7 +118,7 @@ internal object PropertyStyleObjectBlockAnalyzer {
                 val obj = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Accumulator).dereference(
                         analyzer.memory, toWrite = true) as LxmObject
 
-                obj.setProperty( identifier.primitive, LxmLogic.False)
+                obj.setProperty(analyzer.memory, identifier.primitive, LxmLogic.False)
 
                 // Remove Last from the stack.
                 analyzer.memory.removeLastFromStack()

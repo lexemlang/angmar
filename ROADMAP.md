@@ -69,3 +69,7 @@ This is the plan to work towards a future release.
 - Cuando el main thread detecta una referencia a 0. La manda a otro hilo para que recorra sus punteros y reduzca las referencias del resto.
 - Asociar el returnCodePoint al bignode para no modificar el heap si no es necesario.
 - Hacer un intervalo modificable como un Red-Black tree para el recolector.
+
+
+
+ADD CHECK OF IMMUTABLE OBJECT

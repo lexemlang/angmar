@@ -70,8 +70,8 @@ internal object StdlibCommons {
     fun callMethod(analyzer: LexemAnalyzer, function: LxmFunction, positionalArguments: List<LexemPrimitive>,
             returnSignal: Int, functionName: String) {
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmNil)
-        positionalArguments.forEach { arguments.addPositionalArgument(it) }
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
+        positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
 
         AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(InternalFunctionCallCompiled, returnSignal, callerNode = function.node,
@@ -85,11 +85,11 @@ internal object StdlibCommons {
             functionName: String) {
         val prototype = value.dereference(analyzer.memory, toWrite = false)
                 .getPrototypeAsObject(analyzer.memory, toWrite = false)
-        val function = prototype.getPropertyValue(AnalyzerCommons.Identifiers.ToString)!!.dereference(analyzer.memory,
-                toWrite = false) as LxmFunction
+        val function = prototype.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.ToString)!!.dereference(
+                analyzer.memory, toWrite = false) as LxmFunction
 
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, value)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
 
         AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(returnNode, returnSignal, callerNode = function.node,

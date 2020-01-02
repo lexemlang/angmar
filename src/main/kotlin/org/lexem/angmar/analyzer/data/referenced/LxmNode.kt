@@ -17,19 +17,19 @@ internal class LxmNode : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, name: String, from: IReaderCursor, type: LxmNodeType = LxmNodeType.Custom) : super(
+    constructor(memory: IMemory, name: String, from: IReaderCursor, type: LxmNodeType = LxmNodeType.Custom) : super(
             memory) {
         this.name = name
         this.type = type
 
-        setProperty(AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
-        setFrom(from)
-        setParentIndex(-1)
+        setProperty(memory, AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
+        setFrom(memory, from)
+        setParentIndex(memory, -1)
 
         init(memory)
     }
 
-    private constructor(bigNode: BigNode, oldVersion: LxmNode) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmNode) : super(memory, oldVersion) {
         name = oldVersion.name
         type = oldVersion.type
     }
@@ -39,156 +39,159 @@ internal class LxmNode : LxmObject {
     /**
      * Adds the initial properties.
      */
-    private fun init(memory: LexemMemory) {
+    private fun init(memory: IMemory) {
         val children = LxmList(memory)
         children.makeConstant()
-        setProperty(AnalyzerCommons.Identifiers.Children, children, isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.Children, children, isConstant = true)
 
         val properties = LxmObject(memory)
-        setProperty(AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
+        setProperty(memory, AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
 
         val defaultProperties = AnalyzerCommons.getDefaultPropertiesByType(type)
         for ((key, value) in defaultProperties) {
-            properties.setProperty(key, value)
+            properties.setProperty(memory, key, value)
         }
     }
 
     /**
      * Adds the node to the parent.
      */
-    fun addToParent(parent: LxmNode) {
+    fun addToParent(memory: IMemory, parent: LxmNode) {
         // Remove from previously parent.
-        removeFromParent()
+        removeFromParent(memory)
 
-        val parentList = parent.getChildren(toWrite = true)
+        val parentList = parent.getChildren(memory, toWrite = true)
 
-        setParentIndex(parentList.size)
-        setProperty(AnalyzerCommons.Identifiers.Parent, parent, isConstant = true, ignoreConstant = true)
-        parentList.addCell(this, ignoreConstant = true)
+        setParentIndex(memory, parentList.size)
+        setProperty(memory, AnalyzerCommons.Identifiers.Parent, parent, isConstant = true, ignoreConstant = true)
+        parentList.addCell(memory, this, ignoreConstant = true)
     }
 
     /**
      * Adds the node to the parent.
      */
-    fun removeFromParent() {
-        val parent = getParent(toWrite = false) ?: return
-        val parentList = parent.getChildren(toWrite = true)
-        val parentIndex = getParentIndex()
+    fun removeFromParent(memory: IMemory) {
+        val parent = getParent(memory, toWrite = false) ?: return
+        val parentList = parent.getChildren(memory, toWrite = true)
+        val parentIndex = getParentIndex(memory)
 
         for (i in parentIndex + 1 until parentList.size) {
-            val node = parentList.getDereferencedCell<LxmNode>(i, toWrite = true)!!
-            node.setParentIndex(node.getParentIndex() - 1)
+            val node = parentList.getDereferencedCell<LxmNode>(memory, i, toWrite = true)!!
+            node.setParentIndex(memory, node.getParentIndex(memory) - 1)
         }
 
-        parentList.removeCell(parentIndex, ignoreConstant = true)
+        parentList.removeCell(memory, parentIndex, ignoreConstant = true)
 
-        setParentIndex(-1)
-        removeProperty(AnalyzerCommons.Identifiers.Parent, ignoreConstant = true)
+        setParentIndex(memory, -1)
+        removeProperty(memory, AnalyzerCommons.Identifiers.Parent, ignoreConstant = true)
     }
 
     /**
      * Adds a list of nodes at the specified position.
      */
-    fun insertChildren(children: List<LxmNode>, at: Int) {
+    fun insertChildren(memory: IMemory, children: List<LxmNode>, at: Int) {
         // Remove from previously parent and set new parent.
         for (node in children) {
-            node.removeFromParent()
+            node.removeFromParent(memory)
 
-            node.setParent(this)
+            node.setParent(memory, this)
         }
 
-        val childList = getChildren(toWrite = true)
-        childList.insertCell(at, *children.toTypedArray(), ignoreConstant = true)
+        val childList = getChildren(memory, toWrite = true)
+        childList.insertCell(memory, at, *children.toTypedArray(), ignoreConstant = true)
 
         for (i in at until childList.size) {
-            val node = childList.getDereferencedCell<LxmNode>(i, toWrite = true)!!
-            node.setParentIndex(i)
+            val node = childList.getDereferencedCell<LxmNode>(memory, i, toWrite = true)!!
+            node.setParentIndex(memory, i)
         }
     }
 
     /**
      * Moves all the children of this node to its parent.
      */
-    fun replaceNodeInParentByChildren() {
-        val parent = getParent(toWrite = false) ?: return
-        val parentList = parent.getChildren(toWrite = true)
-        val childList = getChildrenAsList().map { it.dereference(bigNode, toWrite = false) as LxmNode }
-        val parentIndex = getParentIndex()
+    fun replaceNodeInParentByChildren(memory: IMemory) {
+        val parent = getParent(memory, toWrite = false) ?: return
+        val parentList = parent.getChildren(memory, toWrite = true)
+        val childList = getChildrenAsList(memory).map { it.dereference(memory, toWrite = false) as LxmNode }
+        val parentIndex = getParentIndex(memory)
 
         // Set the new parent and indexes.
         for ((i, node) in childList.withIndex()) {
-            node.setParent(parent)
-            node.setParentIndex(parentIndex + i)
+            node.setParent(memory, parent)
+            node.setParentIndex(memory, parentIndex + i)
         }
 
         for (index in parentIndex + 1 until parentList.size) {
-            val node = parentList.getCell(index)!!.dereference(bigNode, toWrite = true) as LxmNode
-            node.setParentIndex(index)
+            val node = parentList.getCell(index)!!.dereference(memory, toWrite = true) as LxmNode
+            node.setParentIndex(memory, index)
         }
 
-        parentList.replaceCell(parentIndex, 1, *childList.toList().toTypedArray(), ignoreConstant = true)
+        parentList.replaceCell(memory, parentIndex, 1, *childList.toList().toTypedArray(), ignoreConstant = true)
     }
 
     /**
      * Clears the children of the node.
      */
-    fun clearChildren() {
-        val childList = getChildren(toWrite = true)
+    fun clearChildren(memory: IMemory) {
+        val childList = getChildren(memory, toWrite = true)
 
         for (i in 0 until childList.size) {
-            val node = childList.getDereferencedCell<LxmNode>(i, toWrite = true)!!
-            node.setParentIndex(-1)
-            node.removeProperty(AnalyzerCommons.Identifiers.Parent, ignoreConstant = true)
+            val node = childList.getDereferencedCell<LxmNode>(memory, i, toWrite = true)!!
+            node.setParentIndex(memory, -1)
+            node.removeProperty(memory, AnalyzerCommons.Identifiers.Parent, ignoreConstant = true)
         }
 
-        childList.removeCell(0, childList.size, ignoreConstant = true)
+        childList.removeCell(memory, 0, childList.size, ignoreConstant = true)
     }
 
     /**
      * Gets the parent node reference.
      */
-    fun getParentReference() = getPropertyValue(AnalyzerCommons.Identifiers.Parent) as? LxmReference
+    fun getParentReference(memory: IMemory) =
+            getPropertyValue(memory, AnalyzerCommons.Identifiers.Parent) as? LxmReference
 
     /**
      * Gets the parent node.
      */
-    fun getParent(toWrite: Boolean) = getDereferencedProperty<LxmNode>(AnalyzerCommons.Identifiers.Parent, toWrite)
+    fun getParent(memory: IMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.Parent, toWrite)
 
     /**
      * Sets the parent node.
      */
-    fun setParent(parent: LxmNode) =
-            setProperty(AnalyzerCommons.Identifiers.Parent, parent, isConstant = true, ignoreConstant = true)
+    fun setParent(memory: IMemory, parent: LxmNode) =
+            setProperty(memory, AnalyzerCommons.Identifiers.Parent, parent, isConstant = true, ignoreConstant = true)
 
     /**
      * Gets the index in the parent node.
      */
-    fun getParentIndex() = (getPropertyValue(AnalyzerCommons.Identifiers.ParentIndex) as LxmInteger).primitive
+    fun getParentIndex(memory: IMemory) =
+            (getPropertyValue(memory, AnalyzerCommons.Identifiers.ParentIndex) as LxmInteger).primitive
 
     /**
      * Sets the index in the parent node.
      */
-    fun setParentIndex(index: Int) =
-            setProperty(AnalyzerCommons.Identifiers.ParentIndex, LxmInteger.from(index), isConstant = true,
+    fun setParentIndex(memory: IMemory, index: Int) =
+            setProperty(memory, AnalyzerCommons.Identifiers.ParentIndex, LxmInteger.from(index), isConstant = true,
                     ignoreConstant = true)
 
     /**
      * Gets the children.
      */
-    fun getChildren(toWrite: Boolean) =
-            getDereferencedProperty<LxmList>(AnalyzerCommons.Identifiers.Children, toWrite)!!
+    fun getChildren(memory: IMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Children, toWrite)!!
 
     /**
      * Gets the children property value as a list.
      */
-    fun getChildrenAsList() = getChildren(toWrite = false).getAllCells()
+    fun getChildrenAsList(memory: IMemory) = getChildren(memory, toWrite = false).getAllCells()
 
     /**
      * Gets the content of the node.
      */
-    fun getContent(): LexemPrimitive? {
-        val from = getFrom().primitive
-        val to = getTo()?.primitive ?: return null
+    fun getContent(memory: IMemory): LexemPrimitive? {
+        val from = getFrom(memory).primitive
+        val to = getTo(memory)?.primitive ?: return null
         val reader = to.getReader()
 
         return AnalyzerCommons.substringReader(reader, from, to)
@@ -197,43 +200,43 @@ internal class LxmNode : LxmObject {
     /**
      * Gets the property object.
      */
-    fun getProperties(toWrite: Boolean) =
-            getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Properties, toWrite)!!
+    fun getProperties(memory: IMemory, toWrite: Boolean) =
+            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Properties, toWrite)!!
 
     /**
      * Gets the initial position of the content of the node.
      */
-    fun getFrom() = getPropertyValue(AnalyzerCommons.Identifiers.HiddenFrom) as LxmReaderCursor
+    fun getFrom(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.HiddenFrom) as LxmReaderCursor
 
     /**
      * Sets the value of the from property.
      */
-    fun setFrom(cursor: IReaderCursor) {
-        setProperty(AnalyzerCommons.Identifiers.From, LxmInteger.from(cursor.position()), isConstant = true,
+    fun setFrom(memory: IMemory, cursor: IReaderCursor) {
+        setProperty(memory, AnalyzerCommons.Identifiers.From, LxmInteger.from(cursor.position()), isConstant = true,
                 ignoreConstant = true)
-        setProperty(AnalyzerCommons.Identifiers.HiddenFrom, LxmReaderCursor(cursor), isConstant = true,
+        setProperty(memory, AnalyzerCommons.Identifiers.HiddenFrom, LxmReaderCursor(cursor), isConstant = true,
                 ignoreConstant = true)
     }
 
     /**
      * Gets the final position of the content of the node.
      */
-    fun getTo() = getPropertyValue(AnalyzerCommons.Identifiers.HiddenTo) as? LxmReaderCursor
+    fun getTo(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.HiddenTo) as? LxmReaderCursor
 
     /**
      * Sets the value of the to property.
      */
-    fun setTo(cursor: IReaderCursor) {
-        setProperty(AnalyzerCommons.Identifiers.To, LxmInteger.from(cursor.position()), isConstant = true,
+    fun setTo(memory: IMemory, cursor: IReaderCursor) {
+        setProperty(memory, AnalyzerCommons.Identifiers.To, LxmInteger.from(cursor.position()), isConstant = true,
                 ignoreConstant = true)
-        setProperty(AnalyzerCommons.Identifiers.HiddenTo, LxmReaderCursor(cursor), isConstant = true,
+        setProperty(memory, AnalyzerCommons.Identifiers.HiddenTo, LxmReaderCursor(cursor), isConstant = true,
                 ignoreConstant = true)
     }
 
     /**
      * Applies an offset to the current node and its children.
      */
-    fun applyOffset(offset: IReaderCursor) {
+    fun applyOffset(memory: IMemory, offset: IReaderCursor) {
         val newReader = offset.getReader()
         val offsetAsInt = offset.position()
 
@@ -242,23 +245,23 @@ internal class LxmNode : LxmObject {
 
         while (nodes.isNotEmpty()) {
             val node = nodes.removeFirst()
-            val from = node.getFrom().primitive.position()
-            val to = node.getTo()!!.primitive.position()
+            val from = node.getFrom(memory).primitive.position()
+            val to = node.getTo(memory)!!.primitive.position()
 
-            node.setFrom(newReader.saveCursorAt(offsetAsInt + from)!!)
-            node.setTo(newReader.saveCursorAt(offsetAsInt + to)!!)
+            node.setFrom(memory, newReader.saveCursorAt(offsetAsInt + from)!!)
+            node.setTo(memory, newReader.saveCursorAt(offsetAsInt + to)!!)
 
-            nodes.addAll(node.getChildrenAsList().map { it.dereference(bigNode, toWrite = true) as LxmNode })
+            nodes.addAll(node.getChildrenAsList(memory).map { it.dereference(memory, toWrite = true) as LxmNode })
         }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryClone(bigNode: BigNode) = LxmNode(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmNode(memory, this)
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(NodeType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, NodeType.TypeName) as LxmReference
     }
 
     override fun toString() = "[Node] $name = ${super.toString()}"

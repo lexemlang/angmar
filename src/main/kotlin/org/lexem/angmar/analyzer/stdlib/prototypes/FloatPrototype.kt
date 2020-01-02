@@ -36,25 +36,28 @@ internal object FloatPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(IntegerPart, LxmFunction(memory, ::integerPartFunction), isConstant = true)
-        prototype.setProperty(DecimalPart, LxmFunction(memory, ::decimalPartFunction), isConstant = true)
-        prototype.setProperty(ToExponential, LxmFunction(memory, ::toExponentialFunction), isConstant = true)
-        prototype.setProperty(ToFixed, LxmFunction(memory, ::toFixedFunction), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
+        prototype.setProperty(memory, IntegerPart, LxmFunction(memory, ::integerPartFunction), isConstant = true)
+        prototype.setProperty(memory, DecimalPart, LxmFunction(memory, ::decimalPartFunction), isConstant = true)
+        prototype.setProperty(memory, ToExponential, LxmFunction(memory, ::toExponentialFunction), isConstant = true)
+        prototype.setProperty(memory, ToFixed, LxmFunction(memory, ::toFixedFunction), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
                 isConstant = true)
 
         // Operators
-        prototype.setProperty(AnalyzerCommons.Operators.ArithmeticAffirmation, LxmFunction(memory, ::affirmation), true)
-        prototype.setProperty(AnalyzerCommons.Operators.ArithmeticNegation, LxmFunction(memory, ::negation),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
+                LxmFunction(memory, ::affirmation), true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmFunction(memory, ::negation),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Multiplication, LxmFunction(memory, ::multiplication),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication, LxmFunction(memory, ::multiplication),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Division, LxmFunction(memory, ::division), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.IntegerDivision, LxmFunction(memory, ::integerDivision),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, LxmFunction(memory, ::division),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Reminder, LxmFunction(memory, ::reminder), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision, LxmFunction(memory, ::integerDivision),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, LxmFunction(memory, ::reminder),
+                isConstant = true)
 
         return prototype
     }
@@ -84,7 +87,7 @@ internal object FloatPrototype {
      */
     private fun toExponentialFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(ToExponentialArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToExponentialArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val precision = parserArguments[ToExponentialArgs[0]] ?: LxmNil
@@ -119,7 +122,7 @@ internal object FloatPrototype {
      */
     private fun toFixedFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(ToFixedArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToFixedArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val precision = parserArguments[ToFixedArgs[0]] ?: LxmNil
@@ -150,7 +153,7 @@ internal object FloatPrototype {
      */
     private fun toStringFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(ToStringArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToStringArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val radix = parserArguments[ToStringArgs[0]] ?: LxmNil

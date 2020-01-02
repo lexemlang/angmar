@@ -26,21 +26,24 @@ internal object IntegerPrototype {
         val prototype = LxmObject(memory)
 
         // Methods
-        prototype.setProperty(AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
+        prototype.setProperty(memory, AnalyzerCommons.Identifiers.ToString, LxmFunction(memory, ::toStringFunction),
                 isConstant = true)
 
         // Operators
-        prototype.setProperty(AnalyzerCommons.Operators.ArithmeticAffirmation, LxmFunction(memory, ::affirmation), true)
-        prototype.setProperty(AnalyzerCommons.Operators.ArithmeticNegation, LxmFunction(memory, ::negation),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticAffirmation,
+                LxmFunction(memory, ::affirmation), true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.ArithmeticNegation, LxmFunction(memory, ::negation),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Multiplication, LxmFunction(memory, ::multiplication),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Add, LxmFunction(memory, ::add), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Sub, LxmFunction(memory, ::sub), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Multiplication, LxmFunction(memory, ::multiplication),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Division, LxmFunction(memory, ::division), isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.IntegerDivision, LxmFunction(memory, ::integerDivision),
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Division, LxmFunction(memory, ::division),
                 isConstant = true)
-        prototype.setProperty(AnalyzerCommons.Operators.Reminder, LxmFunction(memory, ::reminder), isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.IntegerDivision, LxmFunction(memory, ::integerDivision),
+                isConstant = true)
+        prototype.setProperty(memory, AnalyzerCommons.Operators.Reminder, LxmFunction(memory, ::reminder),
+                isConstant = true)
 
         return prototype
     }
@@ -50,7 +53,7 @@ internal object IntegerPrototype {
      */
     private fun toStringFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
-        val parserArguments = arguments.mapArguments(ToStringArgs)
+        val parserArguments = arguments.mapArguments(analyzer.memory, ToStringArgs)
 
         val thisValue = parserArguments[AnalyzerCommons.Identifiers.This] ?: LxmNil
         val radix = parserArguments[ToStringArgs[0]] ?: LxmNil

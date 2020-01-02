@@ -24,7 +24,7 @@ internal object SetAnalyzer {
                 val set = LxmSet(analyzer.memory)
 
                 for (i in list.getAllCells()) {
-                    set.addValue(i)
+                    set.addValue(analyzer.memory, i)
                 }
 
                 analyzer.memory.replaceLastStackCell(set)

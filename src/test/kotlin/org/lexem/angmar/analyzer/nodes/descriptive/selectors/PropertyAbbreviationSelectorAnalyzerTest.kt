@@ -22,15 +22,15 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-        lxmNode.setTo(analyzer.text.saveCursor())
+        lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                 toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
-        val props = result.getProperties(toWrite = false)
-        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(propName),
+        val props = result.getProperties(analyzer.memory, toWrite = false)
+        Assertions.assertEquals(LxmLogic.True, props.getPropertyValue(analyzer.memory, propName),
                 "The property called $propName is incorrect")
 
         // Remove Node from the stack.
@@ -48,15 +48,15 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-        lxmNode.setTo(analyzer.text.saveCursor())
+        lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                 toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
-        val props = result.getProperties(toWrite = false)
-        Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(propName),
+        val props = result.getProperties(analyzer.memory, toWrite = false)
+        Assertions.assertEquals(LxmLogic.False, props.getPropertyValue(analyzer.memory, propName),
                 "The property called $propName is incorrect")
 
         // Remove Node from the stack.
@@ -76,15 +76,16 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-        lxmNode.setTo(analyzer.text.saveCursor())
+        lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Node).dereference(analyzer.memory,
                 toWrite = false) as? LxmNode ?: throw Error("The result must be a LxmNode")
-        val props = result.getProperties(toWrite = false)
-        Assertions.assertEquals(value, props.getPropertyValue(propName), "The property called $propName is incorrect")
+        val props = result.getProperties(analyzer.memory, toWrite = false)
+        Assertions.assertEquals(value, props.getPropertyValue(analyzer.memory, propName),
+                "The property called $propName is incorrect")
 
         // Remove Node from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -104,8 +105,8 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (isOk) {
-            val props = lxmNode.getProperties(toWrite = true)
-            props.setProperty(propName, propValue)
+            val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
+            props.setProperty(analyzer.memory, propName, propValue)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
@@ -133,8 +134,8 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
         if (!isOk) {
-            val props = lxmNode.getProperties(toWrite = true)
-            props.setProperty(propName, propValue)
+            val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
+            props.setProperty(analyzer.memory, propName, propValue)
         }
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
@@ -165,8 +166,8 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-        val props = lxmNode.getProperties(toWrite = true)
-        props.setProperty(propName, LxmNil)
+        val props = lxmNode.getProperties(analyzer.memory, toWrite = true)
+        props.setProperty(analyzer.memory, propName, LxmNil)
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
@@ -252,7 +253,7 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", reader.saveCursor())
-        lxmNode.setTo(reader.saveCursor())
+        lxmNode.setTo(analyzer.memory, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)
@@ -314,7 +315,7 @@ internal class PropertyAbbreviationSelectorAnalyzerTest {
         // Prepare stack.
         val lxmNode = LxmNode(analyzer.memory, "nodeName", reader.saveCursor())
         reader.setPosition(prefix.length + middle.length)
-        lxmNode.setTo(reader.saveCursor())
+        lxmNode.setTo(analyzer.memory, reader.saveCursor())
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
         TestUtils.processAndCheckEmpty(analyzer, reader)

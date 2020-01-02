@@ -109,7 +109,7 @@ internal object LexemePatternAnalyzer {
                         // Increase the index.
                         val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory.lastNode,
                                 toWrite = true) as LxmPatternUnion
-                        union.increaseIndex()
+                        union.increaseIndex(analyzer.memory)
                     }
                 }
             }
@@ -146,7 +146,7 @@ internal object LexemePatternAnalyzer {
                         // Increase the index.
                         val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory.lastNode,
                                 toWrite = true) as LxmPatternUnion
-                        union.increaseIndex()
+                        union.increaseIndex(analyzer.memory)
 
                         // Remove LexemeUnion from the stack.
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
@@ -167,7 +167,7 @@ internal object LexemePatternAnalyzer {
             quantifier: LxmQuantifier? = null) {
         val union = getOrInitUnion(analyzer, node, unionName.primitive, quantifier)
 
-        if (union.canHaveANextPattern()) {
+        if (union.canHaveANextPattern(analyzer.memory)) {
             // On backwards skip.
             analyzer.freezeMemoryCopy(node, signalEndBadPatternContent)
 
@@ -186,7 +186,7 @@ internal object LexemePatternAnalyzer {
     private fun getUnion(analyzer: LexemAnalyzer, unionName: String): LxmReference {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = false)
-        return unions.getPropertyValue(unionName) as LxmReference
+        return unions.getPropertyValue(analyzer.memory, unionName) as LxmReference
     }
 
     /**
@@ -196,15 +196,15 @@ internal object LexemePatternAnalyzer {
             quantifier: LxmQuantifier?): LxmPatternUnion {
         val unions = AnalyzerCommons.getCurrentContextElement<LxmObject>(analyzer.memory,
                 AnalyzerCommons.Identifiers.HiddenPatternUnions, toWrite = true)
-        var union =
-                unions.getPropertyValue(unionName)?.dereference(analyzer.memory, toWrite = false) as? LxmPatternUnion
+        var union = unions.getPropertyValue(analyzer.memory, unionName)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmPatternUnion
 
         if (union == null) {
             if (quantifier != null) {
                 // Create the union.
                 union = LxmPatternUnion(analyzer.memory, quantifier, LxmInteger.Num0)
 
-                unions.setProperty(unionName, union)
+                unions.setProperty(analyzer.memory, unionName, union)
             } else {
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.PatternUnionWithoutQuantifier,
                         "The union called '$unionName' cannot be initialized if there is no quantifier") {

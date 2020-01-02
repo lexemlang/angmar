@@ -12,14 +12,14 @@ internal class LxmString private constructor(val primitive: String) : LexemPrimi
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(bigNode: BigNode): LxmReference {
-        val context = AnalyzerCommons.getStdLibContext(bigNode, toWrite = false)
-        return context.getPropertyValue(StringType.TypeName) as LxmReference
+    override fun getType(memory: IMemory): LxmReference {
+        val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        return context.getPropertyValue(memory, StringType.TypeName) as LxmReference
     }
 
     override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(bigNode: BigNode) = this
+    override fun toLexemString(memory: IMemory) = this
 
     override fun toString() = primitive
 

@@ -17,11 +17,11 @@ internal abstract class LexemIterator : LxmObject {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory) {
-        restart()
+    constructor(memory: IMemory) : super(memory) {
+        restart(memory)
     }
 
-    protected constructor(bigNode: BigNode, oldVersion: LexemIterator) : super(bigNode, oldVersion) {
+    protected constructor(memory: IMemory, oldVersion: LexemIterator) : super(memory, oldVersion) {
         intervalSize = oldVersion.intervalSize
     }
 
@@ -30,31 +30,31 @@ internal abstract class LexemIterator : LxmObject {
     /**
      * The current position of the iterator.
      */
-    fun getIndex() = getPropertyValue(AnalyzerCommons.Identifiers.Index) as LxmInteger
+    fun getIndex(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
 
     /**
      * Whether the iterator is ended or not.
      */
-    fun isEnded() = getIndex().primitive >= intervalSize
+    fun isEnded(memory: IMemory) = getIndex(memory).primitive >= intervalSize
 
     /**
      * Returns the current element in a index-value pair.
      */
-    abstract fun getCurrent(): Pair<LexemPrimitive?, LexemPrimitive>?
+    abstract fun getCurrent(memory: IMemory): Pair<LexemPrimitive?, LexemPrimitive>?
 
     /**
      * Advance one iteration.
      */
-    open fun advance() {
-        val prev = getPropertyValue(AnalyzerCommons.Identifiers.Index) as LxmInteger
+    open fun advance(memory: IMemory) {
+        val prev = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
         val new = LxmInteger.from(prev.primitive + 1)
-        setProperty(AnalyzerCommons.Identifiers.Index, new)
+        setProperty(memory, AnalyzerCommons.Identifiers.Index, new)
     }
 
     /**
      * Restarts the iterator.
      */
-    open fun restart() {
-        setProperty(AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
+    open fun restart(memory: IMemory) {
+        setProperty(memory, AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
     }
 }

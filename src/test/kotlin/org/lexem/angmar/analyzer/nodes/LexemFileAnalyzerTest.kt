@@ -31,7 +31,7 @@ internal class LexemFileAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmNil)
+        context.setProperty(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 

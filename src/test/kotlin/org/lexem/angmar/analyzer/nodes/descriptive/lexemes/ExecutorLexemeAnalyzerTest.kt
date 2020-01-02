@@ -18,8 +18,9 @@ internal class ExecutorLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setPropertyAsContext(varName, LxmNil)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -27,7 +28,7 @@ internal class ExecutorLexemeAnalyzerTest {
         Assertions.assertEquals(5, (result as LxmInteger).primitive, "The returned value is incorrect")
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val varValue = context.getPropertyValue(varName) as? LxmInteger ?: throw Error(
+        val varValue = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The returned value must be a LxmInteger")
         Assertions.assertEquals(5, varValue.primitive, "The returned value is incorrect")
 
@@ -47,7 +48,7 @@ internal class ExecutorLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setPropertyAsContext(varName, LxmNil)
+        context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -55,7 +56,7 @@ internal class ExecutorLexemeAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True, result, "The returned value is incorrect")
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val varValue = context.getPropertyValue(varName) as? LxmInteger ?: throw Error(
+        val varValue = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The returned value must be a LxmInteger")
         Assertions.assertEquals(3, varValue.primitive, "The returned value is incorrect")
 
@@ -74,7 +75,7 @@ internal class ExecutorLexemeAnalyzerTest {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setPropertyAsContext(varName, LxmNil)
+        context.setPropertyAsContext(analyzer.memory, varName, LxmNil)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -82,7 +83,7 @@ internal class ExecutorLexemeAnalyzerTest {
         Assertions.assertEquals(LxmLogic.True, result, "The returned value is incorrect")
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val varValue = context.getPropertyValue(varName) as? LxmInteger ?: throw Error(
+        val varValue = context.getPropertyValue(analyzer.memory, varName) as? LxmInteger ?: throw Error(
                 "The returned value must be a LxmInteger")
         Assertions.assertEquals(3, varValue.primitive, "The returned value is incorrect")
 

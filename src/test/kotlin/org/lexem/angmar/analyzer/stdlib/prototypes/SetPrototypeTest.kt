@@ -52,8 +52,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
 
             Assertions.assertTrue(set.isConstant, "The isConstant property is incorrect")
         }
@@ -109,8 +110,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -144,8 +146,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }
@@ -202,8 +205,9 @@ internal class SetPrototypeTest {
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -257,8 +261,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -269,8 +274,8 @@ internal class SetPrototypeTest {
             }
 
             val accumulator =
-                    context.getDereferencedProperty<LxmInteger>(variableAccumulator, toWrite = false) ?: throw Error(
-                            "The variable must contain a LxmInteger")
+                    context.getDereferencedProperty<LxmInteger>(analyzer.memory, variableAccumulator, toWrite = false)
+                            ?: throw Error("The variable must contain a LxmInteger")
             Assertions.assertEquals(list.sum(), accumulator.primitive, "The variable is incorrect")
         }
     }
@@ -327,8 +332,9 @@ internal class SetPrototypeTest {
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -375,8 +381,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -412,8 +419,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -442,8 +450,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.True, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -479,8 +488,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -525,8 +535,9 @@ internal class SetPrototypeTest {
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -581,8 +592,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(list.sum(), result.primitive, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -642,8 +654,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.from(isOk), result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -677,8 +690,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmLogic.False, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }
@@ -718,8 +732,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -750,8 +765,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size + additionElements.size, set.size, "The result is incorrect")
 
@@ -781,8 +797,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -814,8 +831,9 @@ internal class SetPrototypeTest {
 
             val resultList = list.filter { it != LxmLogic.True }
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(resultList.size, set.size, "The result is incorrect")
 
@@ -857,8 +875,9 @@ internal class SetPrototypeTest {
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             val setValues = set.getAllValues()
             Assertions.assertEquals(list.size, set.size, "The result is incorrect")
 
@@ -886,8 +905,9 @@ internal class SetPrototypeTest {
             Assertions.assertEquals(LxmNil, result, "The result is incorrect")
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-            val set = context.getDereferencedProperty<LxmSet>(variable, toWrite = false) ?: throw Error(
-                    "The variable must contain a LxmSet")
+            val set =
+                    context.getDereferencedProperty<LxmSet>(analyzer.memory, variable, toWrite = false) ?: throw Error(
+                            "The variable must contain a LxmSet")
             Assertions.assertEquals(0, set.size, "The result is incorrect")
         }
     }

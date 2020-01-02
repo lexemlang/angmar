@@ -11,7 +11,7 @@ internal object AnalyzerIteratorCommons {
     /**
      * Creates an iterator from an object.
      */
-    fun createIterator(memory: LexemMemory, value: LexemMemoryValue) = when (value) {
+    fun createIterator(memory: IMemory, value: LexemMemoryValue) = when (value) {
         is LxmString -> LxmStringIterator(memory, value.primitive)
         is LxmInterval -> LxmIntervalIterator(memory, value.primitive)
         is LxmList -> LxmListIterator(memory, value)

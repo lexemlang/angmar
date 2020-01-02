@@ -20,9 +20,9 @@ internal object AnalyzerGlobalObject {
     fun initObject(memory: LexemMemory) {
         val objectValue = LxmObject(memory)
         AnalyzerCommons.getCurrentContext(memory, toWrite = true)
-                .setProperty( ObjectName, objectValue, isConstant = true)
+                .setProperty(memory, ObjectName, objectValue, isConstant = true)
 
         // Properties
-        objectValue.setProperty( RootNode, LxmNil)
+        objectValue.setProperty(memory, RootNode, LxmNil)
     }
 }

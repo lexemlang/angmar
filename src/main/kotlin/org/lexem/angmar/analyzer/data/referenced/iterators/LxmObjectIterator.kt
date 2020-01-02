@@ -14,14 +14,14 @@ internal class LxmObjectIterator : LexemIterator {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, obj: LxmObject) : super(memory) {
-        setProperty(AnalyzerCommons.Identifiers.Value, obj.getPrimitive())
+    constructor(memory: IMemory, obj: LxmObject) : super(memory) {
+        setProperty(memory, AnalyzerCommons.Identifiers.Value, obj.getPrimitive())
 
         keys = obj.getAllIterableProperties().map { it.key }.toList()
         intervalSize = keys.size.toLong()
     }
 
-    private constructor(bigNode: BigNode, oldVersion: LxmObjectIterator) : super(bigNode, oldVersion) {
+    private constructor(memory: IMemory, oldVersion: LxmObjectIterator) : super(memory, oldVersion) {
         this.keys = oldVersion.keys
     }
 
@@ -30,23 +30,24 @@ internal class LxmObjectIterator : LexemIterator {
     /**
      * Gets the iterator's object.
      */
-    private fun getObject() = getDereferencedProperty<LxmObject>(AnalyzerCommons.Identifiers.Value, toWrite = false)!!
+    private fun getObject(memory: IMemory) =
+            getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getCurrent(): Pair<LexemPrimitive?, LexemPrimitive>? {
-        if (isEnded()) {
+    override fun getCurrent(memory: IMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
+        if (isEnded(memory)) {
             return null
         }
 
-        val index = getIndex()
-        val value = getObject()
+        val index = getIndex(memory)
+        val value = getObject(memory)
         val currentKey = keys[index.primitive]
-        val currentValue = value.getPropertyValue(currentKey) ?: LxmNil
+        val currentValue = value.getPropertyValue(memory, currentKey) ?: LxmNil
         return Pair(LxmString.from(currentKey), currentValue)
     }
 
-    override fun memoryClone(bigNode: BigNode) = LxmObjectIterator(bigNode, this)
+    override fun memoryClone(memory: IMemory) = LxmObjectIterator(memory, this)
 
     override fun toString() = "[Iterator - Object] ${super.toString()}"
 }

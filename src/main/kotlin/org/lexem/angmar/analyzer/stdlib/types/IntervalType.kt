@@ -17,9 +17,9 @@ internal object IntervalType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty( TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty( AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
     }
 }

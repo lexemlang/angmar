@@ -1,10 +1,10 @@
-package org.lexem.angmar.analyzer.memory
+package org.lexem.angmar.analyzer.memory.bignode
 
 import org.junit.jupiter.api.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.referenced.*
-import org.lexem.angmar.analyzer.memory.bignode.*
+import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
@@ -18,29 +18,13 @@ internal class BigNodeHeapCellTest {
                 isFreed: Boolean = false) {
             Assertions.assertEquals(position, cell.position, "The position property is incorrect")
             Assertions.assertEquals(value, cell.getValue(toWrite = false), "The value property is incorrect")
-            Assertions.assertEquals(referenceCount, cell.referenceCount, "The referenceCount property is incorrect")
+            Assertions.assertEquals(referenceCount, cell.referenceCount.get(),
+                    "The referenceCount property is incorrect")
             Assertions.assertEquals(isFreed, cell.isFreed, "The isFreed property is incorrect")
         }
     }
 
     // TESTS ------------------------------------------------------------------
-
-    @Test
-    fun `test new`() {
-        val memory = LexemMemory()
-        val emptyObject = LxmObject(memory)
-        val emptyList = LxmList(memory)
-        val cell = BigNodeHeapCell(memory.lastNode, 0, emptyObject)
-
-        checkCell(cell, 0, emptyObject)
-
-        // Check whether the new cell is the same as before to check the reuse of them.
-        val newCell = BigNodeHeapCell(memory.lastNode, 56, emptyList)
-
-        Assertions.assertEquals(cell, newCell, "The cells are not equals")
-        checkCell(newCell, 56, emptyList)
-        checkCell(cell, 56, emptyList)
-    }
 
     @Test
     fun `test get`() {
@@ -54,7 +38,6 @@ internal class BigNodeHeapCellTest {
     @Test
     fun `test set and free by reference count`() {
         val memory = LexemMemory()
-        val bigNode = memory.lastNode
         val emptyList = LxmList(memory)
         val cell0 = emptyList.getPrimitive().getCell(memory, toWrite = true)
 
@@ -91,22 +74,18 @@ internal class BigNodeHeapCellTest {
     fun `test realloc`() {
         val memory = LexemMemory()
         val cell0Value = LxmObject(memory)
-        val cell1Value = LxmList(memory)
 
         val cell0 = cell0Value.getPrimitive().getCell(memory, toWrite = true)
-        val cell1 = cell1Value.getPrimitive().getCell(memory, toWrite = true)
 
-        cell0Value.setProperty("test", cell1Value.getPrimitive())
-        cell0.increaseReferences()
+        checkCell(cell0, 0, cell0Value)
 
-        checkCell(cell0, 0, cell0Value, referenceCount = 1)
-        checkCell(cell1, 1, cell1Value, referenceCount = 1)
+        // Free cell.
+        cell0.freeCell()
 
         // Realloc
-        cell0.reallocCell(cell1Value)
+        cell0.reallocCell(cell0Value)
 
-        checkCell(cell0, 0, cell1Value)
-        checkCell(cell1, 1, null, referenceCount = 2, isFreed = true)
+        checkCell(cell0, 0, cell0Value)
     }
 
     @Test
@@ -114,15 +93,14 @@ internal class BigNodeHeapCellTest {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
         val emptyObject = LxmObject(memory)
-        val emptyList = LxmList(memory)
-        val cell1 = emptyList.getPrimitive().getCell(memory, toWrite = true)
+        val cell0 = emptyObject.getPrimitive().getCell(memory, toWrite = true)
 
-        checkCell(cell1, 1, emptyList)
+        checkCell(cell0, 0, emptyObject)
 
         // Free
-        cell1.freeCell()
+        cell0.freeCell()
 
-        checkCell(cell1, 1, null, referenceCount = bigNode.heapSize, isFreed = true)
+        checkCell(cell0, 0, null, referenceCount = bigNode.heapSize, isFreed = true)
     }
 
     @Test
@@ -179,7 +157,7 @@ internal class BigNodeHeapCellTest {
     @Test
     @Incorrect
     fun `test free a referenced cell`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.ReferencedHeapCellFreed) {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotFreeAReferencedHeapCell) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
             val empty = LxmObject(memory)
@@ -200,6 +178,19 @@ internal class BigNodeHeapCellTest {
             val empty = LxmObject(memory)
             val cell0 = bigNode.allocAndGetHeapCell(empty)
             cell0.decreaseReferences()
+        }
+    }
+
+    @Test
+    @Incorrect
+    fun `test realloc a used cell`() {
+        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
+            val memory = LexemMemory()
+            val bigNode = memory.lastNode
+            val cell0Value = LxmObject(memory)
+            val cell0 = cell0Value.getPrimitive().getCell(bigNode, toWrite = false)
+
+            cell0.reallocCell(cell0Value)
         }
     }
 }

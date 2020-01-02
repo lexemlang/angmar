@@ -28,13 +28,13 @@ internal object MapType {
      */
     fun initType(memory: LexemMemory, prototype: LxmObject) {
         val type = LxmObject(memory)
-        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(TypeName, type, isConstant = true)
+        AnalyzerCommons.getCurrentContext(memory, toWrite = true).setProperty(memory, TypeName, type, isConstant = true)
 
         // Properties
-        type.setProperty(AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
+        type.setProperty(memory, AnalyzerCommons.Identifiers.Prototype, prototype, isConstant = true)
 
         // Methods
-        type.setProperty(Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
+        type.setProperty(memory, Assign, LxmFunction(memory, ::assignFunction), isConstant = true)
     }
 
 
@@ -44,7 +44,8 @@ internal object MapType {
     private fun assignFunction(analyzer: LexemAnalyzer, arguments: LxmArguments, function: LxmFunction,
             signal: Int): Boolean {
         val spreadArguments = mutableListOf<LexemPrimitive>()
-        val parsedArguments = arguments.mapArguments(AssignArgs, spreadPositionalParameter = spreadArguments)
+        val parsedArguments =
+                arguments.mapArguments(analyzer.memory, AssignArgs, spreadPositionalParameter = spreadArguments)
 
         when (signal) {
             AnalyzerNodesCommons.signalCallFunction -> {
@@ -63,7 +64,7 @@ internal object MapType {
                     }
 
                     for ((key, value) in source.getAllProperties()) {
-                        target.setProperty(key, value)
+                        target.setProperty(analyzer.memory, key, value)
                     }
                 }
 

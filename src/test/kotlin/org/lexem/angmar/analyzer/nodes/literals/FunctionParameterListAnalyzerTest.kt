@@ -22,21 +22,22 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val param1 = context.getPropertyValue(param1Id)
-        val param2 = context.getPropertyValue(param2Id)
+        val param1 = context.getPropertyValue(analyzer.memory, param1Id)
+        val param2 = context.getPropertyValue(analyzer.memory, param2Id)
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The $param1Id is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The $param2Id is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -57,23 +58,24 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val positionalSpreadParam =
-                context.getPropertyValue(positionalSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
 
         Assertions.assertEquals(1, positionalSpreadParam.size, "The number of positional params is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, positionalSpreadParam.getCell(0),
                 "The positionalParams[0] is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -94,23 +96,23 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val namedSpreadParam =
-                context.getPropertyValue(namedSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue("named1")!!,
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
                 "The named named1 param is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -134,26 +136,27 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val param1 = context.getPropertyValue("param1")
-        val param2 = context.getPropertyValue("param2")
+        val param1 = context.getPropertyValue(analyzer.memory, "param1")
+        val param2 = context.getPropertyValue(analyzer.memory, "param2")
         val positionalSpreadParam =
-                context.getPropertyValue(positionalSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
 
         Assertions.assertEquals(0, positionalSpreadParam.size, "The number of positional params is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -178,28 +181,28 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val param1 = context.getPropertyValue("param1")
-        val param2 = context.getPropertyValue("param2")
-        val namedSpreadParam =
-                context.getPropertyValue(namedSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+        val param1 = context.getPropertyValue(analyzer.memory, "param1")
+        val param2 = context.getPropertyValue(analyzer.memory, "param2")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
 
         Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue("named1")!!,
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
                 "The named named1 param is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -223,30 +226,30 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val positionalSpreadParam =
-                context.getPropertyValue(positionalSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
-        val namedSpreadParam =
-                context.getPropertyValue(namedSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(1, positionalSpreadParam.size, "The number of positional params is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, positionalSpreadParam.getCell(0),
                 "The positionalParams[0] is incorrect")
 
         Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue("named1")!!,
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
                 "The named named1 param is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference
@@ -272,22 +275,21 @@ internal class FunctionParameterListAnalyzerTest {
 
         // Prepare stack.
         val arguments = LxmArguments(analyzer.memory)
-        arguments.addPositionalArgument(LxmInteger.Num10)
-        arguments.addNamedArgument("named1", LxmInteger.Num10)
-        arguments.addNamedArgument(AnalyzerCommons.Identifiers.This, LxmLogic.True)
+        arguments.addPositionalArgument(analyzer.memory, LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, "named1", LxmInteger.Num10)
+        arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmLogic.True)
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Arguments, arguments)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val param1 = context.getPropertyValue(param1Id)
-        val param2 = context.getPropertyValue(param2Id)
+        val param1 = context.getPropertyValue(analyzer.memory, param1Id)
+        val param2 = context.getPropertyValue(analyzer.memory, param2Id)
         val positionalSpreadParam =
-                context.getPropertyValue(positionalSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmList
-                        ?: throw Error("The positionalSpreadParam must be a LxmList")
-        val namedSpreadParam =
-                context.getPropertyValue(namedSpreadId)?.dereference(analyzer.memory, toWrite = false) as? LxmObject
-                        ?: throw Error("The namedSpreadParam must be a LxmObject")
+                context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
+                        toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
+        val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
+                toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
         Assertions.assertEquals(LxmInteger.Num10, param1, "The $param1Id is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The $param2Id is incorrect")
@@ -295,10 +297,11 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(0, positionalSpreadParam.size, "The number of positional params is incorrect")
 
         Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue("named1")!!,
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
                 "The named named1 param is incorrect")
 
-        Assertions.assertEquals(LxmLogic.True, context.getPropertyValue(AnalyzerCommons.Identifiers.This),
+        Assertions.assertEquals(LxmLogic.True,
+                context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
                 "The ${AnalyzerCommons.Identifiers.This} param is incorrect")
 
         val finalArguments = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.Arguments) as? LxmReference

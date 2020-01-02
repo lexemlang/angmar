@@ -48,7 +48,7 @@ internal object IteratorLoopStmtAnalyzer {
 
                 // Set the index in the context.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-                context.setProperty(indexName.primitive, LxmInteger.Num0)
+                context.setProperty(analyzer.memory, indexName.primitive, LxmInteger.Num0)
 
                 return analyzer.nextNode(node.variable)
             }
@@ -177,7 +177,7 @@ internal object IteratorLoopStmtAnalyzer {
                 // Start again the loop.
                 val iterator = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIterator).dereference(
                         analyzer.memory, toWrite = true) as LexemIterator
-                iterator.restart()
+                iterator.restart(analyzer.memory)
 
                 analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.LoopIndexValue, LxmInteger.Num0)
 
@@ -208,7 +208,7 @@ internal object IteratorLoopStmtAnalyzer {
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
             val indexName = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexName) as LxmString
 
-            context.setProperty(indexName.primitive, newIndex)
+            context.setProperty(analyzer.memory, indexName.primitive, newIndex)
         }
     }
 
@@ -223,13 +223,13 @@ internal object IteratorLoopStmtAnalyzer {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
 
         if (advance) {
-            iterator.advance()
+            iterator.advance(analyzer.memory)
 
             // Increase the current index.
             incrementIterationIndex(analyzer, node)
         }
 
-        if (iterator.isEnded()) {
+        if (iterator.isEnded(analyzer.memory)) {
             val indexValue = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopIndexValue) as LxmInteger
 
             if (node.lastClauses != null) {
@@ -238,7 +238,7 @@ internal object IteratorLoopStmtAnalyzer {
                     analyzer.nextNode(node.lastClauses)
                 } else {
                     // Remove the name of the intermediate statement.
-                    context.removeProperty(AnalyzerCommons.Identifiers.HiddenContextTag)
+                    context.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenContextTag)
 
                     analyzer.memory.addToStackAsLast(LoopClausesStmtAnalyzer.optionForLast)
                     analyzer.nextNode(node.lastClauses)
@@ -250,13 +250,13 @@ internal object IteratorLoopStmtAnalyzer {
             return analyzer.nextNode(node.parent, node.parentSignal)
         }
 
-        val iteratorValue = iterator.getCurrent()!!
+        val iteratorValue = iterator.getCurrent(analyzer.memory)!!
         val value = if (iteratorValue.first == null) {
             iteratorValue.second.dereference(analyzer.memory, toWrite = false)
         } else {
             val obj = LxmObject(analyzer.memory)
-            obj.setProperty(AnalyzerCommons.Identifiers.Key, iteratorValue.first!!)
-            obj.setProperty(AnalyzerCommons.Identifiers.Value, iteratorValue.second)
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Key, iteratorValue.first!!)
+            obj.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Value, iteratorValue.second)
 
             obj
         }
@@ -285,7 +285,7 @@ internal object IteratorLoopStmtAnalyzer {
         } else {
             variable as LxmString
 
-            context.setProperty(variable.primitive, value)
+            context.setProperty(analyzer.memory, variable.primitive, value)
         }
 
         return analyzer.nextNode(node.thenBlock)

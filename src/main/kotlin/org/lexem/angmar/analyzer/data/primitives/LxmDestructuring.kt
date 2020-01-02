@@ -51,13 +51,13 @@ internal class LxmDestructuring : LexemPrimitive {
     /**
      * Destructures an object adding variables in the 'to' object.
      */
-    fun destructureObject(memory: LexemMemory, value: LxmObject, to: LxmObject,
+    fun destructureObject(memory: IMemory, value: LxmObject, to: LxmObject,
             forceConstant: Boolean = false): MutableSet<String> {
         val setVars = mutableSetOf<String>()
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(alias!!, value, isConstant = forceConstant)
+            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
@@ -71,20 +71,21 @@ internal class LxmDestructuring : LexemPrimitive {
         for (property in value.getAllIterableProperties()) {
             if (property.key in elementsAsMap) {
                 val element = elementsAsMap[property.key]!!
-                to.setProperty(element.alias, property.value.value, isConstant = element.isConstant || forceConstant)
+                to.setProperty(memory, element.alias, property.value.value,
+                        isConstant = element.isConstant || forceConstant)
                 setVars.add(element.alias)
             } else {
-                spreadObject.setProperty(property.key, property.value.value)
+                spreadObject.setProperty(memory, property.key, property.value.value)
             }
         }
 
         if (spread != null) {
-            to.setProperty(spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(memory, spread!!.alias, spreadObject, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
             val spreadObjectRef = spreadObject.getPrimitive()
-            spreadObjectRef.increaseReferences(memory.lastNode)
-            spreadObjectRef.decreaseReferences(memory.lastNode)
+            spreadObjectRef.increaseReferences(memory)
+            spreadObjectRef.decreaseReferences(memory)
         }
 
         return setVars
@@ -93,13 +94,13 @@ internal class LxmDestructuring : LexemPrimitive {
     /**
      * Destructures a list adding variables in the 'to' object.
      */
-    fun destructureList(memory: LexemMemory, value: LxmList, to: LxmObject,
+    fun destructureList(memory: IMemory, value: LxmList, to: LxmObject,
             forceConstant: Boolean = false): MutableSet<String> {
         val setVars = mutableSetOf<String>()
 
         // Add global alias.
         if (alias != null) {
-            to.setProperty(alias!!, value, isConstant = forceConstant)
+            to.setProperty(memory, alias!!, value, isConstant = forceConstant)
             setVars.add(alias!!)
         }
 
@@ -109,22 +110,22 @@ internal class LxmDestructuring : LexemPrimitive {
         for (cell in value.getAllCells()) {
             if (index < elements.size) {
                 val element = elements[index]
-                to.setProperty(element.alias, cell, isConstant = element.isConstant || forceConstant)
+                to.setProperty(memory, element.alias, cell, isConstant = element.isConstant || forceConstant)
                 setVars.add(element.alias)
             } else {
-                spreadList.addCell(cell)
+                spreadList.addCell(memory, cell)
             }
 
             index += 1
         }
 
         if (spread != null) {
-            to.setProperty(spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
+            to.setProperty(memory, spread!!.alias, spreadList, isConstant = spread!!.isConstant || forceConstant)
             setVars.add(spread!!.alias)
         } else {
             val spreadListRef = spreadList.getPrimitive()
-            spreadListRef.increaseReferences(memory.lastNode)
-            spreadListRef.decreaseReferences(memory.lastNode)
+            spreadListRef.increaseReferences(memory)
+            spreadListRef.decreaseReferences(memory)
         }
 
         return setVars

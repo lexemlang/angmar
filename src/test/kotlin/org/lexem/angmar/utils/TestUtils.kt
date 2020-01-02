@@ -307,23 +307,26 @@ internal object TestUtils {
 
         // Remove elements from the context.
         StdlibCommons.GlobalNames.forEach {
-            context.removeProperty(it, ignoreConstant = true)
+            context.removeProperty(analyzer.memory, it, ignoreConstant = true)
         }
 
         valuesToRemove?.forEach {
-            if (context.getPropertyValue(it) == null) {
+            if (context.getPropertyValue(analyzer.memory, it) == null) {
                 throw Exception("The context does not contains the property called '$it'")
             }
 
-            context.removeProperty(it, ignoreConstant = true)
+            context.removeProperty(analyzer.memory, it, ignoreConstant = true)
         }
 
-        hiddenContext.removeProperty(AnalyzerCommons.Identifiers.HiddenFileMap, ignoreConstant = true)
-        hiddenContext.removeProperty(AnalyzerCommons.Identifiers.HiddenCurrentContext, ignoreConstant = true)
-        hiddenContext.removeProperty(AnalyzerCommons.Identifiers.HiddenLastResultNode, ignoreConstant = true)
+        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenFileMap, ignoreConstant = true)
+        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContext,
+                ignoreConstant = true)
+        hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                ignoreConstant = true)
 
         if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-            hiddenContext.removeProperty(AnalyzerCommons.Identifiers.HiddenParserMap, ignoreConstant = true)
+            hiddenContext.removeProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenParserMap,
+                    ignoreConstant = true)
         }
 
         // Check whether the context is empty.
@@ -353,16 +356,16 @@ internal object TestUtils {
 
         // Prepare context.
         var context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(varName, LxmNil)
+        context.setProperty(analyzer.memory, varName, LxmNil)
 
         for ((name, value) in initialVars) {
-            context.setProperty(name, value)
+            context.setProperty(analyzer.memory, name, value)
         }
 
         processAndCheckEmpty(analyzer)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val result = context.getPropertyValue(varName)
+        val result = context.getPropertyValue(analyzer.memory, varName)
 
         checkFunction(analyzer, result)
 

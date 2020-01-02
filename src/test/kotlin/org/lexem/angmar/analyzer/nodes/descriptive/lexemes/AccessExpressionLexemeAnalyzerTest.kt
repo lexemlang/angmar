@@ -18,7 +18,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
         // Prepare context.
         val value = LxmInteger.from(5)
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(varName, value)
+        context.setProperty(analyzer.memory, varName, value)
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -40,7 +40,7 @@ internal class AccessExpressionLexemeAnalyzerTest {
 
         // Prepare context.
         val function = LxmFunction(analyzer.memory) { analyzer, arguments, _, _ ->
-            val parserArguments = arguments.mapArguments(emptyList())
+            val parserArguments = arguments.mapArguments(analyzer.memory, emptyList())
 
             val thisValue =
                     parserArguments[AnalyzerCommons.Identifiers.This]?.dereference(analyzer.memory, toWrite = false)
@@ -53,8 +53,9 @@ internal class AccessExpressionLexemeAnalyzerTest {
         }
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty(functionName, function)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        context.setProperty(analyzer.memory, functionName, function)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -84,12 +85,13 @@ internal class AccessExpressionLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val list = LxmList(analyzer.memory)
         for (i in 0 until cellIndex) {
-            list.addCell(LxmNil)
+            list.addCell(analyzer.memory, LxmNil)
         }
 
-        list.addCell(LxmInteger.from(left))
-        context.setProperty(varName, list)
-        context.setProperty(AnalyzerCommons.Identifiers.HiddenCurrentContextName, LxmString.from("test"))
+        list.addCell(analyzer.memory, LxmInteger.from(left))
+        context.setProperty(analyzer.memory, varName, list)
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+                LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
 

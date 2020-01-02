@@ -75,14 +75,16 @@ internal class GroupHeaderLexemAnalyzerTest {
             if (quantifier == null) {
                 Assertions.assertTrue(union.quantifierIsEqualsTo(LxmQuantifier.AlternativePattern),
                         "The quantifier property is incorrect")
-                Assertions.assertEquals(LxmInteger.Num0, union.getIndex(), "The index property is incorrect")
+                Assertions.assertEquals(LxmInteger.Num0, union.getIndex(analyzer.memory),
+                        "The index property is incorrect")
             } else {
                 Assertions.assertTrue(union.quantifierIsEqualsTo(quantifier), "The quantifier property is incorrect")
-                Assertions.assertEquals(LxmInteger.Num0, union.getIndex(), "The index property is incorrect")
+                Assertions.assertEquals(LxmInteger.Num0, union.getIndex(analyzer.memory),
+                        "The index property is incorrect")
             }
 
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            val lxmNodeRef = context.getPropertyValue(AnalyzerCommons.Identifiers.Node)!!
+            val lxmNodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Node)!!
             val lxmNode = lxmNodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
             if (nodeName == null) {
                 Assertions.assertEquals("", lxmNode.name, "The name property is incorrect")
@@ -105,7 +107,7 @@ internal class GroupHeaderLexemAnalyzerTest {
 
             val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
             for ((name, prop) in finalProps) {
-                val actual = props.getDereferencedProperty<LexemMemoryValue>(name, toWrite = false)
+                val actual = props.getDereferencedProperty<LexemMemoryValue>(analyzer.memory, name, toWrite = false)
                 Assertions.assertEquals(prop, actual, "The property called $name is incorrect")
             }
 
@@ -115,10 +117,11 @@ internal class GroupHeaderLexemAnalyzerTest {
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
 
             // Remove the node to avoid circular references.
-            val parentNode = lxmNode.getParent(toWrite = false)!!
-            val parentChildren = parentNode.getChildren(toWrite = false)
-            parentChildren.removeCell(parentChildren.size - 1, ignoreConstant = true)
-            context.setProperty(AnalyzerCommons.Identifiers.Node, lxmNode.getParentReference()!!, ignoreConstant = true)
+            val parentNode = lxmNode.getParent(analyzer.memory, toWrite = false)!!
+            val parentChildren = parentNode.getChildren(analyzer.memory, toWrite = false)
+            parentChildren.removeCell(analyzer.memory, parentChildren.size - 1, ignoreConstant = true)
+            context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node,
+                    lxmNode.getParentReference(analyzer.memory)!!, ignoreConstant = true)
         }
     }
 

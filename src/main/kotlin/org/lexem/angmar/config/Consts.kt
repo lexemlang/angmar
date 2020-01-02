@@ -29,9 +29,9 @@ internal object Consts {
         const val maxPoolSize = 500
         const val heapPageBits = 8
         const val heapPageL1Mask = 0.inv() // 0xFFFFFFFF
-        const val heapPageL2Mask = ((1 shl 8) - 1).inv() // 0xFFFFFF00
-        const val heapPageL3Mask = ((1 shl 16) - 1).inv() // 0xFFFF0000
-        const val heapPageL4Mask = ((1 shl 24) - 1).inv() // 0xFF000000
+        const val heapPageL2Mask = ((1 shl heapPageBits) - 1).inv() // 0xFFFFFF00
+        const val heapPageL3Mask = ((1 shl (heapPageBits * 2)) - 1).inv() // 0xFFFF0000
+        const val heapPageL4Mask = ((1 shl (heapPageBits * 3)) - 1).inv() // 0xFF000000
     }
 
     object Analyzer {

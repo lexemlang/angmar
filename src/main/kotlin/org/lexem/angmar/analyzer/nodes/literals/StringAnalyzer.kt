@@ -36,7 +36,7 @@ internal object StringAnalyzer {
 
                 if (result !is LxmString) {
                     val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-                    val contextName = AnalyzerCommons.getContextName(context)
+                    val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
                     StdlibCommons.callToString(analyzer, result, node, signalEndFirstCallToString + position,
                             contextName.primitive)
 

@@ -27,12 +27,12 @@ internal class LxmListTest {
     fun `test add and get cell`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.addCell(LxmInteger.Num0)
+        old.addCell(memory, LxmInteger.Num0)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(LxmLogic.True, LxmFloat.Num0)
+        new.addCell(memory, LxmLogic.True, LxmFloat.Num0)
 
         Assertions.assertEquals(1, old.size, "The size is incorrect")
         Assertions.assertEquals(3, new.size, "The size is incorrect")
@@ -49,7 +49,7 @@ internal class LxmListTest {
         val list = LxmList(memory)
         list.makeConstant()
 
-        list.addCell(LxmInteger.Num10, ignoreConstant = true)
+        list.addCell(memory, LxmInteger.Num10, ignoreConstant = true)
 
         Assertions.assertEquals(1, list.size, "The size is incorrect")
         Assertions.assertEquals(LxmInteger.Num10, list.getCell(0), "The cell[0] is incorrect")
@@ -59,12 +59,12 @@ internal class LxmListTest {
     fun `test insert cell`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.insertCell(0, LxmInteger.Num0, LxmInteger.Num10)
+        old.insertCell(memory, 0, LxmInteger.Num0, LxmInteger.Num10)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.insertCell(1, LxmInteger.Num1, LxmInteger.Num2)
+        new.insertCell(memory, 1, LxmInteger.Num1, LxmInteger.Num2)
         new.getAllCells()
 
         Assertions.assertEquals(2, old.size, "The size is incorrect")
@@ -82,13 +82,13 @@ internal class LxmListTest {
     fun `test insert cell ignoring constant`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.insertCell(0, LxmInteger.Num0, LxmInteger.Num10)
+        old.insertCell(memory, 0, LxmInteger.Num0, LxmInteger.Num10)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
         new.makeConstant()
-        new.insertCell(1, LxmInteger.Num1, LxmInteger.Num2, ignoreConstant = true)
+        new.insertCell(memory, 1, LxmInteger.Num1, LxmInteger.Num2, ignoreConstant = true)
         new.getAllCells()
 
         Assertions.assertEquals(2, old.size, "The size is incorrect")
@@ -106,12 +106,12 @@ internal class LxmListTest {
     fun `test replace cells - removing less`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.replaceCell(0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
+        old.replaceCell(memory, 0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.replaceCell(1, 1, LxmLogic.True, LxmLogic.False)
+        new.replaceCell(memory, 1, 1, LxmLogic.True, LxmLogic.False)
         new.getAllCells()
 
         Assertions.assertEquals(4, old.size, "The size is incorrect")
@@ -131,12 +131,12 @@ internal class LxmListTest {
     fun `test replace cells - removing more`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.replaceCell(0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
+        old.replaceCell(memory, 0, 0, LxmInteger.Num0, LxmInteger.Num1, LxmInteger.Num2, LxmInteger.Num10)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.replaceCell(1, 2, LxmLogic.True)
+        new.replaceCell(memory, 1, 2, LxmLogic.True)
         new.getAllCells()
 
         Assertions.assertEquals(4, old.size, "The size is incorrect")
@@ -154,15 +154,15 @@ internal class LxmListTest {
     fun `test set cell`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.addCell(LxmInteger.Num0)
+        old.addCell(memory, LxmInteger.Num0)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(LxmLogic.True)
+        new.addCell(memory, LxmLogic.True)
 
-        new.setCell(0, LxmInteger.Num10)
-        new.setCell(1, LxmInteger.Num_1)
+        new.setCell(memory, 0, LxmInteger.Num10)
+        new.setCell(memory, 1, LxmInteger.Num_1)
 
         Assertions.assertEquals(1, old.size, "The size is incorrect")
         Assertions.assertEquals(2, new.size, "The size is incorrect")
@@ -176,15 +176,15 @@ internal class LxmListTest {
     fun `test remove cell`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.addCell(LxmInteger.Num0)
+        old.addCell(memory, LxmInteger.Num0)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(LxmLogic.True)
+        new.addCell(memory, LxmLogic.True)
 
-        new.removeCell(1)
-        new.removeCell(0)
+        new.removeCell(memory, 1)
+        new.removeCell(memory, 0)
 
         Assertions.assertEquals(1, old.size, "The size is incorrect")
         Assertions.assertEquals(1, old.size, "The currentListSize is incorrect")
@@ -199,9 +199,9 @@ internal class LxmListTest {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
         val obj = LxmObject(memory)
-        list.addCell(obj)
+        list.addCell(memory, obj)
 
-        list.removeCell(0)
+        list.removeCell(memory, 0)
 
         Assertions.assertEquals(0, list.size, "The size is incorrect")
         Assertions.assertEquals(0, list.size, "The currentListSize is incorrect")
@@ -214,12 +214,12 @@ internal class LxmListTest {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
         val obj = LxmObject(memory)
-        list.addCell(LxmInteger.Num0)
-        list.addCell(LxmLogic.True)
-        list.addCell(obj)
-        list.addCell(LxmInteger.Num2)
+        list.addCell(memory, LxmInteger.Num0)
+        list.addCell(memory, LxmLogic.True)
+        list.addCell(memory, obj)
+        list.addCell(memory, LxmInteger.Num2)
 
-        list.removeCell(1, 2)
+        list.removeCell(memory, 1, 2)
 
         Assertions.assertEquals(2, list.size, "The size is incorrect")
         Assertions.assertEquals(2, list.size, "The currentListSize is incorrect")
@@ -233,10 +233,10 @@ internal class LxmListTest {
     fun `test remove cell ignoring constant`() {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
-        list.addCell(LxmInteger.Num0)
+        list.addCell(memory, LxmInteger.Num0)
         list.makeConstant()
 
-        list.removeCell(0, ignoreConstant = true)
+        list.removeCell(memory, 0, ignoreConstant = true)
 
         Assertions.assertEquals(0, list.size, "The size is incorrect")
     }
@@ -245,17 +245,17 @@ internal class LxmListTest {
     fun `test get all cells`() {
         val memory = TestUtils.generateTestMemory()
         val old = LxmList(memory)
-        old.addCell(LxmInteger.Num0)
+        old.addCell(memory, LxmInteger.Num0)
 
         TestUtils.freezeCopy(memory)
 
         val old2 = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        old2.addCell(LxmInteger.Num10)
+        old2.addCell(memory, LxmInteger.Num10)
 
         TestUtils.freezeCopy(memory)
 
         val new = old2.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(LxmLogic.True)
+        new.addCell(memory, LxmLogic.True)
 
         val cells = new.getAllCells().toList()
 
@@ -327,20 +327,20 @@ internal class LxmListTest {
         list.getPrimitive().increaseReferences(memory.lastNode)
 
         val old = LxmList(memory)
-        old.addCell(LxmLogic.True)
-        old.addCell(list)
+        old.addCell(memory, LxmLogic.True)
+        old.addCell(memory, list)
 
         TestUtils.freezeCopy(memory)
 
         val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(LxmLogic.True)
-        new.addCell(list)
+        new.addCell(memory, LxmLogic.True)
+        new.addCell(memory, list)
         val newListCell = memory.lastNode.getHeapCell(list.getPrimitive().position, toWrite = false)
 
         Assertions.assertEquals(4, new.size, "The size property is incorrect")
         Assertions.assertEquals(3, newListCell.referenceCount, "The referenceCount property is incorrect")
 
-        new.memoryDealloc()
+        new.memoryDealloc(memory)
 
         Assertions.assertEquals(0, new.size, "The size property is incorrect")
         Assertions.assertEquals(1, newListCell.referenceCount, "The referenceCount property is incorrect")
@@ -353,11 +353,11 @@ internal class LxmListTest {
         val list1 = LxmList(memory)
         val list2 = LxmList(memory)
 
-        list1.addCell(list2)
+        list1.addCell(memory, list2)
         list1.makeConstantAndNotWritable()
         list1.getPrimitive().increaseReferences(memory.lastNode)
 
-        list1.memoryDealloc()
+        list1.memoryDealloc(memory)
 
         Assertions.assertTrue(list2.getPrimitive().getCell(memory, toWrite = false).isFreed,
                 "The object has not been dealloc")
@@ -372,7 +372,7 @@ internal class LxmListTest {
         val list = LxmList(memory)
         val type = list.getType(memory)
         val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
-        val listType = context.getPropertyValue(ListType.TypeName)!!
+        val listType = context.getPropertyValue(memory, ListType.TypeName)!!
         Assertions.assertTrue(RelationalFunctions.identityEquals(type, listType), "The type is incorrect")
     }
 
@@ -382,10 +382,10 @@ internal class LxmListTest {
         val memory = analyzer.memory
 
         val list = LxmList(memory)
-        val result = list.getPrototype()
+        val result = list.getPrototype(memory)
         val context = AnalyzerCommons.getCurrentContext(memory, toWrite = false)
-        val listType = context.getDereferencedProperty<LxmObject>(ListType.TypeName, toWrite = false)!!
-        val prototype = listType.getPropertyValue(AnalyzerCommons.Identifiers.Prototype)!!
+        val listType = context.getDereferencedProperty<LxmObject>(memory, ListType.TypeName, toWrite = false)!!
+        val prototype = listType.getPropertyValue(memory, AnalyzerCommons.Identifiers.Prototype)!!
         Assertions.assertTrue(RelationalFunctions.identityEquals(prototype, result), "The result is incorrect")
     }
 
@@ -396,7 +396,7 @@ internal class LxmListTest {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
             list.makeConstant()
-            list.addCell(LxmLogic.True)
+            list.addCell(memory, LxmLogic.True)
         }
     }
 
@@ -406,9 +406,9 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.addCell(LxmLogic.True)
+            list.addCell(memory, LxmLogic.True)
             list.makeConstant()
-            list.setCell(0, LxmLogic.False)
+            list.setCell(memory, 0, LxmLogic.False)
         }
     }
 
@@ -418,7 +418,7 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.setCell(0, LxmLogic.False)
+            list.setCell(memory, 0, LxmLogic.False)
         }
     }
 
@@ -428,9 +428,9 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAConstantList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.addCell(LxmLogic.True)
+            list.addCell(memory, LxmLogic.True)
             list.makeConstant()
-            list.removeCell(0)
+            list.removeCell(memory, 0)
         }
     }
 
@@ -440,7 +440,7 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.removeCell(0)
+            list.removeCell(memory, 0)
         }
     }
 
@@ -452,7 +452,7 @@ internal class LxmListTest {
             val list = LxmList(memory)
 
             list.makeConstantAndNotWritable()
-            list.addCell(LxmNil, ignoreConstant = true)
+            list.addCell(memory, LxmNil, ignoreConstant = true)
         }
     }
 
@@ -462,10 +462,10 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.addCell(LxmLogic.True)
+            list.addCell(memory, LxmLogic.True)
 
             list.makeConstantAndNotWritable()
-            list.removeCell(0, ignoreConstant = true)
+            list.removeCell(memory, 0, ignoreConstant = true)
         }
     }
 
@@ -475,10 +475,10 @@ internal class LxmListTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyANonWritableList) {
             val memory = TestUtils.generateTestMemory()
             val list = LxmList(memory)
-            list.addCell(LxmLogic.True)
+            list.addCell(memory, LxmLogic.True)
 
             list.makeConstantAndNotWritable()
-            list.insertCell(0, LxmNil, ignoreConstant = true)
+            list.insertCell(memory, 0, LxmNil, ignoreConstant = true)
         }
     }
 }

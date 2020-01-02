@@ -12,12 +12,12 @@ internal interface LexemPrimitive : LexemMemoryValue {
     /**
      * Increase the internal references of the primitive.
      */
-    fun increaseReferences(bigNode: BigNode) = Unit
+    fun increaseReferences(memory: IMemory) = Unit
 
     /**
      * Decrease the internal references of the primitive.
      */
-    fun decreaseReferences(bigNode: BigNode) = Unit
+    fun decreaseReferences(memory: IMemory) = Unit
 
     /**
      * Gets the hash of the current value.
@@ -29,7 +29,7 @@ internal interface LexemPrimitive : LexemMemoryValue {
      */
     override fun getPrimitive() = this
 
-    override fun getType(bigNode: BigNode): LxmReference = throw AngmarUnreachableException()
+    override fun getType(memory: IMemory): LxmReference = throw AngmarUnreachableException()
 
-    override fun getPrototype(bigNode: BigNode): LxmReference = throw AngmarUnreachableException()
+    override fun getPrototype(memory: IMemory): LxmReference = throw AngmarUnreachableException()
 }

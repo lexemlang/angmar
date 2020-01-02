@@ -27,7 +27,7 @@ internal class BigNodeHeap(val bigNode: BigNode) {
     /**
      * The mask for a [BigNodeHeap].
      */
-    private val mask get() = 1 shl Consts.Memory.heapPageL4Mask
+    private val mask get() = Consts.Memory.heapPageL4Mask
 
     // METHODS ----------------------------------------------------------------
 
@@ -54,6 +54,11 @@ internal class BigNodeHeap(val bigNode: BigNode) {
      * Sets a [BigNodeHeapCell].
      */
     fun setCell(newCell: BigNodeHeapCell) {
+        if (newCell.bigNode != bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink,
+                    "Cannot set a cell into a page with different bigNode.") {}
+        }
+
         val index = newCell.position and mask
         clonePages()
 
@@ -77,6 +82,11 @@ internal class BigNodeHeap(val bigNode: BigNode) {
      * Clones this [BigNodeHeap].
      */
     fun clone(newBigNode: BigNode): BigNodeHeap {
+        if (newBigNode == bigNode) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
+                    "Cannot the heap over the same bigNode.") {}
+        }
+
         val res = BigNodeHeap(newBigNode)
         res.isPagesCloned = false
         res.pages = pages
@@ -97,6 +107,6 @@ internal class BigNodeHeap(val bigNode: BigNode) {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun toString() = "[Heap] Size: $size"
+    override fun toString() = "[Heap] Cells: $cellCount, Pages: $size"
 }
 

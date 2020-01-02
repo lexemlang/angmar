@@ -26,8 +26,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -55,8 +55,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -125,8 +125,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -157,8 +157,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -204,8 +204,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -236,8 +236,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -283,8 +283,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
@@ -315,8 +315,8 @@ internal class InfiniteLoopStmtAnalyzerTest {
 
         // Prepare context.
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-        context.setProperty( varName, LxmInteger.from(initialValue))
-        context.setProperty( AnalyzerCommons.Identifiers.HiddenCurrentContextName,
+        context.setProperty(analyzer.memory, varName, LxmInteger.from(initialValue))
+        context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
         TestUtils.processAndCheckEmpty(analyzer)
