@@ -70,3 +70,8 @@ fun String.toUnicodeUppercase() = (0 until Character.codePointCount(this, 0, thi
  * Transforms a [Char] to lowercase following the Unicode rules.
  */
 fun Char.toUnicodeUppercase() = Character.toUpperCase(this)
+
+/**
+ * Returns a new mutable map containing all key-value pairs from the original map.
+ */
+fun <K, V> Map<out K, V>.toHashMap(): HashMap<K, V> = HashMap(this)

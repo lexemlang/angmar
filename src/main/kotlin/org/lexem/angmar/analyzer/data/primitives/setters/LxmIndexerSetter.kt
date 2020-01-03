@@ -19,13 +19,10 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerCompiled, memory: LexemMemory) {
+    constructor(memory: IMemory, element: LexemMemoryValue, index: LexemMemoryValue, node: IndexerCompiled) {
         this.element = element.getPrimitive()
         this.index = index.getPrimitive()
         this.node = node
-
-        this.element.increaseReferences(memory)
-        this.index.increaseReferences(memory)
 
         // Check the types.
         when (element) {
@@ -113,7 +110,7 @@ internal class LxmIndexerSetter : LexemSetter {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
+    override fun getSetterPrimitive(memory: IMemory): LexemPrimitive {
         val element = element.dereference(memory, toWrite = false)
         val index = index
 
@@ -177,12 +174,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -198,7 +195,7 @@ internal class LxmIndexerSetter : LexemSetter {
                     }
                 }
 
-                element.getCell(memory, primitive)!!
+                element.getCell(primitive)!!
             }
             is LxmObject -> {
                 index as LxmString
@@ -206,13 +203,13 @@ internal class LxmIndexerSetter : LexemSetter {
                 element.getPropertyValue(memory, index.primitive) ?: LxmNil
             }
             is LxmMap -> {
-                element.getPropertyValue(memory, index) ?: LxmNil
+                element.getPropertyValue(index) ?: LxmNil
             }
             else -> throw AngmarUnreachableException()
         }
     }
 
-    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
+    override fun setSetterValue(memory: IMemory, value: LexemMemoryValue) {
         val element = element.dereference(memory, toWrite = true)
         val index = index
 
@@ -221,12 +218,12 @@ internal class LxmIndexerSetter : LexemSetter {
                 index as LxmInteger
 
                 val primitive = if (index.primitive < 0) {
-                    element.actualListSize + index.primitive
+                    element.size + index.primitive
                 } else {
                     index.primitive
                 }
 
-                if (primitive < 0 || primitive >= element.actualListSize) {
+                if (primitive < 0 || primitive >= element.size) {
                     throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IndexOutOfBounds,
                             "Cannot access to the character at $primitive.") {
                         val fullText = node.parser.reader.readAllText()
@@ -256,19 +253,19 @@ internal class LxmIndexerSetter : LexemSetter {
         }
     }
 
-    override fun increaseReferences(memory: LexemMemory) {
+    override fun increaseReferences(memory: IMemory) {
         element.increaseReferences(memory)
         index.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
+    override fun decreaseReferences(memory: IMemory) {
         element.decreaseReferences(memory)
         index.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        element.spatialGarbageCollect(memory, gcFifo)
-        index.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        element.spatialGarbageCollect(gcFifo)
+        index.spatialGarbageCollect(gcFifo)
     }
 
     override fun toString() = "[Setter - Indexer] (element: $element, index: $index)"

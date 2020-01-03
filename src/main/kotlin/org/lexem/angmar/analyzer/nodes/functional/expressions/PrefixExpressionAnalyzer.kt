@@ -62,7 +62,7 @@ internal object PrefixExpressionAnalyzer {
 
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val contextName = AnalyzerCommons.getContextName(analyzer.memory, context)
-        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments, node,
+        return AnalyzerNodesCommons.callFunction(analyzer, operatorFunctionRef, arguments,
                 LxmCodePoint(node, signalEndOperator, callerNode = node, callerContextName = contextName.primitive))
     }
 }

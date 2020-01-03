@@ -49,13 +49,12 @@ internal object VarPatternSelectiveStmtAnalyzer {
                         }
                     }
 
-                    context.setPropertyAsContext(analyzer.memory, identifier.primitive, mainValue,
-                            isConstant = node.isConstant)
+                    context.setProperty(analyzer.memory, identifier.primitive, mainValue, isConstant = node.isConstant)
                 }
                 // Perform the destructuring.
                 else {
                     identifier as LxmDestructuring
-                    
+
                     when (val derefValue = mainValue.dereference(analyzer.memory, toWrite = false)) {
                         is LxmObject -> identifier.destructureObject(analyzer.memory, derefValue, context,
                                 node.isConstant)

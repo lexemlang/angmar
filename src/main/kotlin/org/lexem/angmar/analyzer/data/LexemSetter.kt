@@ -10,17 +10,17 @@ internal interface LexemSetter : LexemPrimitive {
     /**
      * Gets a direct reference to the value of the setter.
      */
-    fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive
+    fun getSetterPrimitive(memory: IMemory): LexemPrimitive
 
     /**
      * Sets a value in the setter.
      */
-    fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue)
+    fun setSetterValue(memory: IMemory, value: LexemMemoryValue)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun dereference(memory: LexemMemory, toWrite: Boolean) =
-            getSetterPrimitive(memory).dereference(memory, toWrite = true)
+    override fun dereference(memory: IMemory, toWrite: Boolean) =
+            getSetterPrimitive(memory).dereference(memory, toWrite)
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 }

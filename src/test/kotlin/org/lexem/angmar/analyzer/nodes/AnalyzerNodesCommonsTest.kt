@@ -22,7 +22,7 @@ internal class AnalyzerNodesCommonsTest {
         val function = LxmFunction(analyzer.memory) { _, _, _, _ -> true }
 
         val returnSignal = 45
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, CompiledNode.Companion.EmptyCompiledNode,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(CompiledNode.Companion.EmptyCompiledNode, returnSignal,
                         CompiledNode.Companion.EmptyCompiledNode, ""))
 

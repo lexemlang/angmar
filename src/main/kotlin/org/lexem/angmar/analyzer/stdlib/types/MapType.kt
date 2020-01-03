@@ -63,10 +63,8 @@ internal object MapType {
                                 "The '$TypeName${AccessExplicitMemberNode.accessToken}$Assign' method requires that all its source parameters be a $TypeName") {}
                     }
 
-                    for ((_, propList) in source.getAllProperties()) {
-                        for (prop in propList) {
-                            target.setProperty(analyzer.memory, prop.key, prop.value)
-                        }
+                    for ((key, value) in source.getAllProperties()) {
+                        target.setProperty(analyzer.memory, key, value)
                     }
                 }
 

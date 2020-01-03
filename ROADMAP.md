@@ -8,6 +8,10 @@ This is the plan to work towards a future release.
 
 ---------------
 - Test:
+├── LxmMap
+├── LxmObject
+├── LxmList
+├── LxmSet
 ├── descriptive
 │   ├── LexemePatternContentCompiled.kt
 │   ├── lexemes
@@ -40,18 +44,13 @@ This is the plan to work towards a future release.
 │   └── UnicodeIntervalSubIntervalCompiled.kt
 ---------------
 
-- Optimize the node reference using a double linked list of children.
-  - Add left and right properties to children.
-  - Add size, firstChild and lastChild to parent.
-- Make the spatial garbage collector async.
-  - Mark objects as garbage when they reach 0 references.
-  - Execute over the first frozen node and move forward marking them as clean.
-  - Ignore the nodes that are marked to be collapsed.
-- Make the temporal garbage collector async.
-  - Collapse all contiguous bigNodes that are already alive.
-  - The object probably will need an index instead of a bigNode reference to avoid problems when they are moved backwards.
-    - Use an incremental identifier for bigNodes so always newer nodes are greater than older ones.
-    - If the index is greater than the current bigNode, it is ok.
 - Check what is public of the library.
 - Check whether the hidden properties are serializable with a test.
 - Protect the indexer to access hidden properties.
+- Async garbage collector for the previous BigNodes. No problems. Avoid to continue if it is recovered.
+- Async garbage collector for the current one??. No, problems with concurrency during removing.
+- Async removal of 0-referenced values??.
+
+17 - 24 - 36 - 40
+
++1 - +2 - -1 - -2

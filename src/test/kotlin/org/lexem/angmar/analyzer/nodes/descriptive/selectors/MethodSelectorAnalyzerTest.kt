@@ -26,7 +26,7 @@ internal class MethodSelectorAnalyzerTest {
         val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
         if (!isOk) {
             val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-            lxmNode.addToParent(analyzer.memory, lxmParent)
+            lxmParent.addChild(analyzer.memory, lxmNode)
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
         } else {
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmParent)
@@ -41,8 +41,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (!isOk) {
-            lxmParent.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            lxmParent.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(
+                    analyzer.memory)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -61,13 +61,15 @@ internal class MethodSelectorAnalyzerTest {
 
         if (!isOk) {
             val lxmChild = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
-            lxmNode.getChildren(analyzer.memory, toWrite = true)
-                    .addCell(analyzer.memory, lxmChild, ignoreConstant = true)
+            lxmNode.addChild(analyzer.memory, lxmChild)
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(isOk), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -77,7 +79,7 @@ internal class MethodSelectorAnalyzerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = [0, 1, 2])
+    @ValueSource(ints = [1, 2])
     fun `test firstChild method with condition`(type: Int) {
         val methodName = AnalyzerCommons.SelectorMethods.FirstChild
         val grammar = "${MethodSelectorNode.relationalToken}$methodName"
@@ -85,19 +87,13 @@ internal class MethodSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmParent = when (type) {
-            // Incorrect - no parent
-            0 -> {
-                val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
-                null
-            }
             // Incorrect - no first
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNodeAux = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNodeAux.addToParent(analyzer.memory, lxmParent)
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNodeAux)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -106,34 +102,30 @@ internal class MethodSelectorAnalyzerTest {
             2 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
             }
-            else -> {
-                null
-            }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
 
+        // Remove cyclic references.
+        lxmParent?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
+
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
         analyzer.memory.removeLastFromStack()
-
-        if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
-        }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
 
     @ParameterizedTest
-    @ValueSource(ints = [0, 1, 2])
+    @ValueSource(ints = [1, 2])
     fun `test lastChild method with condition`(type: Int) {
         val methodName = AnalyzerCommons.SelectorMethods.LastChild
         val grammar = "${MethodSelectorNode.relationalToken}$methodName"
@@ -141,19 +133,13 @@ internal class MethodSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmParent = when (type) {
-            // Incorrect - no parent
-            0 -> {
-                val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
-                null
-            }
             // Incorrect - no last
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNodeAux = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
-                lxmNodeAux.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
+                lxmParent.addChild(analyzer.memory, lxmNodeAux)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -162,28 +148,24 @@ internal class MethodSelectorAnalyzerTest {
             2 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
             }
-            else -> {
-                null
-            }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
 
+        // Remove cyclic references.
+        lxmParent?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
+
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
         analyzer.memory.removeLastFromStack()
-
-        if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
-        }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -199,22 +181,26 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        if (isOk) {
+        val lxmNode = if (isOk) {
             val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
             val lxmNodeAux = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-            lxmNode.getChildren(analyzer.memory, toWrite = true)
-                    .addCell(analyzer.memory, lxmNodeAux, ignoreConstant = true)
+            lxmNode.addChild(analyzer.memory, lxmNodeAux)
 
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+            lxmNode
         } else {
             val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
 
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+            lxmNode
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(isOk), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -245,7 +231,7 @@ internal class MethodSelectorAnalyzerTest {
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -255,29 +241,25 @@ internal class MethodSelectorAnalyzerTest {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNodeAux = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNodeAux.addToParent(analyzer.memory, lxmParent)
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNodeAux)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
             }
-            else -> {
-                null
-            }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
 
+        // Remove cyclic references.
+        lxmParent?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
+
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
         analyzer.memory.removeLastFromStack()
-
-        if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
-        }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -306,7 +288,7 @@ internal class MethodSelectorAnalyzerTest {
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
@@ -316,7 +298,7 @@ internal class MethodSelectorAnalyzerTest {
             2 -> {
                 val lxmParent = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
 
@@ -334,8 +316,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(
+                    analyzer.memory)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -353,39 +335,44 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        when (type) {
+        val lxmNode = when (type) {
             // Correct - no children
             0 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Correct - all with the name
             1 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Incorrect - one without the name
             2 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type != 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -406,39 +393,44 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        when (type) {
+        val lxmNode = when (type) {
             // Incorrect - no children
             0 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Incorrect - no one with the name
             1 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Correct - one with name
             2 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -502,7 +494,7 @@ internal class MethodSelectorAnalyzerTest {
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -511,7 +503,7 @@ internal class MethodSelectorAnalyzerTest {
             2 -> {
                 val lxmParent = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -530,8 +522,8 @@ internal class MethodSelectorAnalyzerTest {
         analyzer.memory.removeLastFromStack()
 
         if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(
+                    analyzer.memory)
         }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
@@ -548,39 +540,44 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        when (type) {
+        val lxmNode = when (type) {
             // Correct - no children
             0 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Correct - all with the name
             1 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Incorrect - one without the name
             2 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type != 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -600,39 +597,44 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        when (type) {
+        val lxmNode = when (type) {
             // Incorrect - no children
             0 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Incorrect - no one with the name
             1 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Correct - one with name
             2 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -652,17 +654,22 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        if (isOk) {
+        val lxmNode = if (isOk) {
             val lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+            lxmNode
         } else {
             val lxmNode = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+            lxmNode
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(isOk), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -684,13 +691,15 @@ internal class MethodSelectorAnalyzerTest {
 
         if (isOk) {
             val lxmChild = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
-            lxmNode.getChildren(analyzer.memory, toWrite = true)
-                    .addCell(analyzer.memory, lxmChild, ignoreConstant = true)
+            lxmNode.addChild(analyzer.memory, lxmChild)
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(isOk), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
@@ -700,7 +709,7 @@ internal class MethodSelectorAnalyzerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = [0, 1, 2])
+    @ValueSource(ints = [1, 2])
     fun `test negated method with condition`(type: Int) {
         val methodName = AnalyzerCommons.SelectorMethods.FirstChild
         val grammar = "${MethodSelectorNode.relationalToken}${MethodSelectorNode.notOperator}$methodName"
@@ -708,19 +717,13 @@ internal class MethodSelectorAnalyzerTest {
 
         // Prepare stack.
         val lxmParent = when (type) {
-            // Incorrect - no parent
-            0 -> {
-                val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
-                null
-            }
             // Incorrect - no first
             1 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNodeAux = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNodeAux.addToParent(analyzer.memory, lxmParent)
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNodeAux)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
@@ -729,28 +732,24 @@ internal class MethodSelectorAnalyzerTest {
             2 -> {
                 val lxmParent = LxmNode(analyzer.memory, "root", analyzer.text.saveCursor())
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
-                lxmNode.addToParent(analyzer.memory, lxmParent)
+                lxmParent.addChild(analyzer.memory, lxmNode)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
                 lxmParent
             }
-            else -> {
-                null
-            }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
+
+        // Remove cyclic references.
+        lxmParent?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
 
         Assertions.assertEquals(LxmLogic.from(type != 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)
         analyzer.memory.removeLastFromStack()
-
-        if (type != 0) {
-            lxmParent!!.getPrimitive().dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)!!.setProperty(
-                    analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
-        }
 
         TestUtils.checkEmptyStackAndContext(analyzer)
     }
@@ -766,39 +765,44 @@ internal class MethodSelectorAnalyzerTest {
         val analyzer = TestUtils.createAnalyzerFrom(grammar, parserFunction = MethodSelectorNode.Companion::parse)
 
         // Prepare stack.
-        when (type) {
+        val lxmNode = when (type) {
             // Correct - no children
             0 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Correct - all with the name
             1 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
             // Incorrect - one without the name
             2 -> {
                 val lxmNode = LxmNode(analyzer.memory, "nodeName", analyzer.text.saveCursor())
                 val lxmAux1 = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                 val lxmAux2 = LxmNode(analyzer.memory, nodeName + "x", analyzer.text.saveCursor())
-                val children = lxmNode.getChildren(analyzer.memory, toWrite = true)
-                children.addCell(analyzer.memory, lxmAux1, ignoreConstant = true)
-                children.addCell(analyzer.memory, lxmAux2, ignoreConstant = true)
+                lxmNode.addChild(analyzer.memory, lxmAux1)
+                lxmNode.addChild(analyzer.memory, lxmAux2)
 
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, lxmNode)
+                lxmNode
             }
+            else -> null
         }
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         Assertions.assertEquals(LxmLogic.from(type == 2), analyzer.memory.getLastFromStack(), "The result is incorrect")
+
+        // Remove cyclic references.
+        lxmNode?.getPrimitive()?.dereferenceAs<LxmNode>(analyzer.memory, toWrite = true)?.clearBranch(analyzer.memory)
 
         // Remove Node and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Node)

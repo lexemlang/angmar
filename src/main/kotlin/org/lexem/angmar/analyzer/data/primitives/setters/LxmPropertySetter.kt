@@ -17,22 +17,20 @@ internal class LxmPropertySetter : LexemSetter {
 
     // CONSTRUCTOR ------------------------------------------------------------
 
-    constructor(value: LexemPrimitive, property: String, node: CompiledNode, memory: LexemMemory) {
+    constructor(memory: IMemory, value: LexemPrimitive, property: String, node: CompiledNode) {
         this.value = value.getPrimitive()
         this.property = property
         this.node = node
-
-        this.value.increaseReferences(memory)
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getSetterPrimitive(memory: LexemMemory): LexemPrimitive {
+    override fun getSetterPrimitive(memory: IMemory): LexemPrimitive {
         val value = value.dereference(memory, toWrite = false)
         val obj = value.getObjectOrPrototype(memory, toWrite = false)
 
         return obj.getPropertyValue(memory, property) ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called \"$property\" in object.") {
+                AngmarAnalyzerExceptionType.IncompatibleType, "Undefined property called '$property' in object.") {
             val fullText = node.parser.reader.readAllText()
             addSourceCode(fullText, node.parser.reader.getSource()) {
                 title = Consts.Logger.hintTitle
@@ -42,7 +40,7 @@ internal class LxmPropertySetter : LexemSetter {
         }
     }
 
-    override fun setSetterValue(memory: LexemMemory, value: LexemMemoryValue) {
+    override fun setSetterValue(memory: IMemory, value: LexemMemoryValue) {
         val obj = this.value.dereference(memory, toWrite = true)
 
         if (obj !is LxmObject) {
@@ -60,16 +58,16 @@ internal class LxmPropertySetter : LexemSetter {
         obj.setProperty(memory, property, value)
     }
 
-    override fun increaseReferences(memory: LexemMemory) {
+    override fun increaseReferences(memory: IMemory) {
         value.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
+    override fun decreaseReferences(memory: IMemory) {
         value.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        value.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        value.spatialGarbageCollect(gcFifo)
     }
 
     override fun toString() = "[Setter - Property] (value: $value, property: $property)"

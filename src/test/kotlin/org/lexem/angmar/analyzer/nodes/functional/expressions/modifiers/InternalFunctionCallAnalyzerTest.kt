@@ -68,7 +68,7 @@ internal class InternalFunctionCallAnalyzerTest {
                     val arguments = LxmArguments(analyzer.memory)
                     arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
 
-                    AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+                    AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                             LxmCodePoint(InternalFunctionCallCompiled, 1, CompiledNode.Companion.EmptyCompiledNode, ""))
 
                     return@LxmFunction false

@@ -94,8 +94,7 @@ internal object VarDeclarationStmtAnalyzer {
                 } else {
                     identifier as LxmString
 
-                    context.setPropertyAsContext(analyzer.memory, identifier.primitive, value,
-                            isConstant = node.isConstant)
+                    context.setProperty(analyzer.memory, identifier.primitive, value, isConstant = node.isConstant)
 
                     // Add it to the exports if the parent is a public macro.
                     if (node.parent is PublicMacroStmtCompiled) {

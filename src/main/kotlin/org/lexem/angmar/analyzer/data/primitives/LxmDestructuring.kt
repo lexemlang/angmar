@@ -51,7 +51,7 @@ internal class LxmDestructuring : LexemPrimitive {
     /**
      * Destructures an object adding variables in the 'to' object.
      */
-    fun destructureObject(memory: LexemMemory, value: LxmObject, to: LxmObject,
+    fun destructureObject(memory: IMemory, value: LxmObject, to: LxmObject,
             forceConstant: Boolean = false): MutableSet<String> {
         val setVars = mutableSetOf<String>()
 
@@ -61,7 +61,7 @@ internal class LxmDestructuring : LexemPrimitive {
             setVars.add(alias!!)
         }
 
-        val elementsAsMap = mutableMapOf<String, Property>()
+        val elementsAsMap = hashMapOf<String, Property>()
         elements.forEach {
             elementsAsMap[it.original] = it
         }
@@ -94,7 +94,7 @@ internal class LxmDestructuring : LexemPrimitive {
     /**
      * Destructures a list adding variables in the 'to' object.
      */
-    fun destructureList(memory: LexemMemory, value: LxmList, to: LxmObject,
+    fun destructureList(memory: IMemory, value: LxmList, to: LxmObject,
             forceConstant: Boolean = false): MutableSet<String> {
         val setVars = mutableSetOf<String>()
 
@@ -145,7 +145,7 @@ internal class LxmDestructuring : LexemPrimitive {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() = "[Destructuring] (alias: $alias, elements: $elements, spread: $spread)"
 

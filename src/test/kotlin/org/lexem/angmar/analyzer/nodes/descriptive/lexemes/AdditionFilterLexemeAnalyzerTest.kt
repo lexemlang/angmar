@@ -21,19 +21,19 @@ internal class AdditionFilterLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                LxmFilterPosition(analyzer.memory, lxmNode))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
         val result = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as? LxmNode
                 ?: throw Error("The result must be a LxmNode")
-        val parentRef = result.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.Parent) as LxmReference
-        val parentChildren =
-                result.getParent(analyzer.memory, toWrite = false)!!.getChildren(analyzer.memory, toWrite = false)
-        Assertions.assertEquals(lxmNode.getPrimitive().position, parentRef.position, "The parent node is incorrect")
-        Assertions.assertEquals(1, parentChildren.actualListSize, "The number of children is incorrect")
+        val parent = result.getParent(analyzer.memory, toWrite = false)!!
+        Assertions.assertEquals(lxmNode.getPrimitive().position, parent.getPrimitive().position,
+                "The parent node is incorrect")
+        Assertions.assertEquals(1, parent.getChildCount(analyzer.memory), "The number of children is incorrect")
         Assertions.assertEquals((analyzer.memory.getLastFromStack() as LxmReference).position,
-                (parentChildren.getCell(analyzer.memory, 0) as LxmReference).position,
+                parent.getFirstChild(analyzer.memory, toWrite = false)?.getPrimitive()?.position,
                 "The child has not been included in the parent")
 
         // Remove FilterNodePosition and Last from the stack.
@@ -60,7 +60,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
         var executed = false
 
-        val function = LxmFunction(analyzer.memory) { analyzer, _, _, _ ->
+        val function = LxmFunction(analyzer.memory) { _, _, _, _ ->
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
             val nodeRef = context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.HiddenNode2Filter)!!
             val node = nodeRef.dereference(analyzer.memory, toWrite = false) as LxmNode
@@ -75,7 +75,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
         }
 
         context.setProperty(analyzer.memory, funName, function)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                LxmFilterPosition(analyzer.memory, lxmNode))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 
@@ -111,7 +112,7 @@ internal class AdditionFilterLexemeAnalyzerTest {
 
             // Prepare context.
             val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
-            val function = LxmFunction(analyzer.memory) { analyzer, _, _, _ ->
+            val function = LxmFunction(analyzer.memory) { _, _, _, _ ->
                 val node = AnalyzerCommons.getCurrentContextElement<LxmNode>(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenNode2Filter, toWrite = false)
 

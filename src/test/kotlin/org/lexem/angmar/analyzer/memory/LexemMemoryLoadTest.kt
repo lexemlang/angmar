@@ -152,7 +152,7 @@ internal class LexemMemoryLoadTest {
     //
     //            // Generate the next levels.
     //            for (level in 1 until heapSizeSameRangeTest / 100) {
-    //                memory.freezeCopy()
+    //                TestUtils.freezeCopy(memory)
     //
     //                for (i in 0 until heapSizeSameRangeTest) {
     //                    memory.get(LxmReference(i), toWrite = true)
@@ -212,7 +212,7 @@ internal class LexemMemoryLoadTest {
     //
     //            // Generate the next levels.
     //            for (level in (0 until (heapSizePyramidTest / 100)).map { it + 1 }) {
-    //                memory.freezeCopy()
+    //                TestUtils.freezeCopy(memory)
     //
     //                for (i in 0 until heapSizePyramidTest - 100) {
     //                    memory.get(LxmReference(level * 100 + i), toWrite = true)

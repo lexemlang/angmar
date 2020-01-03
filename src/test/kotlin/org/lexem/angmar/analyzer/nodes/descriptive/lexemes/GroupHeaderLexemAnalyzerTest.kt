@@ -93,7 +93,7 @@ internal class GroupHeaderLexemAnalyzerTest {
             }
 
             val finalProps: MutableMap<String, LexemMemoryValue> =
-                    mutableMapOf(AnalyzerCommons.Properties.Children to LxmLogic.True,
+                    hashMapOf(AnalyzerCommons.Properties.Children to LxmLogic.True,
                             AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
                             AnalyzerCommons.Properties.Consume to LxmLogic.True,
                             AnalyzerCommons.Properties.Capture to LxmLogic.False,
@@ -111,16 +111,14 @@ internal class GroupHeaderLexemAnalyzerTest {
                 Assertions.assertEquals(prop, actual, "The property called $name is incorrect")
             }
 
-            Assertions.assertEquals(finalProps.size, props.getAllIterableProperties().size,
-                    "The property count is incorrect")
+            Assertions.assertEquals(finalProps.size, props.size, "The property count is incorrect")
 
             // Remove LexemeUnion from the stack.
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
 
             // Remove the node to avoid circular references.
             val parentNode = lxmNode.getParent(analyzer.memory, toWrite = false)!!
-            val parentChildren = parentNode.getChildren(analyzer.memory, toWrite = false)
-            parentChildren.removeCell(analyzer.memory, parentChildren.actualListSize - 1, ignoreConstant = true)
+            parentNode.clearChildren(analyzer.memory)
             context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node,
                     lxmNode.getParentReference(analyzer.memory)!!, ignoreConstant = true)
         }

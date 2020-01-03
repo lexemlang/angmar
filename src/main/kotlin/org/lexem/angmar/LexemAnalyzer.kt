@@ -46,18 +46,21 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
     init {
         val stdLibContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
+        val hiddenContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
         val stdLibContextReference = stdLibContext.getPrimitive()
-        stdLibContextReference.increaseReferences(memory)
+        val hiddenContextReference = hiddenContext.getPrimitive()
+        stdLibContextReference.increaseReferences(memory.lastNode)
+        hiddenContextReference.increaseReferences(memory.lastNode)
 
-        if (stdLibContextReference.position != LxmReference.StdLibContext.position) {
+        if (stdLibContextReference.position != LxmReference.StdLibContext.position || hiddenContextReference.position != LxmReference.HiddenContext.position) {
             // This must never happen.
             throw AngmarUnreachableException()
         }
 
-        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContext)
+        hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenCurrentContext, stdLibContext)
 
         val fileMap = LxmObject(memory)
-        stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, fileMap)
+        hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenFileMap, fileMap)
 
         if (importMode == ImportMode.AllIn) {
             val parserMap = LxmObject(memory)
@@ -66,7 +69,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                 parserMap.setProperty(memory, name, LxmGrammarRootNode(grammarRootNode))
             }
 
-            stdLibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
+            hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenParserMap, parserMap)
         }
 
         StdlibCommons.initTypesAndPrototypes(memory)
@@ -86,11 +89,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         memory.clear()
 
         // Set the rollback code point.
-        val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
-        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint,
-                LxmRollbackCodePoint(grammarRootNode, signal, text.saveCursor()))
-
-        memory.freezeCopy()
+        freezeMemoryCopy(grammarRootNode, signal)
 
         // Init the result node.
         initRootNode()
@@ -103,7 +102,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         initialCursor = text.saveCursor()
 
         // Set the main file path.
-        rootFilePath = grammarRootNode.parserNode!!.parser.reader.getSource()
+        rootFilePath = grammarRootNode.parser.reader.getSource()
 
         // Set the entry point. It will be added to the context in AnalyzerCommons.createAndAssignNewModuleContext.
         this.entryPoint = entryPoint ?: Consts.defaultEntryPoint
@@ -126,7 +125,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
             loop@ while (true) {
                 // Check timeout.
                 val time = System.nanoTime()
-                if (!Consts.debug && time >= timeout || status == Status.Paused) {
+                if (!Consts.verbose && time >= timeout || status == Status.Paused) {
                     status = Status.Paused
                     return false
                 }
@@ -142,22 +141,29 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
                         nextNode!!.analyze(this, signal)
 
-                        // Execute the spatial garbage collector if the memory has asked for.
-                        // Done here to prevent calling the garbage collector before
-                        // set all the references.
-                        if (memory.lastNode.spatialGarbageCollectorMark) {
-                            memory.spatialGarbageCollect()
-                        }
-
-                        // Execute the temporal garbage collector if the memory has asked for.
-                        if (memory.lastNode.temporalGarbageCollectorMark) {
-                            memory.temporalGarbageCollect()
-                        }
+                        // TODO remove
+                        //                        // Execute the spatial garbage collector if the memory has asked for.
+                        //                        // Done here to prevent calling the garbage collector before
+                        //                        // set all the references.
+                        //                        if (memory.lastNode.spatialGarbageCollectorMark) {
+                        //                            if (Consts.verbose) {
+                        //                                Logger.debug("init spatialGarbageCollect") {
+                        //                                    showDate = true
+                        //                                }
+                        //                                val gcTime = TimeUtils.measureTimeSeconds {
+                        //                                    memory.spatialGarbageCollect()
+                        //                                }
+                        //                                timeSpatialGC += gcTime
+                        //                                Logger.debug("end  spatialGarbageCollect after ${gcTime}s - total: $timeSpatialGC") {
+                        //                                    showDate = true
+                        //                                }
+                        //                            } else {
+                        //                                memory.spatialGarbageCollect()
+                        //                            }
+                        //                        }
                     }
                     ProcessStatus.Backward -> {
-                        memory.rollbackCopy()
-
-                        val lastCodePoint = getLastRollbackCodePoint()
+                        val lastCodePoint = memory.rollbackCopy()
                         lastCodePoint.restore(this)
 
                         // Handle the possibility of matching nothing.
@@ -186,8 +192,8 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                                     methodName = i.callerContextName
                                 }
                             } else {
-                                val (line, column) = i.callerNode.parserNode!!.from.lineColumn()
-                                addStackTrace(i.callerNode.parserNode!!.parser.reader.getSource(), line, column) {
+                                val (line, column) = i.callerNode.from.lineColumn()
+                                addStackTrace(i.callerNode.parser.reader.getSource(), line, column) {
                                     methodName = i.callerContextName
                                 }
                             }
@@ -204,13 +210,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                 }
             }
 
-            if (Consts.debug) {
+            if (Consts.verbose) {
                 e.logger.cause = Logger("Debug error at $ticks ticks", e)
             }
 
             throw e
         } catch (e: Throwable) {
-            if (Consts.debug) {
+            if (Consts.verbose) {
                 Logger.debug("Unexpected error at $ticks ticks", e)
             }
 
@@ -294,34 +300,18 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     }
 
     /**
-     * Gets the last rollback code point kept in the memory.
-     */
-    internal fun getLastRollbackCodePoint() =
-            AnalyzerCommons.getCurrentContext(memory, toWrite = false).getDereferencedProperty<LxmRollbackCodePoint>(
-                    memory, AnalyzerCommons.Identifiers.HiddenRollbackCodePoint, toWrite = false)!!
-
-    /**
-     * Sets the last rollback code point kept in the memory.
-     */
-    private fun setLastRollbackCodePoint(codePoint: LxmRollbackCodePoint) =
-            AnalyzerCommons.getCurrentContext(memory, toWrite = true).setPropertyAsContext(memory,
-                    AnalyzerCommons.Identifiers.HiddenRollbackCodePoint, codePoint)
-
-    /**
      * Freezes a new copy of the memory.
      */
     internal fun freezeMemoryCopy(node: CompiledNode, signal: Int) {
-        setLastRollbackCodePoint(LxmRollbackCodePoint(node, signal, text.saveCursor()))
-        memory.freezeCopy()
+        val rollbackCodePoint = LxmRollbackCodePoint(node, signal, text.saveCursor())
+        memory.freezeCopy(rollbackCodePoint)
     }
 
     /**
      * Restores a frozen memory copy.
      */
     internal fun restoreMemoryCopy(bigNode: BigNode) {
-        memory.restoreCopy(bigNode)
-
-        val rollbackCodePoint = getLastRollbackCodePoint()
+        val rollbackCodePoint = memory.restoreCopy(bigNode)
         rollbackCodePoint.restore(this)
     }
 
@@ -329,8 +319,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      * Gets the root [LxmNode] object.
      */
     private fun getRootNode(toWrite: Boolean): LxmNode? {
-        val analyzerObject = AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
-                toWrite = false)
+        val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        val analyzerObject = stdlibContext.getDereferencedProperty<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
+                toWrite = false)!!
         return analyzerObject.getDereferencedProperty(memory, AnalyzerGlobalObject.RootNode, toWrite)
     }
 
@@ -339,8 +330,9 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      */
     private fun initRootNode() {
         val nodeReference = createNewNode(AnalyzerCommons.Identifiers.Root, LxmNode.LxmNodeType.Root)
-        val analyzerObject = AnalyzerCommons.getStdLibContextElement<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
-                toWrite = true)
+        val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
+        val analyzerObject = stdlibContext.getDereferencedProperty<LxmObject>(memory, AnalyzerGlobalObject.ObjectName,
+                toWrite = true)!!
         analyzerObject.setProperty(memory, AnalyzerGlobalObject.RootNode, nodeReference)
     }
 
@@ -348,17 +340,15 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      * Creates a new node.
      */
     internal fun createNewNode(name: String, type: LxmNode.LxmNodeType): LxmNode {
-        val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
+        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
         val parent =
-                stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                        toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
+                hiddenContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                        toWrite = true)
 
         val node = LxmNode(memory, name, text.saveCursor(), type)
-        if (parent != null) {
-            node.addToParent(memory, parent)
-        }
+        parent?.addChild(memory, node)
 
-        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
+        hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
 
         return node
     }
@@ -367,13 +357,13 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
      * Sets the upper node as current one.
      */
     internal fun setUpperNode() {
-        val stdlibContext = AnalyzerCommons.getStdLibContext(memory, toWrite = true)
+        val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
         val node =
-                stdlibContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
+                hiddenContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
                         toWrite = false)!!
         val parentRef = node.getParentReference(memory)!!
 
-        stdlibContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, parentRef)
+        hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, parentRef)
     }
 
     /**

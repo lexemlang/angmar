@@ -6,7 +6,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.analyzer.nodes.*
-import org.lexem.angmar.compiler.CompiledNode
+import org.lexem.angmar.compiler.*
 import org.lexem.angmar.compiler.literals.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.readers.*

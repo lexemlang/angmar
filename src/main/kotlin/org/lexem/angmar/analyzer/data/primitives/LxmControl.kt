@@ -13,19 +13,19 @@ internal class LxmControl private constructor(val type: String, val tag: String?
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun increaseReferences(memory: LexemMemory) {
+    override fun increaseReferences(memory: IMemory) {
         value?.increaseReferences(memory)
     }
 
-    override fun decreaseReferences(memory: LexemMemory) {
+    override fun decreaseReferences(memory: IMemory) {
         value?.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(memory: LexemMemory, gcFifo: GarbageCollectorFifo) {
-        value?.spatialGarbageCollect(memory, gcFifo)
+    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+        value?.spatialGarbageCollect(gcFifo)
     }
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() = StringBuilder().apply {
         append("[Control] ")

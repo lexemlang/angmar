@@ -41,6 +41,7 @@ internal object ImportGlobalFunction {
         when (signal) {
             AnalyzerNodesCommons.signalStart, AnalyzerNodesCommons.signalCallFunction -> {
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
+                val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = false)
                 val callerContext = context.getDereferencedProperty<LxmContext>(analyzer.memory,
                         AnalyzerCommons.Identifiers.HiddenCallerContext, toWrite = false)!!
                 val currentFilePath = callerContext.getDereferencedProperty<LxmString>(analyzer.memory,
@@ -54,8 +55,8 @@ internal object ImportGlobalFunction {
 
                 // Parse and analyze the code.
                 val grammarNode = if (analyzer.importMode == LexemAnalyzer.ImportMode.AllIn) {
-                    val parserMap = AnalyzerCommons.getStdLibContextElement<LxmObject>(analyzer.memory,
-                            AnalyzerCommons.Identifiers.HiddenParserMap, toWrite = false)
+                    val parserMap = hiddenContext.getDereferencedProperty<LxmObject>(analyzer.memory,
+                            AnalyzerCommons.Identifiers.HiddenParserMap, toWrite = false)!!
 
                     val grammarRootNode =
                             parserMap.getDereferencedProperty<LxmGrammarRootNode>(analyzer.memory, path.primitive,
@@ -70,7 +71,7 @@ internal object ImportGlobalFunction {
 
                     // Process only if it has not been previously processed.
                     let {
-                        val exports = findPathInMap(analyzer.memory, context, reader.getSource())
+                        val exports = findPathInMap(analyzer.memory, hiddenContext, reader.getSource())
                         if (exports != null) {
                             analyzer.memory.addToStackAsLast(exports)
                             return true

@@ -101,8 +101,10 @@ internal class FunctionCallAnalyzerTest {
                     AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite = false) ?: throw Error(
                     "The ${AnalyzerCommons.Identifiers.ArgumentsNamed} must be a LxmObject")
 
-            val allPositional = positionalArguments.getAllCells()
-            val allNamed = namedArguments.getAllIterableProperties()
+            val allPositional = positionalArguments.getAllCells().toList()
+            val allNamed = HashMap<String, LxmObject.LxmObjectProperty>().also { map ->
+                namedArguments.getAllIterableProperties().forEach { map[it.key] = it.value }
+            }
 
             // Sizes
             var positionalSize = 0

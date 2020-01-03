@@ -13,19 +13,18 @@ internal class LxmExpression : LxmFunction {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, node: CompiledNode, name: String, context: LxmContext) : super(memory, node,
-            context) {
+    constructor(memory: IMemory, node: CompiledNode, name: String, context: LxmContext) : super(memory, node, context) {
         this.name = name
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
+    override fun getType(memory: IMemory): LxmReference {
         val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, ExpressionType.TypeName) as LxmReference
     }
 
-    override fun toLexemString(memory: LexemMemory): LxmString {
+    override fun toLexemString(memory: IMemory): LxmString {
         var source = node.parser.reader.getSource()
         val from = node.from.lineColumn()
 

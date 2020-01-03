@@ -85,25 +85,16 @@ internal object MethodSelectorAnalyzer {
                             analyzer.memory.replaceLastStackCell(generateResult(node, parent == null))
                         }
                         AnalyzerCommons.SelectorMethods.Empty -> {
-                            val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
-
-                            analyzer.memory.replaceLastStackCell(generateResult(node, children.actualListSize == 0))
+                            analyzer.memory.replaceLastStackCell(
+                                    generateResult(node, lxmNode.getChildCount(analyzer.memory) == 0))
                         }
                         AnalyzerCommons.SelectorMethods.FirstChild -> {
-                            analyzer.memory.replaceLastStackCell(
-                                    generateResult(node, lxmNode.getParentIndex(analyzer.memory) == 0))
+                            analyzer.memory.replaceLastStackCell(generateResult(node,
+                                    lxmNode.getLeftSibling(analyzer.memory, toWrite = false) == null))
                         }
                         AnalyzerCommons.SelectorMethods.LastChild -> {
-                            val parent = lxmNode.getParent(analyzer.memory, toWrite = false)
-
-                            if (parent == null) {
-                                analyzer.memory.replaceLastStackCell(generateResult(node, false))
-                            } else {
-                                val list = parent.getChildren(analyzer.memory, toWrite = false)
-
-                                analyzer.memory.replaceLastStackCell(generateResult(node,
-                                        lxmNode.getParentIndex(analyzer.memory) == list.actualListSize - 1))
-                            }
+                            analyzer.memory.replaceLastStackCell(generateResult(node,
+                                    lxmNode.getRightSibling(analyzer.memory, toWrite = false) == null))
                         }
                         else -> throw AngmarUnreachableException()
                     }
@@ -166,13 +157,11 @@ internal object MethodSelectorAnalyzer {
                                 return analyzer.nextNode(node.argument)
                             }
                             AnalyzerCommons.SelectorMethods.AllChildren -> {
-                                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                                if (lxmNode.getChildCount(analyzer.memory) > 0) {
+                                    val iterator = LxmNodeChildrenIterator(analyzer.memory, lxmNode)
 
-                                if (children.actualListSize > 0) {
-                                    val iterator = LxmListIterator(analyzer.memory, children)
-
-                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node,
-                                            children.getCell(analyzer.memory, 0)!!)
+                                    val current = iterator.getCurrent(analyzer.memory)!!
+                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, current.second)
                                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectorMethodIterator,
                                             iterator)
 
@@ -185,13 +174,11 @@ internal object MethodSelectorAnalyzer {
                                 analyzer.memory.addToStackAsLast(generateResult(node, true))
                             }
                             AnalyzerCommons.SelectorMethods.AnyChild -> {
-                                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                                if (lxmNode.getChildCount(analyzer.memory) > 0) {
+                                    val iterator = LxmNodeChildrenIterator(analyzer.memory, lxmNode)
 
-                                if (children.actualListSize > 0) {
-                                    val iterator = LxmListIterator(analyzer.memory, children)
-
-                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node,
-                                            children.getCell(analyzer.memory, 0)!!)
+                                    val current = iterator.getCurrent(analyzer.memory)!!
+                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Node, current.second)
                                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectorMethodIterator,
                                             iterator)
 
@@ -242,10 +229,10 @@ internal object MethodSelectorAnalyzer {
 
                         when (name.primitive) {
                             AnalyzerCommons.SelectorMethods.ChildCount -> {
-                                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                                val childCount = lxmNode.getChildCount(analyzer.memory)
 
                                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Property,
-                                        LxmInteger.from(children.actualListSize))
+                                        LxmInteger.from(childCount))
 
                                 return analyzer.nextNode(node.argument)
                             }
@@ -275,13 +262,11 @@ internal object MethodSelectorAnalyzer {
                                 analyzer.memory.addToStackAsLast(generateResult(node, false))
                             }
                             AnalyzerCommons.SelectorMethods.AllChildren -> {
-                                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                                if (lxmNode.getChildCount(analyzer.memory) > 0) {
+                                    val iterator = LxmNodeChildrenIterator(analyzer.memory, lxmNode)
 
-                                if (children.actualListSize > 0) {
-                                    val iterator = LxmListIterator(analyzer.memory, children)
-
-                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Property,
-                                            children.getCell(analyzer.memory, 0)!!)
+                                    val current = iterator.getCurrent(analyzer.memory)!!
+                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Property, current.second)
                                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectorMethodIterator,
                                             iterator)
 
@@ -294,13 +279,11 @@ internal object MethodSelectorAnalyzer {
                                 analyzer.memory.addToStackAsLast(generateResult(node, true))
                             }
                             AnalyzerCommons.SelectorMethods.AnyChild -> {
-                                val children = lxmNode.getChildren(analyzer.memory, toWrite = false)
+                                if (lxmNode.getChildCount(analyzer.memory) > 0) {
+                                    val iterator = LxmNodeChildrenIterator(analyzer.memory, lxmNode)
 
-                                if (children.actualListSize > 0) {
-                                    val iterator = LxmListIterator(analyzer.memory, children)
-
-                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Property,
-                                            children.getCell(analyzer.memory, 0)!!)
+                                    val current = iterator.getCurrent(analyzer.memory)!!
+                                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Property, current.second)
                                     analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SelectorMethodIterator,
                                             iterator)
 

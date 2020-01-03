@@ -70,9 +70,9 @@ internal class FunctionParameterListAnalyzerTest {
                 context.getPropertyValue(analyzer.memory, positionalSpreadId)?.dereference(analyzer.memory,
                         toWrite = false) as? LxmList ?: throw Error("The positionalSpreadParam must be a LxmList")
 
-        val positionalParams = positionalSpreadParam.getAllCells()
-        Assertions.assertEquals(1, positionalParams.size, "The number of positional params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, positionalParams[0], "The positionalParams[0] is incorrect")
+        Assertions.assertEquals(1, positionalSpreadParam.size, "The number of positional params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, positionalSpreadParam.getCell(0),
+                "The positionalParams[0] is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
@@ -107,9 +107,9 @@ internal class FunctionParameterListAnalyzerTest {
         val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
                 toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
-        val namedParams = namedSpreadParam.getAllIterableProperties()
-        Assertions.assertEquals(1, namedParams.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedParams["named1"]!!.value, "The named named1 param is incorrect")
+        Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
+                "The named named1 param is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
@@ -153,8 +153,7 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
 
-        val positionalParams = positionalSpreadParam.getAllCells()
-        Assertions.assertEquals(0, positionalParams.size, "The number of positional params is incorrect")
+        Assertions.assertEquals(0, positionalSpreadParam.size, "The number of positional params is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
@@ -198,9 +197,9 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmInteger.Num10, param1, "The param1 is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The param2 is incorrect")
 
-        val namedParams = namedSpreadParam.getAllIterableProperties()
-        Assertions.assertEquals(1, namedParams.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedParams["named1"]!!.value, "The named named1 param is incorrect")
+        Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
+                "The named named1 param is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
@@ -241,13 +240,13 @@ internal class FunctionParameterListAnalyzerTest {
         val namedSpreadParam = context.getPropertyValue(analyzer.memory, namedSpreadId)?.dereference(analyzer.memory,
                 toWrite = false) as? LxmObject ?: throw Error("The namedSpreadParam must be a LxmObject")
 
-        val positionalParams = positionalSpreadParam.getAllCells()
-        Assertions.assertEquals(1, positionalParams.size, "The number of positional params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, positionalParams[0], "The positionalParams[0] is incorrect")
+        Assertions.assertEquals(1, positionalSpreadParam.size, "The number of positional params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, positionalSpreadParam.getCell(0),
+                "The positionalParams[0] is incorrect")
 
-        val namedParams = namedSpreadParam.getAllIterableProperties()
-        Assertions.assertEquals(1, namedParams.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedParams["named1"]!!.value, "The named named1 param is incorrect")
+        Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
+                "The named named1 param is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),
@@ -295,12 +294,11 @@ internal class FunctionParameterListAnalyzerTest {
         Assertions.assertEquals(LxmInteger.Num10, param1, "The $param1Id is incorrect")
         Assertions.assertEquals(LxmInteger.Num1, param2, "The $param2Id is incorrect")
 
-        val positionalParams = positionalSpreadParam.getAllCells()
-        Assertions.assertEquals(0, positionalParams.size, "The number of positional params is incorrect")
+        Assertions.assertEquals(0, positionalSpreadParam.size, "The number of positional params is incorrect")
 
-        val namedParams = namedSpreadParam.getAllIterableProperties()
-        Assertions.assertEquals(1, namedParams.size, "The number of named params is incorrect")
-        Assertions.assertEquals(LxmInteger.Num10, namedParams["named1"]!!.value, "The named named1 param is incorrect")
+        Assertions.assertEquals(1, namedSpreadParam.size, "The number of named params is incorrect")
+        Assertions.assertEquals(LxmInteger.Num10, namedSpreadParam.getPropertyValue(analyzer.memory, "named1")!!,
+                "The named named1 param is incorrect")
 
         Assertions.assertEquals(LxmLogic.True,
                 context.getPropertyValue(analyzer.memory, AnalyzerCommons.Identifiers.This),

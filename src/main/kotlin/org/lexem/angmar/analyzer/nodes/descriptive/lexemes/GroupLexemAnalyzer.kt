@@ -38,13 +38,16 @@ internal object GroupLexemAnalyzer {
 
                 // Put the filter position in the stack.
                 if (node.isFilterCode) {
-                    val filterPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition)
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition, filterPosition)
+                    val filterPosition =
+                            analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition).dereference(
+                                    analyzer.memory, toWrite = false) as LxmFilterPosition
+                    val savedFilterPosition = filterPosition.saveCopy(analyzer.memory)
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition, savedFilterPosition)
                 }
 
                 // Generate an intermediate context that will be removed at the end.
                 val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-                AnalyzerCommons.createAndAssignNewFunctionContext(analyzer.memory, context, "Group", context.type)
+                AnalyzerCommons.createAndAssignNewContext(analyzer.memory, context.type)
 
                 if (node.header != null) {
                     return analyzer.nextNode(node.header)
@@ -162,6 +165,9 @@ internal object GroupLexemAnalyzer {
                 toWrite = true)!!
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
 
+        // Set parent node as the current one.
+        analyzer.setUpperNode()
+
         // Process the properties.
         let {
             val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
@@ -181,19 +187,20 @@ internal object GroupLexemAnalyzer {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture && children) {
                 // Set the returned value.
-                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                if (children && childrenList.actualListSize > 0) {
+                returnValue = if (children && lxmNode.getChildCount(analyzer.memory) > 0) {
+                    val childrenList = lxmNode.getChildrenList(analyzer.memory, toWrite = false)
+
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
-                    returnValue = resultList
+                    resultList.addCell(analyzer.memory, *childrenList.toList().toTypedArray())
+                    resultList
                 } else {
                     // Set a null value.
-                    returnValue = LxmNil
+                    LxmNil
                 }
 
                 // Replace the node in parent by its children.
-                lxmNode.replaceNodeInParentByChildren(analyzer.memory)
+                lxmNode.replaceByItsChildrenInParent(analyzer.memory)
             }
 
             // Set the returned value.
@@ -238,8 +245,6 @@ internal object GroupLexemAnalyzer {
                 analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.SavedFilterNodePosition)
             }
         }
-        // Set parent node as the current one.
-        analyzer.setUpperNode()
 
         // Remove the reference.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)

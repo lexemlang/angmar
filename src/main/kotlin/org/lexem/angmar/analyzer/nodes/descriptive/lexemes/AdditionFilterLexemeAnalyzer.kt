@@ -78,20 +78,13 @@ internal object AdditionFilterLexemeAnalyzer {
      * Set the parent relationship of the node.
      */
     private fun finalizeNode(analyzer: LexemAnalyzer, lxmNode: LxmNode) {
-        val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
-        val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
-        val parent = context.getDereferencedProperty<LxmNode>(analyzer.memory, AnalyzerCommons.Identifiers.Node,
-                toWrite = false)!!
-
-        parent.insertChildren(analyzer.memory, listOf(lxmNode), nodePosition.primitive)
+        val nodePosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition).dereference(
+                analyzer.memory, toWrite = true) as LxmFilterPosition
 
         // Update the node position.
         val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
         val reverse = RelationalFunctions.isTruthy(
                 props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Reverse) ?: LxmNil)
-        if (!reverse) {
-            analyzer.memory.replaceStackCell(AnalyzerCommons.Identifiers.FilterNodePosition,
-                    LxmInteger.from(nodePosition.primitive + 1))
-        }
+        nodePosition.insertChild(analyzer.memory, lxmNode, isForward = !reverse)
     }
 }

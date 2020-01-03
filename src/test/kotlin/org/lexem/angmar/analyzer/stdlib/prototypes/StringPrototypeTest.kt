@@ -60,7 +60,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.CharsAt}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -81,10 +81,9 @@ internal class StringPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            val listValues = list.getAllCells()
-            Assertions.assertEquals(resultValue.size, listValues.size, "The result is incorrect")
+            Assertions.assertEquals(resultValue.size, list.size, "The result is incorrect")
 
-            for ((primitive, res) in listValues.zip(resultValue)) {
+            for ((primitive, res) in list.getAllCells().toList().zip(resultValue)) {
                 primitive as? LxmInteger ?: throw Error("The result must be a LxmList of LxmIntegers")
 
                 Assertions.assertEquals(res, primitive.primitive, "The result is incorrect")
@@ -103,7 +102,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.UnicodePointsAt}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -140,7 +139,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.EndsWithAny}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -177,7 +176,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.StartsWithAny}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -214,7 +213,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.ContainsAny}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -251,7 +250,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.ContainsAll}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -292,7 +291,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.IndexOf}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -333,7 +332,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.LastIndexOf}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -387,7 +386,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.PadStart}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -403,7 +402,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.PadStart}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -457,7 +456,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.PadEnd}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -473,7 +472,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.PadEnd}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -527,7 +526,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Repeat}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -543,7 +542,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Repeat}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -601,7 +600,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Replace}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -618,7 +617,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Replace}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -636,7 +635,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Replace}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -689,7 +688,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Slice}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -705,7 +704,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Slice}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -731,10 +730,9 @@ internal class StringPrototypeTest {
         TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
             val list = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            val listValues = list.getAllCells()
-            Assertions.assertEquals(resultValue.size, listValues.size, "The result is incorrect")
+            Assertions.assertEquals(resultValue.size, list.size, "The result is incorrect")
 
-            for ((primitive, res) in listValues.zip(resultValue)) {
+            for ((primitive, res) in list.getAllCells().toList().zip(resultValue)) {
                 primitive as? LxmString ?: throw Error("The result must be a LxmList of LxmString")
 
                 Assertions.assertEquals(res, primitive.primitive, "The result is incorrect")
@@ -753,7 +751,7 @@ internal class StringPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${StringPrototype.Split}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }

@@ -2,6 +2,7 @@ package org.lexem.angmar.errors
 
 /**
  * The exception types for the analyzer.
+ * TODO remove not used
  */
 enum class AngmarAnalyzerExceptionType {
     // GENERICS ---------------------------------------------------------------
@@ -23,17 +24,15 @@ enum class AngmarAnalyzerExceptionType {
 
     StackNotFoundElement,
     ValueShiftOverSameBigNode,
+    CloneOverTheSameBigNode,
+    DifferentBigNodeLink,
 
     HeapSegmentationFault,
     HeapBigNodeLinkFault,
-    ReferencedHeapCellFreed,
+    CannotFreeAReferencedHeapCell,
     ReferenceCountUnderflow,
 
     FirstBigNodeRollback,
-    NonRecoverableNodeRollback,
-
-    LastBigNodeTemporalGarbageCollection,
-    CannotReachLastBigNodeInTemporalGarbageCollectionGroup,
 
     // INTERVALS --------------------------------------------------------------
 
@@ -48,16 +47,16 @@ enum class AngmarAnalyzerExceptionType {
     CannotModifyAnImmutableView,
 
     CannotModifyAConstantList,
-    CannotModifyANonWritableList,
-
     CannotModifyAConstantObject,
-    CannotModifyANonWritableObject,
     CannotModifyAConstantObjectProperty,
     UndefinedObjectProperty,
 
     CannotModifyAConstantMap,
 
     CannotModifyAConstantSet,
+
+    IncorrectNodeReference,
+    IncorrectNodeChildCount,
 
     // FUNCTIONS --------------------------------------------------------------
 

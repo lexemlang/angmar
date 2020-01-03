@@ -3,7 +3,6 @@ package org.lexem.angmar.analyzer.data.referenced
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value for a quantified group.
@@ -20,45 +19,44 @@ internal class LxmQuantifiedGroup : LxmObject {
         setProperty(memory, AnalyzerCommons.Identifiers.List, list)
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmQuantifiedGroup, toClone: Boolean) : super(memory,
-            oldVersion, toClone)
+    private constructor(memory: IMemory, oldVersion: LxmQuantifiedGroup) : super(memory, oldVersion = oldVersion)
 
     // METHODS ----------------------------------------------------------------
 
     /**
      * Gets the final count.
      */
-    fun getFinishedCount(memory: LexemMemory) =
+    fun getFinishedCount(memory: IMemory) =
             getDereferencedProperty<LxmInteger>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     /**
      * Sets the final count.
      */
-    fun setFinishedCount(memory: LexemMemory, value: LxmInteger) =
+    fun setFinishedCount(memory: IMemory, value: LxmInteger) =
             setProperty(memory, AnalyzerCommons.Identifiers.Value, value)
 
     /**
      * Gets the main union.
      */
-    fun getMainUnion(memory: LexemMemory, toWrite: Boolean) =
+    fun getMainUnion(memory: IMemory, toWrite: Boolean) =
             getDereferencedProperty<LxmPatternUnion>(memory, AnalyzerCommons.Identifiers.Index, toWrite)!!
 
     /**
      * Sets the main union.
      */
-    private fun setMainUnion(memory: LexemMemory, union: LxmPatternUnion) =
+    private fun setMainUnion(memory: IMemory, union: LxmPatternUnion) =
             setProperty(memory, AnalyzerCommons.Identifiers.Index, union.getPrimitive())
 
     /**
      * Gets the union list.
      */
-    private fun getUnionList(memory: LexemMemory, toWrite: Boolean) =
+    private fun getUnionList(memory: IMemory, toWrite: Boolean) =
             getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.List, toWrite)!!
 
     /**
      * Adds a new union to the list.
      */
-    fun addUnion(memory: LexemMemory, union: LxmPatternUnion) {
+    fun addUnion(memory: IMemory, union: LxmPatternUnion) {
         if (union.quantifier.min == 0) {
             val index = getFinishedCount(memory)
             setFinishedCount(memory, LxmInteger.from(index.primitive + 1))
@@ -70,7 +68,7 @@ internal class LxmQuantifiedGroup : LxmObject {
     /**
      * Calculates the main quantifier bounds.
      */
-    fun calculateMainUnion(memory: LexemMemory) {
+    fun calculateMainUnion(memory: IMemory) {
         var mainUnion = getMainUnion(memory, toWrite = false)
         if (mainUnion.quantifier.min < 0 || mainUnion.quantifier.max < 0) {
             var min = 0
@@ -111,10 +109,10 @@ internal class LxmQuantifiedGroup : LxmObject {
     /**
      * Increases the index of the specified option.
      */
-    fun increaseIndex(memory: LexemMemory, optionIndex: Int) {
+    fun increaseIndex(memory: IMemory, optionIndex: Int) {
         val mainUnion = getMainUnion(memory, toWrite = true)
         val list = getUnionList(memory, toWrite = false)
-        val cell = list.getCell(memory, optionIndex)!!.dereference(memory, toWrite = true) as LxmPatternUnion
+        val cell = list.getCell(optionIndex)!!.dereference(memory, toWrite = true) as LxmPatternUnion
         val prevFinished = cell.isFinished(memory)
 
         mainUnion.increaseIndex(memory)
@@ -129,9 +127,9 @@ internal class LxmQuantifiedGroup : LxmObject {
     /**
      * Checks whether the specified group option can have another pattern.
      */
-    fun canHaveANextPattern(memory: LexemMemory, optionIndex: Int): Boolean {
+    fun canHaveANextPattern(memory: IMemory, optionIndex: Int): Boolean {
         val list = getUnionList(memory, toWrite = false)
-        val cell = list.getCell(memory, optionIndex)!!.dereference(memory, toWrite = false) as LxmPatternUnion
+        val cell = list.getCell(optionIndex)!!.dereference(memory, toWrite = false) as LxmPatternUnion
 
         return cell.canHaveANextPattern(memory)
     }
@@ -139,12 +137,12 @@ internal class LxmQuantifiedGroup : LxmObject {
     /**
      * Checks whether the group is finished or not.
      */
-    fun isGroupFinished(memory: LexemMemory): Boolean {
+    fun isGroupFinished(memory: IMemory): Boolean {
         if (!getMainUnion(memory, toWrite = false).isFinished(memory)) {
             return false
         }
 
-        val listSize = getUnionList(memory, toWrite = false).actualListSize
+        val listSize = getUnionList(memory, toWrite = false).size
         val finished = getFinishedCount(memory)
 
         return listSize == finished.primitive
@@ -152,8 +150,7 @@ internal class LxmQuantifiedGroup : LxmObject {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = LxmQuantifiedGroup(memory, this,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(memory: IMemory) = LxmQuantifiedGroup(memory, this)
 
     override fun toString() = "[Quantified Group] ${super.toString()}"
 }

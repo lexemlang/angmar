@@ -45,8 +45,8 @@ internal object LexemFileAnalyzer {
 
                 throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.UnhandledControlStatementSignal,
                         "The ${control.type} control signal has not reached any valid statement.") {
-                    val fullText = node.parserNode!!.parser.reader.readAllText()
-                    addSourceCode(fullText, node.parserNode!!.parser.reader.getSource()) {
+                    val fullText = node.parser.reader.readAllText()
+                    addSourceCode(fullText, node.parser.reader.getSource()) {
                         title = Consts.Logger.hintTitle
                         highlightSection(control.node.from.position(), control.node.to.position() - 1)
                         message = "Review that this control statement has a matching statement."

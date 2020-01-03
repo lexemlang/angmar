@@ -285,7 +285,7 @@ internal object IteratorLoopStmtAnalyzer {
         } else {
             variable as LxmString
 
-            context.setPropertyAsContext(analyzer.memory, variable.primitive, value)
+            context.setProperty(analyzer.memory, variable.primitive, value)
         }
 
         return analyzer.nextNode(node.thenBlock)

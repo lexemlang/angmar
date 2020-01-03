@@ -34,7 +34,7 @@ internal object AnalyzerNodesCommons {
      * Calls a function value.
      * Requires the arguments to have at least one reference count.
      */
-    fun callFunction(analyzer: LexemAnalyzer, function: LxmFunction, arguments: LxmArguments, node: CompiledNode,
+    fun callFunction(analyzer: LexemAnalyzer, function: LxmFunction, arguments: LxmArguments,
             returnPoint: LxmCodePoint) {
         // Save the return position.
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.ReturnCodePoint, returnPoint)
@@ -203,14 +203,11 @@ internal object AnalyzerNodesCommons {
                 // Checks whether the current call is a filtering.
                 if (node is FilterStmtCompiled) {
                     val node2Filter = arguments.getNamedArgument(analyzer.memory,
-                            AnalyzerCommons.Identifiers.Node2FilterParameter)
+                            AnalyzerCommons.Identifiers.Node2FilterParameter) ?: node2ReParse
 
                     if (node2Filter == null) {
-                        if (node2ReParse == null) {
-                            throw AngmarAnalyzerException(
-                                    AngmarAnalyzerExceptionType.FilterCallWithoutNode2FilterArgument,
-                                    "Cannot call a filter without specifying the '${AnalyzerCommons.Identifiers.Node2FilterParameter}' argument.") {}
-                        }
+                        throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FilterCallWithoutNode2FilterArgument,
+                                "Cannot call a filter without specifying the '${AnalyzerCommons.Identifiers.Node2FilterParameter}' argument.") {}
                     } else {
                         if (node2ReParse == null) {
                             analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNode, node2Filter)
@@ -219,7 +216,9 @@ internal object AnalyzerNodesCommons {
                         }
                     }
 
-                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+                    val derefNode = node2Filter.dereference(analyzer.memory, toWrite = false) as LxmNode
+                    analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                            LxmFilterPosition(analyzer.memory, derefNode))
                 }
 
                 // Save the first index.
@@ -388,6 +387,9 @@ internal object AnalyzerNodesCommons {
                 toWrite = true)!!
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
 
+        // Set parent node as the current one.
+        analyzer.setUpperNode()
+
         // Process the properties.
         let {
             val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
@@ -403,19 +405,20 @@ internal object AnalyzerNodesCommons {
                     props.getPropertyValue(analyzer.memory, AnalyzerCommons.Properties.Capture) ?: LxmNil)
             if (!capture) {
                 // Set the returned value.
-                val childrenList = lxmNode.getChildren(analyzer.memory, toWrite = false)
-                if (children && childrenList.actualListSize > 0) {
+                returnValue = if (children && lxmNode.getChildCount(analyzer.memory) > 0) {
+                    val childrenList = lxmNode.getChildrenList(analyzer.memory, toWrite = false)
+
                     // Set the children as returned value.
                     val resultList = LxmList(analyzer.memory)
-                    resultList.addCell(analyzer.memory, *childrenList.getAllCells().toTypedArray())
-                    returnValue = resultList
+                    resultList.addCell(analyzer.memory, *childrenList.toList().toTypedArray())
+                    resultList
                 } else {
                     // Set a null value.
-                    returnValue = LxmNil
+                    LxmNil
                 }
 
                 // Replace the node in parent by its children.
-                lxmNode.replaceNodeInParentByChildren(analyzer.memory)
+                lxmNode.replaceByItsChildrenInParent(analyzer.memory)
             }
 
             // Set the returned value.
@@ -485,9 +488,6 @@ internal object AnalyzerNodesCommons {
 
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentFunctionContextAndAssignPrevious(analyzer.memory)
-
-        // Set parent node as the current one.
-        analyzer.setUpperNode()
 
         // Remove LastNode, Function and ReturnCodePoint from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LastNode)

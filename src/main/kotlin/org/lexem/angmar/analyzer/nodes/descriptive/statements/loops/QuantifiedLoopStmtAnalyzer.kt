@@ -84,11 +84,11 @@ internal object QuantifiedLoopStmtAnalyzer {
                 val quantifier = union.quantifier
                 val indexValue = union.getIndex(analyzer.memory)
 
-                if (quantifier.canHaveANextIteration(indexValue.primitive)) {
+                return if (quantifier.canHaveANextIteration(indexValue.primitive)) {
                     // Execute the then block.
-                    return analyzer.nextNode(node.thenBlock)
+                    analyzer.nextNode(node.thenBlock)
                 } else {
-                    return analyzer.initBacktracking()
+                    analyzer.initBacktracking()
                 }
             }
             signalExitForGreedy -> {
@@ -281,7 +281,7 @@ internal object QuantifiedLoopStmtAnalyzer {
     /**
      * Collapses the intermediate [BigNode]s.
      */
-    private fun collapseBigNodes(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
+    private fun collapseBigNodes(analyzer: LexemAnalyzer) {
         val union = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LoopUnion).dereference(analyzer.memory,
                 toWrite = false) as LxmPatternUnion
         val quantifier = union.quantifier
@@ -298,7 +298,7 @@ internal object QuantifiedLoopStmtAnalyzer {
      * Process the finalization of the loop.
      */
     private fun finish(analyzer: LexemAnalyzer, node: QuantifiedLoopStmtCompiled) {
-        collapseBigNodes(analyzer, node)
+        collapseBigNodes(analyzer)
 
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentContextAndAssignPrevious(analyzer.memory)

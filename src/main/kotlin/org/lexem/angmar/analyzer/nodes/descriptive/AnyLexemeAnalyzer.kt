@@ -83,14 +83,14 @@ internal object AnyLexemeAnalyzer {
                     analyzer.memory.removeLastFromStack()
                 }
 
-                if (node.quantifier != null) {
+                return if (node.quantifier != null) {
                     // Increase the index.
                     incrementIterationIndex(analyzer)
 
                     // Evaluate condition.
-                    return evaluateCondition(analyzer, node)
+                    evaluateCondition(analyzer, node)
                 } else {
-                    return finalization(analyzer, node, isAtomic = false)
+                    finalization(analyzer, node, isAtomic = false)
                 }
             }
             signalStartLexemeForLazy -> {
@@ -209,7 +209,7 @@ internal object AnyLexemeAnalyzer {
         val list = listRef.dereference(analyzer.memory, toWrite = false) as LxmList
 
         if (node.quantifier == null) {
-            setter.setSetterValue(analyzer.memory, list.getCell(analyzer.memory, 0)!!)
+            setter.setSetterValue(analyzer.memory, list.getCell(0)!!)
         } else {
             setter.setSetterValue(analyzer.memory, listRef)
         }

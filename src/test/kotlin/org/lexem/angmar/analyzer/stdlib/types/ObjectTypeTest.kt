@@ -24,7 +24,7 @@ internal class ObjectTypeTest {
             val obj = result?.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
                     "The result must be a LxmObject")
 
-            Assertions.assertEquals(0, obj.getAllIterableProperties().size, "The size of the result is incorrect")
+            Assertions.assertEquals(0, obj.size, "The size of the result is incorrect")
 
             val prototype = obj.getPrototypeAsObject(analyzer.memory, toWrite = false)
             Assertions.assertEquals(value, prototype.getPropertyDescriptor(analyzer.memory, propName)!!.value,
@@ -51,19 +51,16 @@ internal class ObjectTypeTest {
                     "The result must be a LxmObject")
 
             // Make the result.
-            val targetResult: MutableMap<String, LexemPrimitive> = target.toMutableMap()
+            val targetResult: MutableMap<String, LexemPrimitive> = target.toHashMap()
             targetResult.putAll(source1)
             targetResult.putAll(source2)
 
-            var size = 0
             for ((key, prop) in obj.getAllIterableProperties()) {
                 val inTarget = targetResult[key] ?: throw Error("The result[$key] is incorrect")
 
                 Assertions.assertEquals(inTarget, prop.value, "The result[$key] is incorrect")
-
-                size += 1
             }
-            Assertions.assertEquals(targetResult.size, size, "The number of elements is incorrect")
+            Assertions.assertEquals(targetResult.size, obj.size, "The number of elements is incorrect")
         }
     }
 

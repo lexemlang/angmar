@@ -83,7 +83,7 @@ internal class AnyLexemeAnalyzerTest {
                 context.getDereferencedProperty<LxmList>(analyzer.memory, dataCapturing, toWrite = false)
                         ?: throw Error("The '$dataCapturing' value must be a LxmList")
 
-        Assertions.assertEquals(text.length, dataCapturingValue.getAllCells().size, "The number of cells is incorrect")
+        Assertions.assertEquals(text.length, dataCapturingValue.size, "The number of cells is incorrect")
         for ((i, cell) in dataCapturingValue.getAllCells().withIndex()) {
             Assertions.assertEquals("a", (cell as? LxmString)?.primitive, "The cell[$i] is incorrect")
         }
@@ -115,7 +115,7 @@ internal class AnyLexemeAnalyzerTest {
                 context.getDereferencedProperty<LxmList>(analyzer.memory, dataCapturing, toWrite = false)
                         ?: throw Error("The '$dataCapturing' value must be a LxmList")
 
-        Assertions.assertEquals(1, dataCapturingValue.getAllCells().size, "The number of cells is incorrect")
+        Assertions.assertEquals(1, dataCapturingValue.size, "The number of cells is incorrect")
         for ((i, cell) in dataCapturingValue.getAllCells().withIndex()) {
             Assertions.assertEquals("aa", (cell as? LxmString)?.primitive, "The cell[$i] is incorrect")
         }
@@ -147,7 +147,7 @@ internal class AnyLexemeAnalyzerTest {
                 context.getDereferencedProperty<LxmList>(analyzer.memory, dataCapturing, toWrite = false)
                         ?: throw Error("The '$dataCapturing' value must be a LxmList")
 
-        Assertions.assertEquals(0, dataCapturingValue.getAllCells().size, "The number of cells is incorrect")
+        Assertions.assertEquals(0, dataCapturingValue.size, "The number of cells is incorrect")
         Assertions.assertEquals(0, analyzer.text.currentPosition(), "The lexem has consumed some characters")
 
         TestUtils.checkEmptyStackAndContext(analyzer, listOf(AnalyzerCommons.Identifiers.Node, dataCapturing))
@@ -167,14 +167,14 @@ internal class AnyLexemeAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
-        TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 3)
+        TestUtils.processAndCheckEmpty(analyzer, textReader)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val dataCapturingValue =
                 context.getDereferencedProperty<LxmList>(analyzer.memory, dataCapturing, toWrite = false)
                         ?: throw Error("The '$dataCapturing' value must be a LxmList")
 
-        Assertions.assertEquals(1, dataCapturingValue.getAllCells().size, "The number of cells is incorrect")
+        Assertions.assertEquals(1, dataCapturingValue.size, "The number of cells is incorrect")
         for ((i, cell) in dataCapturingValue.getAllCells().withIndex()) {
             Assertions.assertEquals("a", (cell as? LxmString)?.primitive, "The cell[$i] is incorrect")
         }

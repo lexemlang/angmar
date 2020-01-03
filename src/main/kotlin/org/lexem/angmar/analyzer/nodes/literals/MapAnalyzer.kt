@@ -23,7 +23,7 @@ internal object MapAnalyzer {
                 analyzer.memory.addToStack(AnalyzerCommons.Identifiers.Accumulator, map)
 
                 if (node.elements.isNotEmpty()) {
-                    return analyzer.nextNode(node.elements[0])
+                    return analyzer.nextNode(node.elements.first())
                 }
 
                 if (node.isConstant) {

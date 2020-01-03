@@ -42,9 +42,10 @@ internal class FilterPrototypeTest {
             Assertions.assertEquals(value, result2, "The result2 is incorrect")
 
             // Remove the function cyclic reference.
-            val node = context.getDereferencedProperty<LxmNode>(analyzer.memory,
+            val hiddenContext = AnalyzerCommons.getHiddenContext(analyzer.memory, toWrite = true)
+            val node = hiddenContext.getDereferencedProperty<LxmNode>(analyzer.memory,
                     AnalyzerCommons.Identifiers.HiddenLastResultNode, toWrite = true)!!
-            node.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Children, LxmNil, ignoreConstant = true)
+            node.clearBranch(analyzer.memory)
         }
     }
 }

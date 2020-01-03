@@ -49,7 +49,7 @@ internal object AccessExpressionLexemeAnalyzer {
                         // Remove Last from the stack.
                         analyzer.memory.removeLastFromStack()
 
-                        return AnalyzerNodesCommons.callFunction(analyzer, finalValue, arguments, node,
+                        return AnalyzerNodesCommons.callFunction(analyzer, finalValue, arguments,
                                 LxmCodePoint(node, signalEndFunction, callerNode = node,
                                         callerContextName = contextName.primitive))
                     }

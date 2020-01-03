@@ -22,15 +22,10 @@ internal class SetTypeTest {
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be a LxmSet")
 
-            var size = 0
-            for ((_, propList) in set.getAllValues()) {
-                for (prop in propList) {
-                    Assertions.assertTrue(prop.value in fnCallArguments, "The result[${prop.value}] is incorrect")
-
-                    size += 1
-                }
+            for (value in set.getAllValues()) {
+                Assertions.assertTrue(value in fnCallArguments, "The result[$value] is incorrect")
             }
-            Assertions.assertEquals(fnCallArguments.size, size, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, set.size, "The size of the result is incorrect")
         }
     }
 
@@ -45,15 +40,10 @@ internal class SetTypeTest {
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be a LxmSet")
 
-            var size = 0
-            for ((_, propList) in set.getAllValues()) {
-                for (prop in propList) {
-                    Assertions.assertTrue(prop.value in fnCallArguments, "The result[${prop.value}] is incorrect")
-
-                    size += 1
-                }
+            for (value in set.getAllValues()) {
+                Assertions.assertTrue(value in fnCallArguments, "The result[$value] is incorrect")
             }
-            Assertions.assertEquals(fnCallArguments.size, size, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, set.size, "The size of the result is incorrect")
         }
     }
 
@@ -74,15 +64,10 @@ internal class SetTypeTest {
                     "The result must be a LxmSet")
 
             val listResult = list1 + list2
-            var size = 0
-            for ((_, propList) in set.getAllValues()) {
-                for (prop in propList) {
-                    Assertions.assertTrue(prop.value in listResult, "The result[${prop.value}] is incorrect")
-
-                    size += 1
-                }
+            for (value in set.getAllValues()) {
+                Assertions.assertTrue(value in listResult, "The result[$value] is incorrect")
             }
-            Assertions.assertEquals(listResult.size, size, "The size of the result is incorrect")
+            Assertions.assertEquals(listResult.size, set.size, "The size of the result is incorrect")
         }
     }
 
@@ -97,13 +82,7 @@ internal class SetTypeTest {
             val set = result?.dereference(analyzer.memory, toWrite = false) as? LxmSet ?: throw Error(
                     "The result must be a LxmSet")
 
-            var size = 0
-            for ((_, propList) in set.getAllValues()) {
-                for (prop in propList) {
-                    size += 1
-                }
-            }
-            Assertions.assertEquals(fnCallArguments.size, size, "The size of the result is incorrect")
+            Assertions.assertEquals(fnCallArguments.size, set.size, "The size of the result is incorrect")
         }
     }
 

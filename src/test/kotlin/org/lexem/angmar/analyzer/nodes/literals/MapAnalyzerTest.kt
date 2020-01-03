@@ -25,14 +25,13 @@ internal class MapAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmMap")
-        val properties = obj.getAllProperties()
 
-        Assertions.assertEquals(values.size, properties.size, "The number of properties is incorrect")
+        Assertions.assertEquals(values.size, obj.size, "The number of properties is incorrect")
 
-        for (i in values) {
-            val value = properties[i.key]!!
-            val el = value[0].value as? LxmInteger ?: throw Error("The property must be a LxmInteger")
-            Assertions.assertEquals(i.value, el.primitive, "The primitive property is incorrect")
+        for ((index, value) in values) {
+            val resValue = obj.getPropertyValue(LxmInteger.from(index)) as? LxmInteger ?: throw Error(
+                    "The property must be a LxmInteger")
+            Assertions.assertEquals(value, resValue.primitive, "The primitive property is incorrect")
         }
 
         Assertions.assertFalse(obj.isConstant, "The isConstant property is incorrect")
@@ -54,14 +53,13 @@ internal class MapAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmMap")
-        val properties = obj.getAllProperties()
 
-        Assertions.assertEquals(values.size, properties.size, "The number of properties is incorrect")
+        Assertions.assertEquals(values.size, obj.size, "The number of properties is incorrect")
 
-        for (i in values) {
-            val value = properties[i.key]!!
-            val el = value[0].value as? LxmInteger ?: throw Error("The property must be a LxmInteger")
-            Assertions.assertEquals(i.value, el.primitive, "The primitive property is incorrect")
+        for ((index, value) in values) {
+            val resValue = obj.getPropertyValue(LxmInteger.from(index)) as? LxmInteger ?: throw Error(
+                    "The property must be a LxmInteger")
+            Assertions.assertEquals(value, resValue.primitive, "The primitive property is incorrect")
         }
 
         Assertions.assertTrue(obj.isConstant, "The isConstant property is incorrect")
@@ -83,9 +81,8 @@ internal class MapAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmMap")
-        val properties = obj.getAllProperties()
 
-        Assertions.assertEquals(0, properties.size, "The number of properties is incorrect")
+        Assertions.assertEquals(0, obj.size, "The number of properties is incorrect")
         Assertions.assertFalse(obj.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.
@@ -105,9 +102,8 @@ internal class MapAnalyzerTest {
                 analyzer.memory.getLastFromStack() as? LxmReference ?: throw Error("The result must be a LxmReference")
         val obj = resultRef.dereferenceAs<LxmMap>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmMap")
-        val properties = obj.getAllProperties()
 
-        Assertions.assertEquals(0, properties.size, "The number of properties is incorrect")
+        Assertions.assertEquals(0, obj.size, "The number of properties is incorrect")
         Assertions.assertTrue(obj.isConstant, "The isConstant property is incorrect")
 
         // Remove Last from the stack.

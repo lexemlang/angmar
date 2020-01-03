@@ -15,18 +15,18 @@ internal class LxmInteger private constructor(val primitive: Int) : LexemPrimiti
     /**
      * Returns the number in the specified radix.
      */
-    fun toLexemString(memory: LexemMemory, radix: Int) = LxmString.from(primitive.toString(radix))
+    fun toLexemString(radix: Int) = LxmString.from(primitive.toString(radix))
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getType(memory: LexemMemory): LxmReference {
+    override fun getType(memory: IMemory): LxmReference {
         val context = AnalyzerCommons.getStdLibContext(memory, toWrite = false)
         return context.getPropertyValue(memory, IntegerType.TypeName) as LxmReference
     }
 
-    override fun getHashCode(memory: LexemMemory) = primitive.hashCode()
+    override fun getHashCode() = primitive.hashCode()
 
-    override fun toLexemString(memory: LexemMemory) = toLexemString(memory, 10)
+    override fun toLexemString(memory: IMemory) = toLexemString(10)
 
     override fun toString() = primitive.toString()
 

@@ -73,7 +73,7 @@ internal object StdlibCommons {
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, LxmNil)
         positionalArguments.forEach { arguments.addPositionalArgument(analyzer.memory, it) }
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(InternalFunctionCallCompiled, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }
@@ -91,7 +91,7 @@ internal object StdlibCommons {
         val arguments = LxmArguments(analyzer.memory)
         arguments.addNamedArgument(analyzer.memory, AnalyzerCommons.Identifiers.This, value)
 
-        AnalyzerNodesCommons.callFunction(analyzer, function, arguments, InternalFunctionCallCompiled,
+        AnalyzerNodesCommons.callFunction(analyzer, function, arguments,
                 LxmCodePoint(returnNode, returnSignal, callerNode = function.node,
                         callerContextName = "<Native function '$functionName'>"))
     }

@@ -33,7 +33,7 @@ internal class ObjectSimplificationAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
+        val property = objDeref.getPropertyDescriptor(analyzer.memory, key)!!
         property.value.dereference(analyzer.memory, toWrite = false) as? LxmFunction ?: throw Error(
                 "The element must be a LxmInteger")
 
@@ -63,7 +63,7 @@ internal class ObjectSimplificationAnalyzerTest {
                         "The result must be a LxmReference")
         val objDeref = resultRef.dereferenceAs<LxmObject>(analyzer.memory, toWrite = false) ?: throw Error(
                 "The result must be a LxmObject")
-        val property = objDeref.getOwnPropertyDescriptor(analyzer.memory, key)!!
+        val property = objDeref.getPropertyDescriptor(analyzer.memory, key)!!
         property.value.dereference(analyzer.memory, toWrite = false) as? LxmFunction ?: throw Error(
                 "The element must be a LxmInteger")
 
@@ -107,7 +107,7 @@ internal class ObjectSimplificationAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the dangling references.
-        analyzer.memory.spatialGarbageCollect(forced = true)
+        analyzer.memory.lastNode.garbageCollect()
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))
@@ -205,7 +205,7 @@ internal class ObjectSimplificationAnalyzerTest {
                 "The $varName is incorrect")
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect(forced = true)
+        analyzer.memory.lastNode.garbageCollect()
 
         TestUtils.checkEmptyStackAndContext(analyzer,
                 listOf(varName, AnalyzerCommons.Identifiers.HiddenCurrentContextName))

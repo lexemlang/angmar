@@ -100,7 +100,7 @@ internal object FloatPrototype {
         when (precision) {
             is LxmNil -> {
                 analyzer.memory.addToStackAsLast(
-                        thisValue.toExponentialLexemString(analyzer.memory, Consts.Float.exponentialDefaultPrecision))
+                        thisValue.toExponentialLexemString(Consts.Float.exponentialDefaultPrecision))
             }
             is LxmInteger -> {
                 if (precision.primitive < 0) {
@@ -108,8 +108,7 @@ internal object FloatPrototype {
                             "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ToExponential' method requires the parameter called '${ToExponentialArgs[0]}' be a positive ${IntegerType.TypeName}") {}
                 }
 
-                analyzer.memory.addToStackAsLast(
-                        thisValue.toExponentialLexemString(analyzer.memory, precision.primitive))
+                analyzer.memory.addToStackAsLast(thisValue.toExponentialLexemString(precision.primitive))
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ToExponential' method requires the parameter called '${ToExponentialArgs[0]}' be an ${IntegerType.TypeName} or ${NilType.TypeName}") {}
@@ -140,7 +139,7 @@ internal object FloatPrototype {
                             "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ToFixed' method requires the parameter called '${ToFixedArgs[0]}' be a positive ${IntegerType.TypeName}") {}
                 }
 
-                analyzer.memory.addToStackAsLast(thisValue.toFixedLexemString(analyzer.memory, precision.primitive))
+                analyzer.memory.addToStackAsLast(thisValue.toFixedLexemString(precision.primitive))
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}$ToFixed' method requires the parameter called '${ToFixedArgs[0]}' be an ${IntegerType.TypeName}") {}
@@ -174,7 +173,7 @@ internal object FloatPrototype {
                             "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}${AnalyzerCommons.Identifiers.ToString}' method requires the parameter called '${ToStringArgs[0]}' be 2, 8, 10 or 16.") {}
                 }
 
-                analyzer.memory.addToStackAsLast(thisValue.toLexemString(analyzer.memory, radix.primitive))
+                analyzer.memory.addToStackAsLast(thisValue.toLexemString(radix.primitive))
             }
             else -> throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.BadArgumentError,
                     "The '<${FloatType.TypeName} value>${AccessExplicitMemberNode.accessToken}${AnalyzerCommons.Identifiers.ToString}' method requires the parameter called '${ToStringArgs[0]}' be a ${IntegerType.TypeName}") {}

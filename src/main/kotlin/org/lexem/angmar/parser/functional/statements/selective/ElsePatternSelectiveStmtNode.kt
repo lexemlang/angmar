@@ -23,7 +23,7 @@ internal class ElsePatternSelectiveStmtNode private constructor(parser: LexemPar
 
     companion object {
         const val elseKeyword = ConditionalStmtNode.elseKeyword
-        
+
         // METHODS ------------------------------------------------------------
 
         /**

@@ -5,7 +5,6 @@ import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 
 /**
  * The Lexem value of a Map iterator.
@@ -14,43 +13,36 @@ internal class LxmMapIterator : LexemIterator {
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory, map: LxmMap) : super(memory) {
+    constructor(memory: IMemory, map: LxmMap) : super(memory) {
         setProperty(memory, AnalyzerCommons.Identifiers.Value, map.getPrimitive())
 
         val list = LxmList(memory)
-        val values = map.getAllProperties().flatMap { it.value.map { it.key } }
-        for (v in values) {
-            list.addCell(memory, v)
-        }
+        list.addCell(memory, *map.getAllProperties().map { it.key }.toList().toTypedArray())
 
         setProperty(memory, AnalyzerCommons.Identifiers.Keys, list)
 
-        size = values.size.toLong()
+        intervalSize = map.size.toLong()
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmMapIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone) {
-        this.size = oldVersion.size
-    }
+    private constructor(memory: IMemory, oldVersion: LxmMapIterator) : super(memory, oldVersion)
+
     // METHODS ----------------------------------------------------------------
 
     /**
      * Gets the iterator's map.
      */
-    private fun getMap(memory: LexemMemory) =
+    private fun getMap(memory: IMemory) =
             getDereferencedProperty<LxmMap>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
 
     /**
      * Gets the iterator's keys.
      */
-    private fun getKeys(memory: LexemMemory) =
+    private fun getKeys(memory: IMemory) =
             getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.Keys, toWrite = false)!!
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override val size: Long
-
-    override fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
+    override fun getCurrent(memory: IMemory): Pair<LexemPrimitive?, LexemPrimitive>? {
         if (isEnded(memory)) {
             return null
         }
@@ -58,13 +50,12 @@ internal class LxmMapIterator : LexemIterator {
         val index = getIndex(memory)
         val map = getMap(memory)
         val keys = getKeys(memory)
-        val currentKey = keys.getCell(memory, index.primitive)!!
-        val currentValue = map.getPropertyValue(memory, currentKey) ?: LxmNil
+        val currentKey = keys.getCell(index.primitive)!!
+        val currentValue = map.getPropertyValue(currentKey) ?: LxmNil
         return Pair(currentKey, currentValue)
     }
 
-    override fun memoryShift(memory: LexemMemory) =
-            LxmMapIterator(memory, this, toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(memory: IMemory) = LxmMapIterator(memory, this)
 
     override fun toString() = "[Iterator - Map] ${super.toString()}"
 }

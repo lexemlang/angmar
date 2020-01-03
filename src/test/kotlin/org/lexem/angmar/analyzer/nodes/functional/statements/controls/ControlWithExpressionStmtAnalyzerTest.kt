@@ -49,9 +49,8 @@ internal class ControlWithExpressionStmtAnalyzerTest {
 
             val result = controlValue.value?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The value must be a LxmList")
-            Assertions.assertEquals(1, result.actualListSize, "The number of values is incorrect")
-            Assertions.assertEquals(LxmInteger.Num2, result.getCell(analyzer.memory, 0),
-                    "The number of values is incorrect")
+            Assertions.assertEquals(1, result.size, "The number of values is incorrect")
+            Assertions.assertEquals(LxmInteger.Num2, result.getCell(0), "The number of values is incorrect")
 
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.Control)
         }

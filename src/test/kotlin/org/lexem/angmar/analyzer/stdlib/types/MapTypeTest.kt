@@ -30,22 +30,17 @@ internal class MapTypeTest {
                     "The result must be a LxmMap")
 
             // Make the result.
-            val targetResult: MutableMap<String, LexemPrimitive> = target.toMutableMap()
+            val targetResult: MutableMap<String, LexemPrimitive> = target.toHashMap()
             targetResult.putAll(source1)
             targetResult.putAll(source2)
 
-            var size = 0
-            for ((_, propList) in map.getAllProperties()) {
-                for (prop in propList) {
-                    val inTarget = targetResult[(prop.key as LxmString).primitive] ?: throw Error(
-                            "The result[${prop.key}] is incorrect")
+            for ((key, value) in map.getAllProperties()) {
+                val inTarget =
+                        targetResult[(key as LxmString).primitive] ?: throw Error("The result[$key] is incorrect")
 
-                    Assertions.assertEquals(inTarget, prop.value, "The result[${prop.key}] is incorrect")
-
-                    size += 1
-                }
+                Assertions.assertEquals(inTarget, value, "The result[$key] is incorrect")
             }
-            Assertions.assertEquals(targetResult.size, size, "The number of elements is incorrect")
+            Assertions.assertEquals(targetResult.size, map.size, "The number of elements is incorrect")
         }
     }
 

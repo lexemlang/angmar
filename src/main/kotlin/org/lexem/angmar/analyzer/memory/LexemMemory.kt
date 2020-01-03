@@ -8,111 +8,12 @@ import org.lexem.angmar.errors.*
 /**
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
-internal class LexemMemory {
-    var isInGarbageCollectionMode = false
-        private set
-
+internal class LexemMemory : IMemory {
     val firstNode = BigNode(previousNode = null, nextNode = null)
     var lastNode = firstNode
         private set
 
     // METHODS ----------------------------------------------------------------
-
-    /**
-     * Adds a new primitive into the stack.
-     */
-    fun addToStack(name: String, primitive: LexemMemoryValue) =
-            lastNode.addToStack(name, primitive.getPrimitive(), this)
-
-    /**
-     * Adds a new primitive into the stack with '[AnalyzerCommons.Identifiers.Last]' as name.
-     */
-    fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
-
-    /**
-     * Gets the specified primitive from the stack.
-     */
-    fun getFromStack(name: String) = lastNode.getFromStack(name)
-
-    /**
-     * Gets the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
-     */
-    fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Removes the specified primitive from the stack.
-     */
-    fun removeFromStack(name: String) = lastNode.removeFromStack(name, this)
-
-    /**
-     * Removes the '[AnalyzerCommons.Identifiers.Last]' primitive from the stack.
-     */
-    fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Renames the specified stack cell by another name.
-     */
-    fun renameStackCell(oldName: String, newName: String) {
-        if (oldName == newName) {
-            return
-        }
-
-        val currentCell = getFromStack(oldName)
-        addToStack(newName, currentCell)
-        removeFromStack(oldName)
-    }
-
-    /**
-     * Renames the '[AnalyzerCommons.Identifiers.Last]' stack cell by another name.
-     */
-    fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
-
-    /**
-     * Renames the specified cell to '[AnalyzerCommons.Identifiers.Last]'.
-     */
-    fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
-
-    /**
-     * Replace the specified stack cell by another primitive.
-     */
-    fun replaceStackCell(name: String, newValue: LexemMemoryValue) =
-            lastNode.replaceStackCell(name, newValue.getPrimitive(), this)
-
-    /**
-     * Replace the '[AnalyzerCommons.Identifiers.Last]' stack cell by another primitive.
-     */
-    fun replaceLastStackCell(newValue: LexemMemoryValue) = replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
-
-    /**
-     * Gets a value from the memory.
-     */
-    fun get(reference: LxmReference, toWrite: Boolean) =
-            lastNode.getCell(this, reference.position, forceShift = toWrite).value
-
-    /**
-     * Adds a value in the memory returning the position in which it has been added.
-     */
-    fun add(value: LexemReferenced) = LxmReference(lastNode.alloc(this, value).position)
-
-    /**
-     * Removes a value in the memory.
-     */
-    fun remove(reference: LxmReference) = lastNode.free(this, reference.position)
-
-    /**
-     * Replaces a primitive with a new one handling the pointer changes.
-     */
-    fun replacePrimitives(oldValue: LexemPrimitive, newValue: LexemPrimitive) {
-        // Increases the new reference.
-        if (newValue is LxmReference) {
-            lastNode.getCell(this, newValue.position, forceShift = true).increaseReferences()
-        }
-
-        // Removes the previous reference.
-        if (oldValue is LxmReference) {
-            lastNode.getCell(this, oldValue.position, forceShift = true).decreaseReferences(this)
-        }
-    }
 
     /**
      * Clears the memory.
@@ -126,48 +27,38 @@ internal class LexemMemory {
     /**
      * Freezes the memory creating a differential copy of the memory.
      */
-    fun freezeCopy(): BigNode {
-        val res = lastNode
+    fun freezeCopy(rollbackCodePoint: LxmRollbackCodePoint) {
+        // Set rollback code point.
+        lastNode.rollbackCodePoint = rollbackCodePoint
+
+        // Make copy.
+        val oldLastNode = lastNode
         lastNode = BigNode(previousNode = lastNode, nextNode = null)
-        res.nextNode = lastNode
-        return res
+        oldLastNode.nextNode = lastNode
     }
 
     /**
      * Rollback the last copy, removing all changes since then.
      */
-    fun rollbackCopy() {
+    fun rollbackCopy(): LxmRollbackCodePoint {
         // Prevents the deletion if it is the root node.
         if (lastNode == firstNode) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FirstBigNodeRollback,
                     "The memory cannot rollback the first BigNode") {}
         }
 
-        // Get the previous recoverable node.
-        var node = lastNode.previousNode
-        while (node != null) {
-            if (node.isRecoverable) {
-                break
-            }
-
-            node = node.previousNode
-        }
-
-        restoreCopy(node ?: throw AngmarUnreachableException())
+        return restoreCopy(lastNode.previousNode ?: throw AngmarUnreachableException())
     }
 
     /**
      * Restores the specified copy, removing all changes since then.
      */
-    fun restoreCopy(bigNode: BigNode) {
-        if (!bigNode.isRecoverable) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.NonRecoverableNodeRollback,
-                    "The memory cannot rollback a non-recoverable BigNode") {}
-        }
-
+    fun restoreCopy(bigNode: BigNode): LxmRollbackCodePoint {
         bigNode.nextNode?.destroy()
         bigNode.nextNode = null
         lastNode = bigNode
+
+        return bigNode.rollbackCodePoint ?: throw AngmarUnreachableException()
     }
 
     /**
@@ -179,113 +70,51 @@ internal class LexemMemory {
             return
         }
 
-        // Mark the nodes counting the heap elements.
-        var count = 0
-        var node: BigNode? = bigNode
-        while (node != null) {
-            // Avoid to increase twice a node that in a previous
-            // collapse was counted.
-            if (node.isRecoverable) {
-                node.isRecoverable = false
-                count += node.heapSize
-            }
-
-            node = node.nextNode
+        // Destroy the bigNode chain.
+        var node = lastNode.previousNode!!
+        while (node.id >= bigNode.id) {
+            val node2remove = node
+            node = node.previousNode!!
+            node2remove.destroy()
         }
 
-        // Creates a new bigNode that represents the old one.
-        freezeCopy()
-
-        // Add the count to the bigNode.
-        lastNode.temporalGarbageCollectorCount += count
+        // Link again.
+        node.nextNode = lastNode
+        lastNode.previousNode = node
     }
 
-    /**
-     * Collects all the garbage of the current big node.
-     */
-    fun spatialGarbageCollect(forced: Boolean = false) {
-        isInGarbageCollectionMode = true
-        lastNode.spatialGarbageCollect(this, forced)
-        isInGarbageCollectionMode = false
-    }
+    // OVERRIDDEN METHODS ------------------------------------------------------
 
-    /**
-     * Collapses all the garbage of the big node history.
-     */
-    fun temporalGarbageCollect() {
-        for ((from, destination) in temporalGarbageCollectFindGroups()) {
-            val prev = destination.previousNode
-            val next = from.nextNode
-            from.temporalGarbageCollect(destination)
+    override fun getBigNodeId() = lastNode.id
 
-            prev?.nextNode = destination
-            destination.previousNode = prev
-            destination.nextNode = next
-            next?.previousNode = destination
+    override fun addToStack(name: String, primitive: LexemMemoryValue) = lastNode.addToStack(name, primitive)
 
-            // Update the lastNode.
-            if (from == lastNode) {
-                lastNode = destination
-            }
-        }
-    }
+    override fun addToStackAsLast(primitive: LexemMemoryValue) = addToStack(AnalyzerCommons.Identifiers.Last, primitive)
 
-    /**
-     * Find non-recoverable groups.
-     */
-    private fun temporalGarbageCollectFindGroups() = sequence {
-        var state = 0
-        var from: BigNode? = lastNode
-        var destination: BigNode? = lastNode
-        var node: BigNode? = lastNode
-        stateLoop@ while (state >= 0) {
-            when (state) {
-                // Find first.
-                0 -> {
-                    while (node != null) {
-                        if (!node.isRecoverable) {
-                            from = node.nextNode ?: throw AngmarAnalyzerException(
-                                    AngmarAnalyzerExceptionType.LastBigNodeTemporalGarbageCollection,
-                                    "The temporal garbage collector cannot remove a non-recoverable bigNode without a next one.") {}
+    override fun getFromStack(name: String) = lastNode.getFromStack(name)
 
-                            state = 1
-                            continue@stateLoop
-                        } else {
-                            // No more non-recoverable bigNodes before this one.
-                            if (node.temporalGarbageCollectorCount == 0) {
-                                break@stateLoop
-                            }
+    override fun getLastFromStack() = getFromStack(AnalyzerCommons.Identifiers.Last)
 
-                            // Clears the count of the recoverable bigNodes.
-                            node.temporalGarbageCollectorCount = 0
-                        }
+    override fun removeFromStack(name: String) = lastNode.removeFromStack(name)
 
-                        node = node.previousNode
-                    }
+    override fun removeLastFromStack() = removeFromStack(AnalyzerCommons.Identifiers.Last)
 
-                    // Exit
-                    state = -1
-                }
-                // Find end.
-                1 -> {
-                    while (node != null) {
-                        if (node.isRecoverable) {
-                            break
-                        }
+    override fun renameStackCell(oldName: String, newName: String) = lastNode.renameStackCell(oldName, newName)
 
-                        destination = node
-                        node = node.previousNode
-                    }
+    override fun renameLastStackCell(newName: String) = renameStackCell(AnalyzerCommons.Identifiers.Last, newName)
 
-                    // Collects the garbage.
-                    yield(Pair(from!!, destination!!))
+    override fun renameStackCellToLast(oldName: String) = renameStackCell(oldName, AnalyzerCommons.Identifiers.Last)
 
-                    from = null
-                    destination = null
+    override fun replaceStackCell(name: String, newValue: LexemMemoryValue) = lastNode.replaceStackCell(name, newValue)
 
-                    state = 0
-                }
-            }
-        }
-    }
+    override fun replaceLastStackCell(newValue: LexemMemoryValue) =
+            replaceStackCell(AnalyzerCommons.Identifiers.Last, newValue)
+
+    override fun get(reference: LxmReference, toWrite: Boolean) = lastNode.get(reference, toWrite)
+
+    override fun getCell(reference: LxmReference, toWrite: Boolean) = lastNode.getCell(reference, toWrite)
+
+    override fun add(value: LexemReferenced) = lastNode.add(value)
+
+    override fun remove(reference: LxmReference) = lastNode.remove(reference)
 }

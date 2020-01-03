@@ -4,7 +4,6 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.*
-import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 
 /**
@@ -18,19 +17,14 @@ internal class LxmArguments : LxmObject {
         init(memory)
     }
 
-    private constructor(memory: LexemMemory, oldVersion: LxmArguments, mustInit: Boolean, toClone: Boolean) : super(
-            memory, oldVersion, toClone) {
-        if (mustInit) {
-            init(memory)
-        }
-    }
+    private constructor(memory: IMemory, oldVersion: LxmArguments) : super(memory, oldVersion = oldVersion)
 
     // METHODS ----------------------------------------------------------------
 
     /**
      * Adds the initial properties.
      */
-    private fun init(memory: LexemMemory) {
+    private fun init(memory: IMemory) {
         val positional = LxmList(memory)
         val named = LxmObject(memory)
         setProperty(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, positional, isConstant = true)
@@ -40,49 +34,46 @@ internal class LxmArguments : LxmObject {
     /**
      * Gets the positional list.
      */
-    private fun getPositionalList(memory: LexemMemory, toWrite: Boolean) =
+    private fun getPositionalList(memory: IMemory, toWrite: Boolean) =
             getDereferencedProperty<LxmList>(memory, AnalyzerCommons.Identifiers.ArgumentsPositional, toWrite)!!
 
     /**
      * Gets the named object.
      */
-    private fun getNamedObject(memory: LexemMemory, toWrite: Boolean) =
+    private fun getNamedObject(memory: IMemory, toWrite: Boolean) =
             getDereferencedProperty<LxmObject>(memory, AnalyzerCommons.Identifiers.ArgumentsNamed, toWrite)!!
 
     /**
      * Adds a named argument.
      */
-    fun getNamedArgument(memory: LexemMemory, identifier: String) =
+    fun getNamedArgument(memory: IMemory, identifier: String) =
             getNamedObject(memory, toWrite = false).getPropertyValue(memory, identifier)
 
     /**
      * Adds a positional argument.
      */
-    fun addPositionalArgument(memory: LexemMemory, value: LexemMemoryValue) {
+    fun addPositionalArgument(memory: IMemory, value: LexemMemoryValue) {
         getPositionalList(memory, toWrite = true).addCell(memory, value)
     }
 
     /**
      * Adds a named argument.
      */
-    fun addNamedArgument(memory: LexemMemory, identifier: String, value: LexemMemoryValue) {
+    fun addNamedArgument(memory: IMemory, identifier: String, value: LexemMemoryValue) {
         getNamedObject(memory, toWrite = true).setProperty(memory, identifier, value)
     }
 
     /**
      * Maps the [LxmArguments] to a [LxmBacktrackingData].
      */
-    fun mapToBacktrackingData(memory: LexemMemory): LxmBacktrackingData {
-        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+    fun mapToBacktrackingData(memory: IMemory): LxmBacktrackingData {
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
-        val mappedArguments = namedArguments.mapValues { (_, property) ->
-            val deref = property.value.dereference(memory, toWrite = false)
-            if (deref is LexemPrimitive) {
-                deref
-            } else {
-                LxmNil
-            }
+        val mappedArguments = hashMapOf<String, LexemPrimitive>()
+        namedArguments.forEach { (key, property) ->
+            val value = property.value.dereference(memory, toWrite = false) as? LexemPrimitive ?: LxmNil
+            mappedArguments[key] = value
         }
 
         return LxmBacktrackingData(positionalArguments, mappedArguments)
@@ -91,43 +82,50 @@ internal class LxmArguments : LxmObject {
     /**
      * Maps all positional and named arguments into a map. Used for internal functions.
      */
-    fun mapArguments(memory: LexemMemory, parameterNames: List<String>,
+    fun mapArguments(memory: IMemory, parameterNames: List<String>,
             spreadPositionalParameter: MutableList<LexemPrimitive>? = null,
             spreadNamedParameter: MutableMap<String, LexemPrimitive>? = null): Map<String, LexemPrimitive> {
-        val result = mutableMapOf<String, LexemPrimitive>()
-        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+        val result = hashMapOf<String, LexemPrimitive>()
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
         // Map positional arguments.
-        for (parameter in parameterNames.withIndex()) {
-            val value = positionalArguments.getOrNull(parameter.index)
+        for ((index, parameterName) in parameterNames.withIndex()) {
+            val value = positionalArguments.getOrNull(index)
             if (value == null) {
-                result[parameter.value] = LxmNil
+                result[parameterName] = LxmNil
                 continue
             }
 
-            result[parameter.value] = value
+            result[parameterName] = value
         }
 
         // Add positional arguments to spread parameter.
         spreadPositionalParameter?.addAll(positionalArguments.drop(parameterNames.size))
 
         // Map named arguments.
-        for (argument in namedArguments) {
-            val value = argument.value.value
-            if (result.containsKey(argument.key)) {
-                result[argument.key] = value
+        var isThisAssigned = false
+        for ((key, argument) in namedArguments) {
+            val value = argument.value
+            if (result.containsKey(key)) {
+                result[key] = value
             } else {
                 // Add named arguments to spread parameter.
-                spreadNamedParameter?.put(argument.key, value)
+                spreadNamedParameter?.put(key, value)
+            }
+
+            // Always add the 'this' parameter.
+            if (key == AnalyzerCommons.Identifiers.This) {
+                isThisAssigned = true
+                result[key] = value
             }
         }
 
-        // Always add the 'this' parameter.
-        val thisArgument = namedArguments[AnalyzerCommons.Identifiers.This] ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
-                "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
-        result[AnalyzerCommons.Identifiers.This] = thisArgument.value
+        // Ensure the 'this' parameter is always added.
+        if (!isThisAssigned) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
+                    "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
+        }
 
         return result
     }
@@ -135,23 +133,23 @@ internal class LxmArguments : LxmObject {
     /**
      * Maps all positional and named arguments into a context.
      */
-    fun mapArgumentsToContext(memory: LexemMemory, parameters: LxmParameters, context: LxmObject) {
+    fun mapArgumentsToContext(memory: IMemory, parameters: LxmParameters, context: LxmObject) {
         val parameterNames = parameters.getParameters()
         val result = mutableSetOf<String>()
-        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+        val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
         // Map positional arguments.
-        for (parameter in parameterNames.withIndex()) {
-            val value = positionalArguments.getOrNull(parameter.index)
+        for ((index, parameterName) in parameterNames.withIndex()) {
+            val value = positionalArguments.getOrNull(index)
 
-            result.add(parameter.value)
+            result.add(parameterName)
 
             if (value == null) {
                 continue
             }
 
-            context.setProperty(memory, parameter.value, value)
+            context.setProperty(memory, parameterName, value)
         }
 
         // Add positional arguments to spread parameter.
@@ -166,6 +164,7 @@ internal class LxmArguments : LxmObject {
         }
 
         // Map named arguments.
+        var isThisAssigned = false
         if (parameters.namedSpread != null) {
             val obj = LxmObject(memory)
 
@@ -179,6 +178,12 @@ internal class LxmArguments : LxmObject {
                         obj.setProperty(memory, key, value)
                     }
                 }
+
+                // Always add the 'this' parameter.
+                if (key == AnalyzerCommons.Identifiers.This) {
+                    isThisAssigned = true
+                    context.setProperty(memory, key, value)
+                }
             }
 
             context.setProperty(memory, parameters.namedSpread!!, obj)
@@ -188,20 +193,25 @@ internal class LxmArguments : LxmObject {
                 if (result.contains(key)) {
                     context.setProperty(memory, key, value)
                 }
+
+                // Always add the 'this' parameter.
+                if (key == AnalyzerCommons.Identifiers.This) {
+                    isThisAssigned = true
+                    context.setProperty(memory, key, value)
+                }
             }
         }
 
-        // Always add the 'this' parameter.
-        val thisArgument = namedArguments[AnalyzerCommons.Identifiers.This] ?: throw AngmarAnalyzerException(
-                AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
-                "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
-        context.setProperty(memory, AnalyzerCommons.Identifiers.This, thisArgument.value)
+        // Ensure the 'this' parameter is always added.
+        if (!isThisAssigned) {
+            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.FunctionCallWithoutThisArgument,
+                    "All function calls must include the '${AnalyzerCommons.Identifiers.This}' argument") {}
+        }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun memoryShift(memory: LexemMemory) = LxmArguments(memory, this, mustInit = false,
-            toClone = countOldVersions() >= Consts.Memory.maxVersionCountToFullyCopyAValue)
+    override fun memoryClone(memory: IMemory) = LxmArguments(memory, this)
 
     override fun toString() = "[Arguments] ${super.toString()}"
 }

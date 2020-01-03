@@ -9,42 +9,43 @@ import org.lexem.angmar.analyzer.memory.*
  * An iterator for an element.
  */
 internal abstract class LexemIterator : LxmObject {
+    /**
+     * The number of iterations.
+     */
+    var intervalSize = 0L
+        protected set
 
     // CONSTRUCTORS -----------------------------------------------------------
 
-    constructor(memory: LexemMemory) : super(memory) {
+    constructor(memory: IMemory) : super(memory) {
         restart(memory)
     }
 
-    protected constructor(memory: LexemMemory, oldVersion: LexemIterator, toClone: Boolean) : super(memory, oldVersion,
-            toClone)
+    protected constructor(memory: IMemory, oldVersion: LexemIterator) : super(memory, oldVersion = oldVersion) {
+        intervalSize = oldVersion.intervalSize
+    }
 
     // METHODS ----------------------------------------------------------------
 
     /**
      * The current position of the iterator.
      */
-    fun getIndex(memory: LexemMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
-
-    /**
-     * The number of iterations.
-     */
-    abstract val size: Long
+    fun getIndex(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
 
     /**
      * Whether the iterator is ended or not.
      */
-    fun isEnded(memory: LexemMemory) = getIndex(memory).primitive >= size
+    fun isEnded(memory: IMemory) = getIndex(memory).primitive >= intervalSize
 
     /**
      * Returns the current element in a index-value pair.
      */
-    abstract fun getCurrent(memory: LexemMemory): Pair<LexemPrimitive?, LexemPrimitive>?
+    abstract fun getCurrent(memory: IMemory): Pair<LexemPrimitive?, LexemPrimitive>?
 
     /**
      * Advance one iteration.
      */
-    fun advance(memory: LexemMemory) {
+    open fun advance(memory: IMemory) {
         val prev = getPropertyValue(memory, AnalyzerCommons.Identifiers.Index) as LxmInteger
         val new = LxmInteger.from(prev.primitive + 1)
         setProperty(memory, AnalyzerCommons.Identifiers.Index, new)
@@ -53,7 +54,7 @@ internal abstract class LexemIterator : LxmObject {
     /**
      * Restarts the iterator.
      */
-    fun restart(memory: LexemMemory) {
+    open fun restart(memory: IMemory) {
         setProperty(memory, AnalyzerCommons.Identifiers.Index, LxmInteger.Num0)
     }
 }

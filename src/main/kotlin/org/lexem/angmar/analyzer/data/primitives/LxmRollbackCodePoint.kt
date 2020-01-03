@@ -1,7 +1,6 @@
 package org.lexem.angmar.analyzer.data.primitives
 
 import org.lexem.angmar.*
-import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.compiler.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
@@ -26,7 +25,7 @@ internal class LxmRollbackCodePoint(node: CompiledNode, signal: Int, val readerC
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun getHashCode(memory: LexemMemory) = throw AngmarUnreachableException()
+    override fun getHashCode() = throw AngmarUnreachableException()
 
     override fun toString() = "[Rollback Code Point] (cursor: $readerCursor, signal: $signal, node: $node)"
 }

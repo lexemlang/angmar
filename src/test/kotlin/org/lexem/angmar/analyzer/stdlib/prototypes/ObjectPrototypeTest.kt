@@ -55,7 +55,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.IsFrozen}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -80,7 +80,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.IsPropertyFrozen}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -100,7 +100,7 @@ internal class ObjectPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.IsPropertyFrozen}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -178,7 +178,7 @@ internal class ObjectPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.FreezeProperties}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -205,7 +205,7 @@ internal class ObjectPrototypeTest {
                     ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
-                val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
+                val descriptor = objOri.getPropertyDescriptor(analyzer.memory, key) ?: throw Error(
                         "The original has been modified")
                 Assertions.assertTrue(descriptor.isConstant, "The isConstant property is incorrect")
                 Assertions.assertEquals(value, descriptor.value, "The isConstant property is incorrect")
@@ -282,7 +282,7 @@ internal class ObjectPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.RemoveProperties}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -303,7 +303,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 element as? LxmString ?: throw Error("All elements in the result list must be LxmString")
@@ -315,7 +315,7 @@ internal class ObjectPrototypeTest {
                     ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
-                val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
+                val descriptor = objOri.getPropertyDescriptor(analyzer.memory, key) ?: throw Error(
                         "The original has been modified")
                 Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
                 Assertions.assertEquals(value, descriptor.value, "The isConstant property is incorrect")
@@ -339,7 +339,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 Assertions.assertTrue(obj.containsValue(element), "The result list is incorrect")
@@ -350,7 +350,7 @@ internal class ObjectPrototypeTest {
                     ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
-                val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
+                val descriptor = objOri.getPropertyDescriptor(analyzer.memory, key) ?: throw Error(
                         "The original has been modified")
                 Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
                 Assertions.assertEquals(value, descriptor.value, "The isConstant property is incorrect")
@@ -374,7 +374,7 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resList = result?.dereference(analyzer.memory, toWrite = false) as? LxmList ?: throw Error(
                     "The result must be LxmList")
-            Assertions.assertEquals(obj.size, resList.actualListSize, "The result is incorrect")
+            Assertions.assertEquals(obj.size, resList.size, "The result is incorrect")
 
             for (element in resList.getAllCells()) {
                 val elementObj = element.dereference(analyzer.memory, toWrite = false) as? LxmObject ?: throw Error(
@@ -394,7 +394,7 @@ internal class ObjectPrototypeTest {
                     ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
-                val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
+                val descriptor = objOri.getPropertyDescriptor(analyzer.memory, key) ?: throw Error(
                         "The original has been modified")
                 Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
                 Assertions.assertEquals(value, descriptor.value, "The isConstant property is incorrect")
@@ -418,11 +418,10 @@ internal class ObjectPrototypeTest {
                 initialVars = mapOf(variable to LxmNil)) { analyzer, result ->
             val resMap = result?.dereference(analyzer.memory, toWrite = false) as? LxmMap ?: throw Error(
                     "The result must be LxmMap")
-            Assertions.assertEquals(obj.size, resMap.getSize(), "The result is incorrect")
+            Assertions.assertEquals(obj.size, resMap.size, "The result is incorrect")
 
-            for (prop in resMap.getAllProperties().flatMap { it.value }) {
-                val key = prop.key as? LxmString ?: throw Error("All keys must be LxmString")
-                val value = prop.value
+            for ((key, value) in resMap.getAllProperties()) {
+                key as? LxmString ?: throw Error("All keys must be LxmString")
 
                 Assertions.assertTrue(key.primitive in obj, "The key property is incorrect")
                 Assertions.assertEquals(obj[key.primitive], value, "The value property is incorrect")
@@ -433,7 +432,7 @@ internal class ObjectPrototypeTest {
                     ?: throw Error("The variable must contain a LxmObject")
 
             for ((key, value) in obj) {
-                val descriptor = objOri.getOwnPropertyDescriptor(analyzer.memory, key) ?: throw Error(
+                val descriptor = objOri.getPropertyDescriptor(analyzer.memory, key) ?: throw Error(
                         "The original has been modified")
                 Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
                 Assertions.assertEquals(value, descriptor.value, "The isConstant property is incorrect")
@@ -460,7 +459,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAnyOwnProperty}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -478,7 +477,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAnyOwnProperty}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -498,7 +497,7 @@ internal class ObjectPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAnyOwnProperty}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }
@@ -522,7 +521,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAllOwnProperties}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -540,7 +539,7 @@ internal class ObjectPrototypeTest {
         val fnCall =
                 "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAllOwnProperties}${FunctionCallNode.startToken}${FunctionCallNode.endToken}"
 
-        TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+        TestUtils.e2eTestExecutingExpression(fnCall) { _, result ->
             Assertions.assertEquals(resultValue, result, "The result is incorrect")
         }
     }
@@ -560,7 +559,7 @@ internal class ObjectPrototypeTest {
             val fnCall =
                     "$valueTxt${AccessExplicitMemberNode.accessToken}${ObjectPrototype.ContainsAllOwnProperties}${FunctionCallNode.startToken}$args${FunctionCallNode.endToken}"
 
-            TestUtils.e2eTestExecutingExpression(fnCall) { analyzer, result ->
+            TestUtils.e2eTestExecutingExpression(fnCall) { _, _ ->
             }
         }
     }

@@ -92,9 +92,7 @@ internal object LexemePatternAnalyzer {
                         // Restore the memory copy.
                         val memoryIndex =
                                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LastNode) as LxmBigNode
-                        analyzer.memory.restoreCopy(memoryIndex.node)
-
-                        val lastCodePoint = analyzer.getLastRollbackCodePoint()
+                        val lastCodePoint = analyzer.memory.restoreCopy(memoryIndex.node)
                         lastCodePoint.restore(analyzer)
 
                         // Init backtracking.
@@ -109,7 +107,7 @@ internal object LexemePatternAnalyzer {
                         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
 
                         // Increase the index.
-                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory,
+                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory.lastNode,
                                 toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
                     }
@@ -146,7 +144,7 @@ internal object LexemePatternAnalyzer {
                                 analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion) as LxmString
 
                         // Increase the index.
-                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory,
+                        val union = getUnion(analyzer, unionName.primitive).dereference(analyzer.memory.lastNode,
                                 toWrite = true) as LxmPatternUnion
                         union.increaseIndex(analyzer.memory)
 

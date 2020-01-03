@@ -10,7 +10,7 @@ import org.lexem.angmar.parser.descriptive.lexemes.*
  */
 internal class LexemePropertyPostfixCompiled(parent: CompiledNode?, parentSignal: Int,
         parserNode: LexemPropertyPostfixNode) : CompiledNode(parent, parentSignal, parserNode) {
-    val properties = mutableMapOf<String, PropertyValue>()
+    val properties = hashMapOf<String, PropertyValue>()
 
     override fun analyze(analyzer: LexemAnalyzer, signal: Int) = throw AngmarUnreachableException()
 
