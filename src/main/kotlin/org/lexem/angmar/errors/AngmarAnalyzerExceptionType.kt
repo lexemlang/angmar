@@ -57,7 +57,6 @@ enum class AngmarAnalyzerExceptionType {
 
     IncorrectNodeReference,
     IncorrectNodeChildCount,
-    IncorrectNodeWithParent,
 
     // FUNCTIONS --------------------------------------------------------------
 

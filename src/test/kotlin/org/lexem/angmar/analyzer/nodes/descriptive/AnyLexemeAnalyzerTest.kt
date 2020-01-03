@@ -167,7 +167,7 @@ internal class AnyLexemeAnalyzerTest {
         val node = LxmNode(analyzer.memory, "name", textReader.saveCursor())
         context.setPropertyAsContext(analyzer.memory, AnalyzerCommons.Identifiers.Node, node)
 
-        TestUtils.processAndCheckEmpty(analyzer, textReader, bigNodeCount = 3)
+        TestUtils.processAndCheckEmpty(analyzer, textReader)
 
         context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = false)
         val dataCapturingValue =

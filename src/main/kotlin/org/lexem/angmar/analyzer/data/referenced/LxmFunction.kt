@@ -89,7 +89,6 @@ internal open class LxmFunction : LexemReferenced {
 
     override fun memoryDealloc(memory: IMemory) {
         contextReference?.decreaseReferences(memory)
-        contextReference = null
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {

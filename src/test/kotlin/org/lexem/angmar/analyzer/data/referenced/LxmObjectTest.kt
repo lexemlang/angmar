@@ -390,6 +390,27 @@ internal class LxmObjectTest {
         val propName = "property"
         val memory = TestUtils.generateTestMemoryFromAnalyzer()
 
+        val old = LxmObject(memory)
+        old.setProperty(memory, propName, LxmLogic.True)
+
+        TestUtils.freezeCopy(memory)
+
+        val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
+
+        new.removeProperty(memory, propName)
+
+        Assertions.assertEquals(LxmLogic.True, old.getPropertyDescriptor(memory, propName)?.value,
+                "The $propName property is incorrect")
+
+        val descriptor = new.getPropertyDescriptor(memory, propName)
+        Assertions.assertNull(descriptor, "The value property is incorrect")
+    }
+
+    @Test
+    fun `test remove property existing in old and new`() {
+        val propName = "property"
+        val memory = TestUtils.generateTestMemoryFromAnalyzer()
+
         val prototype = LxmObject(memory)
         prototype.setProperty(memory, propName, LxmLogic.False)
 
@@ -405,14 +426,11 @@ internal class LxmObjectTest {
 
         Assertions.assertEquals(LxmLogic.True, old.getPropertyDescriptor(memory, propName)?.value,
                 "The $propName property is incorrect")
-        Assertions.assertEquals(LxmLogic.False, prototype.getPropertyDescriptor(memory, propName)?.value,
-                "The $propName property is incorrect")
+        val prototypeDescriptor = prototype.getPropertyDescriptor(memory, propName)
+        Assertions.assertEquals(LxmLogic.False, prototypeDescriptor?.value, "The $propName property is incorrect")
 
-        val descriptor =
-                new.getPropertyDescriptor(memory, propName) ?: throw Error("The $propName property is incorrect")
-        Assertions.assertTrue(descriptor.isIterable, "The isIterable property is incorrect")
-        Assertions.assertFalse(descriptor.isConstant, "The isConstant property is incorrect")
-        Assertions.assertEquals(LxmLogic.False, descriptor.value, "The value property is incorrect")
+        val descriptor = new.getPropertyDescriptor(memory, propName)
+        Assertions.assertEquals(prototypeDescriptor, descriptor, "The value property is incorrect")
     }
 
     @Test

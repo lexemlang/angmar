@@ -89,6 +89,8 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
                 "Not freed cell without a value") {}
         value = null
         referenceCount.set(bigNode.lastFreePosition.get())
+        bigNode.lastFreePosition.set(position)
+
         oldValue.memoryDealloc(bigNode)
     }
 
@@ -102,6 +104,7 @@ internal class BigNodeHeapCell(val bigNode: BigNode, val position: Int, private 
         }
 
         this.value = value
+        isValueCloned = true
         referenceCount.set(0)
     }
 

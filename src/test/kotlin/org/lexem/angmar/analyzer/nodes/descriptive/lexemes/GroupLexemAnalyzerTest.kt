@@ -382,20 +382,24 @@ internal class GroupLexemAnalyzerTest {
         // Prepare the node to filter.
         val parent = LxmNode(analyzer.memory, "processedNode", analyzer.text.saveCursor())
         val childNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
-        childNode.addToParent(analyzer.memory, parent)
+        parent.addChild(analyzer.memory, childNode)
 
         analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNode, parent)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                LxmFilterPosition(analyzer.memory, parent))
 
         TestUtils.processAndCheckEmpty(analyzer, bigNodeCount = 2)
 
-        val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition) as LxmInteger
+        val newPosition = analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.FilterNodePosition).dereference(
+                analyzer.memory, toWrite = false) as LxmFilterPosition
         val list = analyzer.memory.getLastFromStack().dereference(analyzer.memory, toWrite = false) as LxmList
 
         Assertions.assertEquals(1, list.size, "The result is incorrect")
         Assertions.assertEquals(childNode.getPrimitive().position, (list.getCell(0) as LxmReference).position,
                 "The result[0] is incorrect")
-        Assertions.assertEquals(0, newPosition.primitive, "The new position is incorrect")
+        Assertions.assertEquals(childNode.getPrimitive(),
+                newPosition.getCurrent(analyzer.memory, toWrite = false)?.getPrimitive(),
+                "The new position is incorrect")
 
         // Remove FilterNode, FilterNodePosition and Last from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.FilterNode)

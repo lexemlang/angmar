@@ -84,16 +84,17 @@ internal class LexemMemory : IMemory {
             return
         }
 
-        // Un-links the previous bigNode.
-        lastNode.previousNode!!.nextNode = null
-
-        // Destroys the bigNode.
-        val previousNode = bigNode.previousNode!!
-        bigNode.destroy()
+        // Destroy the bigNode chain.
+        var node = lastNode.previousNode!!
+        while (node.id >= bigNode.id) {
+            val node2remove = node
+            node = node.previousNode!!
+            node2remove.destroy()
+        }
 
         // Link again.
-        previousNode.nextNode = lastNode
-        lastNode.previousNode = previousNode
+        node.nextNode = lastNode
+        lastNode.previousNode = node
     }
 
     /**

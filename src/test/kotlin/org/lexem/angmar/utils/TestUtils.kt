@@ -337,8 +337,15 @@ internal object TestUtils {
 
         // Check whether the memory is empty.
         val remainingCells = memory.lastNode.heapSize - memory.lastNode.heapFreedCells.get()
-        Assertions.assertEquals(0, remainingCells,
-                "The memory must be completely cleared. Remaining cells with values: $remainingCells")
+        if (remainingCells != 0) {
+            val remaining = sequence {
+                for (i in 0 until memory.lastNode.heapSize) {
+                    yield(memory.getCell(LxmReference((i)), toWrite = false))
+                }
+            }.filter { !it.isFreed }.toList()
+            Assertions.assertEquals(0, remainingCells,
+                    "The memory must be completely cleared. Remaining cells with values: ${remaining.map { it.position }}")
+        }
     }
 
     /**

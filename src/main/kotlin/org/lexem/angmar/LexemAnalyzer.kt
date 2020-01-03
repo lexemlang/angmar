@@ -343,12 +343,10 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         val hiddenContext = AnalyzerCommons.getHiddenContext(memory, toWrite = true)
         val parent =
                 hiddenContext.getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode,
-                        toWrite = false)?.dereference(memory, toWrite = false) as? LxmNode
+                        toWrite = true)
 
         val node = LxmNode(memory, name, text.saveCursor(), type)
-        if (parent != null) {
-            node.addToParent(memory, parent)
-        }
+        parent?.addChild(memory, node)
 
         hiddenContext.setProperty(memory, AnalyzerCommons.Identifiers.HiddenLastResultNode, node)
 

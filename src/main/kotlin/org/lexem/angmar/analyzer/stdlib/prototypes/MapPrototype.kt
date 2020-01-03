@@ -826,7 +826,8 @@ internal object MapPrototype {
                     "The '<${MapType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Clear' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${MapType.TypeName}") {}
         }
 
-        for ((key, _) in thisValue.getAllProperties()) {
+        val keys = thisValue.getAllProperties().map { it.key }.toList()
+        for (key in keys) {
             thisValue.removeProperty(analyzer.memory, key)
         }
 

@@ -778,7 +778,8 @@ internal object SetPrototype {
                     "The '<${SetType.TypeName} value>${AccessExplicitMemberNode.accessToken}$Clear' method requires the parameter called '${AnalyzerCommons.Identifiers.This}' be a ${SetType.TypeName}") {}
         }
 
-        for (i in thisValue.getAllValues()) {
+        val values = thisValue.getAllValues().toList()
+        for (i in values) {
             thisValue.removeValue(analyzer.memory, i)
         }
 

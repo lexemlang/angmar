@@ -68,7 +68,7 @@ internal class LxmArguments : LxmObject {
      */
     fun mapToBacktrackingData(memory: IMemory): LxmBacktrackingData {
         val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
         val mappedArguments = hashMapOf<String, LexemPrimitive>()
         namedArguments.forEach { (key, property) ->
@@ -87,7 +87,7 @@ internal class LxmArguments : LxmObject {
             spreadNamedParameter: MutableMap<String, LexemPrimitive>? = null): Map<String, LexemPrimitive> {
         val result = hashMapOf<String, LexemPrimitive>()
         val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
         // Map positional arguments.
         for ((index, parameterName) in parameterNames.withIndex()) {
@@ -137,7 +137,7 @@ internal class LxmArguments : LxmObject {
         val parameterNames = parameters.getParameters()
         val result = mutableSetOf<String>()
         val positionalArguments = getPositionalList(memory, toWrite = false).getAllCells().toList()
-        val namedArguments = getNamedObject(memory, toWrite = false).getAllIterableProperties()
+        val namedArguments = getNamedObject(memory, toWrite = false).getAllProperties()
 
         // Map positional arguments.
         for ((index, parameterName) in parameterNames.withIndex()) {

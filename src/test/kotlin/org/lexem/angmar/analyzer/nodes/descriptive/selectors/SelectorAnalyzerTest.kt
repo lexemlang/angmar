@@ -120,7 +120,7 @@ internal class SelectorAnalyzerTest {
                 hasMethod -> {
                     lxmNode = LxmNode(analyzer.memory, nodeName, analyzer.text.saveCursor())
                     val lxmNodeAux = LxmNode(analyzer.memory, "aux", analyzer.text.saveCursor())
-                    lxmNodeAux.addToParent(analyzer.memory, lxmNode)
+                    lxmNode.addChild(analyzer.memory, lxmNodeAux)
 
                     lxmNode.getProperties(analyzer.memory, toWrite = true)
                             .setProperty(analyzer.memory, propertyName, LxmLogic.True)

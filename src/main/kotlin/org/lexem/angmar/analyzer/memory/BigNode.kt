@@ -35,8 +35,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * The position of the last empty cell that can be used to hold new information.
      * Used to avoid fragmentation.
      */
-    var lastFreePosition: AtomicInteger = AtomicInteger(previousNode?.lastFreePosition?.get() ?: heapSize)
-        private set
+    val lastFreePosition: AtomicInteger = AtomicInteger(previousNode?.lastFreePosition?.get() ?: heapSize)
 
     /**
      * Whether this [BigNode] is in garbage collection mode or not.
@@ -108,7 +107,6 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         if (!cell.isFreed) {
             cell = getHeapCell(position, toWrite = true)
             cell.freeCell()
-            lastFreePosition.set(cell.position)
             heapFreedCells.incrementAndGet()
         }
     }
@@ -159,6 +157,18 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
         inGarbageCollectionMode.set(false)
     }
 
+    // TODO remove
+    fun bigNodeList(): List<BigNode> {
+        val bn = this
+        return sequence {
+            var node: BigNode? = bn
+            while (node != null) {
+                yield(node!!)
+                node = node.previousNode
+            }
+        }.toList()
+    }
+
     // OVERRIDDEN METHODS ------------------------------------------------------
 
     override fun getBigNodeId() = this.id
@@ -202,6 +212,8 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     override fun add(value: LexemReferenced) = LxmReference(allocAndGetHeapCell(value).position)
 
     override fun remove(reference: LxmReference) = freeHeapCell(reference.position)
+
+    override fun toString() = "[$id]"
 
     // STATIC -----------------------------------------------------------------
 

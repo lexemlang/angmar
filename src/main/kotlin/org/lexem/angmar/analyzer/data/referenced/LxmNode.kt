@@ -52,34 +52,9 @@ internal class LxmNode : LxmObject {
     }
 
     /**
-     * Adds the node to the parent.
+     * Adds at the end of the list.
      */
-    fun addToParent(memory: IMemory, newParent: LxmNode) {
-        val parentLastChild = newParent.getLastChild(memory, toWrite = true)
-        if (parentLastChild == null) {
-            // Link before removing to avoid reference counting errors.
-            newParent.setFirstChild(memory, this)
-            newParent.setLastChild(memory, this)
-
-            // Remove from old parent.
-            removeFromParent(memory)
-        } else {
-            // Link before removing to avoid reference counting errors.
-            parentLastChild.setRightSibling(memory, this)
-            newParent.setLastChild(memory, this)
-
-            // Remove from old parent.
-            removeFromParent(memory)
-
-            setLeftSibling(memory, parentLastChild)
-        }
-
-        // Updates parent reference.
-        setParent(memory, newParent)
-
-        // Update children count of parent.
-        newParent.changeChildCount(memory, 1)
-    }
+    fun addChild(memory: IMemory, node: LxmNode) = insertChild(memory, node, getLastChild(memory, toWrite = true))
 
     /**
      * Adds the node to the parent.
@@ -90,6 +65,9 @@ internal class LxmNode : LxmObject {
 
         // Decrease count.
         parent.changeChildCount(memory, -1)
+
+        // Link to not remove it before completing the actions.
+        memory.addToStackAsLast(this)
 
         when {
             parentChildCount == 1 -> {
@@ -130,6 +108,9 @@ internal class LxmNode : LxmObject {
         setParent(memory, null)
         setLeftSibling(memory, null)
         setRightSibling(memory, null)
+
+        // Un-link from stack.
+        memory.removeLastFromStack()
     }
 
     /**
@@ -139,7 +120,7 @@ internal class LxmNode : LxmObject {
         if (after != null && !RelationalFunctions.identityEquals(after.getParent(memory, toWrite = false) ?: LxmNil,
                         this)) {
             throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.IncorrectNodeReference,
-                    "Cannot insert a list of nodes after a node whenever the node does not belong to the current one") {}
+                    "Cannot insert a node after a node whenever the node does not belong to the current one") {}
         }
 
         // Insert at the beginning.
@@ -202,14 +183,14 @@ internal class LxmNode : LxmObject {
     /**
      * Moves all the children of this node to its parent.
      */
-    fun replaceNodeByItsChildren(memory: IMemory) {
+    fun replaceByItsChildrenInParent(memory: IMemory) {
         val parent = getParent(memory, toWrite = true) ?: return
         val firstChild = getFirstChild(memory, toWrite = true) ?: let {
             // No children.
             removeFromParent(memory)
             return
         }
-        val lastChild = getFirstChild(memory, toWrite = true)!!
+        val lastChild = getLastChild(memory, toWrite = true)!!
         val leftSibling = getLeftSibling(memory, toWrite = true)
         val rightSibling = getRightSibling(memory, toWrite = true)
 
@@ -218,12 +199,14 @@ internal class LxmNode : LxmObject {
             parent.setFirstChild(memory, firstChild)
         } else {
             leftSibling.setRightSibling(memory, firstChild)
+            firstChild.setLeftSibling(memory, leftSibling)
         }
 
         if (rightSibling == null) {
             parent.setLastChild(memory, lastChild)
         } else {
             rightSibling.setLeftSibling(memory, lastChild)
+            lastChild.setRightSibling(memory, rightSibling)
         }
 
         // Update the children count in the parent.
@@ -248,6 +231,21 @@ internal class LxmNode : LxmObject {
         setChildCount(memory, 0)
         setFirstChild(memory, null)
         setLastChild(memory, null)
+    }
+
+    /**
+     * Clears all the relations of the children of the current [LxmNode].
+     */
+    fun clearBranch(memory: IMemory) {
+        for (node in getChildrenList(memory, toWrite = true)) {
+            node.clearBranch(memory)
+        }
+
+        setChildCount(memory, 0)
+        setFirstChild(memory, null)
+        setLastChild(memory, null)
+        setLeftSibling(memory, null)
+        setRightSibling(memory, null)
     }
 
     /**

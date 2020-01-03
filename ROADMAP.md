@@ -50,3 +50,7 @@ This is the plan to work towards a future release.
 - Async garbage collector for the previous BigNodes. No problems. Avoid to continue if it is recovered.
 - Async garbage collector for the current one??. No, problems with concurrency during removing.
 - Async removal of 0-referenced values??.
+
+17 - 24 - 36 - 40
+
++1 - +2 - -1 - -2

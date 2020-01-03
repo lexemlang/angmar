@@ -387,6 +387,9 @@ internal object AnalyzerNodesCommons {
                 toWrite = true)!!
         lxmNode.setTo(analyzer.memory, analyzer.text.saveCursor())
 
+        // Set parent node as the current one.
+        analyzer.setUpperNode()
+
         // Process the properties.
         let {
             val props = AnalyzerCommons.getCurrentNodeProps(analyzer.memory, toWrite = false)
@@ -415,7 +418,7 @@ internal object AnalyzerNodesCommons {
                 }
 
                 // Replace the node in parent by its children.
-                lxmNode.replaceNodeByItsChildren(analyzer.memory)
+                lxmNode.replaceByItsChildrenInParent(analyzer.memory)
             }
 
             // Set the returned value.
@@ -485,9 +488,6 @@ internal object AnalyzerNodesCommons {
 
         // Remove the intermediate context.
         AnalyzerCommons.removeCurrentFunctionContextAndAssignPrevious(analyzer.memory)
-
-        // Set parent node as the current one.
-        analyzer.setUpperNode()
 
         // Remove LastNode, Function and ReturnCodePoint from the stack.
         analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LastNode)

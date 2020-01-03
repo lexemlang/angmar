@@ -32,7 +32,8 @@ internal class AngmarCommandTest {
             println(errOut)
             Assertions.assertTrue(stdOut.isEmpty(), "The output must be empty")
             Assertions.assertTrue(errOut.startsWith("Usage:"))
-            Assertions.assertTrue(errOut.contains("Error: Missing argument '${AngmarCommand.grammarSourceArgument}'."))
+            Assertions.assertTrue(
+                    errOut.contains("Error: Missing argument \"${AngmarCommand.grammarSourceArgument}\"."))
         }
     }
 
@@ -43,7 +44,7 @@ internal class AngmarCommandTest {
             println(errOut)
             Assertions.assertTrue(stdOut.isEmpty(), "The output must be empty")
             Assertions.assertTrue(errOut.startsWith("Usage:"))
-            Assertions.assertTrue(errOut.contains("Error: Missing argument '${AngmarCommand.textsArgument}'."))
+            Assertions.assertTrue(errOut.contains("Error: Missing argument \"${AngmarCommand.textsArgument}\"."))
         }
     }
 

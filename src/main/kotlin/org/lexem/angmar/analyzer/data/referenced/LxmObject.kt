@@ -206,7 +206,7 @@ internal open class LxmObject : LexemReferenced {
         properties.remove(identifier)
 
         // Decrease references.
-        property.replaceValue(memory, LxmNil)
+        property.value.decreaseReferences(memory)
     }
 
     /**
@@ -304,7 +304,6 @@ internal open class LxmObject : LexemReferenced {
         getAllProperties().map { it.value.value }.forEach { it.decreaseReferences(memory) }
 
         prototypeReference?.decreaseReferences(memory)
-        prototypeReference = null
     }
 
     override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
@@ -372,6 +371,11 @@ internal open class LxmObject : LexemReferenced {
          * Replaces the value handling the memory references.
          */
         fun replaceValue(memory: IMemory, newValue: LexemPrimitive) {
+            if (belongsTo.bigNodeId != memory.getBigNodeId()) {
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                        "The object property is immutable therefore cannot be modified") {}
+            }
+
             // Keep this to replace the elements before possibly remove the references.
             val oldValue = value
             value = newValue

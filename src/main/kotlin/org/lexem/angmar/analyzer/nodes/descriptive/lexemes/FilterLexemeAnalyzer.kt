@@ -161,7 +161,7 @@ internal object FilterLexemeAnalyzer {
                 toWrite = true)!!
 
         // Link to the new parent.
-        lxmNode.addToParent(analyzer.memory, parent)
+        parent.addChild(analyzer.memory, lxmNode)
 
         // Update the node position.
         updatePosition(analyzer)

@@ -262,6 +262,33 @@ internal class LexemMemoryTest {
     }
 
     @Test
+    fun `test free decreasing references`() {
+        val memory = TestUtils.generateTestMemory()
+
+        val list0 = LxmList(memory)
+        val list1 = LxmList(memory)
+        val list2 = LxmList(memory)
+
+        list0.addCell(memory, list1)
+        list1.addCell(memory, list2)
+
+        val cell0 = list0.getPrimitive().getCell(memory, toWrite = false)
+        val cell1 = list1.getPrimitive().getCell(memory, toWrite = false)
+        val cell2 = list2.getPrimitive().getCell(memory, toWrite = false)
+
+        list0.getPrimitive().increaseReferences(memory)
+        list0.getPrimitive().decreaseReferences(memory)
+
+        Assertions.assertTrue(cell0.isFreed, "The isFreed property is incorrect")
+        Assertions.assertTrue(cell1.isFreed, "The isFreed property is incorrect")
+        Assertions.assertTrue(cell2.isFreed, "The isFreed property is incorrect")
+        Assertions.assertEquals(memory.lastNode.heapSize, cell0.referenceCount.get(),
+                "The referenceCount property is incorrect")
+        Assertions.assertEquals(cell0.position, cell1.referenceCount.get(), "The referenceCount property is incorrect")
+        Assertions.assertEquals(cell1.position, cell2.referenceCount.get(), "The referenceCount property is incorrect")
+    }
+
+    @Test
     fun `test clear`() {
         val memory = TestUtils.generateTestMemory()
 

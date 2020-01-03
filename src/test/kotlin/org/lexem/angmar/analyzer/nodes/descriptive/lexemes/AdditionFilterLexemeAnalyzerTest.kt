@@ -21,7 +21,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
         val context = AnalyzerCommons.getCurrentContext(analyzer.memory, toWrite = true)
         val lxmNode = LxmNode(analyzer.memory, "rootNode", analyzer.text.saveCursor())
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.Node, lxmNode, isConstant = true)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                LxmFilterPosition(analyzer.memory, lxmNode))
 
         TestUtils.processAndCheckEmpty(analyzer)
 
@@ -74,7 +75,8 @@ internal class AdditionFilterLexemeAnalyzerTest {
         }
 
         context.setProperty(analyzer.memory, funName, function)
-        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition, LxmInteger.Num0)
+        analyzer.memory.addToStack(AnalyzerCommons.Identifiers.FilterNodePosition,
+                LxmFilterPosition(analyzer.memory, lxmNode))
         context.setProperty(analyzer.memory, AnalyzerCommons.Identifiers.HiddenCurrentContextName,
                 LxmString.from("test"))
 

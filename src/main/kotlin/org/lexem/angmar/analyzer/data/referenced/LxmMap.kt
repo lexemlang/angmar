@@ -65,7 +65,7 @@ internal class LxmMap : LexemReferenced {
         val keyPrimitive = key.getPrimitive()
         val keyHash = keyPrimitive.getHashCode()
         val valuePrimitive = value.getPrimitive()
-        val listIndex = getPropertyPosition(valuePrimitive, keyHash)
+        val listIndex = getPropertyPosition(keyPrimitive, keyHash)
 
         cloneProperties()
         valuePrimitive.increaseReferences(memory)
@@ -127,6 +127,8 @@ internal class LxmMap : LexemReferenced {
         if (list.isEmpty()) {
             properties.remove(keyHash)
         }
+
+        size -= 1
     }
 
     /**
@@ -149,11 +151,11 @@ internal class LxmMap : LexemReferenced {
     /**
      * Gets the property descriptor of the specified property in the current map.
      */
-    private fun getPropertyPosition(value: LexemPrimitive, hashCode: Int): Pair<MutableList<LxmMapProperty>, Int>? {
+    private fun getPropertyPosition(key: LexemPrimitive, hashCode: Int): Pair<MutableList<LxmMapProperty>, Int>? {
         val list = properties[hashCode] ?: return null
 
         for ((index, property) in list.withIndex()) {
-            if (RelationalFunctions.identityEquals(value, property.key)) {
+            if (RelationalFunctions.identityEquals(key, property.key)) {
                 return Pair(list, index)
             }
         }
@@ -260,6 +262,11 @@ internal class LxmMap : LexemReferenced {
          * Replaces the value handling the memory references.
          */
         fun replaceValue(memory: IMemory, newValue: LexemPrimitive) {
+            if (belongsTo.bigNodeId != memory.getBigNodeId()) {
+                throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CannotModifyAnImmutableView,
+                        "The map property is immutable therefore cannot be modified") {}
+            }
+
             // Keep this to replace the elements before possibly remove the references.
             val oldValue = value
             value = newValue

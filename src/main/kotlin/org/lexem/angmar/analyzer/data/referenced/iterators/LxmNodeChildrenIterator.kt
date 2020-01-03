@@ -31,12 +31,12 @@ internal class LxmNodeChildrenIterator : LexemIterator {
      * Gets the iterator's initial element.
      */
     private fun getInitial(memory: IMemory) =
-            getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)!!
+            getDereferencedProperty<LxmNode>(memory, AnalyzerCommons.Identifiers.Value, toWrite = false)
 
     /**
      * Gets the iterator's current element.
      */
-    private fun getCurrentElement(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Accumulator)!!
+    private fun getCurrentElement(memory: IMemory) = getPropertyValue(memory, AnalyzerCommons.Identifiers.Accumulator)
 
     // OVERRIDE METHODS -------------------------------------------------------
 
@@ -45,7 +45,7 @@ internal class LxmNodeChildrenIterator : LexemIterator {
             return null
         }
 
-        return Pair(null, getCurrentElement(memory))
+        return Pair(null, getCurrentElement(memory)!!)
     }
 
     override fun advance(memory: IMemory) {
@@ -54,7 +54,7 @@ internal class LxmNodeChildrenIterator : LexemIterator {
         if (isEnded(memory)) {
             removeProperty(memory, AnalyzerCommons.Identifiers.Accumulator)
         } else {
-            val current = getCurrentElement(memory).dereference(memory, toWrite = false) as LxmNode
+            val current = getCurrentElement(memory)!!.dereference(memory, toWrite = false) as LxmNode
             val next = current.getRightSibling(memory, toWrite = false)!!
 
             setProperty(memory, AnalyzerCommons.Identifiers.Accumulator, next)
@@ -64,7 +64,7 @@ internal class LxmNodeChildrenIterator : LexemIterator {
     override fun restart(memory: IMemory) {
         super.restart(memory)
 
-        setProperty(memory, AnalyzerCommons.Identifiers.Accumulator, getInitial(memory))
+        getInitial(memory)?.let { setProperty(memory, AnalyzerCommons.Identifiers.Accumulator, it) }
     }
 
     override fun memoryClone(memory: IMemory) = LxmNodeChildrenIterator(memory, oldVersion = this)
