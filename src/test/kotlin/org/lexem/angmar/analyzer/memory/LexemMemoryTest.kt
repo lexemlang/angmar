@@ -477,7 +477,7 @@ internal class LexemMemoryTest {
         Assertions.assertEquals(0, memory.lastNode.heapFreedCells.get(),
                 "The actualUsedCellCount property is incorrect")
 
-        memory.spatialGarbageCollect()
+        memory.lastNode.garbageCollect()
 
         Assertions.assertEquals(5, memory.lastNode.heapFreedCells.get(),
                 "The actualUsedCellCount property is incorrect")
@@ -529,7 +529,7 @@ internal class LexemMemoryTest {
         memory.removeLastFromStack()
 
 
-        memory.spatialGarbageCollect()
+        memory.lastNode.garbageCollect()
 
 
         Assertions.assertEquals(3, memory.lastNode.heapFreedCells.get(),

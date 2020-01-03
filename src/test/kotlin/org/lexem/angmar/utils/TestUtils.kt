@@ -375,7 +375,7 @@ internal object TestUtils {
         checkFunction(analyzer, result)
 
         // Remove the function cyclic reference.
-        analyzer.memory.spatialGarbageCollect()
+        analyzer.memory.lastNode.garbageCollect()
 
         checkEmptyStackAndContext(analyzer, listOf(varName) + initialVars.keys)
     }

@@ -123,7 +123,7 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect() {
+    fun garbageCollect() {
         // Prevent do it twice.
         if (inGarbageCollectionMode.getAndSet(true)) {
             return

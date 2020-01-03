@@ -25,20 +25,6 @@ internal class LexemMemory : IMemory {
     }
 
     /**
-     * Counts the number of [BigNode]s in the memory.
-     */
-    fun countBigNodes(): Int {
-        var count = 0
-        var bn: BigNode? = lastNode
-        while (bn != null) {
-            count += 1
-            bn = bn.previousNode
-        }
-
-        return count
-    }
-
-    /**
      * Freezes the memory creating a differential copy of the memory.
      */
     fun freezeCopy(rollbackCodePoint: LxmRollbackCodePoint) {
@@ -95,13 +81,6 @@ internal class LexemMemory : IMemory {
         // Link again.
         node.nextNode = lastNode
         lastNode.previousNode = node
-    }
-
-    /**
-     * Collects all the garbage of the current big node.
-     */
-    fun spatialGarbageCollect() {
-        lastNode.spatialGarbageCollect()
     }
 
     // OVERRIDDEN METHODS ------------------------------------------------------
