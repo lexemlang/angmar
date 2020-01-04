@@ -107,6 +107,6 @@ internal class BigNodeHeap(val bigNode: BigNode) {
 
     // OVERRIDE METHODS -------------------------------------------------------
 
-    override fun toString() = "[Heap] Cells: $cellCount, Pages: $size"
+    override fun toString() = "[Heap mask: 0x${mask.toString(16)}] Cells: $cellCount, Pages: $size"
 }
 

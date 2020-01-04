@@ -4,6 +4,7 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.memory.bignode.*
+import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
 import java.util.concurrent.atomic.*
 
@@ -36,6 +37,18 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
      * Used to avoid fragmentation.
      */
     val lastFreePosition: AtomicInteger = AtomicInteger(previousNode?.lastFreePosition?.get() ?: heapSize)
+
+    /**
+     * The minimum value of the heap to call the garbage collector in synchronous mode.
+     */
+    var garbageCollectorThreshold: Int =
+            previousNode?.garbageCollectorThreshold ?: Consts.Memory.garbageCollectorInitialThreshold
+        private set
+
+    /**
+     * Whether this [BigNode] should start the garbage collector process synchronously.
+     */
+    val startGarbageCollectorSync get() = heapSize >= garbageCollectorThreshold
 
     /**
      * Whether this [BigNode] is in garbage collection mode or not.
@@ -129,22 +142,24 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             return
         }
 
+        val inSyncMode = startGarbageCollectorSync
+
         // Track from the main context and stack.
         val gcFifo = GarbageCollectorFifo(heapSize)
 
         // Track the stdlib and hidden contexts.
-        LxmReference.StdLibContext.spatialGarbageCollect(gcFifo)
-        LxmReference.HiddenContext.spatialGarbageCollect(gcFifo)
+        LxmReference.StdLibContext.spatialGarbageCollect(this, gcFifo)
+        LxmReference.HiddenContext.spatialGarbageCollect(this, gcFifo)
 
         // Track the stack.
         for (primitive in stack.gcIterator()) {
-            primitive.spatialGarbageCollect(gcFifo)
+            primitive.spatialGarbageCollect(this, gcFifo)
         }
 
         // Track the heap.
         var position = gcFifo.pop()
         while (position != null) {
-            getHeapCell(position, toWrite = false).getValue(toWrite = false)!!.spatialGarbageCollect(gcFifo)
+            getHeapCell(position, toWrite = false).getValue(toWrite = false)!!.spatialGarbageCollect(this, gcFifo)
 
             position = gcFifo.pop()
         }
@@ -154,11 +169,20 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
             freeHeapCell(i)
         }
 
+        // Recalculate if in sync mode.
+        if (inSyncMode) {
+            val freeRatio = heapFreedCells.get() / heapSize.toDouble()
+            if (freeRatio < Consts.Memory.garbageCollectorThresholdFreeRatioToIncrease) {
+                garbageCollectorThreshold =
+                        garbageCollectorThreshold * Consts.Memory.garbageCollectorThresholdIncreaseFactor
+            }
+        }
+
         inGarbageCollectionMode.set(false)
     }
 
     // TODO remove
-    fun bigNodeList(): List<BigNode> {
+    fun bigNodeSequence(): Sequence<BigNode> {
         val bn = this
         return sequence {
             var node: BigNode? = bn
@@ -166,8 +190,12 @@ internal class BigNode constructor(var previousNode: BigNode?, var nextNode: Big
                 yield(node!!)
                 node = node.previousNode
             }
-        }.toList()
+        }
     }
+
+    // TODO remove
+    fun bigNodeList() = bigNodeSequence().toList()
+
 
     // OVERRIDDEN METHODS ------------------------------------------------------
 

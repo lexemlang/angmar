@@ -15,6 +15,7 @@ import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
+import org.lexem.angmar.utils.*
 
 
 /**
@@ -120,8 +121,12 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     fun resume(timeoutInMilliseconds: Long = Consts.Analyzer.defaultTimeoutInMilliseconds): Boolean {
         status = Status.Executing
         val timeout = System.nanoTime() + timeoutInMilliseconds * 1000000
+        var timeSpatialGC = 0.0
+        var maxBigNode = 1
 
         try {
+            // TODO add async coroutine to launch a gc job over the previous bigNodes to free memory.
+
             loop@ while (true) {
                 // Check timeout.
                 val time = System.nanoTime()
@@ -141,26 +146,35 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
                         nextNode!!.analyze(this, signal)
 
-                        // TODO remove
-                        //                        // Execute the spatial garbage collector if the memory has asked for.
-                        //                        // Done here to prevent calling the garbage collector before
-                        //                        // set all the references.
-                        //                        if (memory.lastNode.spatialGarbageCollectorMark) {
-                        //                            if (Consts.verbose) {
-                        //                                Logger.debug("init spatialGarbageCollect") {
-                        //                                    showDate = true
-                        //                                }
-                        //                                val gcTime = TimeUtils.measureTimeSeconds {
-                        //                                    memory.spatialGarbageCollect()
-                        //                                }
-                        //                                timeSpatialGC += gcTime
-                        //                                Logger.debug("end  spatialGarbageCollect after ${gcTime}s - total: $timeSpatialGC") {
-                        //                                    showDate = true
-                        //                                }
-                        //                            } else {
-                        //                                memory.spatialGarbageCollect()
-                        //                            }
-                        //                        }
+                        // Execute the garbage collector if the memory has asked for.
+                        // Done here to prevent calling the garbage collector before
+                        // set all the references.
+                        if (memory.lastNode.startGarbageCollectorSync) {
+                            if (Consts.verbose) {
+                                Logger.debug("init garbageCollect") {
+                                    showDate = true
+                                }
+                                val gcTime = TimeUtils.measureTimeSeconds {
+                                    memory.lastNode.garbageCollect()
+                                }
+                                timeSpatialGC += gcTime
+                                Logger.debug("end  garbageCollect after ${gcTime}s - total: $timeSpatialGC") {
+                                    showDate = true
+                                }
+                            } else {
+                                memory.lastNode.garbageCollect()
+                            }
+                        }
+
+                        if (Consts.verbose && ticks % 10000 == 0L) {
+                            val bigNodeCount = memory.lastNode.bigNodeSequence().count()
+                            Logger.debug("tick $ticks - text at character ${text.currentPosition()}") {
+                                showDate = true
+                                addNote("BigNodes", bigNodeCount.toString())
+                            }
+
+                            maxBigNode = maxOf(bigNodeCount, maxBigNode)
+                        }
                     }
                     ProcessStatus.Backward -> {
                         val lastCodePoint = memory.rollbackCopy()
@@ -228,6 +242,23 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         rootNode.setTo(memory, text.saveCursor())
 
         status = Status.Ended
+        // TODO remove
+
+        if (Consts.verbose) {
+            Logger.debug("tick $ticks - text at character ${text.currentPosition()}") {
+                showDate = true
+                addNote("HeapSize", memory.lastNode.heapSize.toString())
+                addNote("FreeCells", memory.lastNode.heapFreedCells.toString())
+                addNote("MaxBigNodes", maxBigNode.toString())
+            }
+
+            memory.lastNode.garbageCollect()
+
+            Logger.debug("after garbage collector") {
+                showDate = true
+                addNote("FreeCells", memory.lastNode.heapFreedCells.toString())
+            }
+        }
         return true
     }
 
@@ -248,7 +279,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
     /**
      * Gets the results of the analyzer.
      */
-    fun getResult(removeDefaultProperties: Boolean): LexemMatch {
+    fun getResult(): LexemMatch {
         if (status != Status.Ended) {
             throw AngmarException("Cannot get the results of a running Analyzer.")
         }
@@ -258,7 +289,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                 LxmNode.LxmNodeType.Root)
         rootNode.setTo(memory, initialCursor)
 
-        return LexemMatch(this, rootNode, removeDefaultProperties)
+        return LexemMatch(this, rootNode)
     }
 
     /**

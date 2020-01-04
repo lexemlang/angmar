@@ -11,25 +11,19 @@ import org.lexem.angmar.io.printer.*
 /**
  * The resulting nodes of a Lexem analysis.
  */
-class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode, removeDefaultProperties: Boolean) :
-        JsonSerializable {
+class LexemMatch internal constructor(analyzer: LexemAnalyzer, node: LxmNode) : JsonSerializable {
     val text = analyzer.text
     val name = node.name
     val from = node.getFrom(analyzer.memory).primitive
     val to = node.getTo(analyzer.memory)!!.primitive
     val children = node.getChildrenList(analyzer.memory, toWrite = false).map { node ->
-        LexemMatch(analyzer, node, removeDefaultProperties)
+        LexemMatch(analyzer, node)
     }.toList()
     val properties: Map<String, Any>
 
     init {
         val result = hashMapOf<String, Any>()
-        val defaultProperties = AnalyzerCommons.getDefaultPropertiesByType(node.type)
         node.getProperties(analyzer.memory, toWrite = false).getAllIterableProperties().forEach { (key, property) ->
-            if (removeDefaultProperties && key in defaultProperties && defaultProperties[key] == property.value) {
-                return@forEach
-            }
-
             val res: Any? = when (val value = property.value) {
                 is LxmLogic -> value.primitive
                 is LxmInteger -> value.primitive

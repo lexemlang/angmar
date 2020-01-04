@@ -61,8 +61,8 @@ internal class LxmAccessSetter : LexemSetter {
         context.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
-        context.spatialGarbageCollect(gcFifo)
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
+        context.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun toString() = "[Setter - Access] (context: $context, variableName: $variableName)"

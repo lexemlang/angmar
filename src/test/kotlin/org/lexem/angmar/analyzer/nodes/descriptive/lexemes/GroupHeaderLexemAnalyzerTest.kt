@@ -5,6 +5,7 @@ import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.*
 import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
+import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
 import org.lexem.angmar.analyzer.memory.*
@@ -66,7 +67,7 @@ internal class GroupHeaderLexemAnalyzerTest {
          * Checks all the results of the header.
          */
         private fun checkHeader(analyzer: LexemAnalyzer, quantifier: LxmQuantifier?, nodeName: String?,
-                properties: Map<String, LexemMemoryValue>?) {
+                properties: Map<String, LexemPrimitive>?) {
             val union =
                     analyzer.memory.getFromStack(AnalyzerCommons.Identifiers.LexemeUnion).dereference(analyzer.memory,
                             toWrite = false) as? LxmPatternUnion ?: throw Error(
@@ -92,14 +93,8 @@ internal class GroupHeaderLexemAnalyzerTest {
                 Assertions.assertEquals(nodeName, lxmNode.name, "The name property is incorrect")
             }
 
-            val finalProps: MutableMap<String, LexemMemoryValue> =
-                    hashMapOf(AnalyzerCommons.Properties.Children to LxmLogic.True,
-                            AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
-                            AnalyzerCommons.Properties.Consume to LxmLogic.True,
-                            AnalyzerCommons.Properties.Capture to LxmLogic.False,
-                            AnalyzerCommons.Properties.Property to LxmLogic.False,
-                            AnalyzerCommons.Properties.Insensible to LxmLogic.False,
-                            AnalyzerCommons.Properties.Reverse to LxmLogic.False)
+            val finalProps: MutableMap<String, LexemPrimitive> =
+                    AnalyzerCommons.getDefaultPropertiesByType(lxmNode.type).toMutableMap()
 
             if (properties != null) {
                 finalProps.putAll(properties)
@@ -111,7 +106,7 @@ internal class GroupHeaderLexemAnalyzerTest {
                 Assertions.assertEquals(prop, actual, "The property called $name is incorrect")
             }
 
-            Assertions.assertEquals(finalProps.size, props.size, "The property count is incorrect")
+            Assertions.assertEquals(properties?.size ?: 0, props.size, "The property count is incorrect")
 
             // Remove LexemeUnion from the stack.
             analyzer.memory.removeFromStack(AnalyzerCommons.Identifiers.LexemeUnion)
@@ -130,7 +125,7 @@ internal class GroupHeaderLexemAnalyzerTest {
     @ParameterizedTest
     @MethodSource("provideCombinations")
     fun `test all possibilities`(text: String, quantifier: LxmQuantifier?, nodeName: String?,
-            properties: Map<String, LexemMemoryValue>?) {
+            properties: Map<String, LexemPrimitive>?) {
         val analyzer = TestUtils.createAnalyzerFrom(text, parserFunction = GroupHeaderLexemeNode.Companion::parse)
         TestUtils.processAndCheckEmpty(analyzer)
 

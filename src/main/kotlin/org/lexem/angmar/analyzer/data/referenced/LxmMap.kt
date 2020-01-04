@@ -193,10 +193,10 @@ internal class LxmMap : LexemReferenced {
         }
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         getAllProperties().forEach { (key, value) ->
-            key.spatialGarbageCollect(gcFifo)
-            value.spatialGarbageCollect(gcFifo)
+            key.spatialGarbageCollect(memory, gcFifo)
+            value.spatialGarbageCollect(memory, gcFifo)
         }
     }
 

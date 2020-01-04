@@ -25,7 +25,7 @@ internal class BigNodeL3HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * The last position of this [BigNodeL3HeapPage].
      */
-    val lastIndex get() = position + (1 shl Consts.Memory.heapPageBits * 2) - 1
+    val lastIndex get() = mask.inv() + 1
 
     // METHODS ----------------------------------------------------------------
 

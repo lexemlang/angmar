@@ -64,5 +64,5 @@ internal interface LexemMemoryValue {
     /**
      * Collects all the garbage of the current big node.
      */
-    fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) = Unit
+    fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) = Unit
 }

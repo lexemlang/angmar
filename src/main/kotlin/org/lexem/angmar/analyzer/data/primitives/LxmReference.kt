@@ -37,7 +37,7 @@ internal class LxmReference constructor(val position: Int) : LexemPrimitive {
         memory.getCell(this, toWrite = true).decreaseReferences()
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         gcFifo.push(position)
     }
 

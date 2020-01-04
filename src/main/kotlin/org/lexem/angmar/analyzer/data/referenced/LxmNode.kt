@@ -25,8 +25,29 @@ internal class LxmNode : LxmObject {
 
         setProperty(memory, AnalyzerCommons.Identifiers.Name, LxmString.from(name), isConstant = true)
         setFrom(memory, from)
+        setChildCount(memory, 0)
 
-        init(memory)
+        // Set properties.
+        val nodeType = getTypeAsObject(memory, toWrite = false)
+        val prototype: LxmObject? = when (type) {
+            LxmNodeType.Expression -> nodeType.getDereferencedProperty(memory,
+                    NodeType.HiddenDefaultExpressionProperties, toWrite = false)
+            LxmNodeType.ExpressionGroup -> nodeType.getDereferencedProperty(memory,
+                    NodeType.HiddenDefaultExpressionGroupProperties, toWrite = false)
+            LxmNodeType.Filter -> nodeType.getDereferencedProperty(memory, NodeType.HiddenDefaultFilterProperties,
+                    toWrite = false)
+            LxmNodeType.FilterGroup -> nodeType.getDereferencedProperty(memory,
+                    NodeType.HiddenDefaultFilterGroupProperties, toWrite = false)
+            else -> null
+        }
+
+        val properties = if (prototype == null) {
+            LxmObject(memory)
+        } else {
+            LxmObject(memory, prototype = prototype)
+        }
+
+        setProperty(memory, AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
     }
 
     private constructor(memory: IMemory, oldVersion: LxmNode) : super(memory, oldVersion = oldVersion) {
@@ -35,21 +56,6 @@ internal class LxmNode : LxmObject {
     }
 
     // METHODS ----------------------------------------------------------------
-
-    /**
-     * Adds the initial properties.
-     */
-    private fun init(memory: IMemory) {
-        val properties = LxmObject(memory)
-        setProperty(memory, AnalyzerCommons.Identifiers.Properties, properties, isConstant = true)
-
-        setProperty(memory, AnalyzerCommons.Identifiers.HiddenChildCount, LxmInteger.Num0, isConstant = true)
-
-        val defaultProperties = AnalyzerCommons.getDefaultPropertiesByType(type)
-        for ((key, value) in defaultProperties) {
-            properties.setProperty(memory, key, value)
-        }
-    }
 
     /**
      * Adds at the end of the list.

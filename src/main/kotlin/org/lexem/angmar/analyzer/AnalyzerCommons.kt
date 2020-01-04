@@ -461,10 +461,10 @@ internal object AnalyzerCommons {
      * Return the default properties for a specific node type.
      */
     fun getDefaultPropertiesByType(type: LxmNode.LxmNodeType) = when (type) {
-        LxmNode.LxmNodeType.Expression -> Consts.Node.defaultPropertiesForExpression
-        LxmNode.LxmNodeType.ExpressionGroup -> Consts.Node.defaultPropertiesForExpressionGroup
-        LxmNode.LxmNodeType.Filter -> Consts.Node.defaultPropertiesForFilter
-        LxmNode.LxmNodeType.FilterGroup -> Consts.Node.defaultPropertiesForFilterGroup
+        LxmNode.LxmNodeType.Expression -> Consts.Node.defaultExpressionProperties
+        LxmNode.LxmNodeType.ExpressionGroup -> Consts.Node.defaultExpressionGroupProperties
+        LxmNode.LxmNodeType.Filter -> Consts.Node.defaultFilterProperties
+        LxmNode.LxmNodeType.FilterGroup -> Consts.Node.defaultFilterGroupProperties
         else -> emptyMap()
     }
 }

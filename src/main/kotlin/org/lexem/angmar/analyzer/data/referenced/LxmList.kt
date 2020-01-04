@@ -233,8 +233,8 @@ internal class LxmList : LexemReferenced {
         getAllCells().forEach { it.decreaseReferences(memory) }
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
-        getAllCells().forEach { it.spatialGarbageCollect(gcFifo) }
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
+        getAllCells().forEach { it.spatialGarbageCollect(memory, gcFifo) }
     }
 
     override fun getType(memory: IMemory): LxmReference {

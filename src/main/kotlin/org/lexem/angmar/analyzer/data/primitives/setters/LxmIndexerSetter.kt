@@ -263,9 +263,9 @@ internal class LxmIndexerSetter : LexemSetter {
         index.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
-        element.spatialGarbageCollect(gcFifo)
-        index.spatialGarbageCollect(gcFifo)
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
+        element.spatialGarbageCollect(memory, gcFifo)
+        index.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun toString() = "[Setter - Indexer] (element: $element, index: $index)"

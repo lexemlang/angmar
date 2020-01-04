@@ -13,6 +13,7 @@ internal open class LxmAnyPrototype : LxmObject {
     // CONSTRUCTORS -----------------------------------------------------------
 
     constructor(memory: IMemory) : super(memory)
+
     private constructor(memory: IMemory, oldVersion: LxmAnyPrototype) : super(memory, oldVersion = oldVersion)
 
     // OVERRIDE METHODS -------------------------------------------------------

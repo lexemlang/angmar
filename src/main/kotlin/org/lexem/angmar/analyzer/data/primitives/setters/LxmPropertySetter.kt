@@ -66,8 +66,8 @@ internal class LxmPropertySetter : LexemSetter {
         value.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
-        value.spatialGarbageCollect(gcFifo)
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
+        value.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun toString() = "[Setter - Property] (value: $value, property: $property)"

@@ -306,10 +306,10 @@ internal open class LxmObject : LexemReferenced {
         prototypeReference?.decreaseReferences(memory)
     }
 
-    override fun spatialGarbageCollect(gcFifo: GarbageCollectorFifo) {
-        getAllProperties().map { it.value.value }.forEach { it.spatialGarbageCollect(gcFifo) }
+    override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
+        getAllProperties().map { it.value.value }.forEach { it.spatialGarbageCollect(memory, gcFifo) }
 
-        prototypeReference?.spatialGarbageCollect(gcFifo)
+        prototypeReference?.spatialGarbageCollect(memory, gcFifo)
     }
 
     override fun getType(memory: IMemory): LxmReference {
@@ -379,7 +379,7 @@ internal open class LxmObject : LexemReferenced {
             // Keep this to replace the elements before possibly remove the references.
             val oldValue = value
             value = newValue
-            MemoryUtils.replacePrimitives(memory, oldValue, newValue)
+            MemoryUtils.replacePrimitives(memory, oldValue ?: LxmNil, newValue)
         }
 
         override fun toString() = StringBuilder().apply {

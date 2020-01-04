@@ -34,10 +34,6 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
     private val output by option(outputShortOption, outputLongOption,
             help = "Where to save the output of the analyzer.").file()
 
-    private val keepDefaultPropertiesInOutput by option(keepDefaultPropertiesInOutputShortOption,
-            keepDefaultPropertiesInOutputLongOption,
-            help = "Whether to keep the default properties in the final output.").flag(default = false)
-
     private val grammarSource by argument(name = grammarSourceArgument, help = "The main file of the grammar.").file(
             exists = true, folderOkay = false, readable = true)
 
@@ -156,7 +152,7 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
                             currentTime += subTime
 
                             if (hasFinished) {
-                                result = analyzer.getResult(!keepDefaultPropertiesInOutput).toTree()
+                                result = analyzer.getResult().toTree()
                                 break
                             } else {
                                 conditionalDebugLog(debug) {
@@ -262,8 +258,6 @@ internal class AngmarCommand : CliktCommand(name = AngmarCommand, help = "Manage
         const val debugLongOption = "--debug"
         const val entryPointLongOption = "--entry-point"
         const val timeoutLongOption = "--timeout"
-        const val keepDefaultPropertiesInOutputShortOption = "-kdp"
-        const val keepDefaultPropertiesInOutputLongOption = "--keep-default-props"
         const val outputShortOption = "-o"
         const val outputLongOption = "--output"
 

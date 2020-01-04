@@ -27,11 +27,14 @@ internal object Consts {
 
     object Memory {
         const val maxPoolSize = 500
-        const val heapPageBits = 8
-        const val heapPageL2Mask = ((1 shl heapPageBits / 2) - 1).inv() // 0xFFFFFFF0
-        const val heapPageL3Mask = ((1 shl heapPageBits) - 1).inv() // 0xFFFFFF00
-        const val heapPageL4Mask = ((1 shl heapPageBits * 2) - 1).inv() // 0xFFFF0000
-        const val heapPageL5Mask = ((1 shl heapPageBits * 3) - 1).inv() // 0xFF000000
+        const val heapPageL1Mask = 0x00000000.inv()
+        const val heapPageL2Mask = 0x0000000F.inv()
+        const val heapPageL3Mask = 0x000000FF.inv()
+        const val heapPageL4Mask = 0x0000FFFF.inv()
+        const val heapPageL5Mask = 0x00FFFFFF.inv()
+        const val garbageCollectorInitialThreshold = 30000
+        const val garbageCollectorThresholdFreeRatioToIncrease = 0.2
+        const val garbageCollectorThresholdIncreaseFactor = 2
     }
 
     object Analyzer {
@@ -45,7 +48,7 @@ internal object Consts {
     }
 
     object Node {
-        val defaultPropertiesForExpression = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
+        val defaultExpressionProperties = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
                 AnalyzerCommons.Properties.Children to LxmLogic.True,
                 AnalyzerCommons.Properties.Consume to LxmLogic.True,
                 AnalyzerCommons.Properties.Property to LxmLogic.False,
@@ -53,7 +56,7 @@ internal object Consts {
                 AnalyzerCommons.Properties.Backtrack to LxmLogic.False,
                 AnalyzerCommons.Properties.Reverse to LxmLogic.False)
 
-        val defaultPropertiesForExpressionGroup = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
+        val defaultExpressionGroupProperties = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
                 AnalyzerCommons.Properties.Children to LxmLogic.True,
                 AnalyzerCommons.Properties.Consume to LxmLogic.True,
                 AnalyzerCommons.Properties.Property to LxmLogic.False,
@@ -61,12 +64,12 @@ internal object Consts {
                 AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
                 AnalyzerCommons.Properties.Reverse to LxmLogic.False)
 
-        val defaultPropertiesForFilter = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
+        val defaultFilterProperties = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.True,
                 AnalyzerCommons.Properties.Children to LxmLogic.True,
                 AnalyzerCommons.Properties.Backtrack to LxmLogic.False,
                 AnalyzerCommons.Properties.Reverse to LxmLogic.False)
 
-        val defaultPropertiesForFilterGroup = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
+        val defaultFilterGroupProperties = mapOf(AnalyzerCommons.Properties.Capture to LxmLogic.False,
                 AnalyzerCommons.Properties.Children to LxmLogic.True,
                 AnalyzerCommons.Properties.Backtrack to LxmLogic.True,
                 AnalyzerCommons.Properties.Consume to LxmLogic.True,
