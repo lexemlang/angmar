@@ -68,7 +68,6 @@ internal class LxmMap : LexemReferenced {
         val listIndex = getPropertyPosition(keyPrimitive, keyHash)
 
         cloneProperties()
-        valuePrimitive.increaseReferences(memory)
 
         // Add new property.
         if (listIndex == null) {
@@ -118,9 +117,6 @@ internal class LxmMap : LexemReferenced {
         val (list, index) = getPropertyPosition(keyPrimitive, keyHash) ?: return
 
         cloneProperties()
-
-        val property = list[index]
-        property.value.decreaseReferences(memory)
 
         list.removeAt(index)
 
@@ -186,13 +182,6 @@ internal class LxmMap : LexemReferenced {
         LxmMap(memory, this)
     }
 
-    override fun memoryDealloc(memory: IMemory) {
-        getAllProperties().forEach { (key, value) ->
-            key.decreaseReferences(memory)
-            value.decreaseReferences(memory)
-        }
-    }
-
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         getAllProperties().forEach { (key, value) ->
             key.spatialGarbageCollect(memory, gcFifo)
@@ -236,10 +225,6 @@ internal class LxmMap : LexemReferenced {
     class LxmMapProperty(memory: IMemory, val belongsTo: LxmMap, val key: LexemPrimitive) {
         var value: LexemPrimitive = LxmNil
 
-        init {
-            key.increaseReferences(memory)
-        }
-
         // For deconstructing
         operator fun component1() = key
 
@@ -267,10 +252,7 @@ internal class LxmMap : LexemReferenced {
                         "The map property is immutable therefore cannot be modified") {}
             }
 
-            // Keep this to replace the elements before possibly remove the references.
-            val oldValue = value
             value = newValue
-            MemoryUtils.replacePrimitives(memory, oldValue, newValue)
         }
     }
 }

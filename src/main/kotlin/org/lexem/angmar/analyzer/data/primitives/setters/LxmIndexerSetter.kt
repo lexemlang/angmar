@@ -253,16 +253,6 @@ internal class LxmIndexerSetter : LexemSetter {
         }
     }
 
-    override fun increaseReferences(memory: IMemory) {
-        element.increaseReferences(memory)
-        index.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: IMemory) {
-        element.decreaseReferences(memory)
-        index.decreaseReferences(memory)
-    }
-
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         element.spatialGarbageCollect(memory, gcFifo)
         index.spatialGarbageCollect(memory, gcFifo)

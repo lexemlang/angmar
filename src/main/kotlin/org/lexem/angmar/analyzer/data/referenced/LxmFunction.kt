@@ -33,8 +33,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = node
         this.contextReference = context.getPrimitive()
         this.internalFunction = null
-
-        contextReference!!.increaseReferences(memory)
     }
 
     /**
@@ -57,8 +55,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = InternalFunctionCallCompiled
         this.contextReference = context.getPrimitive()
         this.internalFunction = internalFunction
-
-        contextReference!!.increaseReferences(memory)
     }
 
     /**
@@ -71,8 +67,6 @@ internal open class LxmFunction : LexemReferenced {
         this.node = InternalFunctionCallCompiled
         this.contextReference = arguments.getPrimitive()
         this.internalFunction = internalFunction
-
-        contextReference!!.increaseReferences(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -86,10 +80,6 @@ internal open class LxmFunction : LexemReferenced {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun memoryClone(memory: IMemory) = this
-
-    override fun memoryDealloc(memory: IMemory) {
-        contextReference?.decreaseReferences(memory)
-    }
 
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         contextReference?.spatialGarbageCollect(memory, gcFifo)

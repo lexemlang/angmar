@@ -8,17 +8,6 @@ import org.lexem.angmar.errors.*
  * The common part of every primitive in lexem.
  */
 internal interface LexemPrimitive : LexemMemoryValue {
-
-    /**
-     * Increase the internal references of the primitive.
-     */
-    fun increaseReferences(memory: IMemory) = Unit
-
-    /**
-     * Decrease the internal references of the primitive.
-     */
-    fun decreaseReferences(memory: IMemory) = Unit
-
     /**
      * Gets the hash of the current value.
      */

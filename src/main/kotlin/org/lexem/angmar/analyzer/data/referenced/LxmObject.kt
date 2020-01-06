@@ -50,7 +50,6 @@ internal open class LxmObject : LexemReferenced {
      */
     constructor(memory: IMemory, prototype: LxmObject, dummy: Boolean = false) : super(memory) {
         prototypeReference = prototype.getPrimitive()
-        prototypeReference!!.increaseReferences(memory)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -204,9 +203,6 @@ internal open class LxmObject : LexemReferenced {
 
         // Remove property.
         properties.remove(identifier)
-
-        // Decrease references.
-        property.value.decreaseReferences(memory)
     }
 
     /**
@@ -300,12 +296,6 @@ internal open class LxmObject : LexemReferenced {
         LxmObject(memory, this)
     }
 
-    override fun memoryDealloc(memory: IMemory) {
-        getAllProperties().map { it.value.value }.forEach { it.decreaseReferences(memory) }
-
-        prototypeReference?.decreaseReferences(memory)
-    }
-
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         getAllProperties().map { it.value.value }.forEach { it.spatialGarbageCollect(memory, gcFifo) }
 
@@ -376,10 +366,7 @@ internal open class LxmObject : LexemReferenced {
                         "The object property is immutable therefore cannot be modified") {}
             }
 
-            // Keep this to replace the elements before possibly remove the references.
-            val oldValue = value
             value = newValue
-            MemoryUtils.replacePrimitives(memory, oldValue ?: LxmNil, newValue)
         }
 
         override fun toString() = StringBuilder().apply {

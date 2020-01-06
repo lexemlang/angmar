@@ -212,7 +212,8 @@ internal class LexemMemoryTest {
         for (i in 0..size) {
             memory.remove(LxmReference(i))
             val res = memory.getCell(LxmReference(i), toWrite = false)
-            Assertions.assertNull(res.getValue(toWrite = false), "The value of the memory is incorrect")
+            Assertions.assertNull(res.getValue(memory.lastNode, toWrite = false),
+                    "The value of the memory is incorrect")
         }
     }
 
@@ -243,14 +244,16 @@ internal class LexemMemoryTest {
         for (i in size + 1..2 * size) {
             memory.remove(LxmReference(i))
             val res = memory.getCell(LxmReference(i), toWrite = false)
-            Assertions.assertNull(res.getValue(toWrite = false), "The value of the memory is incorrect")
+            Assertions.assertNull(res.getValue(memory.lastNode, toWrite = false),
+                    "The value of the memory is incorrect")
         }
 
         // Remove firsts in the second
         for (i in 0..size) {
             memory.remove(LxmReference(i))
             val res = memory.getCell(LxmReference(i), toWrite = false)
-            Assertions.assertNull(res.getValue(toWrite = false), "The value of the memory must be null")
+            Assertions.assertNull(res.getValue(memory.lastNode, toWrite = false),
+                    "The value of the memory must be null")
         }
 
         // Check the old BigNode.
@@ -259,33 +262,6 @@ internal class LexemMemoryTest {
             val res = memory.get(LxmReference(i), toWrite = false)
             Assertions.assertEquals(initialObjects[i], res, "The value of the memory is incorrect")
         }
-    }
-
-    @Test
-    fun `test free decreasing references`() {
-        val memory = TestUtils.generateTestMemory()
-
-        val list0 = LxmList(memory)
-        val list1 = LxmList(memory)
-        val list2 = LxmList(memory)
-
-        list0.addCell(memory, list1)
-        list1.addCell(memory, list2)
-
-        val cell0 = list0.getPrimitive().getCell(memory, toWrite = false)
-        val cell1 = list1.getPrimitive().getCell(memory, toWrite = false)
-        val cell2 = list2.getPrimitive().getCell(memory, toWrite = false)
-
-        list0.getPrimitive().increaseReferences(memory)
-        list0.getPrimitive().decreaseReferences(memory)
-
-        Assertions.assertTrue(cell0.isFreed, "The isFreed property is incorrect")
-        Assertions.assertTrue(cell1.isFreed, "The isFreed property is incorrect")
-        Assertions.assertTrue(cell2.isFreed, "The isFreed property is incorrect")
-        Assertions.assertEquals(memory.lastNode.heapSize, cell0.referenceCount.get(),
-                "The referenceCount property is incorrect")
-        Assertions.assertEquals(cell0.position, cell1.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(cell1.position, cell2.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test
@@ -449,7 +425,6 @@ internal class LexemMemoryTest {
     @Test
     fun `test spatial garbage collector`() {
         val memory = TestUtils.generateTestMemoryFromAnalyzer()
-        val initialSize = memory.lastNode.heapSize
 
         val object1 = LxmObject(memory)
         val object2 = LxmObject(memory)
@@ -474,13 +449,11 @@ internal class LexemMemoryTest {
         val object1_2 = object1.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
         object1_2.setProperty(memory, "e", object6.getPrimitive())
 
-        Assertions.assertEquals(0, memory.lastNode.heapFreedCells.get(),
-                "The actualUsedCellCount property is incorrect")
+        Assertions.assertEquals(0, memory.lastNode.heapFreedCells, "The actualUsedCellCount property is incorrect")
 
         memory.lastNode.garbageCollect()
 
-        Assertions.assertEquals(5, memory.lastNode.heapFreedCells.get(),
-                "The actualUsedCellCount property is incorrect")
+        Assertions.assertEquals(5, memory.lastNode.heapFreedCells, "The actualUsedCellCount property is incorrect")
         Assertions.assertTrue(memory.lastNode.getHeapCell(object1.getPrimitive().position, toWrite = false).isFreed,
                 "The cell[0] property is incorrect")
         Assertions.assertTrue(memory.lastNode.getHeapCell(object2.getPrimitive().position, toWrite = false).isFreed,
@@ -532,8 +505,7 @@ internal class LexemMemoryTest {
         memory.lastNode.garbageCollect()
 
 
-        Assertions.assertEquals(3, memory.lastNode.heapFreedCells.get(),
-                "The actualUsedCellCount property is incorrect")
+        Assertions.assertEquals(3, memory.lastNode.heapFreedCells, "The actualUsedCellCount property is incorrect")
         Assertions.assertFalse(memory.lastNode.getHeapCell(object0.getPrimitive().position, toWrite = false).isFreed,
                 "The cell[0] property is incorrect")
         Assertions.assertFalse(memory.lastNode.getHeapCell(object1.getPrimitive().position, toWrite = false).isFreed,

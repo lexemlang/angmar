@@ -3,14 +3,12 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.utils.*
 
 /**
  * The representation of a level-2 heap page.
  */
-internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
-    private var pages = hashMapOf<Int, BigNodeL1HeapPage>()
-    private var isPagesCloned = true
+internal class BigNodeL2HeapPage(val position: Int) {
+    private val pages = hashMapOf<Int, BigNodeL1HeapPage>()
 
     /**
      * The number of [BigNodeL1HeapPage]s in this [BigNodeL2HeapPage].
@@ -20,7 +18,7 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * The mask for a [BigNodeL2HeapPage].
      */
-    private val mask get() = Consts.Memory.heapPageL2Mask
+    private val mask get() = Consts.Memory.heapPageL3Mask
 
     /**
      * The last position of this [BigNodeL2HeapPage].
@@ -32,72 +30,40 @@ internal class BigNodeL2HeapPage(val bigNode: BigNode, val position: Int) {
     /**
      * Gets a [BigNodeHeapCell].
      */
-    fun getCell(position: Int, toWrite: Boolean): BigNodeHeapCell {
+    fun getCell(bigNode: BigNode, position: Int, toWrite: Boolean): BigNodeHeapCell {
         val index = position and mask
-        var page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+        val page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                 "The analyzer is trying to access a forbidden memory position") {}
 
-        // If the page is not in the current bigNode, copy it.
-        if (toWrite && page.bigNode != bigNode) {
-            clonePages()
-
-            page = page.clone(bigNode)
-            pages[index] = page
-        }
-
-        return page.getCell(position, toWrite)
+        return page.getCell(bigNode, position, toWrite)
     }
 
     /**
      * Sets a [BigNodeHeapCell].
      * @return Whether a new cell has been added.
      */
-    fun setCell(newCell: BigNodeHeapCell): Boolean {
-        if (newCell.bigNode != bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink,
-                    "Cannot set a cell into a page with different bigNode.") {}
-        }
-
-        val index = newCell.position and mask
-        clonePages()
-
-        var page = pages[index] ?: let {
-            val page = BigNodeL1HeapPage(bigNode, index)
+    fun setCell(position: Int, newCell: BigNodeHeapCell): Boolean {
+        val index = position and mask
+        val page = pages[index] ?: let {
+            val page = BigNodeL1HeapPage(index)
             pages[index] = page
             page
         }
 
-        if (page.bigNode != bigNode) {
-            page = page.clone(bigNode)
-            pages[index] = page
-        }
-
-        return page.setCell(newCell)
+        return page.setCell(position, newCell)
     }
 
     /**
-     * Clones this [BigNodeL2HeapPage].
+     * Removes a [BigNodeHeapCell] from the memory.
      */
-    fun clone(newBigNode: BigNode): BigNodeL2HeapPage {
-        if (newBigNode == bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
-                    "Cannot clone a page over the same bigNode.") {}
-        }
+    fun removeCell(position: Int) {
+        val index = position and mask
+        val page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                "The analyzer is trying to access a forbidden memory position") {}
+        page.removeCell(position)
 
-        val res = BigNodeL2HeapPage(newBigNode, position)
-        res.isPagesCloned = false
-        res.pages = pages
-
-        return res
-    }
-
-    /**
-     * Clones the pages.
-     */
-    private fun clonePages() {
-        if (!isPagesCloned) {
-            pages = pages.toHashMap()
-            isPagesCloned = true
+        if (page.size == 0) {
+            pages.remove(index)
         }
     }
 

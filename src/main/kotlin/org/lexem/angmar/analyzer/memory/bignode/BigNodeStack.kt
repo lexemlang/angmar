@@ -33,9 +33,6 @@ internal class BigNodeStack(val bigNode: BigNode) {
     fun addCell(name: String, value: LexemPrimitive) {
         cloneCells()
 
-        // Increase the reference count of the incoming value.
-        value.increaseReferences(bigNode)
-
         // Get the cell.
         val previousCell = cells[name]
         cells[name] = BigNodeStackCell(value, previousCell)
@@ -57,9 +54,6 @@ internal class BigNodeStack(val bigNode: BigNode) {
         }
 
         size -= 1
-
-        // Decrease reference count.
-        cell.value.decreaseReferences(bigNode)
     }
 
     /**
@@ -68,17 +62,11 @@ internal class BigNodeStack(val bigNode: BigNode) {
     fun replaceCell(name: String, newValue: LexemPrimitive) {
         cloneCells()
 
-        // Increase the reference count of the incoming value.
-        newValue.increaseReferences(bigNode)
-
         val cell = cells[name] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.StackNotFoundElement,
                 "Not found element called '$name' in the stack.") {}
         val previous = cell.previousCell
         val newCell = BigNodeStackCell(newValue, previous)
         cells[name] = newCell // Critical operation, may interfere with the GC.
-
-        // Decrease reference count.
-        cell.value.decreaseReferences(bigNode)
     }
 
     /**

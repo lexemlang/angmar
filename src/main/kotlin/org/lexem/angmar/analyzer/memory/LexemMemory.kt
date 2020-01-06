@@ -9,9 +9,14 @@ import org.lexem.angmar.errors.*
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory : IMemory {
-    val firstNode = BigNode(previousNode = null, nextNode = null)
+    private var nextId = 0
+    val firstNode = BigNode(nextId)
     var lastNode = firstNode
         private set
+
+    init {
+        nextId += 1
+    }
 
     // METHODS ----------------------------------------------------------------
 
@@ -33,8 +38,9 @@ internal class LexemMemory : IMemory {
 
         // Make copy.
         val oldLastNode = lastNode
-        lastNode = BigNode(previousNode = lastNode, nextNode = null)
+        lastNode = BigNode(nextId, previousNode = lastNode)
         oldLastNode.nextNode = lastNode
+        nextId += 1
     }
 
     /**
@@ -76,6 +82,7 @@ internal class LexemMemory : IMemory {
             val node2remove = node
             node = node.previousNode!!
             node2remove.destroy()
+            // TODO call destroy async
         }
 
         // Link again.

@@ -50,8 +50,6 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         val hiddenContext = LxmContext(memory, LxmContext.LxmContextType.StdLib)
         val stdLibContextReference = stdLibContext.getPrimitive()
         val hiddenContextReference = hiddenContext.getPrimitive()
-        stdLibContextReference.increaseReferences(memory.lastNode)
-        hiddenContextReference.increaseReferences(memory.lastNode)
 
         if (stdLibContextReference.position != LxmReference.StdLibContext.position || hiddenContextReference.position != LxmReference.HiddenContext.position) {
             // This must never happen.

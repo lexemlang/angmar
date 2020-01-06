@@ -12,43 +12,23 @@ internal class BigNodeHeapTest {
     fun `test set, get and clone`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val heap = BigNodeHeap(bigNode)
+        val heap = BigNodeHeap()
 
         // Set
         val listOfObject = List(5) { LxmObject(memory) }
         for ((index, obj) in listOfObject.withIndex()) {
-            heap.setCell(BigNodeHeapCell(bigNode, index, obj))
+            heap.setCell(index, BigNodeHeapCell(bigNode.id, obj))
 
-            Assertions.assertEquals(index + 1, heap.cellCount.get(), "The cellCount property is incorrect")
+            Assertions.assertEquals(index + 1, heap.cellCount, "The cellCount property is incorrect")
         }
 
         Assertions.assertEquals(1, heap.size, "The size property is incorrect")
 
         // Get
         for ((index, obj) in listOfObject.withIndex()) {
-            val pageObj = heap.getCell(index, toWrite = false)
+            val pageObj = heap.getCell(bigNode, index, toWrite = false)
 
-            Assertions.assertEquals(obj, pageObj.getValue(toWrite = false), "The objects are different")
-        }
-
-        // Clone
-        val pageNew = heap.clone(BigNode(previousNode = null, nextNode = null))
-
-        // Get
-        for ((index, obj) in listOfObject.withIndex()) {
-            val pageObj = pageNew.getCell(index, toWrite = false)
-
-            Assertions.assertEquals(obj, pageObj.getValue(toWrite = false), "The objects are different")
-        }
-
-        // Get writing
-        val cell = pageNew.getCell(0, true)
-
-        // Get
-        for ((index, obj) in listOfObject.withIndex().drop(1)) {
-            val pageObj = pageNew.getCell(index, toWrite = false)
-
-            Assertions.assertEquals(obj, pageObj.getValue(toWrite = false), "The objects are different")
+            Assertions.assertEquals(obj, pageObj.getValue(bigNode, toWrite = false), "The objects are different")
         }
     }
 
@@ -56,41 +36,41 @@ internal class BigNodeHeapTest {
     fun `test set reusing`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val heap = BigNodeHeap(bigNode)
+        val heap = BigNodeHeap()
 
         // Set
         val obj = LxmObject(memory)
-        heap.setCell(BigNodeHeapCell(bigNode, 0, obj))
+        heap.setCell(0, BigNodeHeapCell(bigNode.id, obj))
         Assertions.assertEquals(1, heap.size, "The size property is incorrect")
-        Assertions.assertEquals(1, heap.cellCount.get(), "The cellCount property is incorrect")
+        Assertions.assertEquals(1, heap.cellCount, "The cellCount property is incorrect")
 
         // Reuse
-        heap.setCell(BigNodeHeapCell(bigNode, 0, obj))
+        heap.setCell(0, BigNodeHeapCell(bigNode.id, obj))
         Assertions.assertEquals(1, heap.size, "The size property is incorrect")
-        Assertions.assertEquals(1, heap.cellCount.get(), "The cellCount property is incorrect")
+        Assertions.assertEquals(1, heap.cellCount, "The cellCount property is incorrect")
     }
 
     @Test
     fun `test different pages`() {
         val memory = LexemMemory()
         val bigNode = memory.lastNode
-        val heap = BigNodeHeap(bigNode)
+        val heap = BigNodeHeap()
 
         // Set
         val obj = LxmObject(memory)
-        heap.setCell(BigNodeHeapCell(bigNode, 0, obj))
+        heap.setCell(0, BigNodeHeapCell(bigNode.id, obj))
         Assertions.assertEquals(1, heap.size, "The size property is incorrect")
-        Assertions.assertEquals(1, heap.cellCount.get(), "The cellCount property is incorrect")
+        Assertions.assertEquals(1, heap.cellCount, "The cellCount property is incorrect")
 
         // Set in same page
-        heap.setCell(BigNodeHeapCell(bigNode, 5, obj))
+        heap.setCell(5, BigNodeHeapCell(bigNode.id, obj))
         Assertions.assertEquals(1, heap.size, "The size property is incorrect")
-        Assertions.assertEquals(2, heap.cellCount.get(), "The cellCount property is incorrect")
+        Assertions.assertEquals(2, heap.cellCount, "The cellCount property is incorrect")
 
         // Set in other page
-        heap.setCell(BigNodeHeapCell(bigNode, Int.MAX_VALUE, obj))
+        heap.setCell(Int.MAX_VALUE, BigNodeHeapCell(bigNode.id, obj))
         Assertions.assertEquals(2, heap.size, "The size property is incorrect")
-        Assertions.assertEquals(3, heap.cellCount.get(), "The cellCount property is incorrect")
+        Assertions.assertEquals(3, heap.cellCount, "The cellCount property is incorrect")
     }
 
     @Test
@@ -99,34 +79,9 @@ internal class BigNodeHeapTest {
         TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault) {
             val memory = LexemMemory()
             val bigNode = memory.lastNode
-            val heap = BigNodeHeap(bigNode)
+            val heap = BigNodeHeap()
 
-            heap.getCell(0, toWrite = false)
-        }
-    }
-
-    @Test
-    @Incorrect
-    fun `test clone over the same bigNode`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode) {
-            val memory = LexemMemory()
-            val bigNode = memory.lastNode
-            val heap = BigNodeHeap(bigNode)
-
-            heap.clone(bigNode)
-        }
-    }
-
-    @Test
-    @Incorrect
-    fun `test set a value over different bigNode`() {
-        TestUtils.assertAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink) {
-            val memory = LexemMemory()
-            val bigNode = BigNode(previousNode = null, nextNode = null)
-            val heap = LxmObject(memory)
-
-            val page = BigNodeHeap(bigNode)
-            page.setCell(BigNodeHeapCell(memory.lastNode, 5, heap))
+            heap.getCell(bigNode, 0, toWrite = false)
         }
     }
 }

@@ -195,21 +195,6 @@ internal class LxmListTest {
     }
 
     @Test
-    fun `test remove cell checking references`() {
-        val memory = TestUtils.generateTestMemory()
-        val list = LxmList(memory)
-        val obj = LxmObject(memory)
-        list.addCell(memory, obj)
-
-        list.removeCell(memory, 0)
-
-        Assertions.assertEquals(0, list.size, "The size is incorrect")
-        Assertions.assertEquals(0, list.size, "The currentListSize is incorrect")
-        Assertions.assertTrue(obj.getPrimitive().getCell(memory, toWrite = false).isFreed,
-                "The object cell has not been freed")
-    }
-
-    @Test
     fun `test remove many cells`() {
         val memory = TestUtils.generateTestMemory()
         val list = LxmList(memory)
@@ -225,8 +210,6 @@ internal class LxmListTest {
         Assertions.assertEquals(2, list.size, "The currentListSize is incorrect")
         Assertions.assertEquals(LxmInteger.Num0, list.getCell(0), "The cell[0] is incorrect")
         Assertions.assertEquals(LxmInteger.Num2, list.getCell(1), "The cell[1] is incorrect")
-        Assertions.assertTrue(obj.getPrimitive().getCell(memory, toWrite = false).isFreed,
-                "The object cell has not been freed")
     }
 
     @Test
@@ -317,51 +300,6 @@ internal class LxmListTest {
             val old = LxmList(memory)
             old.memoryClone(memory.lastNode)
         }
-    }
-
-    @Test
-    fun `test memory dealloc`() {
-        val memory = TestUtils.generateTestMemory()
-
-        val list = LxmList(memory)
-        list.getPrimitive().increaseReferences(memory.lastNode)
-
-        val old = LxmList(memory)
-        old.addCell(memory, LxmLogic.True)
-        old.addCell(memory, list)
-
-        TestUtils.freezeCopy(memory)
-
-        val new = old.getPrimitive().dereferenceAs<LxmList>(memory, toWrite = true)!!
-        new.addCell(memory, LxmLogic.True)
-        new.addCell(memory, list)
-        val newListCell = memory.lastNode.getHeapCell(list.getPrimitive().position, toWrite = false)
-
-        Assertions.assertEquals(4, new.size, "The size property is incorrect")
-        Assertions.assertEquals(3, newListCell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        new.memoryDealloc(memory)
-
-        Assertions.assertEquals(4, new.size, "The size property is incorrect")
-        Assertions.assertEquals(1, newListCell.referenceCount.get(), "The referenceCount property is incorrect")
-    }
-
-    @Test
-    fun `test memory dealloc - non-writable`() {
-        val memory = TestUtils.generateTestMemory()
-
-        val list1 = LxmList(memory)
-        val list2 = LxmList(memory)
-
-        list1.addCell(memory, list2)
-        list1.makeConstantAndNotWritable(memory)
-        list1.getPrimitive().increaseReferences(memory.lastNode)
-
-        list1.memoryDealloc(memory)
-
-        Assertions.assertTrue(list2.getPrimitive().getCell(memory, toWrite = false).isFreed,
-                "The object has not been dealloc")
-        Assertions.assertEquals(list2.getPrimitive(), list1.getCell(0), "The reference property is incorrect")
     }
 
     @Test

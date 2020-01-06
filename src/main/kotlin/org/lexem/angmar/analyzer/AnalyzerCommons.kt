@@ -285,12 +285,8 @@ internal object AnalyzerCommons {
         val callerContextReference =
                 currentContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
 
-        // Done like this to avoid premature removal.
-        lastContextReference.increaseReferences(memory)
         hiddenContext.setProperty(memory, Identifiers.HiddenCurrentContext, callerContextReference)
         currentContext.removeProperty(memory, Identifiers.HiddenCallerContext, ignoreConstant = true)
-
-        lastContextReference.decreaseReferences(memory)
     }
 
     /**
@@ -345,15 +341,10 @@ internal object AnalyzerCommons {
         val currentContextReference = getCurrentContextReference(memory)
         val lastContextRef = currentContext.getPropertyValue(memory, Identifiers.HiddenCallerContext) as LxmReference
 
-        // Done like this to avoid premature removal.
-        currentContextReference.increaseReferences(memory)
-
         hiddenContext.setProperty(memory, Identifiers.HiddenCurrentContext, lastContextRef)
 
         // Remove the property to unlink the previous context.
         currentContext.removeProperty(memory, Identifiers.HiddenCallerContext, ignoreConstant = true)
-
-        currentContextReference.decreaseReferences(memory)
     }
 
     /**

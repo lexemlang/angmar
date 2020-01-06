@@ -109,9 +109,7 @@ internal class LxmList : LexemReferenced {
         if (index == size) {
             // Add rest.
             cells.addAll(values2Add.asSequence().drop(countToReplace).map {
-                val res = it.getPrimitive()
-                res.increaseReferences(memory)
-                res
+                it.getPrimitive()
             })
 
             return
@@ -122,21 +120,13 @@ internal class LxmList : LexemReferenced {
             // Remove rest.
             if (removeCount != 0) {
                 val realCount = minOf(removeCount, size - index)
-                val subList = cells.subList(index, index + realCount)
-
-                subList.forEach {
-                    it.decreaseReferences(memory)
-                }
-
-                subList.clear()
+                cells.subList(index, index + realCount).clear()
             }
         }
         // Add rest values.
         else if (removeCount == 0) {
             cells.addAll(index, values2Add.asSequence().drop(countToReplace).map {
-                val res = it.getPrimitive()
-                res.increaseReferences(memory)
-                res
+                it.getPrimitive()
             }.toList())
         } else {
             throw AngmarUnreachableException()
@@ -205,10 +195,7 @@ internal class LxmList : LexemReferenced {
      * Replaces the value of a cell.
      */
     private fun replaceCellValue(memory: IMemory, index: Int, newValue: LexemPrimitive) {
-        // Keep this to replace the elements before possibly remove the references.
-        val oldValue = cells.getOrNull(index) ?: LxmNil
         cells[index] = newValue
-        MemoryUtils.replacePrimitives(memory, oldValue, newValue)
     }
 
     /**
@@ -227,10 +214,6 @@ internal class LxmList : LexemReferenced {
         this
     } else {
         LxmList(memory, this)
-    }
-
-    override fun memoryDealloc(memory: IMemory) {
-        getAllCells().forEach { it.decreaseReferences(memory) }
     }
 
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {

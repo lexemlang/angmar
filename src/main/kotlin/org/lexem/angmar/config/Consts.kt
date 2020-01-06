@@ -28,7 +28,6 @@ internal object Consts {
     object Memory {
         const val maxPoolSize = 500
         const val heapPageL1Mask = 0x00000000.inv()
-        const val heapPageL2Mask = 0x0000000F.inv()
         const val heapPageL3Mask = 0x000000FF.inv()
         const val heapPageL4Mask = 0x0000FFFF.inv()
         const val heapPageL5Mask = 0x00FFFFFF.inv()

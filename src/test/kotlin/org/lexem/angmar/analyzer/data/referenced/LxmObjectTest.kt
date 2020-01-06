@@ -38,15 +38,12 @@ internal class LxmObjectTest {
         val oldCell = memory.lastNode.getHeapCell(prototype.getPrimitive().position, toWrite = false)
 
         Assertions.assertNull(prototype.prototypeReference, "The prototypeReference property is incorrect")
-        Assertions.assertEquals(0, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
 
         val new1 = LxmObject(memory, prototype = prototype)
         val new1Cell = memory.lastNode.getHeapCell(new1.getPrimitive().position, toWrite = false)
 
         Assertions.assertEquals(prototype.getPrimitive(), new1.prototypeReference,
                 "The prototypeReference property is incorrect")
-        Assertions.assertEquals(0, new1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test
@@ -175,54 +172,6 @@ internal class LxmObjectTest {
                 "The prototype property is incorrect")
         Assertions.assertEquals(LxmLogic.False, prototype.getPropertyValue(memory, "prototype"),
                 "The prototype property is incorrect")
-    }
-
-    @Test
-    fun `test set property updating references`() {
-        val prop1Name = "test1"
-        val prop2Name = "test2"
-        val memory = TestUtils.generateTestMemory()
-
-        val obj1 = LxmObject(memory)
-        obj1.getPrimitive().increaseReferences(memory.lastNode)
-        val obj1Cell = memory.lastNode.getHeapCell(obj1.getPrimitive().position, toWrite = false)
-
-        val obj2 = LxmObject(memory)
-        obj2.getPrimitive().increaseReferences(memory.lastNode)
-        val obj2Cell = memory.lastNode.getHeapCell(obj2.getPrimitive().position, toWrite = false)
-
-        val obj = LxmObject(memory)
-        obj.getPrimitive().increaseReferences(memory.lastNode)
-        val objCell = memory.lastNode.getHeapCell(obj.getPrimitive().position, toWrite = false)
-
-        Assertions.assertEquals(1, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        obj.setProperty(memory, prop1Name, LxmLogic.True)
-        obj.setProperty(memory, prop2Name, obj1)
-
-        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        obj.setProperty(memory, prop1Name, obj2)
-
-        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        obj.setProperty(memory, prop2Name, LxmLogic.True)
-
-        Assertions.assertEquals(1, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        obj.setProperty(memory, prop1Name, obj1)
-
-        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        obj.setProperty(memory, prop1Name, obj1)
-
-        Assertions.assertEquals(2, obj1Cell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, obj2Cell.referenceCount.get(), "The referenceCount property is incorrect")
     }
 
     @Test
@@ -531,67 +480,6 @@ internal class LxmObjectTest {
         val cloned = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
 
         Assertions.assertEquals(old, cloned, "The cloned is incorrect")
-    }
-
-    @Test
-    fun `test memory dealloc`() {
-        val memory = TestUtils.generateTestMemory()
-
-        val obj = LxmObject(memory)
-        obj.getPrimitive().increaseReferences(memory.lastNode)
-        val objCell = memory.lastNode.getHeapCell(obj.getPrimitive().position, toWrite = false)
-
-        val prototype = LxmObject(memory)
-        prototype.getPrimitive().increaseReferences(memory.lastNode)
-        val prototypeCell = memory.lastNode.getHeapCell(prototype.getPrimitive().position, toWrite = false)
-
-        val old = LxmObject(memory, prototype = prototype)
-        old.setProperty(memory, "test-old", LxmLogic.True)
-        old.setProperty(memory, "testObj-old", obj)
-        old.getPrimitive().increaseReferences(memory.lastNode)
-        val oldCell = memory.lastNode.getHeapCell(old.getPrimitive().position, toWrite = false)
-
-        TestUtils.freezeCopy(memory)
-
-        val new = old.getPrimitive().dereferenceAs<LxmObject>(memory, toWrite = true)!!
-        new.setProperty(memory, "test-new", LxmLogic.False)
-        new.setProperty(memory, "testObj-new", obj)
-        val newCell = memory.lastNode.getHeapCell(new.getPrimitive().position, toWrite = false)
-        val objCellNew = memory.lastNode.getHeapCell(obj.getPrimitive().position, toWrite = false)
-
-        Assertions.assertEquals(oldCell.referenceCount.get(), newCell.referenceCount.get(),
-                "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, objCell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(3, objCellNew.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, oldCell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(2, prototypeCell.referenceCount.get(), "The referenceCount property is incorrect")
-
-        new.memoryDealloc(memory)
-
-        val prototypeCellNew = memory.lastNode.getHeapCell(prototype.getPrimitive().position, toWrite = false)
-
-        Assertions.assertEquals(1, newCell.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, objCellNew.referenceCount.get(), "The referenceCount property is incorrect")
-        Assertions.assertEquals(1, prototypeCellNew.referenceCount.get(), "The referenceCount property is incorrect")
-    }
-
-    @Test
-    fun `test memory dealloc - non-writable`() {
-        val memory = TestUtils.generateTestMemory()
-
-        val obj1 = LxmObject(memory)
-        val obj2 = LxmObject(memory)
-
-        obj1.setProperty(memory, "test", obj2)
-        obj1.makeConstantAndNotWritable(memory)
-        obj1.getPrimitive().increaseReferences(memory.lastNode)
-
-        obj1.memoryDealloc(memory)
-
-        Assertions.assertTrue(obj2.getPrimitive().getCell(memory, toWrite = false).isFreed,
-                "The object has not been dealloc")
-        Assertions.assertEquals(obj2.getPrimitive(), obj1.getPropertyValue(memory, "test"),
-                "The reference property is incorrect")
     }
 
     @Test

@@ -55,8 +55,6 @@ internal class LxmSet : LexemReferenced {
             return
         }
 
-        valuePrimitive.increaseReferences(memory)
-
         cloneProperties()
         properties.putIfAbsent(valueHash, mutableListOf())
         properties[valueHash]!!.add(valuePrimitive)
@@ -95,8 +93,6 @@ internal class LxmSet : LexemReferenced {
         if (list.isEmpty()) {
             properties.remove(valueHash)
         }
-
-        value.getPrimitive().decreaseReferences(memory)
     }
 
     /**
@@ -152,10 +148,6 @@ internal class LxmSet : LexemReferenced {
         this
     } else {
         LxmSet(memory, this)
-    }
-
-    override fun memoryDealloc(memory: IMemory) {
-        getAllValues().forEach { it.decreaseReferences(memory) }
     }
 
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {

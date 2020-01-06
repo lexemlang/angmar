@@ -7,6 +7,7 @@ import org.lexem.angmar.errors.*
  * An fifo made with intervals and optimized for garbage collection.
  */
 internal class GarbageCollectorFifo : Iterable<Int> {
+    private val size: Int
     private val deadRanges = mutableListOf<IntegerRange>()
     private val restRangesToProcess = mutableListOf<IntegerRange>()
 
@@ -16,6 +17,7 @@ internal class GarbageCollectorFifo : Iterable<Int> {
      * Builds a new [GarbageCollectorFifo] from a memory bounds.
      */
     constructor(size: Int) {
+        this.size = size
         if (size < 0) {
             throw AngmarException("The size cannot be negative")
         }
@@ -171,9 +173,39 @@ internal class GarbageCollectorFifo : Iterable<Int> {
     // INHERIT METHODS --------------------------------------------------------
 
     /**
-     * [GarbageCollectorFifo]'s iterator over its points.
+     * [GarbageCollectorFifo]'s iterator over its dead points.
      */
-    override fun iterator() = GarbageCollectorFifoIterator(this)
+    override fun iterator() = sequence {
+        for (range in deadRanges) {
+            for (point in range) {
+                yield(point)
+            }
+        }
+    }.iterator()
+
+    /**
+     * [GarbageCollectorFifo]'s iterator over its alive points.
+     */
+    fun aliveIterator() = sequence {
+        if (deadRanges.isNotEmpty()) {
+            // Start
+            for (point in 0 until deadRanges.first().from) {
+                yield(point)
+            }
+
+            // Middle
+            for ((a, b) in deadRanges.windowed(size = 2, step = 1, partialWindows = false)) {
+                for (point in a.to + 1 until b.from) {
+                    yield(point)
+                }
+            }
+
+            // End
+            for (point in deadRanges.last().to + 1 until size) {
+                yield(point)
+            }
+        }
+    }.iterator()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -208,34 +240,4 @@ internal class GarbageCollectorFifo : Iterable<Int> {
             append(restRangesToProcess.joinToString(" U "))
         }
     }.toString()
-
-    // STATIC -----------------------------------------------------------------
-
-    /**
-     * [GarbageCollectorFifo]'s iterator over the dead points.
-     */
-    class GarbageCollectorFifoIterator internal constructor(interval: GarbageCollectorFifo) : Iterator<Int> {
-        private val rangeIterator = interval.deadRanges.iterator()
-        private var pointIterator = if (rangeIterator.hasNext()) {
-            rangeIterator.next().iterator()
-        } else {
-            null
-        }
-
-        override fun hasNext() = pointIterator != null
-
-        override fun next(): Int {
-            val res = pointIterator!!.next()
-
-            if (!pointIterator!!.hasNext()) {
-                if (rangeIterator.hasNext()) {
-                    pointIterator = rangeIterator.next().iterator()
-                } else {
-                    pointIterator = null
-                }
-            }
-
-            return res
-        }
-    }
 }

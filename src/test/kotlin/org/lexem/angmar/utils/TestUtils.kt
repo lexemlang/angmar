@@ -331,20 +331,20 @@ internal object TestUtils {
         Assertions.assertEquals(0, hiddenContext.size, "The hiddenContext is not empty: $context")
         Assertions.assertEquals(0, context.size, "The context is not empty: $context")
 
-        // Remove the stdlib and hidden context.
-        LxmReference.StdLibContext.decreaseReferences(memory.lastNode)
-        LxmReference.HiddenContext.decreaseReferences(memory.lastNode)
+        // Remove the old values.
+        memory.lastNode.garbageCollect()
+        memory.lastNode.remove(LxmReference.StdLibContext)
+        memory.lastNode.remove(LxmReference.HiddenContext)
 
         // Check whether the memory is empty.
-        val remainingCells = memory.lastNode.heapSize - memory.lastNode.heapFreedCells.get()
-        if (remainingCells != 0) {
+        if (memory.lastNode.heapFreedCells != memory.lastNode.heapSize) {
             val remaining = sequence {
                 for (i in 0 until memory.lastNode.heapSize) {
-                    yield(memory.getCell(LxmReference((i)), toWrite = false))
+                    yield(Pair(i, memory.getCell(LxmReference((i)), toWrite = false)))
                 }
-            }.filter { !it.isFreed }.toList()
-            Assertions.assertEquals(0, remainingCells,
-                    "The memory must be completely cleared. Remaining cells with values: ${remaining.map { it.position }}")
+            }.filter { !it.second.isFreed }.toList()
+            Assertions.assertEquals(memory.lastNode.heapFreedCells, memory.lastNode.heapSize,
+                    "The memory must be completely cleared. Remaining cells with values: ${remaining.map { it.first }}")
         }
     }
 

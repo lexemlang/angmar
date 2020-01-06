@@ -58,14 +58,6 @@ internal class LxmPropertySetter : LexemSetter {
         obj.setProperty(memory, property, value)
     }
 
-    override fun increaseReferences(memory: IMemory) {
-        value.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: IMemory) {
-        value.decreaseReferences(memory)
-    }
-
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         value.spatialGarbageCollect(memory, gcFifo)
     }

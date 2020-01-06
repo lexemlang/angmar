@@ -61,9 +61,4 @@ internal abstract class LexemReferenced : LexemMemoryValue {
      * Clones the value in the memory.
      */
     abstract fun memoryClone(memory: IMemory): LexemReferenced
-
-    /**
-     * Clears the memory value.
-     */
-    abstract fun memoryDealloc(memory: IMemory)
 }

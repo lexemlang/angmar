@@ -53,14 +53,6 @@ internal class LxmAccessSetter : LexemSetter {
         ctxObject.setPropertyAsContext(memory, variableName, value)
     }
 
-    override fun increaseReferences(memory: IMemory) {
-        context.increaseReferences(memory)
-    }
-
-    override fun decreaseReferences(memory: IMemory) {
-        context.decreaseReferences(memory)
-    }
-
     override fun spatialGarbageCollect(memory: IMemory, gcFifo: GarbageCollectorFifo) {
         context.spatialGarbageCollect(memory, gcFifo)
     }

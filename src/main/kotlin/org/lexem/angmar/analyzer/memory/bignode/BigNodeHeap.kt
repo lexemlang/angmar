@@ -3,25 +3,22 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.utils.*
-import java.util.concurrent.atomic.*
 
 /**
  * The representation of a memory heap.
  */
-internal class BigNodeHeap(val bigNode: BigNode) {
-    private var pages = hashMapOf<Int, BigNodeL4HeapPage>()
-    private var isPagesCloned = true
+internal class BigNodeHeap {
+    private var pages = hashMapOf<Int, BigNodeL3HeapPage>()
 
     /**
-     * The number of [BigNodeL4HeapPage]s in this [BigNodeHeap].
+     * The number of [BigNodeL3HeapPage]s in this [BigNodeHeap].
      */
     val size get() = pages.size
 
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeHeap].
      */
-    var cellCount: AtomicInteger = AtomicInteger(0)
+    var cellCount = 0
         private set
 
     /**
@@ -34,75 +31,44 @@ internal class BigNodeHeap(val bigNode: BigNode) {
     /**
      * Gets a [BigNodeHeapCell].
      */
-    fun getCell(position: Int, toWrite: Boolean): BigNodeHeapCell {
+    fun getCell(bigNode: BigNode, position: Int, toWrite: Boolean): BigNodeHeapCell {
         val index = position and mask
-        var page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+        val page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                 "The analyzer is trying to access a forbidden memory position") {}
 
-        // If the page is not in the current bigNode, copy it.
-        if (toWrite && page.bigNode != bigNode) {
-            clonePages()
-
-            page = page.clone(bigNode)
-            pages[index] = page
-        }
-
-        return page.getCell(position, toWrite)
+        return page.getCell(bigNode, position, toWrite)
     }
 
     /**
      * Sets a [BigNodeHeapCell].
      */
-    fun setCell(newCell: BigNodeHeapCell) {
-        if (newCell.bigNode != bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.DifferentBigNodeLink,
-                    "Cannot set a cell into a page with different bigNode.") {}
-        }
-
-        val index = newCell.position and mask
-        clonePages()
-
-        var page = pages[index] ?: let {
-            val page = BigNodeL4HeapPage(bigNode, index)
+    fun setCell(position: Int, newCell: BigNodeHeapCell) {
+        val index = position and mask
+        val page = pages[index] ?: let {
+            val page = BigNodeL3HeapPage(index)
             pages[index] = page
             page
         }
 
-        if (page.bigNode != bigNode) {
-            page = page.clone(bigNode)
-            pages[index] = page
-        }
-
-        if (page.setCell(newCell)) {
-            cellCount.incrementAndGet()
+        if (page.setCell(position, newCell)) {
+            cellCount += 1
         }
     }
 
     /**
-     * Clones this [BigNodeHeap].
+     * Removes a [BigNodeHeapCell] from the memory.
      */
-    fun clone(newBigNode: BigNode): BigNodeHeap {
-        if (newBigNode == bigNode) {
-            throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.CloneOverTheSameBigNode,
-                    "Cannot the heap over the same bigNode.") {}
+    fun removeCell(position: Int) {
+        val index = position and mask
+        val page = pages[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                "The analyzer is trying to access a forbidden memory position") {}
+        page.removeCell(position)
+
+        if (page.size == 0) {
+            pages.remove(index)
         }
 
-        val res = BigNodeHeap(newBigNode)
-        res.isPagesCloned = false
-        res.pages = pages
-        res.cellCount.set(cellCount.get())
-
-        return res
-    }
-
-    /**
-     * Clones the pages.
-     */
-    private fun clonePages() {
-        if (!isPagesCloned) {
-            pages = pages.toHashMap()
-            isPagesCloned = true
-        }
+        cellCount -= 1
     }
 
     // OVERRIDE METHODS -------------------------------------------------------
