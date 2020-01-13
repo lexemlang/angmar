@@ -87,5 +87,5 @@ internal interface IMemory {
     /**
      * Removes a value in the memory.
      */
-    fun remove(reference: LxmReference)
+    fun remove(reference: LxmReference): BigNodeHeapCell
 }

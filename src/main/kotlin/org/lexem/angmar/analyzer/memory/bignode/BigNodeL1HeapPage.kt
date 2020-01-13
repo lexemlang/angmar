@@ -2,16 +2,15 @@ package org.lexem.angmar.analyzer.memory.bignode
 
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
-import org.lexem.angmar.utils.*
-import java.util.concurrent.atomic.*
 
 /**
  * The representation of a level-1 heap page.
  */
 internal class BigNodeL1HeapPage(val position: Int) {
     private val cells = hashMapOf<Int, BigNodeHeapCell>()
-    private val synchronizer = AtomicBoolean(false)
+    private val synchronizer = SerialSynchronizer()
 
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeL1HeapPage].
@@ -35,7 +34,7 @@ internal class BigNodeL1HeapPage(val position: Int) {
      */
     fun getCell(bigNode: BigNode, position: Int, toWrite: Boolean): BigNodeHeapCell {
         val index = position and mask
-        var cell = synchronizer.synchronizedLet {
+        var cell = synchronizer.syncLet {
             cells[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
                     "The analyzer is trying to access a forbidden memory position") {}
         }
@@ -43,9 +42,16 @@ internal class BigNodeL1HeapPage(val position: Int) {
         if (cell.bigNodeIndex != bigNode.id) {
             // Remove old.
             var hasChanged = false
-            while (!bigNode.aliveBigNodes.isAlive(bigNode, cell.bigNodeIndex)) {
-                cell = cell.oldCell.get() ?: BigNodeHeapCell(bigNode.id, bigNode.lastFreePosition.getAndSet(position))
+            while (!bigNode.aliveBigNodes.isAliveOrCollapsed(bigNode, cell.bigNodeIndex)) {
                 hasChanged = true
+
+                val oldCell = cell.oldCell.get()
+                if (oldCell != null) {
+                    cell = oldCell
+                } else {
+                    cell = BigNodeHeapCell(bigNode.id, bigNode.lastFreePosition.getAndSet(position))
+                    break
+                }
             }
 
             // Set new if in toWrite mode.
@@ -55,7 +61,7 @@ internal class BigNodeL1HeapPage(val position: Int) {
             }
 
             if (hasChanged) {
-                synchronizer.synchronize {
+                synchronizer.sync {
                     cells[position] = cell
                 }
             }
@@ -71,7 +77,7 @@ internal class BigNodeL1HeapPage(val position: Int) {
     fun setCell(position: Int, newCell: BigNodeHeapCell): Boolean {
         val result = position !in cells
 
-        synchronizer.synchronize {
+        synchronizer.sync {
             cells[position] = newCell
         }
 
@@ -88,7 +94,7 @@ internal class BigNodeL1HeapPage(val position: Int) {
                     "The analyzer is trying to access a forbidden memory position") {}
         }
 
-        synchronizer.synchronize {
+        synchronizer.sync {
             cells.remove(index)
         }
     }

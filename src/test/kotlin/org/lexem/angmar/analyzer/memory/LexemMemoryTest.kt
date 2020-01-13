@@ -5,6 +5,7 @@ import org.lexem.angmar.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
+import org.lexem.angmar.analyzer.memory.bignode.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.utils.*
 
@@ -516,5 +517,152 @@ internal class LexemMemoryTest {
                 "The cell[3] property is incorrect")
         Assertions.assertTrue(memory.lastNode.getHeapCell(object4.getPrimitive().position, toWrite = false).isFreed,
                 "The cell[4] property is incorrect")
+    }
+
+    @Test
+    fun `test temporal garbage collector`() {
+        val memory = TestUtils.generateTestMemory()
+
+        // BigNode1
+        val bigNode1 = memory.lastNode
+        var object0 = LxmObject(memory)
+        var object1 = LxmObject(memory)
+        var object2 = LxmObject(memory)
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode2
+        val bigNode2 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        memory.rollbackCopy()
+        TestUtils.freezeCopy(memory)
+        memory.collapseTo(bigNode1)
+
+        // BigNode3
+        val bigNode3 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode4
+        val bigNode4 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object1 = object1.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode5
+        val bigNode5 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode6
+        val bigNode6 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode7
+        val bigNode7 = memory.lastNode
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        memory.rollbackCopy()
+        TestUtils.freezeCopy(memory)
+        memory.collapseTo(bigNode5)
+
+        // BigNode8
+        val bigNode8 = memory.lastNode
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        TestUtils.freezeCopy(memory)
+
+        // BigNode9
+        val bigNode9 = memory.lastNode
+        object1 = object1.getPrimitive().dereferenceAs(memory, toWrite = true)!!
+
+        memory.collapseTo(bigNode8)
+
+        // Check bigNodes.
+        var list = listOf(9, 4, 3, 0)
+        var node: BigNode? = bigNode9
+        var index = 0
+        while (node != null) {
+            Assertions.assertEquals(list[index], node.id, "The list of nodes is incorrect")
+            index += 1
+            node = node.previousNode
+        }
+
+        // Check cells[0]
+        list = listOf(6, 5, 4, 3, 1)
+        var cell: BigNodeHeapCell? = memory.getCell(object0.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[0] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
+
+        // Check cells[1]
+        list = listOf(9, 4, 1)
+        cell = memory.getCell(object1.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[1] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
+
+        // Check cells[2]
+        list = listOf(8, 6, 5, 4, 1)
+        cell = memory.getCell(object2.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[2] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
+
+        memory.temporalGarbageCollector()
+
+        object0 = object0.getPrimitive().dereferenceAs(memory, toWrite = false)!!
+        object1 = object1.getPrimitive().dereferenceAs(memory, toWrite = false)!!
+        object2 = object2.getPrimitive().dereferenceAs(memory, toWrite = false)!!
+
+        // Check cells[0]
+        list = listOf(6, 4, 3, 1)
+        cell = memory.getCell(object0.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[0] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
+
+        // Check cells[1]
+        list = listOf(9, 4, 1)
+        cell = memory.getCell(object1.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[1] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
+
+        // Check cells[2]
+        list = listOf(8, 4, 1)
+        cell = memory.getCell(object2.getPrimitive(), toWrite = false)
+        index = 0
+        while (cell != null) {
+            Assertions.assertEquals(list[index], cell.bigNodeIndex, "The list of cells[2] is incorrect")
+            index += 1
+            cell = cell.oldCell.get()
+        }
     }
 }

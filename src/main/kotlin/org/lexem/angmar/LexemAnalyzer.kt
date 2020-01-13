@@ -13,7 +13,6 @@ import org.lexem.angmar.analyzer.stdlib.globals.*
 import org.lexem.angmar.compiler.*
 import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
-import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
@@ -126,7 +125,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         var timeSpatialGC = 0.0
 
         val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
-        val gcChannel: Channel<Int>? = Channel(100)
+        val gcChannel: Channel<Unit>? = Channel(Channel.CONFLATED)
         val analyzer = this
 
         try {
@@ -136,25 +135,11 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                     launch(dispatcher) {
                         try {
                             while (true) {
-                                // Wait for a bigNode id.
-                                var id: Int? = gcChannel.receive()
-
-                                // Get all available ids.
-                                var ids = IntegerInterval.Empty
-                                while (id != null) {
-                                    ids += id
-
-                                    id = gcChannel.poll()
-                                }
-
-                                if (Consts.verbose) {
-                                    Logger.debug("garbage collector - processing: $ids") {
-                                        showDate = true
-                                    }
-                                }
+                                // Wait for a notification bigNode.
+                                gcChannel.receive()
 
                                 // Execute the remove.
-                                // TODO
+                                memory.temporalGarbageCollector()
                             }
                         } catch (e: ClosedReceiveChannelException) {
                             if (Consts.verbose) {

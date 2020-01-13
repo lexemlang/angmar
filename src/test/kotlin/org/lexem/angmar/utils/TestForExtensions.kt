@@ -3,8 +3,8 @@ package org.lexem.angmar.utils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import org.junit.jupiter.api.*
+import org.lexem.angmar.data.*
 import java.util.concurrent.*
-import java.util.concurrent.atomic.*
 import kotlin.system.*
 
 internal class TestForExtensions {
@@ -13,7 +13,7 @@ internal class TestForExtensions {
         val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
 
         val maximum = 10000000L
-        val synchronizer = AtomicBoolean(false)
+        val synchronizer = SerialSynchronizer()
         var count1 = 0L
         var count2 = 0L
         var flag = false
@@ -22,7 +22,7 @@ internal class TestForExtensions {
             GlobalScope.launch(dispatcher) {
                 launch {
                     for (i in 0 until maximum) {
-                        synchronizer.synchronize {
+                        synchronizer.sync {
                             if (flag) {
                                 count1 += 1
                             } else {
@@ -36,7 +36,7 @@ internal class TestForExtensions {
                 }
 
                 launch {
-                    synchronizer.synchronize {
+                    synchronizer.sync {
                         if (count1 != maximum) {
                             flag = true
                         }
@@ -59,7 +59,7 @@ internal class TestForExtensions {
     fun `test coroutines with sync`() = runBlocking {
         val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
         val maximum = 10000000L
-        val synchronizer = AtomicBoolean(false)
+        val synchronizer = SerialSynchronizer()
         var flag = false
 
         val obj = object {
@@ -84,7 +84,7 @@ internal class TestForExtensions {
             GlobalScope.launch(dispatcher) {
                 launch {
                     for (i in 0 until maximum) {
-                        synchronizer.synchronize {
+                        synchronizer.sync {
                             if (flag) {
                                 obj.incCount1()
                             } else {
@@ -98,7 +98,7 @@ internal class TestForExtensions {
                 }
 
                 launch {
-                    synchronizer.synchronize {
+                    synchronizer.sync {
                         if (obj.readCount1() != maximum) {
                             flag = true
                         }

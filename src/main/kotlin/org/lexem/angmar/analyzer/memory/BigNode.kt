@@ -1,6 +1,5 @@
 package org.lexem.angmar.analyzer.memory
 
-import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
@@ -30,6 +29,11 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
      */
     var heapSize: Int = previousNode?.heapSize ?: 0
         private set
+
+    /**
+     * The maximum number of cells available in the [BigNode]'s heap.
+     */
+    val heapCapacity get() = heap.cellCount
 
     /**
      * The number of freed cells in the current [BigNode]'s heap.
@@ -134,38 +138,40 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
     /**
      * Frees a memory cell to reuse it in the future.
      */
-    fun freeHeapCell(position: Int) {
+    fun freeHeapCell(position: Int): BigNodeHeapCell {
         var cell = getHeapCell(position, toWrite = false)
         if (!cell.isFreed) {
             cell = getHeapCell(position, toWrite = true)
             cell.freeCell(position, this)
             heapFreedCells += 1
         }
+
+        return cell
     }
 
     /**
      * Clears this and next [BigNode]s, removing them from the alive map.
      */
-    fun destroyFromAlive(gcChannel: Channel<Int>?) {
-        if (gcChannel != null) {
-            runBlocking {
-                gcChannel.send(id)
-            }
-        }
-
+    fun destroyFromAlive(gcChannel: Channel<Unit>?) {
         aliveBigNodes.setDeadFrom(this, id)
+        destroyFromAliveRecursive(gcChannel)
+    }
+
+    private fun destroyFromAliveRecursive(gcChannel: Channel<Unit>?) {
+        gcChannel?.sendBlocking(Unit)
+
         previousNode = null
-        nextNode?.destroyFromAlive(gcChannel)
+        nextNode?.destroyFromAliveRecursive(gcChannel)
         nextNode = null
     }
 
     /**
      * Clears this and next [BigNode]s, specifying the collapsing end bound.
      */
-    fun destroyCollapsing(endBound: Int) {
-        aliveBigNodes.setCollapsed(id, endBound)
+    fun destroyCollapsing() {
+        aliveBigNodes.setCollapsed(id)
         previousNode = null
-        nextNode?.destroyCollapsing(endBound)
+        nextNode?.destroyCollapsing()
         nextNode = null
     }
 
@@ -202,10 +208,11 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
 
         // Clean memory.
         if (inSyncMode) {
+            // NOT NECESSARY
             // Remove exceed cells only if it is executed in sync mode.
-            for (i in heapSize until heap.cellCount) {
-                heap.removeCell(i)
-            }
+            //            for (i in heapSize until heap.cellCount) {
+            //                heap.removeCell(i)
+            //            }
         }
 
         for (i in gcFifo) {

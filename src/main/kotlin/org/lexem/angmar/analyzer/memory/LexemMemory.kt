@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
+import org.lexem.angmar.analyzer.memory.bignode.*
 import org.lexem.angmar.errors.*
 import java.util.concurrent.atomic.*
 
@@ -15,13 +16,13 @@ internal class LexemMemory : IMemory {
         private set
     private val firstNode = BigNode(nextId)
     private val lastNodeProperty = AtomicReference(firstNode)
-    var gcChannel: Channel<Int>? = null
+    var gcChannel: Channel<Unit>? = null
 
     init {
         nextId += 1
     }
 
-    val lastNode get() = lastNodeProperty.get()
+    val lastNode get() = lastNodeProperty.get()!!
 
     // METHODS ----------------------------------------------------------------
 
@@ -91,11 +92,74 @@ internal class LexemMemory : IMemory {
         }
 
         // Destroy the intermediate node chain.
-        newPreviousNode.nextNode?.destroyCollapsing(lastNode.id)
+        newPreviousNode.nextNode?.destroyCollapsing()
 
         // Link again.
         newPreviousNode.nextNode = lastNode
         lastNode.previousNode = newPreviousNode
+    }
+
+    /**
+     * Executes the garbage collector in soft mode, removing unused cells and
+     * collapsing others.
+     */
+    fun temporalGarbageCollector() {
+        // Iterate over all the cells.
+        var index = 0
+        while (index < lastNode.heapCapacity) {
+            // Get first alive cell.
+            var mainCell = findAliveCellInOldSequence(lastNode.getHeapCell(index, false))
+
+            // Set the cell as freed because there is no alive for this position.
+            if (mainCell == null) {
+                // Free the cell.
+                mainCell = lastNode.freeHeapCell(index)
+
+                // Remove the old ones.
+                mainCell.oldCell.set(null)
+            } else {
+                // Get the last alive/collapsed before a dead or another collapsed.
+                var lastAlive: BigNodeHeapCell = mainCell
+                var isLastCollapsed = lastNode.aliveBigNodes.isCollapsed(this, lastAlive.bigNodeIndex)
+                var current = lastAlive.oldCell.get()
+
+                while (current != null) {
+                    if (isLastCollapsed) {
+                        // Alive.
+                        if (lastNode.aliveBigNodes.isAlive(this, current.bigNodeIndex)) {
+                            lastAlive.oldCell.set(current)
+                            lastAlive = current
+                            isLastCollapsed = false
+                        }
+                    } else {
+                        // Alive.
+                        if (!lastNode.aliveBigNodes.isRemoved(this, current.bigNodeIndex)) {
+                            lastAlive.oldCell.set(current)
+                            lastAlive = current
+                            isLastCollapsed = lastNode.aliveBigNodes.isCollapsed(this, lastAlive.bigNodeIndex)
+                        }
+                    }
+
+                    current = current.oldCell.get()
+                }
+
+                lastAlive.oldCell.set(current)
+            }
+
+            index += 1
+        }
+    }
+
+    /**
+     * Finds a cell that is alive.
+     */
+    private fun findAliveCellInOldSequence(cell: BigNodeHeapCell?): BigNodeHeapCell? {
+        var result = cell
+        while (result != null && !lastNode.aliveBigNodes.isAliveOrCollapsed(this, result.bigNodeIndex)) {
+            result = result.oldCell.get()
+        }
+
+        return result
     }
 
     // OVERRIDDEN METHODS ------------------------------------------------------
