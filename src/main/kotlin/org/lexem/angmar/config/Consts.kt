@@ -8,7 +8,7 @@ import org.lexem.angmar.analyzer.data.primitives.*
  */
 internal object Consts {
     // Flag to specify the system is under test.
-    const val verbose = false
+    const val verbose = true
 
     const val projectVersion = "0.1.1"
     const val defaultEntryPoint = "main"
@@ -32,7 +32,7 @@ internal object Consts {
         const val heapPageL4Mask = 0x0000FFFF.inv()
         const val heapPageL5Mask = 0x00FFFFFF.inv()
         const val garbageCollectorInitialThreshold = 30000
-        const val garbageCollectorThresholdFreeRatioToIncrease = 0.2
+        const val garbageCollectorThresholdFreeRatioToIncrease = 0.1
         const val garbageCollectorThresholdIncreaseFactor = 2
     }
 

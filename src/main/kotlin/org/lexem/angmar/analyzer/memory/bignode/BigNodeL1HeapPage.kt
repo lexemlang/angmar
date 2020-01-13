@@ -3,12 +3,15 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.config.*
 import org.lexem.angmar.errors.*
+import org.lexem.angmar.utils.*
+import java.util.concurrent.atomic.*
 
 /**
  * The representation of a level-1 heap page.
  */
 internal class BigNodeL1HeapPage(val position: Int) {
     private val cells = hashMapOf<Int, BigNodeHeapCell>()
+    private val synchronizer = AtomicBoolean(false)
 
     /**
      * The number of [BigNodeHeapCell]s in this [BigNodeL1HeapPage].
@@ -32,14 +35,16 @@ internal class BigNodeL1HeapPage(val position: Int) {
      */
     fun getCell(bigNode: BigNode, position: Int, toWrite: Boolean): BigNodeHeapCell {
         val index = position and mask
-        var cell = cells[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
-                "The analyzer is trying to access a forbidden memory position") {}
+        var cell = synchronizer.synchronizedLet {
+            cells[index] ?: throw AngmarAnalyzerException(AngmarAnalyzerExceptionType.HeapSegmentationFault,
+                    "The analyzer is trying to access a forbidden memory position") {}
+        }
 
         if (cell.bigNodeIndex != bigNode.id) {
             // Remove old.
             var hasChanged = false
-            while (cell.bigNodeIndex > bigNode.id) {
-                cell = cell.oldCell ?: BigNodeHeapCell(bigNode.id, bigNode.lastFreePosition.getAndSet(position))
+            while (!bigNode.aliveBigNodes.isAlive(bigNode, cell.bigNodeIndex)) {
+                cell = cell.oldCell.get() ?: BigNodeHeapCell(bigNode.id, bigNode.lastFreePosition.getAndSet(position))
                 hasChanged = true
             }
 
@@ -50,7 +55,9 @@ internal class BigNodeL1HeapPage(val position: Int) {
             }
 
             if (hasChanged) {
-                cells[index] = cell
+                synchronizer.synchronize {
+                    cells[position] = cell
+                }
             }
         }
 
@@ -63,7 +70,10 @@ internal class BigNodeL1HeapPage(val position: Int) {
      */
     fun setCell(position: Int, newCell: BigNodeHeapCell): Boolean {
         val result = position !in cells
-        cells[position] = newCell
+
+        synchronizer.synchronize {
+            cells[position] = newCell
+        }
 
         return result
     }
@@ -78,7 +88,9 @@ internal class BigNodeL1HeapPage(val position: Int) {
                     "The analyzer is trying to access a forbidden memory position") {}
         }
 
-        cells.remove(index)
+        synchronizer.synchronize {
+            cells.remove(index)
+        }
     }
 
     // OVERRIDE METHODS -------------------------------------------------------

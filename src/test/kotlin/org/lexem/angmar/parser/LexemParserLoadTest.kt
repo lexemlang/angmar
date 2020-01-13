@@ -52,7 +52,7 @@ internal class LexemParserLoadTest {
         }
 
         println("The time for 100 lines is ${time}s")
-        Assertions.assertTrue(time <= 0.2, "The time is excessive")
+        Assertions.assertTrue(time <= 0.2, "The time is excessive: $time")
     }
 
     @ParameterizedTest
@@ -70,7 +70,7 @@ internal class LexemParserLoadTest {
         }
 
         println("The time for 1000 lines is ${time}s")
-        Assertions.assertTrue(time <= 0.5, "The time is excessive")
+        Assertions.assertTrue(time <= 0.5, "The time is excessive: $time")
     }
 
     @ParameterizedTest
@@ -88,7 +88,7 @@ internal class LexemParserLoadTest {
         }
 
         println("The time for 10000 lines is ${time}s")
-        Assertions.assertTrue(time <= 2.0, "The time is excessive")
+        Assertions.assertTrue(time <= 2.0, "The time is excessive: $time")
     }
 
     @ParameterizedTest
@@ -106,6 +106,6 @@ internal class LexemParserLoadTest {
         }
 
         println("The time for 100000 lines is ${time}s")
-        Assertions.assertTrue(time <= 5.0, "The time is excessive")
+        Assertions.assertTrue(time <= 6.0, "The time is excessive: $time")
     }
 }

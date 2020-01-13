@@ -3,6 +3,7 @@ package org.lexem.angmar.analyzer.memory.bignode
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.memory.*
 import org.lexem.angmar.errors.*
+import java.util.concurrent.atomic.*
 
 /**
  * The representation of a memory heap cell.
@@ -10,7 +11,7 @@ import org.lexem.angmar.errors.*
 internal class BigNodeHeapCell {
     val bigNodeIndex: Int
     private var value: LexemReferenced?
-    val oldCell: BigNodeHeapCell?
+    val oldCell: AtomicReference<BigNodeHeapCell?>
     var isValueCloned = true
     var nextRemovedCell = -1
         private set
@@ -28,7 +29,7 @@ internal class BigNodeHeapCell {
     constructor(bigNodeIndex: Int, value: LexemReferenced) {
         this.bigNodeIndex = bigNodeIndex
         this.value = value
-        this.oldCell = null
+        this.oldCell = AtomicReference(null)
     }
 
     /**
@@ -37,7 +38,7 @@ internal class BigNodeHeapCell {
     constructor(bigNodeIndex: Int, nextRemovedCell: Int = -1) {
         this.bigNodeIndex = bigNodeIndex
         this.value = null
-        this.oldCell = null
+        this.oldCell = AtomicReference(null)
         this.nextRemovedCell = nextRemovedCell
     }
 
@@ -47,7 +48,7 @@ internal class BigNodeHeapCell {
     private constructor(bigNodeIndex: Int, value: LexemReferenced?, oldCell: BigNodeHeapCell) {
         this.bigNodeIndex = bigNodeIndex
         this.value = value
-        this.oldCell = oldCell
+        this.oldCell = AtomicReference(oldCell)
     }
 
     // METHODS ----------------------------------------------------------------
@@ -124,9 +125,9 @@ internal class BigNodeHeapCell {
     // OVERRIDE METHODS -------------------------------------------------------
 
     override fun toString() = if (isFreed) {
-        "Freed -> $nextRemovedCell"
+        "[$bigNodeIndex] Freed -> $nextRemovedCell"
     } else {
-        "$value"
+        "[$bigNodeIndex] $value"
     }
 }
 

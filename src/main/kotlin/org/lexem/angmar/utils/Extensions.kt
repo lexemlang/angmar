@@ -2,6 +2,7 @@ package org.lexem.angmar.utils
 
 import com.github.ajalt.clikt.core.*
 import java.io.*
+import java.util.concurrent.atomic.*
 
 /**
  * Gets the parent of this file if it has any or the root otherwise.
@@ -75,3 +76,53 @@ fun Char.toUnicodeUppercase() = Character.toUpperCase(this)
  * Returns a new mutable map containing all key-value pairs from the original map.
  */
 fun <K, V> Map<out K, V>.toHashMap(): HashMap<K, V> = HashMap(this)
+
+/**
+ * Executes the function atomically.
+ */
+fun AtomicBoolean.synchronize(fn: () -> Unit) {
+    // Wait until get the use.
+    var isBeingUsed = this.getAndSet(true)
+    while (isBeingUsed) {
+        isBeingUsed = this.getAndSet(true)
+    }
+
+    // Execute the function.
+    try {
+        fn()
+
+        // Free the use.
+        this.set(false)
+    } catch (e: Throwable) {
+        // Free the use.
+        this.set(false)
+
+        throw e
+    }
+}
+
+/**
+ * Executes the function atomically.
+ */
+fun <T> AtomicBoolean.synchronizedLet(fn: () -> T): T {
+    // Wait until get the use.
+    var isBeingUsed = this.getAndSet(true)
+    while (isBeingUsed) {
+        isBeingUsed = this.getAndSet(true)
+    }
+
+    // Execute the function.
+    try {
+        val result = fn()
+
+        // Free the use.
+        this.set(false)
+
+        return result
+    } catch (e: Throwable) {
+        // Free the use.
+        this.set(false)
+
+        throw e
+    }
+}

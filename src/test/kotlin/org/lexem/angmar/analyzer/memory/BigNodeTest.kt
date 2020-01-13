@@ -434,12 +434,15 @@ internal class BigNodeTest {
                 lastFreePosition = 2 * size - 3)
         checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size)
 
+        // Remove last bigNode to update the alive index.
+        memory.rollbackCopy()
+
         // Get all cells from old
         for (i in oldObjects.withIndex()) {
             val cell = oldBigNode.getHeapCell(i.index, toWrite = false)
 
             BigNodeHeapCellTest.checkCell(memory.lastNode, cell, i.value)
-            checkBigNode(oldBigNode, nextNode = newBigNode, heapSize = size)
+            checkBigNode(oldBigNode, heapSize = size)
         }
     }
 }

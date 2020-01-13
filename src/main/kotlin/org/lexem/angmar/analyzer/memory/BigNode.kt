@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.*
  */
 internal class BigNode constructor(val id: Int, var previousNode: BigNode? = null) : IMemory {
     var nextNode: BigNode? = null
+    val aliveBigNodes: BigNodeAliveMap =
+            previousNode?.aliveBigNodes?.also { it.setAlive(id) } ?: BigNodeAliveMap().also { it.setAlive(id) }
     private val stack: BigNodeStack = previousNode?.stack?.clone(this) ?: BigNodeStack(this)
     private val heap: BigNodeHeap = previousNode?.heap ?: BigNodeHeap()
 
@@ -34,22 +36,20 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
         private set
 
     /**
+     * The number of used cells in the current [BigNode]'s heap.
+     */
+    val usedCells get() = heapSize - heapFreedCells
+
+    /**
      * The position of the last empty cell that can be used to hold new information.
      * Used to avoid fragmentation.
      */
     var lastFreePosition: AtomicInteger = AtomicInteger(previousNode?.lastFreePosition?.get() ?: heapSize)
 
     /**
-     * The minimum value of the heap to call the garbage collector in synchronous mode.
-     */
-    var garbageCollectorThreshold: Int =
-            previousNode?.garbageCollectorThreshold ?: Consts.Memory.garbageCollectorInitialThreshold
-        private set
-
-    /**
      * Whether this [BigNode] should start the garbage collector process synchronously.
      */
-    val startGarbageCollectorSync get() = heapSize >= garbageCollectorThreshold
+    val startGarbageCollectorSync get() = usedCells >= heap.garbageCollectorThreshold
 
     /**
      * Whether this [BigNode] is in garbage collection mode or not.
@@ -142,11 +142,22 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
     }
 
     /**
-     * Clears this and next [BigNode]s.
+     * Clears this and next [BigNode]s, removing them from the alive map.
      */
-    fun destroy() {
+    fun destroyFromAlive() {
+        aliveBigNodes.setDeadFrom(this, id)
         previousNode = null
-        nextNode?.destroy()
+        nextNode?.destroyFromAlive()
+        nextNode = null
+    }
+
+    /**
+     * Clears this and next [BigNode]s, specifying the collapsing end bound.
+     */
+    fun destroyCollapsing(endBound: Int) {
+        aliveBigNodes.setCollapsed(id, endBound)
+        previousNode = null
+        nextNode?.destroyCollapsing(endBound)
         nextNode = null
     }
 
@@ -195,9 +206,9 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
 
         // Recalculate if in sync mode.
         if (inSyncMode) {
-            val freeRatio = heapFreedCells / heapSize.toDouble()
-            if (freeRatio < Consts.Memory.garbageCollectorThresholdFreeRatioToIncrease) {
-                garbageCollectorThreshold *= Consts.Memory.garbageCollectorThresholdIncreaseFactor
+            val freeRatio = heapFreedCells / heapSize;
+            if (freeRatio <= Consts.Memory.garbageCollectorThresholdFreeRatioToIncrease) {
+                heap.garbageCollectorThreshold *= Consts.Memory.garbageCollectorThresholdIncreaseFactor
             }
         }
 

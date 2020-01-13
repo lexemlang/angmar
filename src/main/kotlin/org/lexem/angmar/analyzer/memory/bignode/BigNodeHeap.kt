@@ -26,6 +26,11 @@ internal class BigNodeHeap {
      */
     private val mask get() = Consts.Memory.heapPageL5Mask
 
+    /**
+     * The minimum number of cells to call the garbage collector in synchronous mode.
+     */
+    var garbageCollectorThreshold = Consts.Memory.garbageCollectorInitialThreshold
+
     // METHODS ----------------------------------------------------------------
 
     /**

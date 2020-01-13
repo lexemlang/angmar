@@ -4,19 +4,21 @@ import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.errors.*
+import java.util.concurrent.atomic.*
 
 /**
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory : IMemory {
     private var nextId = 0
-    val firstNode = BigNode(nextId)
-    var lastNode = firstNode
-        private set
+    private val firstNode = BigNode(nextId)
+    private val lastNodeProperty = AtomicReference(firstNode)
 
     init {
         nextId += 1
     }
+
+    val lastNode get() = lastNodeProperty.get()
 
     // METHODS ----------------------------------------------------------------
 
@@ -24,9 +26,9 @@ internal class LexemMemory : IMemory {
      * Clears the memory.
      */
     fun clear() {
-        firstNode.nextNode?.destroy()
+        firstNode.nextNode?.destroyFromAlive()
         firstNode.nextNode = null
-        lastNode = firstNode
+        lastNodeProperty.set(firstNode)
     }
 
     /**
@@ -38,7 +40,7 @@ internal class LexemMemory : IMemory {
 
         // Make copy.
         val oldLastNode = lastNode
-        lastNode = BigNode(nextId, previousNode = lastNode)
+        lastNodeProperty.set(BigNode(nextId, previousNode = lastNode))
         oldLastNode.nextNode = lastNode
         nextId += 1
     }
@@ -60,9 +62,9 @@ internal class LexemMemory : IMemory {
      * Restores the specified copy, removing all changes since then.
      */
     fun restoreCopy(bigNode: BigNode): LxmRollbackCodePoint {
-        bigNode.nextNode?.destroy()
+        bigNode.nextNode?.destroyFromAlive()
         bigNode.nextNode = null
-        lastNode = bigNode
+        lastNodeProperty.set(bigNode)
 
         return bigNode.rollbackCodePoint ?: throw AngmarUnreachableException()
     }
@@ -76,18 +78,21 @@ internal class LexemMemory : IMemory {
             return
         }
 
-        // Destroy the bigNode chain.
-        var node = lastNode.previousNode!!
-        while (node.id >= bigNode.id) {
-            val node2remove = node
-            node = node.previousNode!!
-            node2remove.destroy()
-            // TODO call destroy async
+        // Unlink.
+        var newPreviousNode = lastNode.previousNode!!
+        newPreviousNode.nextNode = null
+
+        // Find the node to get.
+        while (newPreviousNode.id >= bigNode.id) {
+            newPreviousNode = newPreviousNode.previousNode!!
         }
 
+        // Destroy the intermediate node chain.
+        newPreviousNode.nextNode?.destroyCollapsing(lastNode.id)
+
         // Link again.
-        node.nextNode = lastNode
-        lastNode.previousNode = node
+        newPreviousNode.nextNode = lastNode
+        lastNode.previousNode = newPreviousNode
     }
 
     // OVERRIDDEN METHODS ------------------------------------------------------

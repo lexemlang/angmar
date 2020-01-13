@@ -51,6 +51,21 @@ This is the plan to work towards a future release.
 - Async garbage collector for the current one??. No, problems with concurrency during removing.
 - Async removal of 0-referenced values??.
 
-17 - 24 - 36 - 40
+- Whenever a section of descriptive code does not depend on functional code, execute it directly.
+  - Cannot have functional code or an access lexeme.
+  
+  
+Rollback to n -> remove those
+Collapse to n -> get the maximum of those
 
-+1 - +2 - -1 - -2
+Map instead of set. The map holds bigNode ids as keys and the next bigNode that belongs to them.
+
+
+- During backtracking it must remove all future ids.
+- During getCell gets the last less or equal than the id (like now).
+- During garbage collection remove those cells that don't belong to the aliveBigNodes set, and those that are inside
+  leave them if there is no greater cell between itself and the maximum.
+
+
+The collapsed are alive.
+When rollback you must remove all previous.

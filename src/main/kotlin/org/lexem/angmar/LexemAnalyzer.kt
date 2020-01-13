@@ -149,14 +149,16 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                         // set all the references.
                         if (memory.lastNode.startGarbageCollectorSync) {
                             if (Consts.verbose) {
-                                Logger.debug("init garbageCollect") {
+                                Logger.debug(
+                                        "init garbageCollect - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
                                     showDate = true
                                 }
                                 val gcTime = TimeUtils.measureTimeSeconds {
                                     memory.lastNode.garbageCollect()
                                 }
                                 timeSpatialGC += gcTime
-                                Logger.debug("end  garbageCollect after ${gcTime}s - total: $timeSpatialGC") {
+                                Logger.debug(
+                                        "end  garbageCollect after ${gcTime}s - total: $timeSpatialGC - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
                                     showDate = true
                                 }
                             } else {
@@ -164,9 +166,10 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                             }
                         }
 
-                        if (Consts.verbose && ticks % 10000 == 0L) {
+                        if (Consts.verbose && ticks % 100000 == 0L) {
                             val bigNodeCount = memory.lastNode.bigNodeSequence().count()
-                            Logger.debug("tick $ticks - text at character ${text.currentPosition()}") {
+                            Logger.debug(
+                                    "tick $ticks - text at character ${text.currentPosition()} - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
                                 showDate = true
                                 addNote("BigNodes", bigNodeCount.toString())
                             }
