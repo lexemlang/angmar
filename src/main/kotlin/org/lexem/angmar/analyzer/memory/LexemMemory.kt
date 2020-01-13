@@ -1,5 +1,6 @@
 package org.lexem.angmar.analyzer.memory
 
+import kotlinx.coroutines.channels.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
@@ -10,9 +11,11 @@ import java.util.concurrent.atomic.*
  * The representation of the memory of the analyzer. Initiates with the standard library loaded.
  */
 internal class LexemMemory : IMemory {
-    private var nextId = 0
+    var nextId = 0
+        private set
     private val firstNode = BigNode(nextId)
     private val lastNodeProperty = AtomicReference(firstNode)
+    var gcChannel: Channel<Int>? = null
 
     init {
         nextId += 1
@@ -26,7 +29,7 @@ internal class LexemMemory : IMemory {
      * Clears the memory.
      */
     fun clear() {
-        firstNode.nextNode?.destroyFromAlive()
+        firstNode.nextNode?.destroyFromAlive(gcChannel)
         firstNode.nextNode = null
         lastNodeProperty.set(firstNode)
     }
@@ -62,7 +65,7 @@ internal class LexemMemory : IMemory {
      * Restores the specified copy, removing all changes since then.
      */
     fun restoreCopy(bigNode: BigNode): LxmRollbackCodePoint {
-        bigNode.nextNode?.destroyFromAlive()
+        bigNode.nextNode?.destroyFromAlive(gcChannel)
         bigNode.nextNode = null
         lastNodeProperty.set(bigNode)
 

@@ -1,6 +1,8 @@
 package org.lexem.angmar
 
 import es.jtp.kterm.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.primitives.*
 import org.lexem.angmar.analyzer.data.referenced.*
@@ -11,11 +13,13 @@ import org.lexem.angmar.analyzer.stdlib.globals.*
 import org.lexem.angmar.compiler.*
 import org.lexem.angmar.compiler.others.*
 import org.lexem.angmar.config.*
+import org.lexem.angmar.data.*
 import org.lexem.angmar.errors.*
 import org.lexem.angmar.io.*
 import org.lexem.angmar.io.readers.*
 import org.lexem.angmar.parser.*
 import org.lexem.angmar.utils.*
+import java.util.concurrent.*
 
 
 /**
@@ -120,81 +124,144 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
         status = Status.Executing
         val timeout = System.nanoTime() + timeoutInMilliseconds * 1000000
         var timeSpatialGC = 0.0
-        var maxBigNode = 1
+
+        val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+        val gcChannel: Channel<Int>? = Channel(100)
+        val analyzer = this
 
         try {
-            // TODO add async coroutine to launch a gc job over the previous bigNodes to free memory.
+            runBlocking {
+                val gcJob = if (gcChannel != null) {
+                    memory.gcChannel = gcChannel
+                    launch(dispatcher) {
+                        try {
+                            while (true) {
+                                // Wait for a bigNode id.
+                                var id: Int? = gcChannel.receive()
 
-            loop@ while (true) {
-                // Check timeout.
-                val time = System.nanoTime()
-                if (!Consts.verbose && time >= timeout || status == Status.Paused) {
-                    status = Status.Paused
-                    return false
-                }
+                                // Get all available ids.
+                                var ids = IntegerInterval.Empty
+                                while (id != null) {
+                                    ids += id
 
-                ticks += 1L
+                                    id = gcChannel.poll()
+                                }
 
-                when (processStatus) {
-                    ProcessStatus.Forward -> {
-                        // No more nodes
-                        if (nextNode == null) {
-                            break@loop
-                        }
+                                if (Consts.verbose) {
+                                    Logger.debug("garbage collector - processing: $ids") {
+                                        showDate = true
+                                    }
+                                }
 
-                        nextNode!!.analyze(this, signal)
-
-                        // Execute the garbage collector if the memory has asked for.
-                        // Done here to prevent calling the garbage collector before
-                        // set all the references.
-                        if (memory.lastNode.startGarbageCollectorSync) {
+                                // Execute the remove.
+                                // TODO
+                            }
+                        } catch (e: ClosedReceiveChannelException) {
                             if (Consts.verbose) {
-                                Logger.debug(
-                                        "init garbageCollect - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
+                                Logger.debug("end garbage collector job") {
                                     showDate = true
                                 }
-                                val gcTime = TimeUtils.measureTimeSeconds {
-                                    memory.lastNode.garbageCollect()
-                                }
-                                timeSpatialGC += gcTime
-                                Logger.debug(
-                                        "end  garbageCollect after ${gcTime}s - total: $timeSpatialGC - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
-                                    showDate = true
-                                }
-                            } else {
-                                memory.lastNode.garbageCollect()
                             }
                         }
-
-                        if (Consts.verbose && ticks % 100000 == 0L) {
-                            val bigNodeCount = memory.lastNode.bigNodeSequence().count()
-                            Logger.debug(
-                                    "tick $ticks - text at character ${text.currentPosition()} - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
-                                showDate = true
-                                addNote("BigNodes", bigNodeCount.toString())
-                            }
-
-                            maxBigNode = maxOf(bigNodeCount, maxBigNode)
-                        }
                     }
-                    ProcessStatus.Backward -> {
-                        val lastCodePoint = memory.rollbackCopy()
-                        lastCodePoint.restore(this)
-
-                        // Handle the possibility of matching nothing.
-                        if (memory.lastNode.previousNode == null) {
-                            signal = 0
-                            nextNode = null
-
-                            status = Status.Ended
-                            return true
-                        }
-
-                        processStatus = ProcessStatus.Forward
-                    }
+                } else {
+                    null
                 }
+
+                launch(dispatcher) {
+                    loop@ while (true) {
+                        // Check timeout.
+                        val time = System.nanoTime()
+                        if (!Consts.verbose && time >= timeout || status == Status.Paused) {
+                            status = Status.Paused
+                            return@launch
+                        }
+
+                        ticks += 1L
+
+                        when (processStatus) {
+                            ProcessStatus.Forward -> {
+                                // No more nodes
+                                if (nextNode == null) {
+                                    break@loop
+                                }
+
+                                nextNode!!.analyze(analyzer, signal)
+
+                                // Execute the garbage collector if the memory has asked for.
+                                // Done here to prevent calling the garbage collector before
+                                // set all the references.
+                                if (memory.lastNode.startGarbageCollectorSync) {
+                                    if (Consts.verbose) {
+                                        Logger.debug(
+                                                "init garbageCollect - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
+                                            showDate = true
+                                        }
+                                        val gcTime = TimeUtils.measureTimeSeconds {
+                                            memory.lastNode.garbageCollect()
+                                        }
+                                        timeSpatialGC += gcTime
+                                        Logger.debug(
+                                                "end  garbageCollect after ${gcTime}s - total: $timeSpatialGC - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
+                                            showDate = true
+                                        }
+                                    } else {
+                                        memory.lastNode.garbageCollect()
+                                    }
+                                }
+
+                                if (Consts.verbose && ticks % 100000 == 0L) {
+                                    val bigNodeCount = memory.lastNode.bigNodeSequence().count()
+                                    Logger.debug(
+                                            "tick $ticks - text at character ${text.currentPosition()} - heapSize: ${memory.lastNode.heapSize}, free(${memory.lastNode.heapFreedCells * 100.0 / memory.lastNode.heapSize}%): ${memory.lastNode.heapFreedCells}") {
+                                        showDate = true
+                                        addNote("BigNodes", bigNodeCount.toString())
+                                    }
+                                }
+                            }
+                            ProcessStatus.Backward -> {
+                                val lastCodePoint = memory.rollbackCopy()
+                                lastCodePoint.restore(analyzer)
+
+                                // Handle the possibility of matching nothing.
+                                if (memory.lastNode.previousNode == null) {
+                                    signal = 0
+                                    nextNode = null
+
+                                    status = Status.Ended
+                                    return@launch
+                                }
+
+                                processStatus = ProcessStatus.Forward
+                            }
+                        }
+                    }
+                }.join()
+
+                // Close the channel.
+                gcChannel?.close()
+
+                // Wait for the garbage collector to end.
+                gcJob?.join()
+            }
+
+            // Close the dispatcher.
+            dispatcher.close()
+
+            if (status == Status.Paused) {
+                return false
+            }
+
+            if (status == Status.Ended) {
+                return true
             }
         } catch (e: AngmarAnalyzerException) {
+            // Close the channel.
+            gcChannel?.close()
+
+            // Close the dispatcher.
+            dispatcher.close()
+
             // Print the stack traces
             val callHierarchy = AnalyzerCommons.getCallHierarchy(memory)
 
@@ -231,6 +298,12 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
 
             throw e
         } catch (e: Throwable) {
+            // Close the channel.
+            gcChannel?.close()
+
+            // Close the dispatcher.
+            dispatcher.close()
+
             if (Consts.verbose) {
                 Logger.debug("Unexpected error at $ticks ticks", e)
             }
@@ -250,7 +323,7 @@ class LexemAnalyzer internal constructor(internal val grammarRootNode: CompiledN
                 showDate = true
                 addNote("HeapSize", memory.lastNode.heapSize.toString())
                 addNote("FreeCells", memory.lastNode.heapFreedCells.toString())
-                addNote("MaxBigNodes", maxBigNode.toString())
+                addNote("MaxBigNodes", memory.nextId.toString())
             }
 
             memory.lastNode.garbageCollect()

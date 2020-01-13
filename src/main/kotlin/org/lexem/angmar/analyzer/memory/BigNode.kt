@@ -1,5 +1,7 @@
 package org.lexem.angmar.analyzer.memory
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
 import org.lexem.angmar.analyzer.*
 import org.lexem.angmar.analyzer.data.*
 import org.lexem.angmar.analyzer.data.primitives.*
@@ -144,10 +146,16 @@ internal class BigNode constructor(val id: Int, var previousNode: BigNode? = nul
     /**
      * Clears this and next [BigNode]s, removing them from the alive map.
      */
-    fun destroyFromAlive() {
+    fun destroyFromAlive(gcChannel: Channel<Int>?) {
+        if (gcChannel != null) {
+            runBlocking {
+                gcChannel.send(id)
+            }
+        }
+
         aliveBigNodes.setDeadFrom(this, id)
         previousNode = null
-        nextNode?.destroyFromAlive()
+        nextNode?.destroyFromAlive(gcChannel)
         nextNode = null
     }
 
